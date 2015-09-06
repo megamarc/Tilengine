@@ -1,0 +1,10 @@
+srclib/
+Debug/
+Release/
+Thumbs.db
+*.doc
+*.ncb
+*.user
+*.pdb
+*.ilk
+*.exp

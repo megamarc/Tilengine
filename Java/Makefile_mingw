@@ -1,0 +1,24 @@
+CC       = gcc.exe
+SOURCES  = $(wildcard *.c)
+OBJECTS  = $(SOURCES:.c=.o)
+PLATFORM = win32
+INCS     = -I"$(JAVA_HOME)/include" -I"$(JAVA_HOME)/include/$(PLATFORM)" -I"../Lib"
+LIBS	 = ../Lib/$(PLATFORM)/Tilengine.lib 
+BIN      = $(PLATFORM)/TilengineJNI.dll
+CFLAGS   = $(INCS) -msse2 -m32 -std=c99 -O2
+RM       = del /Q
+DEF      = libTilengineJNI.def
+STATIC   = libTilengineJNI.a
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(BIN) all-after
+
+clean: clean-custom
+	${RM} $(OBJECTS) $(BIN) $(DEF) $(STATIC)
+
+$(BIN): $(OBJECTS)
+	$(CC) -shared $(OBJECTS) -o $(BIN) $(LIBS) -Wl,--output-def,$(DEF),--out-implib,$(STATIC),--add-stdcall-alias
+
+%.o: %.c
+	$(CC) -c $(CFLAGS) $< -o $@

@@ -1,0 +1,50 @@
+<sequences>
+	<cycle name="V05RAIN" >
+		<strip first="141" count="5" dir="1" delay="3" />
+		<strip first="146" count="5" dir="1" delay="3" />
+		<strip first="151" count="5" dir="1" delay="3" />
+		<strip first="156" count="5" dir="1" delay="3" />
+		<strip first="161" count="5" dir="1" delay="3" />
+		<strip first="166" count="5" dir="1" delay="3" />
+		<strip first="171" count="5" dir="1" delay="3" />
+		<strip first="190" count="5" dir="1" delay="3" />
+		<strip first="195" count="5" dir="1" delay="3" />
+		<strip first="200" count="5" dir="1" delay="3" />
+		<strip first="205" count="5" dir="1" delay="3" />
+		<strip first="210" count="5" dir="1" delay="3" />
+		<strip first="215" count="5" dir="1" delay="3" />
+	</cycle>
+
+	<cycle name="VW10R3" >
+		<strip first="141" count="5" dir="1" delay="3" />
+		<strip first="146" count="5" dir="1" delay="3" />
+		<strip first="151" count="5" dir="1" delay="3" />
+		<strip first="156" count="5" dir="1" delay="3" />
+		<strip first="161" count="5" dir="1" delay="3" />
+		<strip first="166" count="5" dir="1" delay="3" />
+		<strip first="171" count="5" dir="1" delay="3" />
+		<strip first="190" count="5" dir="1" delay="3" />
+		<strip first="195" count="5" dir="1" delay="3" />
+		<strip first="200" count="5" dir="1" delay="3" />
+		<strip first="205" count="5" dir="1" delay="3" />
+		<strip first="210" count="5" dir="1" delay="3" />
+		<strip first="215" count="5" dir="1" delay="3" />
+	</cycle>
+
+	<cycle name="VW10R" >
+		<strip first="141" count="5" dir="1" delay="3" />
+		<strip first="146" count="5" dir="1" delay="3" />
+		<strip first="151" count="5" dir="1" delay="3" />
+		<strip first="156" count="5" dir="1" delay="3" />
+		<strip first="161" count="5" dir="1" delay="3" />
+		<strip first="166" count="5" dir="1" delay="3" />
+		<strip first="171" count="5" dir="1" delay="3" />
+		<strip first="190" count="5" dir="1" delay="3" />
+		<strip first="195" count="5" dir="1" delay="3" />
+		<strip first="200" count="5" dir="1" delay="3" />
+		<strip first="205" count="5" dir="1" delay="3" />
+		<strip first="210" count="5" dir="1" delay="3" />
+		<strip first="215" count="5" dir="1" delay="3" />
+	</cycle>
+
+</sequences>

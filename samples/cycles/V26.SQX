@@ -1,0 +1,264 @@
+<sequences>
+	<cycle name="V26" >
+		<strip first="192" count="16" dir="1" delay="12" />
+		<strip first="208" count="16" dir="1" delay="12" />
+	</cycle>
+
+	<cycle name="VW1-36" >
+		<strip first="170" count="4" dir="1" delay="5" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="140" count="4" dir="1" delay="9" />
+		<strip first="140" count="4" dir="1" delay="9" />
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+	</cycle>
+
+	<cycle name="VW1-01" >
+		<strip first="170" count="4" dir="1" delay="5" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="5" />
+		<strip first="140" count="4" dir="1" delay="9" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+	</cycle>
+
+	<cycle name="VW1-02" >
+		<strip first="170" count="4" dir="1" delay="5" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="5" />
+		<strip first="140" count="4" dir="1" delay="9" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+	</cycle>
+
+	<cycle name="VW1-03" >
+		<strip first="192" count="16" dir="0" delay="13" />
+		<strip first="208" count="16" dir="0" delay="13" />
+		<strip first="170" count="4" dir="1" delay="5" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="140" count="4" dir="1" delay="9" />
+	</cycle>
+
+	<cycle name="VW1-04" >
+		<strip first="160" count="16" dir="1" delay="26" />
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+		<strip first="140" count="4" dir="1" delay="9" />
+	</cycle>
+
+	<cycle name="VW1-05" >
+		<strip first="160" count="16" dir="1" delay="26" />
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+		<strip first="140" count="4" dir="1" delay="9" />
+	</cycle>
+
+	<cycle name="VW1-06" >
+		<strip first="160" count="16" dir="1" delay="26" />
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+		<strip first="140" count="4" dir="1" delay="9" />
+	</cycle>
+
+	<cycle name="VW1-07" >
+		<strip first="160" count="16" dir="1" delay="26" />
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+		<strip first="140" count="4" dir="1" delay="9" />
+		<strip first="165" count="5" dir="1" delay="4" />
+	</cycle>
+
+	<cycle name="VW1-08" >
+		<strip first="160" count="16" dir="1" delay="26" />
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+		<strip first="140" count="4" dir="1" delay="9" />
+		<strip first="165" count="5" dir="1" delay="4" />
+	</cycle>
+
+	<cycle name="VW1-09" >
+		<strip first="0" count="1" dir="1" delay="26" />
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+		<strip first="140" count="4" dir="1" delay="9" />
+	</cycle>
+
+	<cycle name="VW1-10" >
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+	</cycle>
+
+	<cycle name="VW1-11" >
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+	</cycle>
+
+	<cycle name="VW1-12" >
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+	</cycle>
+
+	<cycle name="VW1-13" >
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+	</cycle>
+
+	<cycle name="VW1-14" >
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+	</cycle>
+
+	<cycle name="VW1-15" >
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+	</cycle>
+
+	<cycle name="VW1-16" >
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+	</cycle>
+
+	<cycle name="VW1-17" >
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+	</cycle>
+
+	<cycle name="VW1-18" >
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+	</cycle>
+
+	<cycle name="VW1-19" >
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+	</cycle>
+
+	<cycle name="VW1-20" >
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+	</cycle>
+
+	<cycle name="VW1-21" >
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+	</cycle>
+
+	<cycle name="VW1-22" >
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+	</cycle>
+
+	<cycle name="VW1-23" >
+		<strip first="160" count="16" dir="1" delay="26" />
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+	</cycle>
+
+	<cycle name="VW1-24" >
+		<strip first="160" count="16" dir="1" delay="26" />
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="13" />
+	</cycle>
+
+	<cycle name="VW1-25" >
+		<strip first="160" count="16" dir="1" delay="26" />
+		<strip first="192" count="16" dir="0" delay="13" />
+		<strip first="208" count="16" dir="0" delay="13" />
+	</cycle>
+
+	<cycle name="VW1-26" >
+		<strip first="192" count="16" dir="0" delay="11" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="208" count="16" dir="0" delay="13" />
+		<strip first="140" count="4" dir="1" delay="9" />
+		<strip first="165" count="5" dir="1" delay="4" />
+	</cycle>
+
+	<cycle name="VW1-27" >
+		<strip first="192" count="16" dir="0" delay="11" />
+		<strip first="208" count="16" dir="0" delay="13" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="140" count="4" dir="1" delay="9" />
+		<strip first="140" count="4" dir="1" delay="9" />
+	</cycle>
+
+	<cycle name="VW1-28" >
+		<strip first="192" count="16" dir="0" delay="11" />
+		<strip first="208" count="16" dir="0" delay="13" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="140" count="4" dir="1" delay="9" />
+		<strip first="140" count="4" dir="1" delay="9" />
+	</cycle>
+
+	<cycle name="VW1-29" >
+		<strip first="192" count="16" dir="0" delay="11" />
+		<strip first="208" count="16" dir="0" delay="13" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="140" count="4" dir="1" delay="9" />
+		<strip first="140" count="4" dir="1" delay="9" />
+	</cycle>
+
+	<cycle name="VW1-30" >
+		<strip first="192" count="16" dir="0" delay="11" />
+		<strip first="208" count="16" dir="0" delay="13" />
+		<strip first="170" count="5" dir="1" delay="5" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="140" count="4" dir="1" delay="9" />
+	</cycle>
+
+	<cycle name="VW1-31" >
+		<strip first="192" count="16" dir="0" delay="13" />
+		<strip first="208" count="16" dir="0" delay="13" />
+		<strip first="170" count="5" dir="1" delay="5" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="140" count="4" dir="1" delay="9" />
+	</cycle>
+
+	<cycle name="VW1-32" >
+		<strip first="192" count="16" dir="0" delay="11" />
+		<strip first="208" count="16" dir="0" delay="13" />
+		<strip first="170" count="4" dir="1" delay="5" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="140" count="4" dir="1" delay="9" />
+	</cycle>
+
+	<cycle name="VW1-33" >
+		<strip first="192" count="16" dir="0" delay="11" />
+		<strip first="208" count="16" dir="0" delay="13" />
+		<strip first="170" count="4" dir="1" delay="5" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="140" count="4" dir="1" delay="9" />
+	</cycle>
+
+	<cycle name="VW1-34" >
+		<strip first="192" count="16" dir="0" delay="11" />
+		<strip first="208" count="16" dir="0" delay="13" />
+		<strip first="170" count="4" dir="1" delay="5" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="140" count="4" dir="1" delay="9" />
+	</cycle>
+
+	<cycle name="VW1-35" >
+		<strip first="0" count="1" dir="0" delay="3" />
+		<strip first="170" count="4" dir="1" delay="5" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="140" count="4" dir="1" delay="9" />
+		<strip first="140" count="4" dir="1" delay="9" />
+		<strip first="192" count="16" dir="0" delay="10" />
+		<strip first="208" count="16" dir="0" delay="10" />
+	</cycle>
+
+</sequences>

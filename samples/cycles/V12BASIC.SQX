@@ -1,0 +1,160 @@
+<sequences>
+	<cycle name="V12BASIC" >
+		<strip first="115" count="11" dir="0" delay="11" />
+		<strip first="190" count="19" dir="1" delay="3" />
+		<strip first="209" count="8" dir="1" delay="5" />
+		<strip first="217" count="7" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="V12R" >
+		<strip first="115" count="11" dir="0" delay="11" />
+		<strip first="190" count="19" dir="1" delay="3" />
+		<strip first="209" count="8" dir="1" delay="5" />
+		<strip first="217" count="7" dir="1" delay="6" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="170" count="4" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="V12AB" >
+		<strip first="115" count="11" dir="0" delay="11" />
+		<strip first="190" count="19" dir="1" delay="3" />
+		<strip first="209" count="8" dir="1" delay="5" />
+		<strip first="217" count="7" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="V12BB" >
+		<strip first="115" count="11" dir="0" delay="11" />
+		<strip first="190" count="19" dir="1" delay="3" />
+		<strip first="209" count="8" dir="1" delay="5" />
+		<strip first="217" count="7" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="V12CB" >
+		<strip first="115" count="11" dir="0" delay="11" />
+		<strip first="190" count="19" dir="1" delay="3" />
+		<strip first="209" count="8" dir="1" delay="5" />
+		<strip first="217" count="7" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="V12DB" >
+		<strip first="115" count="11" dir="0" delay="11" />
+		<strip first="190" count="19" dir="1" delay="3" />
+		<strip first="209" count="8" dir="1" delay="5" />
+		<strip first="217" count="7" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="V12EB" >
+		<strip first="115" count="11" dir="0" delay="11" />
+		<strip first="190" count="19" dir="1" delay="3" />
+		<strip first="209" count="8" dir="1" delay="5" />
+		<strip first="217" count="7" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="V12FB" >
+		<strip first="115" count="11" dir="0" delay="11" />
+		<strip first="190" count="19" dir="1" delay="3" />
+		<strip first="209" count="8" dir="1" delay="5" />
+		<strip first="217" count="7" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="V12GB" >
+		<strip first="115" count="11" dir="0" delay="11" />
+		<strip first="190" count="19" dir="1" delay="3" />
+		<strip first="209" count="8" dir="1" delay="5" />
+		<strip first="217" count="7" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="V12HB" >
+		<strip first="115" count="11" dir="0" delay="11" />
+		<strip first="190" count="19" dir="1" delay="3" />
+		<strip first="209" count="8" dir="1" delay="5" />
+		<strip first="217" count="7" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="V12IB" >
+		<strip first="115" count="11" dir="0" delay="11" />
+		<strip first="190" count="19" dir="1" delay="3" />
+		<strip first="209" count="8" dir="1" delay="5" />
+		<strip first="217" count="7" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="V12JB" >
+		<strip first="115" count="11" dir="0" delay="11" />
+		<strip first="190" count="19" dir="1" delay="3" />
+		<strip first="209" count="8" dir="1" delay="5" />
+		<strip first="217" count="7" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="V12KB" >
+		<strip first="115" count="11" dir="0" delay="11" />
+		<strip first="190" count="19" dir="1" delay="3" />
+		<strip first="209" count="8" dir="1" delay="5" />
+		<strip first="217" count="7" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="V12LB" >
+		<strip first="115" count="11" dir="0" delay="11" />
+		<strip first="190" count="19" dir="1" delay="3" />
+		<strip first="209" count="8" dir="1" delay="5" />
+		<strip first="217" count="7" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="V12MB" >
+		<strip first="115" count="11" dir="0" delay="11" />
+		<strip first="190" count="19" dir="1" delay="3" />
+		<strip first="209" count="8" dir="1" delay="5" />
+		<strip first="217" count="7" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="V12NB" >
+		<strip first="115" count="11" dir="0" delay="11" />
+		<strip first="190" count="19" dir="1" delay="3" />
+		<strip first="209" count="8" dir="1" delay="5" />
+		<strip first="217" count="7" dir="1" delay="6" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="170" count="5" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="V12OB" >
+		<strip first="115" count="11" dir="0" delay="11" />
+		<strip first="190" count="19" dir="1" delay="3" />
+		<strip first="209" count="8" dir="1" delay="5" />
+		<strip first="217" count="7" dir="1" delay="6" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="170" count="5" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="V12PB" >
+		<strip first="115" count="11" dir="0" delay="11" />
+		<strip first="190" count="19" dir="1" delay="3" />
+		<strip first="209" count="8" dir="1" delay="5" />
+		<strip first="217" count="7" dir="1" delay="6" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="170" count="4" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="V12QB" >
+		<strip first="115" count="11" dir="0" delay="11" />
+		<strip first="190" count="19" dir="1" delay="3" />
+		<strip first="209" count="8" dir="1" delay="5" />
+		<strip first="217" count="7" dir="1" delay="6" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="170" count="4" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="V12RB" >
+		<strip first="115" count="11" dir="0" delay="11" />
+		<strip first="190" count="19" dir="1" delay="3" />
+		<strip first="209" count="8" dir="1" delay="5" />
+		<strip first="217" count="7" dir="1" delay="6" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="170" count="4" dir="1" delay="5" />
+	</cycle>
+
+</sequences>

@@ -1,0 +1,237 @@
+<sequences>
+	<cycle name="V30" >
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4MB16" >
+		<strip first="144" count="8" dir="1" delay="9" />
+		<strip first="169" count="12" dir="1" delay="8" />
+		<strip first="136" count="8" dir="1" delay="10" />
+		<strip first="152" count="16" dir="0" delay="26" />
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4MB15" >
+		<strip first="144" count="8" dir="1" delay="9" />
+		<strip first="136" count="8" dir="1" delay="10" />
+		<strip first="152" count="16" dir="0" delay="35" />
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4MB14" >
+		<strip first="144" count="8" dir="1" delay="9" />
+		<strip first="136" count="8" dir="1" delay="10" />
+		<strip first="152" count="16" dir="0" delay="26" />
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4MB13" >
+		<strip first="144" count="8" dir="1" delay="9" />
+		<strip first="136" count="8" dir="1" delay="10" />
+		<strip first="152" count="16" dir="0" delay="26" />
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4MB12" >
+		<strip first="144" count="8" dir="1" delay="9" />
+		<strip first="136" count="8" dir="1" delay="10" />
+		<strip first="152" count="16" dir="0" delay="26" />
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4MB11" >
+		<strip first="144" count="8" dir="1" delay="9" />
+		<strip first="136" count="8" dir="1" delay="10" />
+		<strip first="152" count="16" dir="0" delay="26" />
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4MB10" >
+		<strip first="144" count="8" dir="1" delay="9" />
+		<strip first="136" count="8" dir="1" delay="10" />
+		<strip first="152" count="16" dir="0" delay="26" />
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4MB09" >
+		<strip first="144" count="8" dir="1" delay="9" />
+		<strip first="136" count="8" dir="1" delay="10" />
+		<strip first="152" count="16" dir="0" delay="26" />
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4MB08" >
+		<strip first="144" count="8" dir="1" delay="9" />
+		<strip first="136" count="8" dir="1" delay="10" />
+		<strip first="152" count="16" dir="0" delay="26" />
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4MB07" >
+		<strip first="144" count="8" dir="1" delay="9" />
+		<strip first="136" count="8" dir="1" delay="10" />
+		<strip first="152" count="16" dir="0" delay="26" />
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4MB06" >
+		<strip first="144" count="8" dir="1" delay="9" />
+		<strip first="136" count="8" dir="1" delay="10" />
+		<strip first="152" count="16" dir="0" delay="26" />
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4MB05" >
+		<strip first="144" count="8" dir="1" delay="9" />
+		<strip first="136" count="8" dir="1" delay="10" />
+		<strip first="152" count="16" dir="0" delay="26" />
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4MB04" >
+		<strip first="144" count="8" dir="1" delay="9" />
+		<strip first="136" count="8" dir="1" delay="10" />
+		<strip first="152" count="16" dir="0" delay="26" />
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4MB03" >
+		<strip first="144" count="8" dir="1" delay="9" />
+		<strip first="136" count="8" dir="1" delay="10" />
+		<strip first="152" count="16" dir="0" delay="26" />
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4MB02" >
+		<strip first="144" count="8" dir="1" delay="9" />
+		<strip first="136" count="8" dir="1" delay="10" />
+		<strip first="152" count="16" dir="0" delay="26" />
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4MB01" >
+		<strip first="144" count="8" dir="1" delay="9" />
+		<strip first="136" count="8" dir="1" delay="10" />
+		<strip first="152" count="16" dir="0" delay="26" />
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4I" >
+		<strip first="144" count="8" dir="1" delay="9" />
+		<strip first="136" count="8" dir="1" delay="10" />
+		<strip first="152" count="16" dir="0" delay="26" />
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4B" >
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+		<strip first="136" count="8" dir="1" delay="13" />
+	</cycle>
+
+	<cycle name="VW4C" >
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+		<strip first="136" count="8" dir="1" delay="13" />
+	</cycle>
+
+	<cycle name="VW4D" >
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4E" >
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4F" >
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4G" >
+		<strip first="144" count="8" dir="1" delay="9" />
+		<strip first="136" count="8" dir="1" delay="10" />
+		<strip first="152" count="16" dir="0" delay="26" />
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+	<cycle name="VW4H" >
+		<strip first="144" count="8" dir="1" delay="9" />
+		<strip first="136" count="8" dir="1" delay="10" />
+		<strip first="152" count="16" dir="0" delay="26" />
+		<strip first="202" count="6" dir="1" delay="4" />
+		<strip first="196" count="6" dir="1" delay="3" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="216" count="8" dir="1" delay="6" />
+	</cycle>
+
+</sequences>

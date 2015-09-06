@@ -1,0 +1,21 @@
+<sequences>
+	<cycle name="V01" >
+		<strip first="200" count="15" dir="1" delay="6" />
+		<strip first="128" count="16" dir="1" delay="8" />
+		<strip first="192" count="8" dir="1" delay="8" />
+		<strip first="184" count="8" dir="1" delay="8" />
+		<strip first="176" count="8" dir="1" delay="8" />
+		<strip first="168" count="8" dir="1" delay="8" />
+		<strip first="160" count="8" dir="1" delay="8" />
+		<strip first="152" count="8" dir="1" delay="10" />
+		<strip first="144" count="8" dir="1" delay="10" />
+		<strip first="120" count="8" dir="1" delay="7" />
+		<strip first="112" count="8" dir="1" delay="6" />
+		<strip first="104" count="8" dir="1" delay="10" />
+		<strip first="96" count="8" dir="1" delay="10" />
+		<strip first="80" count="16" dir="1" delay="8" />
+		<strip first="64" count="16" dir="1" delay="8" />
+		<strip first="48" count="16" dir="1" delay="8" />
+	</cycle>
+
+</sequences>

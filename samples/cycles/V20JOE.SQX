@@ -1,0 +1,54 @@
+<sequences>
+	<cycle name="V20JOE" >
+		<strip first="192" count="8" dir="1" delay="8" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="144" count="32" dir="1" delay="6" />
+		<strip first="112" count="32" dir="1" delay="5" />
+		<strip first="104" count="8" dir="1" delay="3" />
+		<strip first="96" count="8" dir="1" delay="3" />
+		<strip first="88" count="8" dir="1" delay="5" />
+		<strip first="80" count="8" dir="1" delay="7" />
+		<strip first="216" count="8" dir="1" delay="5" />
+		<strip first="176" count="10" dir="1" delay="3" />
+	</cycle>
+
+	<cycle name="VW6L" >
+		<strip first="192" count="8" dir="1" delay="8" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="144" count="32" dir="1" delay="6" />
+		<strip first="112" count="32" dir="1" delay="4" />
+		<strip first="104" count="8" dir="1" delay="3" />
+		<strip first="96" count="8" dir="1" delay="3" />
+		<strip first="88" count="8" dir="1" delay="4" />
+		<strip first="80" count="8" dir="1" delay="7" />
+		<strip first="216" count="8" dir="1" delay="4" />
+		<strip first="176" count="10" dir="1" delay="3" />
+	</cycle>
+
+	<cycle name="VW6K" >
+		<strip first="192" count="8" dir="1" delay="8" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="144" count="32" dir="1" delay="6" />
+		<strip first="112" count="32" dir="1" delay="4" />
+		<strip first="104" count="8" dir="1" delay="3" />
+		<strip first="96" count="8" dir="1" delay="3" />
+		<strip first="88" count="8" dir="1" delay="4" />
+		<strip first="80" count="8" dir="1" delay="7" />
+		<strip first="216" count="8" dir="1" delay="4" />
+		<strip first="176" count="10" dir="1" delay="3" />
+	</cycle>
+
+	<cycle name="VW6J" >
+		<strip first="192" count="8" dir="1" delay="8" />
+		<strip first="208" count="8" dir="1" delay="6" />
+		<strip first="144" count="32" dir="1" delay="6" />
+		<strip first="112" count="32" dir="1" delay="4" />
+		<strip first="104" count="8" dir="1" delay="3" />
+		<strip first="96" count="8" dir="1" delay="3" />
+		<strip first="88" count="8" dir="1" delay="4" />
+		<strip first="80" count="8" dir="1" delay="7" />
+		<strip first="216" count="8" dir="1" delay="4" />
+		<strip first="176" count="10" dir="1" delay="3" />
+	</cycle>
+
+</sequences>

@@ -1,0 +1,279 @@
+<sequences>
+	<cycle name="V08" >
+		<strip first="135" count="9" dir="1" delay="10" />
+		<strip first="127" count="8" dir="1" delay="11" />
+		<strip first="119" count="8" dir="1" delay="7" />
+		<strip first="217" count="7" dir="1" delay="10" />
+		<strip first="210" count="7" dir="1" delay="5" />
+		<strip first="203" count="7" dir="1" delay="5" />
+		<strip first="196" count="7" dir="1" delay="5" />
+		<strip first="189" count="7" dir="1" delay="5" />
+		<strip first="182" count="7" dir="1" delay="5" />
+		<strip first="175" count="7" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="VW5S" >
+		<strip first="170" count="4" dir="1" delay="5" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="135" count="9" dir="1" delay="10" />
+		<strip first="119" count="8" dir="1" delay="7" />
+		<strip first="217" count="7" dir="1" delay="10" />
+		<strip first="210" count="7" dir="1" delay="5" />
+		<strip first="203" count="7" dir="1" delay="5" />
+		<strip first="196" count="7" dir="1" delay="5" />
+		<strip first="189" count="7" dir="1" delay="5" />
+		<strip first="182" count="7" dir="1" delay="5" />
+		<strip first="175" count="7" dir="1" delay="5" />
+		<strip first="127" count="8" dir="1" delay="11" />
+		<strip first="156" count="4" dir="1" delay="13" />
+		<strip first="150" count="6" dir="1" delay="9" />
+	</cycle>
+
+	<cycle name="VW5R" >
+		<strip first="170" count="4" dir="1" delay="5" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="135" count="9" dir="1" delay="10" />
+		<strip first="119" count="8" dir="1" delay="7" />
+		<strip first="217" count="7" dir="1" delay="10" />
+		<strip first="210" count="7" dir="1" delay="5" />
+		<strip first="203" count="7" dir="1" delay="5" />
+		<strip first="196" count="7" dir="1" delay="5" />
+		<strip first="189" count="7" dir="1" delay="5" />
+		<strip first="182" count="7" dir="1" delay="5" />
+		<strip first="175" count="7" dir="1" delay="5" />
+		<strip first="127" count="8" dir="1" delay="11" />
+		<strip first="156" count="4" dir="1" delay="13" />
+		<strip first="150" count="6" dir="1" delay="9" />
+	</cycle>
+
+	<cycle name="VW5B" >
+		<strip first="135" count="9" dir="1" delay="10" />
+		<strip first="127" count="8" dir="1" delay="11" />
+		<strip first="119" count="8" dir="1" delay="7" />
+		<strip first="217" count="7" dir="1" delay="10" />
+		<strip first="210" count="7" dir="1" delay="5" />
+		<strip first="203" count="7" dir="1" delay="5" />
+		<strip first="196" count="7" dir="1" delay="5" />
+		<strip first="189" count="7" dir="1" delay="5" />
+		<strip first="182" count="7" dir="1" delay="5" />
+		<strip first="175" count="7" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="VW5C" >
+		<strip first="135" count="9" dir="1" delay="10" />
+		<strip first="127" count="8" dir="1" delay="11" />
+		<strip first="119" count="8" dir="1" delay="7" />
+		<strip first="217" count="7" dir="1" delay="10" />
+		<strip first="210" count="7" dir="1" delay="5" />
+		<strip first="203" count="7" dir="1" delay="5" />
+		<strip first="196" count="7" dir="1" delay="5" />
+		<strip first="189" count="7" dir="1" delay="5" />
+		<strip first="182" count="7" dir="1" delay="5" />
+		<strip first="175" count="7" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="VW5D" >
+		<strip first="135" count="9" dir="1" delay="10" />
+		<strip first="127" count="8" dir="1" delay="11" />
+		<strip first="119" count="8" dir="1" delay="7" />
+		<strip first="217" count="7" dir="1" delay="10" />
+		<strip first="210" count="7" dir="1" delay="5" />
+		<strip first="203" count="7" dir="1" delay="5" />
+		<strip first="196" count="7" dir="1" delay="5" />
+		<strip first="189" count="7" dir="1" delay="5" />
+		<strip first="182" count="7" dir="1" delay="5" />
+		<strip first="175" count="7" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="VW5E" >
+		<strip first="135" count="9" dir="1" delay="10" />
+		<strip first="127" count="8" dir="1" delay="11" />
+		<strip first="119" count="8" dir="1" delay="7" />
+		<strip first="217" count="7" dir="1" delay="10" />
+		<strip first="210" count="7" dir="1" delay="5" />
+		<strip first="203" count="7" dir="1" delay="5" />
+		<strip first="196" count="7" dir="1" delay="5" />
+		<strip first="189" count="7" dir="1" delay="5" />
+		<strip first="182" count="7" dir="1" delay="5" />
+		<strip first="175" count="7" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="VW5F" >
+		<strip first="135" count="9" dir="1" delay="10" />
+		<strip first="127" count="8" dir="1" delay="11" />
+		<strip first="119" count="8" dir="1" delay="7" />
+		<strip first="217" count="7" dir="1" delay="10" />
+		<strip first="210" count="7" dir="1" delay="5" />
+		<strip first="203" count="7" dir="1" delay="5" />
+		<strip first="196" count="7" dir="1" delay="5" />
+		<strip first="189" count="7" dir="1" delay="5" />
+		<strip first="182" count="7" dir="1" delay="5" />
+		<strip first="175" count="7" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="VW5G" >
+		<strip first="135" count="9" dir="1" delay="10" />
+		<strip first="127" count="8" dir="1" delay="11" />
+		<strip first="119" count="8" dir="1" delay="7" />
+		<strip first="217" count="7" dir="1" delay="10" />
+		<strip first="210" count="7" dir="1" delay="5" />
+		<strip first="203" count="7" dir="1" delay="5" />
+		<strip first="196" count="7" dir="1" delay="5" />
+		<strip first="189" count="7" dir="1" delay="5" />
+		<strip first="182" count="7" dir="1" delay="5" />
+		<strip first="175" count="7" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="VW5H" >
+		<strip first="135" count="9" dir="1" delay="10" />
+		<strip first="127" count="8" dir="1" delay="11" />
+		<strip first="119" count="8" dir="1" delay="7" />
+		<strip first="217" count="7" dir="1" delay="10" />
+		<strip first="210" count="7" dir="1" delay="5" />
+		<strip first="203" count="7" dir="1" delay="5" />
+		<strip first="196" count="7" dir="1" delay="5" />
+		<strip first="189" count="7" dir="1" delay="5" />
+		<strip first="182" count="7" dir="1" delay="5" />
+		<strip first="175" count="7" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="VW5I" >
+		<strip first="135" count="9" dir="1" delay="10" />
+		<strip first="127" count="8" dir="1" delay="11" />
+		<strip first="119" count="8" dir="1" delay="7" />
+		<strip first="217" count="7" dir="1" delay="10" />
+		<strip first="210" count="7" dir="1" delay="5" />
+		<strip first="203" count="7" dir="1" delay="5" />
+		<strip first="196" count="7" dir="1" delay="5" />
+		<strip first="189" count="7" dir="1" delay="5" />
+		<strip first="182" count="7" dir="1" delay="5" />
+		<strip first="175" count="7" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="VW5J" >
+		<strip first="135" count="9" dir="1" delay="10" />
+		<strip first="127" count="8" dir="1" delay="11" />
+		<strip first="119" count="8" dir="1" delay="7" />
+		<strip first="217" count="7" dir="1" delay="10" />
+		<strip first="210" count="7" dir="1" delay="5" />
+		<strip first="203" count="7" dir="1" delay="5" />
+		<strip first="196" count="7" dir="1" delay="5" />
+		<strip first="189" count="7" dir="1" delay="5" />
+		<strip first="182" count="7" dir="1" delay="5" />
+		<strip first="175" count="7" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="VW5K" >
+		<strip first="135" count="9" dir="1" delay="10" />
+		<strip first="127" count="8" dir="1" delay="11" />
+		<strip first="119" count="8" dir="1" delay="7" />
+		<strip first="217" count="7" dir="1" delay="10" />
+		<strip first="210" count="7" dir="1" delay="5" />
+		<strip first="203" count="7" dir="1" delay="5" />
+		<strip first="196" count="7" dir="1" delay="5" />
+		<strip first="189" count="7" dir="1" delay="5" />
+		<strip first="182" count="7" dir="1" delay="5" />
+		<strip first="175" count="7" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="VW5K-L" >
+		<strip first="135" count="9" dir="1" delay="10" />
+		<strip first="127" count="8" dir="1" delay="11" />
+		<strip first="119" count="8" dir="1" delay="7" />
+		<strip first="217" count="7" dir="1" delay="10" />
+		<strip first="210" count="7" dir="1" delay="5" />
+		<strip first="203" count="7" dir="1" delay="5" />
+		<strip first="196" count="7" dir="1" delay="5" />
+		<strip first="189" count="7" dir="1" delay="5" />
+		<strip first="182" count="7" dir="1" delay="5" />
+		<strip first="175" count="7" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="VW5L" >
+		<strip first="135" count="9" dir="1" delay="10" />
+		<strip first="127" count="8" dir="1" delay="11" />
+		<strip first="119" count="8" dir="1" delay="7" />
+		<strip first="217" count="7" dir="1" delay="10" />
+		<strip first="210" count="7" dir="1" delay="5" />
+		<strip first="203" count="7" dir="1" delay="5" />
+		<strip first="196" count="7" dir="1" delay="5" />
+		<strip first="189" count="7" dir="1" delay="5" />
+		<strip first="182" count="7" dir="1" delay="5" />
+		<strip first="175" count="7" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="VW5M" >
+		<strip first="135" count="9" dir="1" delay="10" />
+		<strip first="127" count="8" dir="1" delay="11" />
+		<strip first="119" count="8" dir="1" delay="7" />
+		<strip first="217" count="7" dir="1" delay="10" />
+		<strip first="210" count="7" dir="1" delay="5" />
+		<strip first="203" count="7" dir="1" delay="5" />
+		<strip first="196" count="7" dir="1" delay="5" />
+		<strip first="189" count="7" dir="1" delay="5" />
+		<strip first="182" count="7" dir="1" delay="5" />
+		<strip first="175" count="7" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="VW5N" >
+		<strip first="135" count="9" dir="1" delay="10" />
+		<strip first="127" count="8" dir="1" delay="11" />
+		<strip first="119" count="8" dir="1" delay="7" />
+		<strip first="217" count="7" dir="1" delay="10" />
+		<strip first="210" count="7" dir="1" delay="5" />
+		<strip first="203" count="7" dir="1" delay="5" />
+		<strip first="196" count="7" dir="1" delay="5" />
+		<strip first="189" count="7" dir="1" delay="5" />
+		<strip first="182" count="7" dir="1" delay="5" />
+		<strip first="175" count="7" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="VW5O" >
+		<strip first="135" count="9" dir="1" delay="10" />
+		<strip first="127" count="8" dir="1" delay="11" />
+		<strip first="119" count="8" dir="1" delay="7" />
+		<strip first="217" count="7" dir="1" delay="10" />
+		<strip first="210" count="7" dir="1" delay="5" />
+		<strip first="203" count="7" dir="1" delay="5" />
+		<strip first="196" count="7" dir="1" delay="5" />
+		<strip first="189" count="7" dir="1" delay="5" />
+		<strip first="182" count="7" dir="1" delay="5" />
+		<strip first="175" count="7" dir="1" delay="5" />
+	</cycle>
+
+	<cycle name="VW5P" >
+		<strip first="150" count="6" dir="1" delay="13" />
+		<strip first="135" count="9" dir="1" delay="10" />
+		<strip first="127" count="8" dir="1" delay="11" />
+		<strip first="119" count="8" dir="1" delay="7" />
+		<strip first="217" count="7" dir="1" delay="10" />
+		<strip first="210" count="7" dir="1" delay="5" />
+		<strip first="203" count="7" dir="1" delay="5" />
+		<strip first="196" count="7" dir="1" delay="5" />
+		<strip first="189" count="7" dir="1" delay="5" />
+		<strip first="182" count="7" dir="1" delay="5" />
+		<strip first="175" count="7" dir="1" delay="5" />
+		<strip first="156" count="4" dir="1" delay="13" />
+	</cycle>
+
+	<cycle name="VW5Q" >
+		<strip first="150" count="6" dir="1" delay="13" />
+		<strip first="135" count="9" dir="1" delay="10" />
+		<strip first="127" count="8" dir="1" delay="11" />
+		<strip first="119" count="8" dir="1" delay="7" />
+		<strip first="217" count="7" dir="1" delay="10" />
+		<strip first="210" count="7" dir="1" delay="5" />
+		<strip first="203" count="7" dir="1" delay="5" />
+		<strip first="196" count="7" dir="1" delay="5" />
+		<strip first="189" count="7" dir="1" delay="5" />
+		<strip first="182" count="7" dir="1" delay="5" />
+		<strip first="175" count="7" dir="1" delay="5" />
+		<strip first="160" count="5" dir="1" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="170" count="4" dir="1" delay="5" />
+		<strip first="156" count="4" dir="1" delay="13" />
+	</cycle>
+
+</sequences>

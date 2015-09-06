@@ -1,0 +1,21 @@
+<sequences>
+	<cycle name="V19AURA" >
+		<strip first="160" count="5" dir="0" delay="13" />
+		<strip first="165" count="5" dir="1" delay="4" />
+		<strip first="176" count="11" dir="1" delay="8" />
+		<strip first="212" count="6" dir="1" delay="3" />
+		<strip first="206" count="6" dir="1" delay="3" />
+		<strip first="200" count="6" dir="1" delay="3" />
+		<strip first="192" count="8" dir="0" delay="3" />
+		<strip first="170" count="5" dir="1" delay="5" />
+		<strip first="152" count="8" dir="1" delay="5" />
+		<strip first="146" count="6" dir="1" delay="8" />
+		<strip first="141" count="5" dir="0" delay="8" />
+		<strip first="135" count="6" dir="0" delay="8" />
+		<strip first="129" count="6" dir="1" delay="8" />
+		<strip first="123" count="6" dir="1" delay="8" />
+		<strip first="36" count="11" dir="1" delay="8" />
+		<strip first="25" count="11" dir="1" delay="8" />
+	</cycle>
+
+</sequences>

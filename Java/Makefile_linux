@@ -1,0 +1,22 @@
+CC       = gcc
+SOURCES  = $(wildcard *.c)
+OBJECTS  = $(SOURCES:.c=.o)
+PLATFORM = linux
+INCS     = -I"$(JAVA_HOME)/include" -I"$(JAVA_HOME)/include/$(PLATFORM)" -I"../lib"
+LIBS     = -l:libTilengine.so.2 -lSDL2 -lc
+BIN      = $(PLATFORM)/libTilengineJNI.so
+CFLAGS   = $(INCS) -msse2 -m32 -std=c99 -fpic -O2
+RM       = rm
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(BIN) all-after
+
+clean: clean-custom
+	${RM} $(OBJECTS) $(BIN)
+
+$(BIN): $(OBJECTS)
+	$(CC) -shared $(OBJECTS) -o $(BIN) $(LIBS) -s -fvisibility=hidden
+
+%.o: %.c
+	$(CC) -c $(CFLAGS) $< -o $@

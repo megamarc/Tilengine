@@ -1,0 +1,222 @@
+<sequences>
+	<cycle name="CORAL" >
+		<strip first="171" count="6" dir="1" delay="8" />
+		<strip first="163" count="8" dir="1" delay="9" />
+		<strip first="155" count="8" dir="1" delay="10" />
+		<strip first="146" count="8" dir="1" delay="10" />
+		<strip first="137" count="8" dir="1" delay="10" />
+		<strip first="128" count="8" dir="1" delay="6" />
+		<strip first="113" count="5" dir="0" delay="7" />
+		<strip first="103" count="8" dir="1" delay="9" />
+		<strip first="95" count="8" dir="1" delay="10" />
+		<strip first="87" count="8" dir="1" delay="4" />
+		<strip first="73" count="8" dir="1" delay="7" />
+		<strip first="56" count="8" dir="1" delay="6" />
+		<strip first="48" count="8" dir="0" delay="4" />
+		<strip first="32" count="16" dir="1" delay="4" />
+		<strip first="16" count="16" dir="1" delay="4" />
+	</cycle>
+
+	<cycle name="VW8K" >
+		<strip first="207" count="11" dir="1" delay="21" />
+		<strip first="163" count="8" dir="1" delay="9" />
+		<strip first="155" count="8" dir="1" delay="10" />
+		<strip first="146" count="8" dir="1" delay="10" />
+		<strip first="137" count="8" dir="1" delay="10" />
+		<strip first="128" count="8" dir="1" delay="6" />
+		<strip first="113" count="5" dir="0" delay="7" />
+		<strip first="103" count="8" dir="1" delay="9" />
+		<strip first="95" count="8" dir="1" delay="10" />
+		<strip first="87" count="8" dir="1" delay="4" />
+		<strip first="73" count="8" dir="1" delay="7" />
+		<strip first="56" count="8" dir="1" delay="6" />
+		<strip first="48" count="8" dir="0" delay="4" />
+		<strip first="32" count="16" dir="1" delay="4" />
+		<strip first="16" count="16" dir="1" delay="4" />
+		<strip first="187" count="17" dir="1" delay="13" />
+	</cycle>
+
+	<cycle name="VW8J" >
+		<strip first="207" count="11" dir="1" delay="21" />
+		<strip first="163" count="8" dir="1" delay="9" />
+		<strip first="155" count="8" dir="1" delay="10" />
+		<strip first="146" count="8" dir="1" delay="10" />
+		<strip first="137" count="8" dir="1" delay="10" />
+		<strip first="128" count="8" dir="1" delay="6" />
+		<strip first="113" count="5" dir="0" delay="7" />
+		<strip first="103" count="8" dir="1" delay="9" />
+		<strip first="95" count="8" dir="1" delay="10" />
+		<strip first="87" count="8" dir="1" delay="4" />
+		<strip first="73" count="8" dir="1" delay="7" />
+		<strip first="56" count="8" dir="1" delay="6" />
+		<strip first="48" count="8" dir="0" delay="4" />
+		<strip first="32" count="16" dir="1" delay="4" />
+		<strip first="16" count="16" dir="1" delay="4" />
+		<strip first="187" count="17" dir="1" delay="13" />
+	</cycle>
+
+	<cycle name="VW8A" >
+		<strip first="207" count="11" dir="1" delay="21" />
+		<strip first="163" count="8" dir="1" delay="9" />
+		<strip first="155" count="8" dir="1" delay="10" />
+		<strip first="146" count="8" dir="1" delay="10" />
+		<strip first="137" count="8" dir="1" delay="10" />
+		<strip first="128" count="8" dir="1" delay="6" />
+		<strip first="113" count="5" dir="0" delay="7" />
+		<strip first="103" count="8" dir="1" delay="9" />
+		<strip first="95" count="8" dir="1" delay="10" />
+		<strip first="87" count="8" dir="1" delay="4" />
+		<strip first="73" count="8" dir="1" delay="7" />
+		<strip first="56" count="8" dir="1" delay="6" />
+		<strip first="48" count="8" dir="0" delay="4" />
+		<strip first="32" count="16" dir="1" delay="4" />
+		<strip first="16" count="16" dir="1" delay="4" />
+		<strip first="187" count="17" dir="1" delay="13" />
+	</cycle>
+
+	<cycle name="VW8B" >
+		<strip first="171" count="6" dir="1" delay="8" />
+		<strip first="163" count="8" dir="1" delay="9" />
+		<strip first="155" count="8" dir="1" delay="10" />
+		<strip first="146" count="8" dir="1" delay="10" />
+		<strip first="137" count="8" dir="1" delay="10" />
+		<strip first="128" count="8" dir="1" delay="6" />
+		<strip first="113" count="5" dir="0" delay="7" />
+		<strip first="103" count="8" dir="1" delay="9" />
+		<strip first="95" count="8" dir="1" delay="10" />
+		<strip first="87" count="8" dir="1" delay="4" />
+		<strip first="73" count="8" dir="1" delay="7" />
+		<strip first="56" count="8" dir="1" delay="6" />
+		<strip first="48" count="8" dir="0" delay="4" />
+		<strip first="32" count="16" dir="1" delay="4" />
+		<strip first="16" count="16" dir="1" delay="4" />
+	</cycle>
+
+	<cycle name="VW8C" >
+		<strip first="171" count="6" dir="1" delay="8" />
+		<strip first="163" count="8" dir="1" delay="9" />
+		<strip first="155" count="8" dir="1" delay="10" />
+		<strip first="146" count="8" dir="1" delay="10" />
+		<strip first="137" count="8" dir="1" delay="10" />
+		<strip first="128" count="8" dir="1" delay="6" />
+		<strip first="113" count="5" dir="0" delay="7" />
+		<strip first="103" count="8" dir="1" delay="9" />
+		<strip first="95" count="8" dir="1" delay="10" />
+		<strip first="87" count="8" dir="1" delay="4" />
+		<strip first="73" count="8" dir="1" delay="7" />
+		<strip first="56" count="8" dir="1" delay="6" />
+		<strip first="48" count="8" dir="0" delay="4" />
+		<strip first="32" count="16" dir="1" delay="4" />
+		<strip first="16" count="16" dir="1" delay="4" />
+	</cycle>
+
+	<cycle name="VW8D" >
+		<strip first="171" count="6" dir="1" delay="8" />
+		<strip first="163" count="8" dir="1" delay="9" />
+		<strip first="155" count="8" dir="1" delay="10" />
+		<strip first="146" count="8" dir="1" delay="10" />
+		<strip first="137" count="8" dir="1" delay="10" />
+		<strip first="128" count="8" dir="1" delay="6" />
+		<strip first="113" count="5" dir="0" delay="7" />
+		<strip first="103" count="8" dir="1" delay="9" />
+		<strip first="95" count="8" dir="1" delay="10" />
+		<strip first="87" count="8" dir="1" delay="4" />
+		<strip first="73" count="8" dir="1" delay="7" />
+		<strip first="56" count="8" dir="1" delay="6" />
+		<strip first="48" count="8" dir="0" delay="4" />
+		<strip first="32" count="16" dir="1" delay="4" />
+		<strip first="16" count="16" dir="1" delay="4" />
+	</cycle>
+
+	<cycle name="VW8E" >
+		<strip first="171" count="6" dir="1" delay="8" />
+		<strip first="163" count="8" dir="1" delay="9" />
+		<strip first="155" count="8" dir="1" delay="10" />
+		<strip first="146" count="8" dir="1" delay="10" />
+		<strip first="137" count="8" dir="1" delay="10" />
+		<strip first="128" count="8" dir="1" delay="6" />
+		<strip first="113" count="5" dir="0" delay="7" />
+		<strip first="103" count="8" dir="1" delay="9" />
+		<strip first="95" count="8" dir="1" delay="10" />
+		<strip first="87" count="8" dir="1" delay="4" />
+		<strip first="73" count="8" dir="1" delay="7" />
+		<strip first="56" count="8" dir="1" delay="6" />
+		<strip first="48" count="8" dir="0" delay="4" />
+		<strip first="32" count="16" dir="1" delay="4" />
+		<strip first="16" count="16" dir="1" delay="4" />
+	</cycle>
+
+	<cycle name="VW8F" >
+		<strip first="171" count="6" dir="1" delay="8" />
+		<strip first="163" count="8" dir="1" delay="9" />
+		<strip first="155" count="8" dir="1" delay="10" />
+		<strip first="146" count="8" dir="1" delay="10" />
+		<strip first="137" count="8" dir="1" delay="10" />
+		<strip first="128" count="8" dir="1" delay="6" />
+		<strip first="113" count="5" dir="0" delay="7" />
+		<strip first="103" count="8" dir="1" delay="9" />
+		<strip first="95" count="8" dir="1" delay="10" />
+		<strip first="87" count="8" dir="1" delay="4" />
+		<strip first="73" count="8" dir="1" delay="7" />
+		<strip first="56" count="8" dir="1" delay="6" />
+		<strip first="48" count="8" dir="0" delay="4" />
+		<strip first="32" count="16" dir="1" delay="4" />
+		<strip first="16" count="16" dir="1" delay="4" />
+	</cycle>
+
+	<cycle name="VW8G" >
+		<strip first="171" count="6" dir="1" delay="8" />
+		<strip first="163" count="8" dir="1" delay="9" />
+		<strip first="155" count="8" dir="1" delay="10" />
+		<strip first="146" count="8" dir="1" delay="10" />
+		<strip first="137" count="8" dir="1" delay="10" />
+		<strip first="128" count="8" dir="1" delay="6" />
+		<strip first="113" count="5" dir="0" delay="7" />
+		<strip first="103" count="8" dir="1" delay="9" />
+		<strip first="95" count="8" dir="1" delay="10" />
+		<strip first="87" count="8" dir="1" delay="4" />
+		<strip first="73" count="8" dir="1" delay="7" />
+		<strip first="56" count="8" dir="1" delay="6" />
+		<strip first="48" count="8" dir="0" delay="4" />
+		<strip first="32" count="16" dir="1" delay="4" />
+		<strip first="16" count="16" dir="1" delay="4" />
+	</cycle>
+
+	<cycle name="VW8H" >
+		<strip first="171" count="6" dir="1" delay="8" />
+		<strip first="163" count="8" dir="1" delay="9" />
+		<strip first="155" count="8" dir="1" delay="10" />
+		<strip first="146" count="8" dir="1" delay="10" />
+		<strip first="137" count="8" dir="1" delay="10" />
+		<strip first="128" count="8" dir="1" delay="6" />
+		<strip first="113" count="5" dir="0" delay="7" />
+		<strip first="103" count="8" dir="1" delay="9" />
+		<strip first="95" count="8" dir="1" delay="10" />
+		<strip first="87" count="8" dir="1" delay="4" />
+		<strip first="73" count="8" dir="1" delay="7" />
+		<strip first="56" count="8" dir="1" delay="6" />
+		<strip first="48" count="8" dir="0" delay="4" />
+		<strip first="32" count="16" dir="1" delay="4" />
+		<strip first="16" count="16" dir="1" delay="4" />
+	</cycle>
+
+	<cycle name="VW8I" >
+		<strip first="207" count="11" dir="1" delay="21" />
+		<strip first="163" count="8" dir="1" delay="9" />
+		<strip first="155" count="8" dir="1" delay="10" />
+		<strip first="146" count="8" dir="1" delay="10" />
+		<strip first="137" count="8" dir="1" delay="10" />
+		<strip first="128" count="8" dir="1" delay="6" />
+		<strip first="113" count="5" dir="0" delay="7" />
+		<strip first="103" count="8" dir="1" delay="9" />
+		<strip first="95" count="8" dir="1" delay="10" />
+		<strip first="87" count="8" dir="1" delay="4" />
+		<strip first="73" count="8" dir="1" delay="7" />
+		<strip first="56" count="8" dir="1" delay="6" />
+		<strip first="48" count="8" dir="0" delay="4" />
+		<strip first="32" count="16" dir="1" delay="4" />
+		<strip first="16" count="16" dir="1" delay="4" />
+		<strip first="187" count="17" dir="1" delay="13" />
+	</cycle>
+
+</sequences>
