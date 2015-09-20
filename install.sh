@@ -6,7 +6,7 @@ cp lib/$platform/$shared /usr/local/lib
 ln -sf /usr/local/lib/$shared /usr/local/lib/libTilengine.so
 chmod a+x $target/$platform/*
 cp $target/$platform/* $target
-cp Java/$platform/libTilengineJNI.* $target
-cp Java/class/*.class $target
-cp Python/*.py $target
+cp jni/$platform/libTilengineJNI.* $target
+cp jni/class/*.class $target
+cp python/*.py $target
 cd $target
