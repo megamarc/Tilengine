@@ -18,6 +18,26 @@ FLAG_FLIPY		= (1<<14)	# vertical flip
 FLAG_ROTATE		= (1<<13)	# row/column flip (unsupported, Tiled compatibility)
 FLAG_PRIORITY	= (1<<12)	# tile goes in front of sprite layer
 
+# Error codes
+TLN_ERR_OK 				= 0	 # No error 
+TLN_ERR_OUT_OF_MEMORY 	= 1	 # Not enough memory 
+TLN_ERR_IDX_LAYER 		= 2	 # Layer index out of range 
+TLN_ERR_IDX_SPRITE 		= 3	 # Sprite index out of range 
+TLN_ERR_IDX_ANIMATION 	= 4	 # Animation index out of range 
+TLN_ERR_IDX_PICTURE 	= 5	 # Picture or tile index out of range 
+TLN_ERR_REF_TILESET 	= 6	 # Invalid TLN_Tileset reference 
+TLN_ERR_REF_TILEMAP 	= 7	 # Invalid TLN_Tilemap reference 
+TLN_ERR_REF_SPRITESET 	= 8	 # Invalid TLN_Spriteset reference 
+TLN_ERR_REF_PALETTE 	= 9	 # Invalid TLN_Palette reference 
+TLN_ERR_REF_SEQUENCE 	= 10 # Invalid TLN_SequencePack reference 
+TLN_ERR_REF_SEQPACK 	= 11 # Invalid TLN_Sequence reference 
+TLN_ERR_REF_BITMAP 		= 12 # Invalid TLN_Bitmap reference 
+TLN_ERR_NULL_POINTER 	= 13 # Null pointer as argument  
+TLN_ERR_FILE_NOT_FOUND 	= 14 # Resource file not found 
+TLN_ERR_WRONG_FORMAT 	= 15 # Resource file has invalid format 
+TLN_ERR_WRONG_SIZE 		= 16 # A width or height parameter is invalid 
+TLN_ERR_UNSUPPORTED		= 17 # Unsupported function
+
 # blend modes
 BLEND_NONE		= 0
 BLEND_MIX		= 1
@@ -84,7 +104,7 @@ elif _platform == "win32":
 # basic management ------------------------------------------------------------
 Init = tln.TLN_Init
 Init.argtypes = [c_int, c_int, c_int, c_int, c_int]
-Init.restype = None
+Init.restype = c_bool
 		
 Deinit = tln.TLN_Deinit
 Deinit.restype = None
@@ -92,6 +112,9 @@ Deinit.restype = None
 GetNumObjects = tln.TLN_GetNumObjects
 GetNumObjects.restype = c_int
 	
+GetVersion = tln.TLN_GetVersion
+GetVersion.restype = c_int
+
 GetUsedMemory = tln.TLN_GetUsedMemory
 GetUsedMemory.restype = c_int
 	
@@ -101,8 +124,29 @@ GetNumLayers.restype = c_int
 GetNumSprites = tln.TLN_GetNumSprites
 GetNumSprites.restype = c_int
 
-GetVersion = tln.TLN_GetVersion
-GetVersion.restype = c_int
+SetBGColor = tln.TLN_SetBGColor
+SetBGColor.argtypes = [c_int, c_int, c_int]
+SetBGColor.restype = None
+
+SetBGBitmap = tln.TLN_SetBGBitmap
+SetBGBitmap.argtypes = [c_void_p]
+SetBGBitmap.restype = c_bool
+
+SetBGPalette = tln.TLN_SetBGPalette
+SetBGPalette.argtypes = [c_void_p]
+SetBGPalette.restype = c_bool
+
+SetRasterCallback = tln.TLN_SetRasterCallback
+SetRasterCallback.argtypes = [c_void_p]
+SetRasterCallback.restype = None
+
+SetRenderTarget = tln.TLN_SetRenderTarget
+SetRenderTarget.argtypes = [c_void_p, c_int]
+SetRenderTarget.restype = None
+
+UpdateFrame = tln.TLN_UpdateFrame
+UpdateFrame.argtypes = [c_int]
+UpdateFrame.restype = None
 
 # window management -----------------------------------------------------------
 CreateWindow = tln.TLN_CreateWindow
@@ -130,40 +174,15 @@ DrawFrame.restype = None
 WaitRedraw = tln.TLN_WaitRedraw
 WaitRedraw.restype = None
 
+DeleteWindow = tln.TLN_DeleteWindow
+DeleteWindow.restype = None
+
 EnableBlur = tln.TLN_EnableBlur
 EnableBlur.argtypes = [c_bool]
 EnableBlur.restype = None
 
-DeleteWindow = tln.TLN_DeleteWindow
-DeleteWindow.restype = None
-
 GetTicks = tln.TLN_GetTicks
 GetTicks.restype = c_int
-
-# image generation ------------------------------------------------------------
-SetBGColor = tln.TLN_SetBGColor
-SetBGColor.argtypes = [c_int, c_int, c_int]
-SetBGColor.restype = None
-
-SetBGBitmap = tln.TLN_SetBGBitmap
-SetBGBitmap.argtypes = [c_int]
-SetBGBitmap.restype = None
-
-SetBGPalette = tln.TLN_SetBGPalette
-SetBGPalette.argtypes = [c_int]
-SetBGPalette.restype = None
-
-SetRasterCallback = tln.TLN_SetRasterCallback
-SetRasterCallback.argtypes = [c_void_p]
-SetRasterCallback.restype = None
-
-SetRenderTarget = tln.TLN_SetRenderTarget
-SetRenderTarget.argtypes = [c_void_p, c_int]
-SetRenderTarget.restype = None
-
-UpdateFrame = tln.TLN_UpdateFrame
-UpdateFrame.argtypes = [c_int]
-UpdateFrame.restype = None
 
 # spritesets management
 CreateSpriteset = tln.TLN_CreateSpriteset
@@ -188,7 +207,7 @@ GetSpritesetPalette.restype = c_void_p
 	
 DeleteSpriteset = tln.TLN_DeleteSpriteset
 DeleteSpriteset.argtypes = [c_void_p]
-DeleteSpriteset.restype = None
+DeleteSpriteset.restype = c_bool
 
 # tilesets management ---------------------------------------------------------
 CreateTileset = tln.TLN_CreateTileset
@@ -221,7 +240,7 @@ GetTilesetPalette.restype = c_void_p
 
 DeleteTileset = tln.TLN_DeleteTileset
 DeleteTileset.argtypes = [c_void_p]
-DeleteTileset.restype = None
+DeleteTileset.restype = c_bool
 
 # tilemaps management ---------------------------------------------------------
 CreateTilemap = tln.TLN_CreateTilemap
@@ -254,11 +273,11 @@ SetTilemapTile.restype = c_bool
 
 CopyTiles = tln.TLN_CopyTiles
 CopyTiles.argtypes = [c_void_p, c_int, c_int, c_int, c_int, c_void_p, c_int, c_int]
-CopyTiles.restype = None
+CopyTiles.restype = c_bool
 
 DeleteTilemap = tln.TLN_DeleteTilemap
 DeleteTilemap.argtypes = [c_void_p]
-DeleteTilemap.restype = None
+DeleteTilemap.restype = c_bool
 
 # color tables management -----------------------------------------------------
 CreatePalette = tln.TLN_CreatePalette
@@ -275,15 +294,15 @@ ClonePalette.restype = c_void_p
 
 DeletePalette = tln.TLN_DeletePalette
 DeletePalette.argtypes = [c_void_p]
-DeletePalette.restype = None
+DeletePalette.restype = c_bool
 
 SetPaletteColor = tln.TLN_SetPaletteColor
 SetPaletteColor.argtypes = [c_void_p, c_int, c_ubyte, c_ubyte, c_ubyte]
-SetPaletteColor.restype = None
+SetPaletteColor.restype = c_bool
 
 MixPalettes = tln.TLN_MixPalettes
 MixPalettes.argtypes = [c_void_p, c_void_p, c_void_p, c_ubyte]
-MixPalettes.restype = None
+MixPalettes.restype = c_bool
 
 GetPaletteData = tln.TLN_GetPaletteData
 GetPaletteData.argtypes = [c_void_p, c_int]
@@ -306,54 +325,66 @@ GetBitmapPtr = tln.TLN_GetBitmapPtr
 GetBitmapPtr.argtypes = [c_void_p, c_int, c_int]
 GetBitmapPtr.restype = POINTER(c_ubyte)
 
+GetBitmapWidth = tln.TLN_GetBitmapWidth
+GetBitmapWidth.argtypes = [c_void_p]
+GetBitmapWidth.restype = c_int
+
+GetBitmapHeight = tln.TLN_GetBitmapHeight
+GetBitmapHeight.argtypes = [c_void_p]
+GetBitmapHeight.restype = c_int
+
+GetBitmapPitch = tln.TLN_GetBitmapPitch
+GetBitmapPitch.argtypes = [c_void_p]
+GetBitmapPitch.restype = c_int
+
 GetBitmapPalette = tln.TLN_GetBitmapPalette
 GetBitmapPalette.argtypes = [c_void_p]
 GetBitmapPalette.restype = c_void_p
 
 DeleteBitmap = tln.TLN_DeleteBitmap
 DeleteBitmap.argtypes = [c_void_p]
-DeleteBitmap.restype = None
+DeleteBitmap.restype = c_bool
 
 # layer management ------------------------------------------------------------
 SetLayer = tln.TLN_SetLayer
 SetLayer.argtypes = [c_int, c_void_p, c_void_p]
-SetLayer.restype = None
+SetLayer.restype = c_bool
 	
 SetLayerPalette = tln.TLN_SetLayerPalette
 SetLayerPalette.argtypes = [c_int, c_void_p]
-SetLayerPalette.restype = None
+SetLayerPalette.restype = c_bool
 
 SetLayerPosition = tln.TLN_SetLayerPosition
 SetLayerPosition.argtypes = [c_int, c_int, c_int]
-SetLayerPosition.restype = None
+SetLayerPosition.restype = c_bool
 
 SetLayerScaling = tln.TLN_SetLayerScaling
 SetLayerScaling.argtypes = [c_int, c_float, c_float]
-SetLayerScaling.restype = None
+SetLayerScaling.restype = c_bool
 
 SetLayerAffineTransform = tln.TLN_SetLayerAffineTransform
 SetLayerAffineTransform.argtypes = [c_int, POINTER(Affine)]
-SetLayerAffineTransform.restype = None
+SetLayerAffineTransform.restype = c_bool
 
 SetLayerTransform = tln.TLN_SetLayerTransform
 SetLayerTransform.argtypes = [c_int, c_float, c_float, c_float, c_float, c_float]
-SetLayerTransform.restype = None
+SetLayerTransform.restype = c_bool
 
 SetLayerBlendMode = tln.TLN_SetLayerBlendMode
 SetLayerBlendMode.argtypes = [c_int, c_int, c_ubyte]
-SetLayerBlendMode.restype = None
+SetLayerBlendMode.restype = c_bool
 
 SetLayerColumnOffset = tln.TLN_SetLayerColumnOffset
 SetLayerColumnOffset.argtypes = [c_int, POINTER(c_int)]
-SetLayerColumnOffset.restype = None
+SetLayerColumnOffset.restype = c_bool
 	
 ResetLayerMode = tln.TLN_ResetLayerMode
 ResetLayerMode.argtypes = [c_int]
-ResetLayerMode.restype = None
+ResetLayerMode.restype = c_bool
 
 DisableLayer = tln.TLN_DisableLayer
 DisableLayer.argtypes = [c_int]
-DisableLayer.restype = None
+DisableLayer.restype = c_bool
 
 GetLayerPalette = tln.TLN_GetLayerPalette
 GetLayerPalette.argtypes = [c_int]
@@ -366,39 +397,39 @@ GetLayerTile.restype = c_bool
 # sprite management -----------------------------------------------------------
 ConfigSprite = tln.TLN_ConfigSprite
 ConfigSprite.argtypes = [c_int, c_int, c_ushort]
-ConfigSprite.restype = None
+ConfigSprite.restype = c_bool
 
 SetSpriteSet = tln.TLN_SetSpriteSet
 SetSpriteSet.argtypes = [c_int, c_void_p]
-SetSpriteSet.restype = None
+SetSpriteSet.restype = c_bool
 
 SetSpriteFlags = tln.TLN_SetSpriteFlags
 SetSpriteFlags.argtypes = [c_int, c_ushort]
-SetSpriteFlags.restype = None
+SetSpriteFlags.restype = c_bool
 	
 SetSpritePosition = tln.TLN_SetSpritePosition
 SetSpritePosition.argtypes = [c_int, c_int, c_int]
-SetSpritePosition.restype = None
+SetSpritePosition.restype = c_bool
 	
 SetSpritePicture = tln.TLN_SetSpritePicture
 SetSpritePicture.argtypes = [c_int, c_int]
-SetSpritePicture.restype = None
+SetSpritePicture.restype = c_bool
 
 SetSpritePalette = tln.TLN_SetSpritePalette
 SetSpritePalette.argtypes = [c_int, c_void_p]
-SetSpritePalette.restype = None
+SetSpritePalette.restype = c_bool
 
 SetSpriteBlendMode = tln.TLN_SetSpriteBlendMode
 SetSpriteBlendMode.argtypes = [c_int, c_int, c_ubyte]
-SetSpriteBlendMode.restype = None
+SetSpriteBlendMode.restype = c_bool
 
 SetSpriteScaling = tln.TLN_SetSpriteScaling
 SetSpriteScaling.argtypes = [c_int, c_float, c_float]
-SetSpriteScaling.restype = None
+SetSpriteScaling.restype = c_bool
 
 ResetSpriteScaling = tln.TLN_ResetSpriteScaling
 ResetSpriteScaling.argtypes = [c_int]
-ResetSpriteScaling.restype = None
+ResetSpriteScaling.restype = c_bool
 
 GetSpritePicture = tln.TLN_GetSpritePicture
 GetSpritePicture.argtypes = [c_int]
@@ -409,7 +440,7 @@ GetAvailableSprite.restype = c_int
 	
 DisableSprite = tln.TLN_DisableSprite
 DisableSprite.argtypes = [c_int]
-DisableSprite.restype = None
+DisableSprite.restype = c_bool
 
 GetSpritePalette = tln.TLN_GetSpritePalette
 GetSpritePalette.argtypes = [c_int]
@@ -420,13 +451,22 @@ CreateSequence = tln.TLN_CreateSequence
 CreateSequence.argtypes = [c_char_p, c_int, c_int, c_int, POINTER(c_int)]
 CreateSequence.restype = c_void_p
 
+CreateCycle = tln.TLN_CreateCycle
+CreateCycle.argtypes = [c_char_p, c_int, POINTER(TileInfo)]
+CreateCycle.restype = c_void_p
+
 CloneSequence = tln.TLN_CloneSequence
 CloneSequence.argtypes = [c_void_p]
 CloneSequence.restype = c_void_p
 
 DeleteSequence = tln.TLN_DeleteSequence
 DeleteSequence.argtypes = [c_void_p]
-DeleteSequence.restype = None
+DeleteSequence.restype = c_bool
+
+# sequence pack management --------------------------------------------------------
+CreateSequencePack = tln.TLN_CreateSequencePack
+CreateSequencePack.argtypes = []
+CreateSequencePack.restype = c_void_p
 
 LoadSequencePack = tln.TLN_LoadSequencePack
 LoadSequencePack.argtypes = [c_char_p]
@@ -436,26 +476,30 @@ FindSequence = tln.TLN_FindSequence
 FindSequence.argtypes = [c_void_p, c_char_p]
 FindSequence.restype = c_void_p
 
+AddSequenceToPack = tln.TLN_AddSequenceToPack
+AddSequenceToPack.argtypes = [c_void_p, c_void_p]
+AddSequenceToPack.restype = c_bool
+
 DeleteSequencePack = tln.TLN_DeleteSequencePack
 DeleteSequencePack.argtypes = [c_void_p]
-DeleteSequencePack.restype = None
+DeleteSequencePack.restype = c_bool
 
 # animation engine ------------------------------------------------------------
 SetPaletteAnimation = tln.TLN_SetPaletteAnimation
 SetPaletteAnimation.argtypes = [c_int, c_void_p, c_void_p, c_bool]
-SetPaletteAnimation.restype = None
+SetPaletteAnimation.restype = c_bool
 
 SetPaletteAnimationSource = tln.TLN_SetPaletteAnimationSource
 SetPaletteAnimationSource.argtypes = [c_int, c_void_p]
-SetPaletteAnimationSource = None
+SetPaletteAnimationSource = c_bool
 
 SetTilemapAnimation = tln.TLN_SetTilemapAnimation
 SetTilemapAnimation.argtypes = [c_int, c_int, c_void_p]
-SetTilemapAnimation.restype = None
+SetTilemapAnimation.restype = c_bool
 
 SetSpriteAnimation = tln.TLN_SetSpriteAnimation
 SetSpriteAnimation.argtypes = [c_int, c_int, c_void_p, c_int]
-SetSpriteAnimation.restype = None
+SetSpriteAnimation.restype = c_bool
 
 GetAnimationState = tln.TLN_GetAnimationState
 GetAnimationState.argtypes = [c_int]
@@ -463,11 +507,11 @@ GetAnimationState.restype = c_bool
 
 SetAnimationDelay = tln.TLN_SetAnimationDelay
 SetAnimationDelay.argtypes = [c_int, c_int]
-SetAnimationDelay.restype = None
+SetAnimationDelay.restype = c_bool
 
 GetAvailableAnimation = tln.TLN_GetAvailableAnimation
 GetAvailableAnimation.restype = c_int
 
 DisableAnimation = tln.TLN_DisableAnimation
 DisableAnimation.argtypes = [c_int]
-DisableAnimation.restype = None
+DisableAnimation.restype = c_bool

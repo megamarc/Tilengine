@@ -1,17 +1,21 @@
-/*
-*******************************************************************************
-	
-	Public Tilengine source code - Megamarc 20 sep 2015
-	http://www.tilengine.org
-	
-	Bitmap loading support
-
-*******************************************************************************
-*/
+/*!
+ ******************************************************************************
+ *
+ * \file
+ * \brief Bitmap loading support
+ * \author Megamarc
+ * \date 20 sep 2015
+ *
+ * Public Tilengine source code
+ * http://www.tilengine.org
+ *
+ ******************************************************************************
+ */
 
 #include <malloc.h>
 #include <string.h>
 #include "Tilengine.h"
+#include "LoadFile.h"
 #include "png.h"
 #include "DIB.h"
 
@@ -33,18 +37,25 @@ static TLN_Bitmap LoadBMP (char *filename);
  */
 TLN_Bitmap TLN_LoadBitmap (char *filename)
 {
-	char* ext;
+	TLN_Bitmap bitmap;
 
-	ext = strchr(filename, '.');
-	if (ext)
+	if (!CheckFile (filename))
 	{
-		if (!strcmp (ext, ".png"))
-			return LoadPNG (filename);
-		if (!strcmp (ext, ".bmp"))
-			return LoadBMP (filename);
+		TLN_SetLastError (TLN_ERR_FILE_NOT_FOUND);
+		return NULL;
 	}
 
-	return NULL;
+	/* try png, else bmp*/
+	bitmap = LoadPNG (filename);
+	if (bitmap == NULL)
+		bitmap = LoadBMP (filename);
+
+	if (bitmap)
+		TLN_SetLastError (TLN_ERR_OK);
+	else
+		TLN_SetLastError (TLN_ERR_WRONG_FORMAT);
+
+	return bitmap;
 }
 
 /* Loads PNG using libpng */

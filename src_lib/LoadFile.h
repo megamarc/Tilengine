@@ -11,4 +11,10 @@
 
 #include "Tilengine.h"
 
+/* win32 replacement for unix strcasecmp() */
+#ifndef strcasecmp
+	#define strcasecmp _stricmp
+#endif
+
 BYTE* LoadFile (char* filename, size_t* out_size);
+bool CheckFile (char* filename);

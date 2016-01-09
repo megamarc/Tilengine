@@ -51,7 +51,7 @@ TLN_Palette palettes[MAX_PALETTE];
 layer_t layers[MAX_LAYER];
 unsigned int frame;
 unsigned int time;
-affine_t transform;
+TLN_Affine transform;
 int xpos, ypos;
 
 static void raster_callback (int line);

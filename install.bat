@@ -6,5 +6,5 @@ copy lib\%platform%\*.dll %target% /Y
 copy samples\%platform%\*.exe %target% /Y
 copy jni\%platform%\*.dll %target%
 copy jni\class\*.class %target%
-copy Python\*.py %target%
+copy python\*.py %target%
 cd %target%

@@ -1,20 +1,23 @@
-/*
-*******************************************************************************
-	
-	Public Tilengine source code - Megamarc 20 sep 2015
-	http://www.tilengine.org
-	
-	XML sequences file loader (.sqx)
-
-*******************************************************************************
-*/
+/*!
+ ******************************************************************************
+ *
+ * \file
+ * \brief XML sequences file loader (.sqx)
+ * \author Megamarc
+ * \date 20 sep 2015
+ *
+ * Public Tilengine source code
+ * http://www.tilengine.org
+ *
+ ******************************************************************************
+ */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "Tilengine.h"
 #include "simplexml.h"
-#include "Loadfile.h"
+#include "LoadFile.h"
 
 #define MAX_COLOR_STRIP	32
 
@@ -42,7 +45,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 	switch (evt)
 	{
 	case ADD_SUBTAG:
-		if (!strcmp(szName, "cycle"))
+		if (!strcasecmp(szName, "cycle"))
 		{
 			loader.count = 0;
 			memset (loader.strips, 0, sizeof(loader.strips));
@@ -50,37 +53,37 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		break;
 
 	case ADD_ATTRIBUTE:
-		if (!strcmp(szName, "sequence"))
+		if (!strcasecmp(szName, "sequence"))
 		{
-			if (!strcmp(szAttribute, "name"))
+			if (!strcasecmp(szAttribute, "name"))
 				strcpy (loader.name, szValue);
-			else if (!strcmp(szAttribute, "delay"))
+			else if (!strcasecmp(szAttribute, "delay"))
 				loader.delay = atoi(szValue);
-			else if (!strcmp(szAttribute, "first"))
+			else if (!strcasecmp(szAttribute, "first"))
 				loader.first = atoi(szValue);
-			else if (!strcmp(szAttribute, "count"))
+			else if (!strcasecmp(szAttribute, "count"))
 				loader.count = atoi(szValue);
 		}
-		else if (!strcmp(szName, "cycle"))
+		else if (!strcasecmp(szName, "cycle"))
 		{
-			if (!strcmp(szAttribute, "name"))
+			if (!strcasecmp(szAttribute, "name"))
 				strcpy (loader.name, szValue);
 		}
-		else if (!strcmp(szName, "strip"))
+		else if (!strcasecmp(szName, "strip"))
 		{
-			if (!strcmp(szAttribute, "delay"))
+			if (!strcasecmp(szAttribute, "delay"))
 				loader.strips[loader.count].delay = atoi(szValue);
-			else if (!strcmp(szAttribute, "first"))
+			else if (!strcasecmp(szAttribute, "first"))
 				loader.strips[loader.count].first = (BYTE)atoi(szValue);
-			else if (!strcmp(szAttribute, "count"))
+			else if (!strcasecmp(szAttribute, "count"))
 				loader.strips[loader.count].count = (BYTE)atoi(szValue);
-			else if (!strcmp(szAttribute, "dir"))
+			else if (!strcasecmp(szAttribute, "dir"))
 				loader.strips[loader.count].dir = (BYTE)atoi(szValue);
 		}
 		break;
 
 	case FINISH_ATTRIBUTES:
-		if (!strcmp(szName, "strip"))
+		if (!strcasecmp(szName, "strip"))
 		{
 			if (loader.strips[loader.count].delay != 0)
 				loader.count++;
@@ -88,7 +91,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		break;
 
 	case ADD_CONTENT:
-		if (!strcmp(szName, "sequence"))
+		if (!strcasecmp(szName, "sequence"))
 		{
 			char* ptr = (char*)szValue;
 
@@ -120,9 +123,9 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		break;
 
 	case FINISH_TAG:
-		if (!strcmp(szName, "sequence"))
+		if (!strcasecmp(szName, "sequence"))
 			sequence = TLN_CreateSequence (loader.name, loader.delay, loader.first, loader.count, loader.frames);
-		else if (!strcmp (szName, "cycle"))
+		else if (!strcasecmp (szName, "cycle"))
 			sequence = (TLN_Sequence)TLN_CreateCycle (loader.name, loader.count, loader.strips);
 		if (sequence)
 			TLN_AddSequenceToPack (loader.sp, sequence);
@@ -158,10 +161,23 @@ TLN_SequencePack TLN_LoadSequencePack (char* filename)
 	/* load file */
 	data = LoadFile (filename, &size);
 	if (!data)
+	{
+		if (size == 0)
+			TLN_SetLastError (TLN_ERR_FILE_NOT_FOUND);
+		else if (size == -1)
+			TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 		return NULL;
+	}
 	
-	/* parse */
+	/* create empty */
 	loader.sp = TLN_CreateSequencePack ();
+	if (!loader.sp)
+	{
+		free (data);
+		return NULL;
+	}
+
+	/* parse */
 	parser = simpleXmlCreateParser (data, (long)size);
 	if (parser != NULL)
 	{
@@ -170,9 +186,14 @@ TLN_SequencePack TLN_LoadSequencePack (char* filename)
 			printf("parse error on line %li:\n%s\n", 
 				simpleXmlGetLineNumber(parser), simpleXmlGetErrorDescription(parser));
 			free (data);
+			TLN_SetLastError (TLN_ERR_WRONG_FORMAT);
 			return NULL;
 		}
+		else
+			TLN_SetLastError (TLN_ERR_OK);
 	}
+	else
+		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 
 	free (data);
 	return loader.sp;

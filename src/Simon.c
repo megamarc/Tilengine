@@ -135,14 +135,14 @@ void SimonTasks (void)
 	/* check tiles below */
 	for (c=8; c<24; c+=8)
 	{
-		TLN_TileInfo tile;
-		TLN_GetLayerTile (0, x+c, y2+48, &tile);
-		if (tile.index)
+		TLN_TileInfo ti;
+		TLN_GetLayerTile (0, x+c, y2+48, &ti);
+		if (ti.tile.index)
 		{
-			if (tile.yoffset!=0)
+			if (ti.yoffset!=0)
 				sy = 0;
 			sy = 0;
-			y2 -= tile.yoffset;
+			y2 -= ti.yoffset;
 			break;
 		}
 	}

@@ -49,7 +49,7 @@ unsigned int time;
 
 fix_t x,y,s,a;
 
-static affine_t affine;
+static TLN_Affine affine;
 static int angle;
 
 static void raster_callback (int line);

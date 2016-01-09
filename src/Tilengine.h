@@ -51,7 +51,7 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 
 /* version */
 #define TILENGINE_VER_MAJ	1
-#define TILENGINE_VER_MIN	5
+#define TILENGINE_VER_MIN	4
 #define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ<<16) | (TILENGINE_VER_MIN<<8) | TILENGINE_VER_REV)
 
@@ -139,8 +139,7 @@ TLN_SpriteInfo;
 /*! Tile information in screen coordinates */
 typedef struct
 {
-	WORD index;		/*!< tile index */
-	WORD flags;		/*!< attributes (FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY) */
+	Tile tile;		/*!< Tile structure */
 	int xoffset;	/*!< horizontal position inside the title */
 	int yoffset;	/*!< vertical position inside the title */
 }
@@ -204,7 +203,6 @@ typedef enum
 	TLN_ERR_FILE_NOT_FOUND,	/*!< Resource file not found */
 	TLN_ERR_WRONG_FORMAT,	/*!< Resource file has invalid format */
 	TLN_ERR_WRONG_SIZE,		/*!< A width or height parameter is invalid */
-	TLN_ERR_UNSUPPORTED,	/*!< Unsupported function */
 	TLN_MAX_ERR,
 }
 TLN_Error;
@@ -315,10 +313,10 @@ TLNAPI bool TLN_DeleteTilemap (TLN_Tilemap tilemap);
 TLNAPI TLN_Palette TLN_CreatePalette (int entries);
 TLNAPI TLN_Palette TLN_LoadPalette (char *filename);
 TLNAPI TLN_Palette TLN_ClonePalette (TLN_Palette src);
+TLNAPI bool TLN_DeletePalette (TLN_Palette palette);
 TLNAPI bool TLN_SetPaletteColor (TLN_Palette palette, int color, BYTE r, BYTE g, BYTE b);
 TLNAPI bool TLN_MixPalettes (TLN_Palette src1, TLN_Palette src2, TLN_Palette dst, BYTE factor);
 TLNAPI DWORD* TLN_GetPaletteData (TLN_Palette palette, int index);
-TLNAPI bool TLN_DeletePalette (TLN_Palette palette);
 /**@}*/
 
 /** 

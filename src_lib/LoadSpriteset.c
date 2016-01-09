@@ -1,14 +1,18 @@
-/*
-*******************************************************************************
-	
-	Public Tilengine source code - Megamarc 20 sep 2015
-	http://www.tilengine.org
-	
-	Spriteset loader (.png / .txt pair) created with Spritesheet packer
-	http://spritesheetpacker.codeplex.com/
-
-*******************************************************************************
-*/
+/*!
+ ******************************************************************************
+ *
+ * \file
+ * \brief Spriteset loader (.png / .txt pair) created with Spritesheet packer
+ * http://spritesheetpacker.codeplex.com/
+ *
+ * \author Megamarc
+ * \date 20 sep 2015
+ *
+ * Public Tilengine source code
+ * http://www.tilengine.org
+ *
+ ******************************************************************************
+ */
 
 #include <stdio.h>
 #include <malloc.h>
@@ -55,6 +59,7 @@ TLN_Spriteset TLN_LoadSpriteset (char *name)
 	if (!pf)
 	{
 		TLN_DeleteBitmap (bitmap);
+		TLN_SetLastError (TLN_ERR_FILE_NOT_FOUND);
 		return NULL;
 	}
 
@@ -63,6 +68,13 @@ TLN_Spriteset TLN_LoadSpriteset (char *name)
 		entries++;
 
 	rects = malloc (sizeof(TLN_Rect)*entries);
+	if (!rects)
+	{
+		TLN_DeleteBitmap (bitmap);
+		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
+		fclose (pf);
+		return NULL;
+	}
 
 	/* read entries */
 	fseek (pf, 0, SEEK_SET);
@@ -95,6 +107,11 @@ TLN_Spriteset TLN_LoadSpriteset (char *name)
 	/* free resources */
 	free (rects);
 	TLN_DeleteBitmap (bitmap);
-
+	
+	if (spriteset)
+		TLN_SetLastError (TLN_ERR_OK);
+	else
+		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
+	
 	return spriteset;
 }

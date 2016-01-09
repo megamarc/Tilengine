@@ -1,20 +1,17 @@
 #include <stdio.h>
 #include <string.h>
-#include "Tilengine.h"
 #include "SeizeTheDay.h"
+#include "Timelines.h"
 
 #define MAX_SCENE	21
 #define MAX_PALETTE	50
 #define MAX_TIME	(120*60)
-#define RES_PATH	"cycles\\"
 
-typedef struct
-{
-	const char* bitmap;
-	const char* sequence;
-	Timeline* timeline;
-}
-Scene;
+#ifdef WIN32
+	#define RES_PATH	"cycles\\"
+#else
+	#define RES_PATH	"cycles/"
+#endif
 
 const Scene scenes[] =
 {
@@ -90,14 +87,14 @@ static void SetScene (int pos)
 
 	if (background)
 		TLN_DeleteBitmap (background);
-	sprintf (filename, RES_PATH "%s.PNG", scenes[pos].bitmap);
+	sprintf (filename, "%s%s.PNG", RES_PATH, scenes[pos].bitmap);
 	background = TLN_LoadBitmap (filename);
 	TLN_SetBGBitmap (background);
 	TLN_SetBGPalette (palette);
 
 	if (sp)
 		TLN_DeleteSequencePack (sp);
-	sprintf (filename, RES_PATH "%s.SQX", scenes[pos].sequence);
+	sprintf (filename, "%s%s.SQX", RES_PATH, scenes[pos].sequence);
 	sp = TLN_LoadSequencePack (filename);
 
 	maxpal = 0;
@@ -109,7 +106,7 @@ static void SetScene (int pos)
 		if (palettes[maxpal].palette)
 			TLN_DeletePalette (palettes[maxpal].palette);
 		strcpy (name, timeline->palette);
-		sprintf(filename, RES_PATH "%s.ACT", name);
+		sprintf(filename, "%s%s.ACT", RES_PATH, name);
 		palettes[maxpal].palette = TLN_LoadPalette (filename);
 		palettes[maxpal].sequence = TLN_FindSequence (sp, name);
 		palettes[maxpal].time = timeline->seconds*MAX_TIME/86400;
@@ -139,6 +136,7 @@ int main (int argc, char* argv[])
 {
 	TLN_Init (640,480,0,0,1);
 	TLN_CreateWindow (NULL, CWF_VSYNC);
+	TLN_EnableBlur (true);
 
 	palette = TLN_CreatePalette (256);
 	palette_int = TLN_CreatePalette (256);

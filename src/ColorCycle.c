@@ -3,7 +3,11 @@
 #include "Tilengine.h"
 
 #define MAX_SCENE	35
-#define RES_PATH	"cycles\\"
+#ifdef WIN32
+	#define RES_PATH	"cycles\\"
+#else
+	#define RES_PATH	"cycles/"
+#endif
 
 const char* const files[] =
 {
@@ -58,13 +62,13 @@ static void SetScene (int pos)
 
 	if (background)
 		TLN_DeleteBitmap (background);
-	sprintf (filename, RES_PATH "%s.PNG", files[pos]);
+	sprintf (filename, "%s%s.PNG", RES_PATH, files[pos]);
 	background = TLN_LoadBitmap (filename);
 	TLN_SetBGBitmap (background);
 
 	if (sp)
 		TLN_DeleteSequencePack (sp);
-	sprintf (filename, RES_PATH "%s.SQX", files[pos]);
+	sprintf (filename, "%s%s.SQX", RES_PATH, files[pos]);
 	sp = TLN_LoadSequencePack (filename);
 	TLN_DisableAnimation (0);
 	TLN_SetPaletteAnimation (0, TLN_GetBitmapPalette (background), TLN_FindSequence (sp, files[pos]), true);
@@ -74,6 +78,7 @@ int main (int argc, char* argv[])
 {
 	TLN_Init (640,480,0,0,1);
 	TLN_CreateWindow (NULL, CWF_VSYNC);
+	TLN_EnableBlur (true);
 	SetScene (pos);
 
 	while (TLN_ProcessWindow ())

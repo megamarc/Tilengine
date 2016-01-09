@@ -1,14 +1,18 @@
-/*
-*******************************************************************************
-	
-	Public Tilengine source code - Megamarc 20 sep 2015
-	http://www.tilengine.org
-	
-	Tileset file loader (.tsx / .png) created with Tiled editor
-	http://www.mapeditor.org
-
-*******************************************************************************
-*/
+/*!
+ ******************************************************************************
+ *
+ * \file
+ * \brief Tileset file loader (.tsx / .png) created with Tiled editor
+ * http://www.mapeditor.org
+ *
+ * \author Megamarc
+ * \date 20 sep 2015
+ *
+ * Public Tilengine source code
+ * http://www.tilengine.org
+ *
+ ******************************************************************************
+ */
 
 #include <malloc.h>
 #include <string.h>
@@ -39,15 +43,15 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		break;
 
 	case ADD_ATTRIBUTE:
-		if (!strcmp(szAttribute, "source"))
+		if (!strcasecmp(szAttribute, "source"))
 			strcpy (loader.source, szValue);
-		else if (!strcmp(szAttribute, "tilewidth"))
+		else if (!strcasecmp(szAttribute, "tilewidth"))
 			loader.tilewidth = atoi(szValue);
-		else if (!strcmp(szAttribute, "tileheight"))
+		else if (!strcasecmp(szAttribute, "tileheight"))
 			loader.tileheight = atoi(szValue);
-		else if (!strcmp(szAttribute, "margin"))
+		else if (!strcasecmp(szAttribute, "margin"))
 			loader.margin = atoi(szValue);
-		else if (!strcmp(szAttribute, "spacing"))
+		else if (!strcasecmp(szAttribute, "spacing"))
 			loader.spacing = atoi(szValue);
 		break;
 
@@ -91,7 +95,13 @@ TLN_Tileset TLN_LoadTileset (char *filename)
 	/* load file */
 	data = LoadFile (filename, &size);
 	if (!data)
+	{
+		if (size == 0)
+			TLN_SetLastError (TLN_ERR_FILE_NOT_FOUND);
+		else if (size == -1)
+			TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 		return NULL;
+	}
 
 	/* parse */
 	memset (&loader, 0, sizeof(loader));
@@ -103,14 +113,21 @@ TLN_Tileset TLN_LoadTileset (char *filename)
 			printf("parse error on line %li:\n%s\n", 
 				simpleXmlGetLineNumber(parser), simpleXmlGetErrorDescription(parser));
 			free (data);
+			TLN_SetLastError (TLN_ERR_WRONG_FORMAT);
 			return NULL;
 		}
 	}
+	else
+		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
+
 	free (data);
 
 	/* check filename */
 	if (!loader.source[0])
+	{
+		TLN_SetLastError (TLN_ERR_WRONG_FORMAT);
 		return NULL;
+	}
 	
 	/* load picture */
 	bitmap = TLN_LoadBitmap (loader.source);
@@ -137,5 +154,6 @@ TLN_Tileset TLN_LoadTileset (char *filename)
 
 	TLN_DeleteBitmap (bitmap);
 
+	TLN_SetLastError (TLN_ERR_OK);
 	return tileset;
 }

@@ -1,13 +1,16 @@
-/*
-*******************************************************************************
-	
-	Public Tilengine source code - Megamarc 20 sep 2015
-	http://www.tilengine.org
-	
-	Adobe Color Table (.act) loader
-
-*******************************************************************************
-*/
+/*!
+ ******************************************************************************
+ *
+ * \file
+ * \brief Adobe Color Table (.act) loader
+ * \author Megamarc
+ * \date 20 sep 2015
+ *
+ * Public Tilengine source code
+ * http://www.tilengine.org
+ *
+ ******************************************************************************
+ */
 
 #include <stdio.h>
 #include <malloc.h>
@@ -54,7 +57,10 @@ TLN_Palette TLN_LoadPalette (char *filename)
 	/* open file */
 	pf = fopen (filename, "rb");
 	if (!pf)
+	{
+		TLN_SetLastError (TLN_ERR_FILE_NOT_FOUND);
 		return NULL;
+	}
 
 	/* check size */
 	fseek (pf, 0, SEEK_END);
@@ -82,5 +88,6 @@ TLN_Palette TLN_LoadPalette (char *filename)
 	}
 
 	fclose (pf);
+	TLN_SetLastError (TLN_ERR_OK);
 	return palette;
 }

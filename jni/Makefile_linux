@@ -3,7 +3,7 @@ SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
 PLATFORM = linux
 INCS     = -I"$(JAVA_HOME)/include" -I"$(JAVA_HOME)/include/$(PLATFORM)" -I"../lib"
-LIBS     = -l:libTilengine.so.2 -lSDL2 -lc
+LIBS     = -l:libTilengine.so -lSDL2 -lc
 BIN      = $(PLATFORM)/libTilengineJNI.so
 CFLAGS   = $(INCS) -msse2 -m32 -std=c99 -fpic -O2
 RM       = rm

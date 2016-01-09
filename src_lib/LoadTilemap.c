@@ -1,14 +1,18 @@
-/*
-*******************************************************************************
-	
-	Public Tilengine source code - Megamarc 20 sep 2015
-	http://www.tilengine.org
-	
-	Tilemap file loader (.tmx) created with Tiled editor
-	http://www.mapeditor.org
-
-*******************************************************************************
-*/
+/*!
+ ******************************************************************************
+ *
+ * \file
+ * \brief Tilemap file loader (.tmx) created with Tiled editor
+ * http://www.mapeditor.org
+ *
+ * \author Megamarc
+ * \date 20 sep 2015
+ *
+ * Public Tilengine source code
+ * http://www.tilengine.org
+ *
+ ******************************************************************************
+ */
 
 #include <malloc.h>
 #include <string.h>
@@ -64,51 +68,51 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		break;
 
 	case ADD_ATTRIBUTE:
-		if (!strcmp(szName, "layer"))
+		if (!strcasecmp(szName, "layer"))
 		{
-			if (!strcmp(szAttribute, "name"))
+			if (!strcasecmp(szAttribute, "name"))
 			{
-				if (!strcmp(szValue, loader.layer_name))
+				if (!strcasecmp(szValue, loader.layer_name))
 					loader.load = true;
 				else
 					loader.load = false;
 			}
-			else if (!strcmp(szAttribute, "width"))
+			else if (!strcasecmp(szAttribute, "width"))
 				loader.cols = atoi(szValue);
-			else if (!strcmp(szAttribute, "height"))
+			else if (!strcasecmp(szAttribute, "height"))
 				loader.rows = atoi(szValue);
 		}
-		else if (!strcmp(szName, "data") && loader.load)
+		else if (!strcasecmp(szName, "data") && loader.load)
 		{
-			if (!strcmp(szAttribute, "encoding"))
+			if (!strcasecmp(szAttribute, "encoding"))
 			{
-				if (!strcmp(szValue, "csv"))
+				if (!strcasecmp(szValue, "csv"))
 					loader.encoding = ENCODING_CSV;
-				else if (!strcmp(szValue, "base64"))
+				else if (!strcasecmp(szValue, "base64"))
 					loader.encoding = ENCODING_BASE64;
 				else
 					loader.load = false;
 			}
 
-			else if (!strcmp(szAttribute, "compression"))
+			else if (!strcasecmp(szAttribute, "compression"))
 			{
-				if (!strcmp(szValue, "gzip"))
+				if (!strcasecmp(szValue, "gzip"))
 					/* loader.compression = COMPRESSION_GZIP; */
 					loader.load = false;
 
-				if (!strcmp(szValue, "zlib"))
+				if (!strcasecmp(szValue, "zlib"))
 					loader.compression = COMPRESSION_ZLIB;
 			}
 		}
 		break;
 
 	case FINISH_ATTRIBUTES:
-		if (!strcmp(szName, "data") && loader.load)
+		if (!strcasecmp(szName, "data") && loader.load)
 			loader.tilemap = TLN_CreateTilemap (loader.rows, loader.cols, NULL);
 		break;
 
 	case ADD_CONTENT:
-		if (!strcmp(szName, "data") && loader.load)
+		if (!strcasecmp(szName, "data") && loader.load)
 		{
 			int numtiles = loader.cols * loader.rows;
 			int size = numtiles * sizeof(DWORD);
@@ -181,7 +185,13 @@ TLN_Tilemap TLN_LoadTilemap (char *filename, char *name)
 	/* load file */
 	data = LoadFile (filename, &size);
 	if (!data)
+	{
+		if (size == 0)
+			TLN_SetLastError (TLN_ERR_FILE_NOT_FOUND);
+		else if (size == -1)
+			TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 		return NULL;
+	}
 
 	/* parse */
 	loader.tilemap = NULL;
@@ -194,9 +204,14 @@ TLN_Tilemap TLN_LoadTilemap (char *filename, char *name)
 			printf("parse error on line %li:\n%s\n", 
 				simpleXmlGetLineNumber(parser), simpleXmlGetErrorDescription(parser));
 			free (data);
+			TLN_SetLastError (TLN_ERR_WRONG_FORMAT);
 			return NULL;
 		}
+		else
+			TLN_SetLastError (TLN_ERR_OK);
 	}
+	else
+		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 
 	free (data);
 	return loader.tilemap;
