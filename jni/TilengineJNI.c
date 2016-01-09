@@ -532,6 +532,11 @@ JNIEXPORT jint JNICALL Java_Tilengine_GetBitmapHeight (JNIEnv* env, jobject this
 	return TLN_GetBitmapHeight ((TLN_Bitmap)bitmap);
 }
 
+JNIEXPORT jint JNICALL Java_Tilengine_GetBitmapDepth (JNIEnv* env, jobject thisobj, jint bitmap)
+{
+	return TLN_GetBitmapDepth ((TLN_Bitmap)bitmap);
+}
+
 JNIEXPORT jint JNICALL Java_Tilengine_GetBitmapPitch (JNIEnv* env, jobject thisobj, jint bitmap)
 {
 	return TLN_GetBitmapPitch ((TLN_Bitmap)bitmap);

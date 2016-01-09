@@ -50,9 +50,21 @@ TLN_Bitmap TLN_LoadBitmap (char *filename)
 	if (bitmap == NULL)
 		bitmap = LoadBMP (filename);
 
+	/* bitmap loaded */
 	if (bitmap)
-		TLN_SetLastError (TLN_ERR_OK);
-	else
+	{
+		/* accept only 8 bpp */
+		int bpp = TLN_GetBitmapDepth (bitmap);
+		if (bpp == 8)
+			TLN_SetLastError (TLN_ERR_OK);
+		else
+		{
+			TLN_DeleteBitmap (bitmap);
+			bitmap = NULL;
+		}
+	}
+	
+	if (!bitmap)
 		TLN_SetLastError (TLN_ERR_WRONG_FORMAT);
 
 	return bitmap;
@@ -146,11 +158,6 @@ static TLN_Bitmap LoadBMP (char *filename)
 	fread (&StructSize, 4, 1, pf);
 	fseek (pf, sizeof(bfh), SEEK_SET);
 	fread (&bv5, StructSize, 1, pf);
-	if (bv5.bV5BitCount != 8)
-	{
-		fclose (pf);
-		return NULL;
-	}
 
 	/* create */
 	bitmap = TLN_CreateBitmap (bv5.bV5Width, bv5.bV5Height, bv5.bV5BitCount);
@@ -170,6 +177,7 @@ static TLN_Bitmap LoadBMP (char *filename)
 	}
 
 	/* load palette */
+	if (bv5.bV5BitCount == 8)
 	{
 		TLN_Palette palette;
 

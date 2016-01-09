@@ -333,6 +333,10 @@ GetBitmapHeight = tln.TLN_GetBitmapHeight
 GetBitmapHeight.argtypes = [c_void_p]
 GetBitmapHeight.restype = c_int
 
+GetBitmapDepth = tln.TLN_GetBitmapDepth
+GetBitmapDepth.argtypes = [c_void_p]
+GetBitmapDepth.restype = c_int
+
 GetBitmapPitch = tln.TLN_GetBitmapPitch
 GetBitmapPitch.argtypes = [c_void_p]
 GetBitmapPitch.restype = c_int

@@ -162,6 +162,7 @@ public class Tilengine
 	public native int CloneBitmap (int src);
 	public native int GetBitmapWidth (int bitmap);
 	public native int GetBitmapHeight (int bitmap);
+	public native int GetBitmapDepth (int bitmap);
 	public native int GetBitmapPitch (int bitmap);
 	public native int GetBitmapPalette (int bitmap);
 	public native boolean SetBitmapPalette (int bitmap, int palette);

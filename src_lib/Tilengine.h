@@ -52,7 +52,7 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 /* version */
 #define TILENGINE_VER_MAJ	1
 #define TILENGINE_VER_MIN	5
-#define TILENGINE_VER_REV	0
+#define TILENGINE_VER_REV	1
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ<<16) | (TILENGINE_VER_MIN<<8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -332,6 +332,7 @@ TLNAPI TLN_Bitmap TLN_CloneBitmap (TLN_Bitmap src);
 TLNAPI BYTE* TLN_GetBitmapPtr (TLN_Bitmap bitmap, int x, int y);
 TLNAPI int TLN_GetBitmapWidth (TLN_Bitmap bitmap);
 TLNAPI int TLN_GetBitmapHeight (TLN_Bitmap bitmap);
+TLNAPI int TLN_GetBitmapDepth (TLN_Bitmap bitmap);
 TLNAPI int TLN_GetBitmapPitch (TLN_Bitmap bitmap);
 TLNAPI TLN_Palette TLN_GetBitmapPalette (TLN_Bitmap bitmap);
 TLNAPI bool TLN_SetBitmapPalette (TLN_Bitmap bitmap, TLN_Palette palette);
