@@ -441,6 +441,14 @@ GetSpritePicture.restype = c_int
 
 GetAvailableSprite = tln.TLN_GetAvailableSprite
 GetAvailableSprite.restype = c_int
+
+EnableSpriteCollision = tln.TLN_EnableSpriteCollision
+EnableSpriteCollision.argtypes = [c_int, c_bool]
+EnableSpriteCollision.restype = c_bool
+
+GetSpriteCollision = tln.TLN_GetSpriteCollision
+GetSpriteCollision.argtypes = [c_int]
+GetSpriteCollision.restype = c_bool
 	
 DisableSprite = tln.TLN_DisableSprite
 DisableSprite.argtypes = [c_int]

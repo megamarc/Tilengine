@@ -716,6 +716,16 @@ JNIEXPORT jint JNICALL Java_Tilengine_GetAvailableSprite (JNIEnv* env, jobject t
 	return TLN_GetAvailableSprite ();
 }
 
+JNIEXPORT jboolean JNICALL Java_Tilengine_EnableSpriteCollision (JNIEnv* env, jobject thisobj, jint nsprite, jboolean enable)
+{
+	return TLN_EnableSpriteCollision (nsprite, enable);
+}
+
+JNIEXPORT jboolean JNICALL Java_Tilengine_GetSpriteCollision (JNIEnv* env, jobject thisobj, jint nsprite)
+{
+	return TLN_GetSpriteCollision (nsprite);
+}
+
 JNIEXPORT jboolean JNICALL Java_Tilengine_DisableSprite (JNIEnv* env, jobject thisobj, jint nsprite)
 {
 	return TLN_DisableSprite (nsprite);

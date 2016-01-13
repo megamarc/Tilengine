@@ -1,5 +1,6 @@
 # archivos varios
 .svn/
+.vs/
 map2tileset/
 Thumbs.db
 Tilengine.doc

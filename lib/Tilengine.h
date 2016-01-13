@@ -51,8 +51,8 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 
 /* version */
 #define TILENGINE_VER_MAJ	1
-#define TILENGINE_VER_MIN	5
-#define TILENGINE_VER_REV	1
+#define TILENGINE_VER_MIN	6
+#define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ<<16) | (TILENGINE_VER_MIN<<8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -60,6 +60,7 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 /*! tile/sprite flags. Can be none or a combination of the following: */
 typedef enum
 {
+	FLAG_NONE		= 0,			/*!< no flags */
 	FLAG_FLIPX		= BITVAL(15),	/*!< horizontal flip */
 	FLAG_FLIPY		= BITVAL(14),	/*!< vertical flip */
 	FLAG_ROTATE		= BITVAL(13),	/*!< row/column flip (unsupported, Tiled compatibility) */
@@ -374,6 +375,8 @@ TLNAPI bool TLN_SetSpriteScaling (int nsprite, float sx, float sy);
 TLNAPI bool TLN_ResetSpriteScaling (int nsprite);
 TLNAPI int  TLN_GetSpritePicture (int nsprite);
 TLNAPI int  TLN_GetAvailableSprite (void);
+TLNAPI bool TLN_EnableSpriteCollision (int nsprite, bool enable);
+TLNAPI bool TLN_GetSpriteCollision (int nsprite);
 TLNAPI bool TLN_DisableSprite (int nsprite);
 TLNAPI TLN_Palette TLN_GetSpritePalette (int nsprite);
 /**@}*/

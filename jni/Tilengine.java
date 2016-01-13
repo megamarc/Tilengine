@@ -194,6 +194,8 @@ public class Tilengine
 	public native boolean ResetSpriteScaling (int nsprite);
 	public native int GetSpritePicture (int nsprite);
 	public native int GetAvailableSprite ();
+	public native boolean EnableSpriteCollision (int nsprite, boolean enable);
+	public native boolean GetSpriteCollision (int nsprite);
 	public native boolean DisableSprite (int nsprite);
 	public native int GetSpritePalette (int nsprite);
 
