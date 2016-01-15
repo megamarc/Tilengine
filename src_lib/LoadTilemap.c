@@ -24,7 +24,7 @@
 #include "zlib.h"
 #include "LoadFile.h"
 
-extern int base64decode (const char* in, size_t inLen, unsigned char *out, size_t *outLen);
+extern int base64decode (const char* in, int inLen, unsigned char *out, int *outLen);
 static int csvdecode (const char* in, int numtiles, DWORD* data);
 static int decompress (unsigned char* in, int in_size, unsigned char* out, int out_size);
 
@@ -126,12 +126,12 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 			else if (loader.encoding == ENCODING_BASE64)
 			{
 				if (loader.compression == COMPRESSION_NONE)
-					base64decode (szValue, strlen(szValue), (unsigned char*)data, &size);
+					base64decode (szValue, (int)strlen(szValue), (unsigned char*)data, &size);
 				else
 				{
 					BYTE* deflated = malloc (size);
 					int in_size = size;
-					base64decode (szValue, strlen(szValue), (unsigned char*)deflated, &in_size);
+					base64decode (szValue, (int)strlen(szValue), (unsigned char*)deflated, &in_size);
 					decompress (deflated, in_size, (BYTE*)data, size);
 					free (deflated);
 				}

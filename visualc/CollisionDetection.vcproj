@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="Barrel"
-	ProjectGUID="{9969E021-6FB9-468D-9187-04D26AC77074}"
-	RootNamespace="Barrel"
+	Name="CollisionDetection"
+	ProjectGUID="{94C7A71A-BA57-4058-B662-455D3D75F063}"
+	RootNamespace="CollisionDetection"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -20,8 +20,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\samples"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(OutDir)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
@@ -43,14 +43,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\lib"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
+				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -66,10 +65,10 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="Tilengine.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\lib\win32"
+				AdditionalLibraryDirectories="..\lib\$(PlatformName)"
 				GenerateDebugInformation="true"
 				SubSystem="1"
-				EntryPointSymbol="mainCRTStartup"
+				EntryPointSymbol=""
 				TargetMachine="1"
 			/>
 			<Tool
@@ -99,8 +98,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\samples"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(OutDir)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -122,13 +121,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\lib"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="0"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -143,12 +141,12 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="Tilengine.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\lib\win32"
-				GenerateDebugInformation="false"
-				SubSystem="2"
+				AdditionalLibraryDirectories="..\lib\$(PlatformName)"
+				GenerateDebugInformation="true"
+				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				EntryPointSymbol="mainCRTStartup"
+				EntryPointSymbol=""
 				TargetMachine="1"
 			/>
 			<Tool
@@ -178,8 +176,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(OutDir)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
@@ -202,14 +200,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\lib"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
+				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -223,12 +220,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Tilengine.lib"
+				AdditionalDependencies="Tilengine_x64.lib"
+				OutputFile="$(OutDir)\$(ProjectName)_x64.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\lib\win32"
+				AdditionalLibraryDirectories="..\lib\$(PlatformName)"
 				GenerateDebugInformation="true"
 				SubSystem="1"
-				EntryPointSymbol="mainCRTStartup"
+				EntryPointSymbol=""
 				TargetMachine="17"
 			/>
 			<Tool
@@ -258,8 +256,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(OutDir)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -282,13 +280,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\lib"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="0"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -301,14 +298,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Tilengine.lib"
+				AdditionalDependencies="Tilengine_x64.lib"
+				OutputFile="$(OutDir)\$(ProjectName)_x64.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\lib\win32"
-				GenerateDebugInformation="false"
-				SubSystem="2"
+				AdditionalLibraryDirectories="..\lib\$(PlatformName)"
+				GenerateDebugInformation="true"
+				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				EntryPointSymbol="mainCRTStartup"
+				EntryPointSymbol=""
 				TargetMachine="17"
 			/>
 			<Tool
@@ -340,18 +338,28 @@
 	<References>
 	</References>
 	<Files>
-		<File
-			RelativePath="..\src\Barrel.c"
+		<Filter
+			Name="Archivos de código fuente"
+			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
-		</File>
-		<File
-			RelativePath="..\src\Simon.c"
+			<File
+				RelativePath="..\src\CollisionDetection.c"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Archivos de encabezado"
+			Filter="h;hpp;hxx;hm;inl;inc;xsd"
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-		</File>
-		<File
-			RelativePath="..\src\Simon.h"
+		</Filter>
+		<Filter
+			Name="Archivos de recursos"
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
-		</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

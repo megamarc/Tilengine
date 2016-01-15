@@ -51,7 +51,7 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 
 /* version */
 #define TILENGINE_VER_MAJ	1
-#define TILENGINE_VER_MIN	4
+#define TILENGINE_VER_MIN	6
 #define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ<<16) | (TILENGINE_VER_MIN<<8) | TILENGINE_VER_REV)
 
@@ -60,6 +60,7 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 /*! tile/sprite flags. Can be none or a combination of the following: */
 typedef enum
 {
+	FLAG_NONE		= 0,			/*!< no flags */
 	FLAG_FLIPX		= BITVAL(15),	/*!< horizontal flip */
 	FLAG_FLIPY		= BITVAL(14),	/*!< vertical flip */
 	FLAG_ROTATE		= BITVAL(13),	/*!< row/column flip (unsupported, Tiled compatibility) */
@@ -139,7 +140,8 @@ TLN_SpriteInfo;
 /*! Tile information in screen coordinates */
 typedef struct
 {
-	Tile tile;		/*!< Tile structure */
+	WORD index;		/*!< tile index */
+	WORD flags;		/*!< attributes (FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY) */
 	int xoffset;	/*!< horizontal position inside the title */
 	int yoffset;	/*!< vertical position inside the title */
 }
@@ -203,6 +205,7 @@ typedef enum
 	TLN_ERR_FILE_NOT_FOUND,	/*!< Resource file not found */
 	TLN_ERR_WRONG_FORMAT,	/*!< Resource file has invalid format */
 	TLN_ERR_WRONG_SIZE,		/*!< A width or height parameter is invalid */
+	TLN_ERR_UNSUPPORTED,	/*!< Unsupported function */
 	TLN_MAX_ERR,
 }
 TLN_Error;
@@ -313,10 +316,10 @@ TLNAPI bool TLN_DeleteTilemap (TLN_Tilemap tilemap);
 TLNAPI TLN_Palette TLN_CreatePalette (int entries);
 TLNAPI TLN_Palette TLN_LoadPalette (char *filename);
 TLNAPI TLN_Palette TLN_ClonePalette (TLN_Palette src);
-TLNAPI bool TLN_DeletePalette (TLN_Palette palette);
 TLNAPI bool TLN_SetPaletteColor (TLN_Palette palette, int color, BYTE r, BYTE g, BYTE b);
 TLNAPI bool TLN_MixPalettes (TLN_Palette src1, TLN_Palette src2, TLN_Palette dst, BYTE factor);
 TLNAPI DWORD* TLN_GetPaletteData (TLN_Palette palette, int index);
+TLNAPI bool TLN_DeletePalette (TLN_Palette palette);
 /**@}*/
 
 /** 
@@ -330,6 +333,7 @@ TLNAPI TLN_Bitmap TLN_CloneBitmap (TLN_Bitmap src);
 TLNAPI BYTE* TLN_GetBitmapPtr (TLN_Bitmap bitmap, int x, int y);
 TLNAPI int TLN_GetBitmapWidth (TLN_Bitmap bitmap);
 TLNAPI int TLN_GetBitmapHeight (TLN_Bitmap bitmap);
+TLNAPI int TLN_GetBitmapDepth (TLN_Bitmap bitmap);
 TLNAPI int TLN_GetBitmapPitch (TLN_Bitmap bitmap);
 TLNAPI TLN_Palette TLN_GetBitmapPalette (TLN_Bitmap bitmap);
 TLNAPI bool TLN_SetBitmapPalette (TLN_Bitmap bitmap, TLN_Palette palette);
@@ -371,6 +375,8 @@ TLNAPI bool TLN_SetSpriteScaling (int nsprite, float sx, float sy);
 TLNAPI bool TLN_ResetSpriteScaling (int nsprite);
 TLNAPI int  TLN_GetSpritePicture (int nsprite);
 TLNAPI int  TLN_GetAvailableSprite (void);
+TLNAPI bool TLN_EnableSpriteCollision (int nsprite, bool enable);
+TLNAPI bool TLN_GetSpriteCollision (int nsprite);
 TLNAPI bool TLN_DisableSprite (int nsprite);
 TLNAPI TLN_Palette TLN_GetSpritePalette (int nsprite);
 /**@}*/
