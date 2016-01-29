@@ -144,7 +144,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Tilengine_x64.lib"
+				AdditionalDependencies="Tilengine.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(SolutionDir)lib\$(PlatformName)"
 				GenerateDebugInformation="true"
@@ -301,7 +301,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Tilengine_x64.lib"
+				AdditionalDependencies="Tilengine.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(SolutionDir)lib\$(PlatformName)"
 				GenerateDebugInformation="false"

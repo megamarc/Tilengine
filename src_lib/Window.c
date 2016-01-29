@@ -644,6 +644,16 @@ DWORD TLN_GetTicks (void)
 	return SDL_GetTicks ();
 }
 
+/*!
+ * \brief
+ * Suspends execition for a fixed time
+ * \param time Number of milliseconds to wait
+ */
+void TLN_Delay (DWORD time)
+{
+	SDL_Delay (time);
+}
+
 /* loads a BMP image as overlay */
 static SDL_Surface* CreateOverlaySurface (char* filename, int dstw, int dsth)
 {

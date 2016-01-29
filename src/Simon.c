@@ -137,7 +137,7 @@ void SimonTasks (void)
 	{
 		TLN_TileInfo ti;
 		TLN_GetLayerTile (0, x+c, y2+48, &ti);
-		if (ti.tile.index)
+		if (ti.index)
 		{
 			if (ti.yoffset!=0)
 				sy = 0;

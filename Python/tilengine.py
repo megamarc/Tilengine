@@ -184,6 +184,10 @@ EnableBlur.restype = None
 GetTicks = tln.TLN_GetTicks
 GetTicks.restype = c_int
 
+Delay = tln.TLN_Delay
+Delay.argtypes = [c_int]
+Delay.restype = None
+
 # spritesets management
 CreateSpriteset = tln.TLN_CreateSpriteset
 CreateSpriteset.argtypes = [c_int, POINTER(Rect), c_void_p, c_int, c_int, c_int, c_void_p]

@@ -228,6 +228,11 @@ JNIEXPORT jint JNICALL Java_Tilengine_GetTicks (JNIEnv* env, jobject thisobj)
 	return TLN_GetTicks ();
 }
 
+JNIEXPORT void JNICALL Java_Tilengine_Delay (JNIEnv* env, jobject thisobj, jint time)
+{
+	TLN_Delay (time);
+}
+
 // ****************************************************************************
 // Spritesets
 // ****************************************************************************

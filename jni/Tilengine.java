@@ -118,6 +118,7 @@ public class Tilengine
 	public native void DeleteWindow ();
 	public native void EnableBlur (boolean mode);
 	public native int GetTicks ();
+	public native void Delay (int time);
 	
 	// spritesets management 
 	public native int CreateSpriteset (int entries, Rect rects, byte[] data, int width, int height, int pitch, int palette);

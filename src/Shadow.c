@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "Tilengine.h"
 
 #define WIDTH	400

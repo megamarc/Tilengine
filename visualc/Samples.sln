@@ -21,7 +21,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ColorCycle", "ColorCycle.vc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SeizeTheDay", "SeizeTheDay.vcproj", "{C87B7077-E1FE-4F99-B301-A50604E1C9A5}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CollisionDetection", "CollisionDetection.vcproj", "{94C7A71A-BA57-4058-B662-455D3D75F063}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Benchmark", "Benchmark.vcproj", "{94C7A71A-BA57-4058-B662-455D3D75F063}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

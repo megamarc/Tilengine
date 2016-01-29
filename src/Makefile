@@ -1,15 +1,15 @@
 CC       = gcc
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
-SHARED   = libTilengine.so.1
+SHARED   = libTilengine.so.3
 CFLAGS   = -msse2 -m32 -std=c99 -O2
-TARGETS  = barrel mode7 platformer platformer_test racer scaling shadow shooter tutorial wobble
+TARGETS  = barrel mode7 platformer platformer_test racer scaling shadow shooter tutorial wobble seizetheday colorcycle benchmark
 
 # OS dependant flags
 ifeq ($(OS),Windows_NT)
 	LIBS = Tilengine.dll
 else
-	LIBS = -lTilengine -lm
+	LIBS = -L"/usr/local/lib" -lTilengine -lm
 endif
 
 .PHONY: all all-before all-after clean clean-custom
@@ -51,7 +51,16 @@ tutorial: Tutorial.o
 
 wobble: Wobble.o Sin.o
 	$(CC) Wobble.o Sin.o -o wobble $(LIBS)
+	
+seizetheday: SeizeTheDay.o
+	$(CC) SeizeTheDay.o -o seizetheday $(LIBS)
 
+colorcycle: ColorCycle.o
+	$(CC) ColorCycle.o -o colorcycle $(LIBS)
+
+benchmark: Benchmark.o
+	$(CC) Benchmark.o -o benchmark $(LIBS)
+	
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
