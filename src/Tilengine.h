@@ -234,6 +234,9 @@ TLNAPI bool TLN_SetBGPalette (TLN_Palette palette);
 TLNAPI void TLN_SetRasterCallback (void (*callback)(int));
 TLNAPI void TLN_SetRenderTarget (BYTE* data, int pitch);
 TLNAPI void TLN_UpdateFrame (int time);
+TLNAPI void TLN_BeginFrame (int time);
+TLNAPI bool TLN_DrawNextScanline (void);
+
 /**@}*/
 
 /** 
@@ -261,7 +264,11 @@ TLNAPI void TLN_DrawFrame (int time);
 TLNAPI void TLN_WaitRedraw (void);
 TLNAPI void TLN_DeleteWindow (void);
 TLNAPI void TLN_EnableBlur (bool mode);
+TLNAPI void TLN_Delay (DWORD msecs);
 TLNAPI DWORD TLN_GetTicks (void);
+TLNAPI void TLN_BeginWindowFrame (int time);
+TLNAPI bool TLN_EndWindowFrame (void);
+
 /**@}*/
 
 /** 

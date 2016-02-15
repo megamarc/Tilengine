@@ -28,8 +28,8 @@ def SetupLayer (nlayer, name):
 	tilemap = tln.LoadTilemap (name + ".tmx", "Layer 1")
 	tln.SetLayer (nlayer, tileset, tilemap)	
 
-# raster callback
-def raster_callback (line):
+# raster effect
+def raster_effect (line):
 	pos = -1
 	
 	if line == 0:
@@ -67,11 +67,6 @@ sequence = tln.FindSequence (sp, "seq_water")
 palette  = tln.GetLayerPalette (LAYER_BACKGROUND)
 tln.SetPaletteAnimation (0, palette, sequence, True)
 	
-# set raster callback
-CB_FUNC_TYPE = CFUNCTYPE (None, c_int)
-cb_func = CB_FUNC_TYPE(raster_callback)
-tln.SetRasterCallback (cb_func)
-
 # main loop
 while tln.ProcessWindow():
 
@@ -108,7 +103,15 @@ while tln.ProcessWindow():
 	pos_background[4] = basepos * 1.0
 	pos_background[5] = basepos * 2.0
 	
-	tln.DrawFrame (frame)
+	# draw frame line by line doing raster effects
+	tln.BeginWindowFrame (frame)
+	line = 0
+	drawing = True
+	while drawing:
+		raster_effect (line)
+		line += 1
+		drawing = tln.DrawNextScanline ()
+	tln.EndWindowFrame ()
 	frame += 1
 	
 tln.DeleteWindow ()

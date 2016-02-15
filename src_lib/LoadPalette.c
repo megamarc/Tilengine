@@ -45,7 +45,7 @@ trailing;
  * Use the functions TLN_GetTilesetPalette() and TLN_GetSpritesetPalette() to retrieve them.
  * 
  * \see
- * TLN_GetTilesetPalette()|TLN_GetSpritesetPalette()
+ * TLN_GetTilesetPalette(), TLN_GetSpritesetPalette()
  */
 TLN_Palette TLN_LoadPalette (char *filename)
 {

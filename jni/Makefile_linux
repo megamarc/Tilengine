@@ -2,6 +2,7 @@ CC       = gcc
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
 PLATFORM = linux
+JAVA_HOME= /home/marc/JDK7
 INCS     = -I"$(JAVA_HOME)/include" -I"$(JAVA_HOME)/include/$(PLATFORM)" -I"../lib"
 LIBS     = -l:libTilengine.so -lSDL2 -lc
 BIN      = $(PLATFORM)/libTilengineJNI.so

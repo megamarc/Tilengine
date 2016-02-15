@@ -34,6 +34,8 @@ static int			 tln_width;
 static int			 tln_height;
 static int			 instances = 0;
 static bool			 blur = false;
+static BYTE*		 rt_pixels;
+static int			 rt_pitch;
 
 static int			inputs;
 static int			last_key;
@@ -52,6 +54,7 @@ WndParams;
 /* local prototypes */
 static SDL_Surface* CreateOverlaySurface (char* filename, int dstw, int dsth);
 static SDL_Texture* LoadTexture (char* filename);
+static void hblur (BYTE* scan, int width, int height, int pitch);
 
 static bool CreateWindow (int width, int height, TLN_WindowFlags flags, char* file_overlay)
 {
@@ -251,7 +254,7 @@ static bool CreateWindowThread (int width, int height, TLN_WindowFlags flags, ch
  * so it isn't needed to provide external components to run the examples or do engine tests.
  * 
  * \see
- * TLN_DeleteWindow()|TLN_ProcessWindow()|TLN_GetInput()|TLN_DrawFrame()
+ * TLN_DeleteWindow(), TLN_ProcessWindow(), TLN_GetInput(), TLN_DrawFrame()
  */
 bool TLN_CreateWindow (char* overlay, TLN_WindowFlags flags)
 {
@@ -296,7 +299,7 @@ bool TLN_CreateWindow (char* overlay, TLN_WindowFlags flags)
  * Unlike TLN_CreateWindow, This window runs in its own thread
  * 
  * \see
- * TLN_DeleteWindow()|TLN_IsWindowActive()|TLN_GetInput()|TLN_UpdateFrame()
+ * TLN_DeleteWindow(), TLN_IsWindowActive(), TLN_GetInput(), TLN_UpdateFrame()
  */
 bool TLN_CreateWindowThread (char* overlay, TLN_WindowFlags flags)
 {
@@ -484,7 +487,7 @@ bool TLN_ProcessWindow (void)
  * or clicking the close button)
  * 
  * \see
- * TLN_CreateWindow()|TLN_CreateWindowThread()
+ * TLN_CreateWindow(), TLN_CreateWindowThread()
  */
 bool TLN_IsWindowActive (void)
 {
@@ -571,25 +574,37 @@ int TLN_GetLastInput (void)
 	return retval;
 }
 
-/* basic horizontal blur emulating RF blurring */
-static void hblur (BYTE* scan, int width, int height, int pitch)
+/*!
+ * \brief Begins active rendering frame in built-in window
+ * \param time Timestamp (same value as in TLN_UpdateFrame())
+ * \remarks Use this function instead of TLN_BeginFrame() when using the built-in window
+ * \see TLN_CreateWindow(), TLN_EndWindowFrame(), TLN_DrawNextScanline()
+ */
+void TLN_BeginWindowFrame (int time)
 {
-	int x,y;
-	BYTE *pixel;
+	SDL_LockTexture (backbuffer, NULL, &rt_pixels, &rt_pitch);
+	TLN_SetRenderTarget (rt_pixels, rt_pitch);
+	TLN_BeginFrame (time);
+}
+
+/*!
+ * \brief Finishes rendering the current frame and updates the built-in window
+ * \see TLN_CreateWindow(), TLN_BeginWindowFrame(), TLN_DrawNextScanline()
+ */
+void TLN_EndWindowFrame (void)
+{
+	if (blur)
+		hblur (rt_pixels, tln_width, tln_height, rt_pitch);
 	
-	width -= 1;
-	for (y=0; y<height; y++)
-	{
-		pixel = scan;
-		for (x=0; x<width; x++)
-		{
-			pixel[0] = (pixel[0] + pixel[4]) >> 1;
-			pixel[1] = (pixel[1] + pixel[5]) >> 1;
-			pixel[2] = (pixel[2] + pixel[6]) >> 1;
-			pixel += sizeof(DWORD);
-		}
-		scan += pitch;
-	}
+	/* end frame and apply overlay */
+	SDL_UnlockTexture (backbuffer);
+	SDL_SetRenderDrawColor (renderer, 0,0,0,255);
+	SDL_RenderClear (renderer);
+	SDL_SetTextureAlphaMod (backbuffer, 0);
+	SDL_RenderCopy (renderer, backbuffer, NULL, &dstrect);
+	if (overlay)
+		SDL_RenderCopy (renderer, overlay, NULL, &dstrect);
+	SDL_RenderPresent (renderer);
 }
 
 /*!
@@ -607,37 +622,18 @@ static void hblur (BYTE* scan, int width, int height, int pitch)
  * not needed to call TLN_UpdateFrame() too.
  * 
  * \see
- * TLN_CreateWindow()|TLN_UpdateFrame()
+ * TLN_CreateWindow(), TLN_UpdateFrame()
  */
 void TLN_DrawFrame (int time)
 {
-	BYTE* pixels = NULL;
-	int pitch = 0;
-
-	/* begin frame */
-	SDL_LockTexture (backbuffer, NULL, &pixels, &pitch);
-
-	/* draw */
-	TLN_SetRenderTarget (pixels, pitch);
-	TLN_UpdateFrame (time);
-	if (blur)
-		hblur (pixels, tln_width, tln_height, pitch);
-	
-	/* end frame and apply overlay */
-	SDL_UnlockTexture (backbuffer);
-	SDL_SetRenderDrawColor (renderer, 0,0,0,255);
-	SDL_RenderClear (renderer);
-	SDL_SetTextureAlphaMod (backbuffer, 0);
-	SDL_RenderCopy (renderer, backbuffer, NULL, &dstrect);
-	if (overlay)
-		SDL_RenderCopy (renderer, overlay, NULL, &dstrect);
-	SDL_RenderPresent (renderer);
+	TLN_BeginWindowFrame (time);
+	while (TLN_DrawNextScanline ()){}
+	TLN_EndWindowFrame ();
 }
 
 /*!
  * \brief
  * Returns the number of milliseconds since application start
- * 
  */
 DWORD TLN_GetTicks (void)
 {
@@ -682,4 +678,25 @@ static SDL_Surface* CreateOverlaySurface (char* filename, int dstw, int dsth)
 	SDL_FreeSurface (srcsurf);
 
 	return surface;
+}
+
+/* basic horizontal blur emulating RF blurring */
+static void hblur (BYTE* scan, int width, int height, int pitch)
+{
+	int x,y;
+	BYTE *pixel;
+	
+	width -= 1;
+	for (y=0; y<height; y++)
+	{
+		pixel = scan;
+		for (x=0; x<width; x++)
+		{
+			pixel[0] = (pixel[0] + pixel[4]) >> 1;
+			pixel[1] = (pixel[1] + pixel[5]) >> 1;
+			pixel[2] = (pixel[2] + pixel[6]) >> 1;
+			pixel += sizeof(DWORD);
+		}
+		scan += pitch;
+	}
 }

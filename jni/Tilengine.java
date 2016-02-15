@@ -102,6 +102,8 @@ public class Tilengine
 	public native void SetRasterCallback (Object obj, String methodname);
 	public native void SetRenderTarget (int[] data, int pitch);
 	public native void UpdateFrame (int time);
+	public native void BeginFrame (int time);
+	public native boolean TLN_DrawNextScanline ();
 	
 	// error handling 
 	public native void SetLastError (int error);
@@ -119,6 +121,8 @@ public class Tilengine
 	public native void EnableBlur (boolean mode);
 	public native int GetTicks ();
 	public native void Delay (int time);
+	public native void BeginWindowFrame ();
+	public native void EndWindowFrame ();
 	
 	// spritesets management 
 	public native int CreateSpriteset (int entries, Rect rects, byte[] data, int width, int height, int pitch, int palette);

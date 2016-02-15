@@ -51,8 +51,8 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 
 /* version */
 #define TILENGINE_VER_MAJ	1
-#define TILENGINE_VER_MIN	6
-#define TILENGINE_VER_REV	5
+#define TILENGINE_VER_MIN	7
+#define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ<<16) | (TILENGINE_VER_MIN<<8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -234,6 +234,9 @@ TLNAPI bool TLN_SetBGPalette (TLN_Palette palette);
 TLNAPI void TLN_SetRasterCallback (void (*callback)(int));
 TLNAPI void TLN_SetRenderTarget (BYTE* data, int pitch);
 TLNAPI void TLN_UpdateFrame (int time);
+TLNAPI void TLN_BeginFrame (int time);
+TLNAPI bool TLN_DrawNextScanline (void);
+
 /**@}*/
 
 /** 
@@ -263,6 +266,9 @@ TLNAPI void TLN_DeleteWindow (void);
 TLNAPI void TLN_EnableBlur (bool mode);
 TLNAPI void TLN_Delay (DWORD msecs);
 TLNAPI DWORD TLN_GetTicks (void);
+TLNAPI void TLN_BeginWindowFrame (int time);
+TLNAPI void TLN_EndWindowFrame (void);
+
 /**@}*/
 
 /** 

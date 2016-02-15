@@ -148,6 +148,13 @@ UpdateFrame = tln.TLN_UpdateFrame
 UpdateFrame.argtypes = [c_int]
 UpdateFrame.restype = None
 
+BeginFrame = tln.TLN_BeginFrame
+BeginFrame.argtypes = [c_int]
+BeginFrame.restype = None
+
+DrawNextScanline = tln.TLN_DrawNextScanline
+DrawNextScanline.restype = c_bool
+
 # window management -----------------------------------------------------------
 CreateWindow = tln.TLN_CreateWindow
 CreateWindow.argtypes = [c_char_p, c_int]
@@ -187,6 +194,13 @@ GetTicks.restype = c_int
 Delay = tln.TLN_Delay
 Delay.argtypes = [c_int]
 Delay.restype = None
+
+BeginWindowFrame = tln.TLN_BeginWindowFrame
+BeginWindowFrame.argtypes = [c_int]
+BeginWindowFrame.restype = None
+
+EndWindowFrame = tln.TLN_EndWindowFrame
+EndWindowFrame.restype = None
 
 # spritesets management
 CreateSpriteset = tln.TLN_CreateSpriteset

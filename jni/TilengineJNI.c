@@ -142,6 +142,17 @@ JNIEXPORT void JNICALL Java_Tilengine_UpdateFrame (JNIEnv* env, jobject thisobj,
 	}
 }
 
+JNIEXPORT void JNICALL Java_Tilengine_BeginFrame (JNIEnv* env, jobject thisobj, jint time)
+{
+	TLN_BeginFrame (time);
+}
+
+JNIEXPORT bool JNICALL Java_Tilengine_DrawNextScanline (JNIEnv* env, jobject thisobj)
+{
+	return TLN_DrawNextScanline ();
+}
+
+
 // ****************************************************************************
 // Error handling
 // ****************************************************************************
@@ -231,6 +242,16 @@ JNIEXPORT jint JNICALL Java_Tilengine_GetTicks (JNIEnv* env, jobject thisobj)
 JNIEXPORT void JNICALL Java_Tilengine_Delay (JNIEnv* env, jobject thisobj, jint time)
 {
 	TLN_Delay (time);
+}
+
+JNIEXPORT void JNICALL Java_Tilengine_BeginWindowFrame (JNIEnv* env, jobject thisobj, jint time)
+{
+	TLN_BeginWindowFrame (time);
+}
+
+JNIEXPORT void JNICALL Java_Tilengine_EndWindowFrame (JNIEnv* env, jobject thisobj)
+{
+	TLN_EndWindowFrame ();
 }
 
 // ****************************************************************************
