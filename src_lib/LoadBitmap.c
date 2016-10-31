@@ -70,62 +70,75 @@ TLN_Bitmap TLN_LoadBitmap (char *filename)
 	return bitmap;
 }
 
-/* Loads PNG using libpng */
+/* Loads PNG using libpng 1.2 */
 static TLN_Bitmap LoadPNG (char *filename)
 {
-	png_image image;
 	TLN_Bitmap bitmap = NULL;
+	FILE* fp;
+	png_struct* png;
+	png_info* info;
+	int width, height;
+	png_byte color_type;
+	png_byte bit_depth;
+	png_bytep *row_pointers;
+	char header[8];
+	int y;
 
-	/* Only the image structure version number needs to be set. */
-	memset (&image, 0, sizeof image);
-	image.version = PNG_IMAGE_VERSION;
+	fp = fopen (filename, "rb");
+	if (!fp)
+		return NULL;
 
-	if (png_image_begin_read_from_file (&image, filename))
+	fread (header, 8, 1, fp);
+	if (png_sig_cmp(header, 0, 8))
 	{
-		int src_line_size = image.width * PNG_IMAGE_PIXEL_SIZE(image.format);
-		int lut_size = PNG_IMAGE_COLORMAP_SIZE(image);
-		BYTE* data = malloc (src_line_size * image.height);
-		BYTE* lut = malloc (lut_size);
-		
-		bitmap = TLN_CreateBitmap (image.width, image.height, PNG_IMAGE_PIXEL_SIZE(image.format)<<3);
-
-		/* Change this to try different formats!  If you set a colormap format
-		* then you must also supply a colormap below.
-		*/
-		image.format = PNG_FORMAT_RGB_COLORMAP;
-		if (png_image_finish_read (&image, NULL, data, 0, lut))
-		{
-			BYTE *src, *dst;
-			unsigned int c;
-			
-			png_image_free (&image);
-
-			/* copy scanlines */
-			src = data;
-			for (c=0; c<image.height; c++)
-			{
-				dst = TLN_GetBitmapPtr (bitmap, 0, c);
-				memcpy (dst, src, src_line_size);
-				src += src_line_size;
-			}
-
-			/* get palette */
-			{
-				BYTE *src = lut;
-				png_uint_32 c;
-				TLN_Palette palette;
-				palette = TLN_CreatePalette (image.colormap_entries);
-				for (c=0; c<image.colormap_entries; c++)
-				{
-					TLN_SetPaletteColor (palette, c, src[0], src[1], src[2]);
-					src += 3;
-				}
-				TLN_SetBitmapPalette (bitmap, palette);
-			}
-		}
-		free (lut);
-		free (data);
+		fclose (fp);
+		return NULL;
 	}
+
+	png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	info = png_create_info_struct(png);
+	
+	setjmp(png_jmpbuf(png));
+	png_init_io(png, fp);
+	png_set_sig_bytes(png, 8);
+	png_read_info(png, info);
+
+	width      = png_get_image_width(png, info);
+	height     = png_get_image_height(png, info);
+	color_type = png_get_color_type(png, info);
+	bit_depth  = png_get_bit_depth(png, info);
+    
+    png_read_update_info(png, info);
+
+	setjmp(png_jmpbuf(png));
+	row_pointers = (png_bytep*) malloc(sizeof(png_bytep) * height);
+	bitmap = TLN_CreateBitmap (width, height, bit_depth);
+	for (y=0; y<height; y++)
+		row_pointers[y] = (png_byte*) TLN_GetBitmapPtr (bitmap, 0,y);
+	png_read_image(png, row_pointers);
+	free (row_pointers);
+
+	/* 8 bpp indexed palette */
+	if (color_type == PNG_COLOR_TYPE_PALETTE)
+	{
+		png_colorp png_palette = NULL;
+		int palette_entries = 0;
+		TLN_Palette palette;
+		int c;
+
+		png_get_PLTE(png,info, &png_palette, &palette_entries);
+
+		palette = TLN_CreatePalette (palette_entries);
+		for (c=0; c<palette_entries; c++)
+		{
+			TLN_SetPaletteColor (palette, c, 
+				png_palette[c].red, png_palette[c].green, png_palette[c].blue);
+		}
+		TLN_SetBitmapPalette (bitmap, palette);
+	}
+
+	fclose(fp);
+	png_destroy_read_struct (&png, &info, NULL);
 	return bitmap;
 }
 

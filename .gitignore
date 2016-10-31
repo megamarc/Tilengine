@@ -5,7 +5,11 @@ map2tileset/
 Thumbs.db
 Tilengine.doc
 Tilengine.sln
+Tilengine.pdf
 clean.bat
+deploy.bat
+benchmark.txt
+android/
 
 # archivos de visual studio
 Debug/
@@ -18,13 +22,30 @@ obj/
 *.exp
 *.suo
 *.o
+*.obj
+
+#precompilados
+bin/linux
+bin/raspbian
+bin/win32
+bin/x64
+bin/*.class
+bin/*.exe
+bin/*.dll
+bin/*.py
+
+#bindings
+bindings/csharp/*.exe
+bindings/csharp/bin
+bindings/csharp/Properties
+bindings/java/bin
 
 # fuentes lib
-doxygen/
-libpng/
-sdl/
-Makefile_*
-Tilengine.dev
+src_lib/android/
+src_lib/doxygen/
+src_lib/libpng/
+src_lib/sdl/
+Makefile*
 Animation.*
 Bitmap.*
 Blitters.*

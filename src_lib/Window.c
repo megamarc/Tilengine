@@ -14,7 +14,9 @@
  ******************************************************************************
  */
 
-#include "SDL.h"
+#ifndef TLN_EXCLUDE_WINDOW
+
+#include "SDL2/SDL.h"
 #include "Tilengine.h"
 
 static SDL_Window*   window;
@@ -32,6 +34,7 @@ static int			 wnd_width;
 static int			 wnd_height;
 static int			 tln_width;
 static int			 tln_height;
+static int			 tln_bpp;
 static int			 instances = 0;
 static bool			 blur = false;
 static BYTE*		 rt_pixels;
@@ -45,6 +48,7 @@ typedef struct
 {
 	int width;
 	int height;
+	int bpp;
 	TLN_WindowFlags flags;
 	char* file_overlay;
 	volatile int retval;
@@ -52,17 +56,18 @@ typedef struct
 WndParams;
 
 /* local prototypes */
-static SDL_Surface* CreateOverlaySurface (char* filename, int dstw, int dsth);
+static SDL_Surface* CreateOverlaySurface (char* filename, int dstw, int dsth, int bpp);
 static SDL_Texture* LoadTexture (char* filename);
 static void hblur (BYTE* scan, int width, int height, int pitch);
 
-static bool CreateWindow (int width, int height, TLN_WindowFlags flags, char* file_overlay)
+static bool CreateWindow (int width, int height, int bpp, TLN_WindowFlags flags, char* file_overlay)
 {
 	SDL_DisplayMode mode;
 	SDL_Surface* surface = NULL;
 	int factor;
 	int rflags;
 	char quality;
+	Uint32 format = 0;
 
 	if (SDL_Init (SDL_INIT_VIDEO|SDL_INIT_JOYSTICK) != 0)
 		return false;
@@ -104,8 +109,10 @@ static bool CreateWindow (int width, int height, TLN_WindowFlags flags, char* fi
 		dstrect.h = wnd_height;
 	}
 
+	rflags = 0;
+
 	/* ventana */
-	window = SDL_CreateWindow ("Tilengine window", (mode.w - wnd_width)>>1 ,(mode.h - wnd_height)>>1, wnd_width,wnd_height, 0);
+	window = SDL_CreateWindow ("Tilengine window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, wnd_width,wnd_height, rflags);
 	if (!window)
 	{
 		TLN_DeleteWindow ();
@@ -126,7 +133,11 @@ static bool CreateWindow (int width, int height, TLN_WindowFlags flags, char* fi
 	SDL_SetHint (SDL_HINT_RENDER_SCALE_QUALITY, &quality);
 	
 	/* textura para recibir los pixeles de Tilengine */
-	backbuffer = SDL_CreateTexture (renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width,height);
+	if (bpp == 32)
+		format = SDL_PIXELFORMAT_ARGB8888;
+	else if (bpp == 16)
+		format = SDL_PIXELFORMAT_RGB565;
+	backbuffer = SDL_CreateTexture (renderer, format, SDL_TEXTUREACCESS_STREAMING, width,height);
 	if (!backbuffer)
 	{
 		TLN_DeleteWindow ();
@@ -135,7 +146,7 @@ static bool CreateWindow (int width, int height, TLN_WindowFlags flags, char* fi
 
 	/* textura de overlay RGB */
 	if (file_overlay)
-		surface = CreateOverlaySurface (file_overlay, wnd_width, wnd_height);
+		surface = CreateOverlaySurface (file_overlay, wnd_width, wnd_height, bpp);
 	if (surface)
 	{
 		overlay = SDL_CreateTextureFromSurface (renderer, surface);
@@ -181,7 +192,7 @@ static int WindowThread (void* data)
 	bool ok;
 	WndParams* params = (WndParams*)data;
 
-	ok = CreateWindow (params->width, params->height, params->flags, params->file_overlay);
+	ok = CreateWindow (params->width, params->height, params->bpp, params->flags, params->file_overlay);
 	if (ok == true)
 		params->retval = 1;
 	else
@@ -204,13 +215,14 @@ static int WindowThread (void* data)
 	return 0;
 }
 
-static bool CreateWindowThread (int width, int height, TLN_WindowFlags flags, char* file_overlay)
+static bool CreateWindowThread (int width, int height, int bpp, TLN_WindowFlags flags, char* file_overlay)
 {
 	WndParams params;
 
 	/* fill parameters for window creation */
 	params.width = width;
 	params.height = height;
+	params.bpp = bpp;
 	params.flags = flags|CWF_VSYNC;
 	params.file_overlay = file_overlay;
 	params.retval = 0;
@@ -269,7 +281,8 @@ bool TLN_CreateWindow (char* overlay, TLN_WindowFlags flags)
 
 	tln_width  = TLN_GetWidth ();
 	tln_height = TLN_GetHeight ();
-	ok = CreateWindow (tln_width, tln_height, flags, overlay);
+	tln_bpp = TLN_GetBPP ();
+	ok = CreateWindow (tln_width, tln_height, tln_bpp, flags, overlay);
 	if (ok)
 		instances++;
 	return ok;
@@ -314,7 +327,8 @@ bool TLN_CreateWindowThread (char* overlay, TLN_WindowFlags flags)
 
 	tln_width  = TLN_GetWidth ();
 	tln_height = TLN_GetHeight ();
-	ok = CreateWindowThread (tln_width, tln_height, flags, overlay);
+	tln_bpp = TLN_GetBPP ();
+	ok = CreateWindowThread (tln_width, tln_height, tln_bpp, flags, overlay);
 	if (ok)
 		instances++;
 	return ok;
@@ -526,7 +540,7 @@ void TLN_WaitRedraw (void)
  */
 void TLN_EnableBlur (bool mode)
 {
-	blur = mode;
+	blur = mode && tln_bpp == 32;
 }
 
 /*!
@@ -651,7 +665,7 @@ void TLN_Delay (DWORD time)
 }
 
 /* loads a BMP image as overlay */
-static SDL_Surface* CreateOverlaySurface (char* filename, int dstw, int dsth)
+static SDL_Surface* CreateOverlaySurface (char* filename, int dstw, int dsth, int bpp)
 {
 	SDL_Surface* srcsurf;
 	SDL_Surface* surface;
@@ -662,7 +676,10 @@ static SDL_Surface* CreateOverlaySurface (char* filename, int dstw, int dsth)
 	srcsurf = SDL_LoadBMP (filename);
 	if (!srcsurf)
 		return NULL;
-	surface = SDL_CreateRGBSurface (0, dstw,dsth,32, 0,0,0,0xFF000000);
+	if (bpp == 16)
+		surface = SDL_CreateRGBSurface (0, dstw,dsth,16, 0xF800,0x07E0,0x001F,0x0000);
+	else
+		surface = SDL_CreateRGBSurface (0, dstw,dsth,32, 0,0,0,0xFF000000);
 	if (!surface)
 		return NULL;
 
@@ -700,3 +717,5 @@ static void hblur (BYTE* scan, int width, int height, int pitch)
 		scan += pitch;
 	}
 }
+
+#endif

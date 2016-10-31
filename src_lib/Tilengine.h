@@ -51,7 +51,7 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 
 /* version */
 #define TILENGINE_VER_MAJ	1
-#define TILENGINE_VER_MIN	7
+#define TILENGINE_VER_MIN	9
 #define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ<<16) | (TILENGINE_VER_MIN<<8) | TILENGINE_VER_REV)
 
@@ -142,6 +142,8 @@ typedef struct
 {
 	WORD index;		/*!< tile index */
 	WORD flags;		/*!< attributes (FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY) */
+	int row;		/*!< row number in the tilemap */
+	int col;		/*!< col number in the tilemap */
 	int xoffset;	/*!< horizontal position inside the title */
 	int yoffset;	/*!< vertical position inside the title */
 }
@@ -220,9 +222,11 @@ extern "C"{
  * Basic setup and management */
 /**@{*/
 TLNAPI bool TLN_Init (int hres, int vres, int numlayers, int numsprites, int numanimations);
+TLNAPI bool TLN_InitBPP (int hres, int vres, int bpp, int numlayers, int numsprites, int numanimations);
 TLNAPI void TLN_Deinit (void);
 TLNAPI int TLN_GetWidth (void);
 TLNAPI int TLN_GetHeight (void);
+TLNAPI int TLN_GetBPP (void);
 TLNAPI DWORD TLN_GetNumObjects (void);
 TLNAPI DWORD TLN_GetUsedMemory (void);
 TLNAPI DWORD TLN_GetVersion (void);
@@ -293,6 +297,7 @@ TLNAPI TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_P
 TLNAPI TLN_Tileset TLN_LoadTileset (char *filename);
 TLNAPI TLN_Tileset TLN_CloneTileset (TLN_Tileset src);
 TLNAPI bool TLN_SetTilesetPixels (TLN_Tileset tileset, int entry, BYTE* srcdata, int srcpitch);
+TLNAPI bool TLN_CopyTile (TLN_Tileset tileset, int src, int dst);
 TLNAPI int TLN_GetTileWidth (TLN_Tileset tileset);
 TLNAPI int TLN_GetTileHeight (TLN_Tileset tileset);
 TLNAPI TLN_Palette TLN_GetTilesetPalette (TLN_Tileset tileset);
@@ -325,7 +330,7 @@ TLNAPI TLN_Palette TLN_LoadPalette (char *filename);
 TLNAPI TLN_Palette TLN_ClonePalette (TLN_Palette src);
 TLNAPI bool TLN_SetPaletteColor (TLN_Palette palette, int color, BYTE r, BYTE g, BYTE b);
 TLNAPI bool TLN_MixPalettes (TLN_Palette src1, TLN_Palette src2, TLN_Palette dst, BYTE factor);
-TLNAPI DWORD* TLN_GetPaletteData (TLN_Palette palette, int index);
+TLNAPI BYTE* TLN_GetPaletteData (TLN_Palette palette, int index);
 TLNAPI bool TLN_DeletePalette (TLN_Palette palette);
 /**@}*/
 
