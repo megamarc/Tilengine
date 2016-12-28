@@ -51,7 +51,7 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 
 /* version */
 #define TILENGINE_VER_MAJ	1
-#define TILENGINE_VER_MIN	9
+#define TILENGINE_VER_MIN	10
 #define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ<<16) | (TILENGINE_VER_MIN<<8) | TILENGINE_VER_REV)
 
@@ -85,6 +85,7 @@ typedef enum
 	BLEND_MIX,	/*!< color averaging */
 	BLEND_ADD,	/*!< color is always brighter (simulate light effects) */
 	BLEND_SUB,	/*!< color is always darker (simulate shadow effects) */
+	BLEND_MOD,	/*!< color is always darker (simulate shadow effects) */
 	MAX_BLEND
 }
 TLN_Blend;
@@ -146,6 +147,7 @@ typedef struct
 	int col;		/*!< col number in the tilemap */
 	int xoffset;	/*!< horizontal position inside the title */
 	int yoffset;	/*!< vertical position inside the title */
+	BYTE color;		/*!< color index at collision point */
 }
 TLN_TileInfo;
 
@@ -232,7 +234,7 @@ TLNAPI DWORD TLN_GetUsedMemory (void);
 TLNAPI DWORD TLN_GetVersion (void);
 TLNAPI int TLN_GetNumLayers (void);
 TLNAPI int TLN_GetNumSprites (void);
-TLNAPI void TLN_SetBGColor (int r, int g, int b);
+TLNAPI void TLN_SetBGColor (BYTE r, BYTE g, BYTE b);
 TLNAPI bool TLN_SetBGBitmap (TLN_Bitmap bitmap);
 TLNAPI bool TLN_SetBGPalette (TLN_Palette palette);
 TLNAPI void TLN_SetRasterCallback (void (*callback)(int));
@@ -240,6 +242,7 @@ TLNAPI void TLN_SetRenderTarget (BYTE* data, int pitch);
 TLNAPI void TLN_UpdateFrame (int time);
 TLNAPI void TLN_BeginFrame (int time);
 TLNAPI bool TLN_DrawNextScanline (void);
+TLNAPI void TLN_SetLoadPath (const char* path);
 
 /**@}*/
 
@@ -250,6 +253,7 @@ TLNAPI bool TLN_DrawNextScanline (void);
 /**@{*/
 TLNAPI void TLN_SetLastError (TLN_Error error);
 TLNAPI TLN_Error TLN_GetLastError (void);
+TLNAPI const char *TLN_GetErrorString (TLN_Error error);
 /**@}*/
 
 /** 
@@ -257,9 +261,9 @@ TLNAPI TLN_Error TLN_GetLastError (void);
  * \name Windowing
  * Built-in window and input management */
 /**@{*/
-TLNAPI bool TLN_CreateWindow (char* overlay, TLN_WindowFlags flags);
-TLNAPI bool TLN_CreateWindowThread (char* overlay, TLN_WindowFlags flags);
-TLNAPI void TLN_SetWindowTitle (char* title);
+TLNAPI bool TLN_CreateWindow (const char* overlay, TLN_WindowFlags flags);
+TLNAPI bool TLN_CreateWindowThread (const char* overlay, TLN_WindowFlags flags);
+TLNAPI void TLN_SetWindowTitle (const char* title);
 TLNAPI bool TLN_ProcessWindow (void);
 TLNAPI bool TLN_IsWindowActive (void);
 TLNAPI bool TLN_GetInput (TLN_Input id);
@@ -281,7 +285,7 @@ TLNAPI void TLN_EndWindowFrame (void);
  * Spriteset resources management for sprites */
 /**@{*/
 TLNAPI TLN_Spriteset TLN_CreateSpriteset (int entries, TLN_Rect* rects, BYTE* data, int width, int height, int pitch, TLN_Palette palette);
-TLNAPI TLN_Spriteset TLN_LoadSpriteset (char *name);
+TLNAPI TLN_Spriteset TLN_LoadSpriteset (const char* name);
 TLNAPI TLN_Spriteset TLN_CloneSpriteset (TLN_Spriteset src);
 TLNAPI bool TLN_GetSpriteInfo (TLN_Spriteset spriteset, int entry, TLN_SpriteInfo* info);
 TLNAPI TLN_Palette TLN_GetSpritesetPalette (TLN_Spriteset spriteset);
@@ -294,7 +298,7 @@ TLNAPI bool TLN_DeleteSpriteset (TLN_Spriteset Spriteset);
  * Tileset resources management for background layers */
 /**@{*/
 TLNAPI TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette palette);
-TLNAPI TLN_Tileset TLN_LoadTileset (char *filename);
+TLNAPI TLN_Tileset TLN_LoadTileset (const char* filename);
 TLNAPI TLN_Tileset TLN_CloneTileset (TLN_Tileset src);
 TLNAPI bool TLN_SetTilesetPixels (TLN_Tileset tileset, int entry, BYTE* srcdata, int srcpitch);
 TLNAPI bool TLN_CopyTile (TLN_Tileset tileset, int src, int dst);
@@ -310,7 +314,7 @@ TLNAPI bool TLN_DeleteTileset (TLN_Tileset tileset);
  * Tilemap resources management for background layers */
 /**@{*/
 TLNAPI TLN_Tilemap TLN_CreateTilemap (int rows, int cols, TLN_Tile tiles);
-TLNAPI TLN_Tilemap TLN_LoadTilemap (char *filename, char *layername);
+TLNAPI TLN_Tilemap TLN_LoadTilemap (const char* filename, const char* layername);
 TLNAPI TLN_Tilemap TLN_CloneTilemap (TLN_Tilemap src);
 TLNAPI int TLN_GetTilemapRows (TLN_Tilemap tilemap);
 TLNAPI int TLN_GetTilemapCols (TLN_Tilemap tilemap);
@@ -326,7 +330,7 @@ TLNAPI bool TLN_DeleteTilemap (TLN_Tilemap tilemap);
  * Color palette resources management for sprites and background layers */
 /**@{*/
 TLNAPI TLN_Palette TLN_CreatePalette (int entries);
-TLNAPI TLN_Palette TLN_LoadPalette (char *filename);
+TLNAPI TLN_Palette TLN_LoadPalette (const char* filename);
 TLNAPI TLN_Palette TLN_ClonePalette (TLN_Palette src);
 TLNAPI bool TLN_SetPaletteColor (TLN_Palette palette, int color, BYTE r, BYTE g, BYTE b);
 TLNAPI bool TLN_MixPalettes (TLN_Palette src1, TLN_Palette src2, TLN_Palette dst, BYTE factor);
@@ -340,7 +344,7 @@ TLNAPI bool TLN_DeletePalette (TLN_Palette palette);
  * Bitmap management */
 /**@{*/
 TLNAPI TLN_Bitmap TLN_CreateBitmap (int width, int height, int bpp);
-TLNAPI TLN_Bitmap TLN_LoadBitmap (char *filename);
+TLNAPI TLN_Bitmap TLN_LoadBitmap (const char* filename);
 TLNAPI TLN_Bitmap TLN_CloneBitmap (TLN_Bitmap src);
 TLNAPI BYTE* TLN_GetBitmapPtr (TLN_Bitmap bitmap, int x, int y);
 TLNAPI int TLN_GetBitmapWidth (TLN_Bitmap bitmap);
@@ -398,8 +402,8 @@ TLNAPI TLN_Palette TLN_GetSpritePalette (int nsprite);
  * \name Sequences
  * Sequence resources management for layer, sprite and palette animations */
 /**@{*/
-TLNAPI TLN_Sequence TLN_CreateSequence (char* name, int delay, int first, int num_frames, int* data);
-TLNAPI TLN_Cycle TLN_CreateCycle (char* name, int num_strips, TLN_ColorStrip* strips);
+TLNAPI TLN_Sequence TLN_CreateSequence (const char* name, int delay, int first, int num_frames, int* data);
+TLNAPI TLN_Cycle TLN_CreateCycle (const char* name, int num_strips, TLN_ColorStrip* strips);
 TLNAPI TLN_Sequence TLN_CloneSequence (TLN_Sequence src);
 TLNAPI bool TLN_DeleteSequence (TLN_Sequence sequence);
 /**@}*/
@@ -410,8 +414,8 @@ TLNAPI bool TLN_DeleteSequence (TLN_Sequence sequence);
  * Sequence pack manager for grouping and finding sequences */
 /**@{*/
 TLNAPI TLN_SequencePack TLN_CreateSequencePack (void);
-TLNAPI TLN_SequencePack TLN_LoadSequencePack (char* filename);
-TLNAPI TLN_Sequence TLN_FindSequence (TLN_SequencePack sp, char* name);
+TLNAPI TLN_SequencePack TLN_LoadSequencePack (const char* filename);
+TLNAPI TLN_Sequence TLN_FindSequence (TLN_SequencePack sp, const char* name);
 TLNAPI bool TLN_AddSequenceToPack (TLN_SequencePack sp, TLN_Sequence sequence);
 TLNAPI bool TLN_DeleteSequencePack (TLN_SequencePack sp);
 /**@}*/
@@ -423,6 +427,7 @@ TLNAPI bool TLN_DeleteSequencePack (TLN_SequencePack sp);
 /**@{*/
 TLNAPI bool TLN_SetPaletteAnimation (int index, TLN_Palette palette, TLN_Sequence sequence, bool blend);
 TLNAPI bool TLN_SetPaletteAnimationSource (int index, TLN_Palette);
+TLNAPI bool TLN_SetTilesetAnimation (int index, int nlayer, TLN_Sequence);
 TLNAPI bool TLN_SetTilemapAnimation (int index, int nlayer, TLN_Sequence);
 TLNAPI bool TLN_SetSpriteAnimation (int index, int nsprite, TLN_Sequence sequence, int loop);
 TLNAPI bool TLN_GetAnimationState (int index);

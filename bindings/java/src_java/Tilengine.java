@@ -38,6 +38,7 @@ public class Tilengine
 	public static final int BLEND_MIX		= 1;
 	public static final int BLEND_ADD		= 2;
 	public static final int BLEND_SUB		= 3;
+	public static final int BLEND_MOD		= 4;
 	
 	// GetInput 
 	public static final int INPUT_NONE		= 0;
@@ -88,6 +89,7 @@ public class Tilengine
 		int col;
 		int xoffset;
 		int yoffset;
+		byte color;
 	}
 	
 	// basic management 
@@ -106,11 +108,13 @@ public class Tilengine
 	public native void SetRenderTarget (int[] data, int pitch);
 	public native void UpdateFrame (int time);
 	public native void BeginFrame (int time);
-	public native boolean TLN_DrawNextScanline ();
+	public native boolean DrawNextScanline ();
+	public native void SetLoadPath (String path);
 	
 	// error handling 
 	public native void SetLastError (int error);
 	public native int GetLastError ();
+	//public native String GetErrorString (int error);
 
 	// window management 
 	public native boolean CreateWindow (String overlay, int flags);
@@ -140,7 +144,7 @@ public class Tilengine
 	public native int LoadTileset (String filename);
 	public native int CloneTileset (int src);
 	public native boolean SetTilesetPixels (int tileset, int entry, byte[] srcdata, int srcpitch);
-	public native boolean CopyTile int tileset, int src, int dst);	
+	public native boolean CopyTile (int tileset, int src, int dst);	
 	public native int GetTileWidth (int tileset);
 	public native int GetTileHeight (int tileset);
 	public native int GetTilesetPalette (int tileset);
@@ -224,6 +228,7 @@ public class Tilengine
 	// animation engine 
 	public native boolean SetPaletteAnimation (int index, int palette, int sequence, boolean blend);
 	public native boolean SetPaletteAnimationSource (int index, int palette);
+	public native boolean SetTilesetAnimation (int index, int nlayer, int sequence);
 	public native boolean SetTilemapAnimation (int index, int nlayer, int sequence);
 	public native boolean SetSpriteAnimation (int index, int nsprite, int sequence, int loop);
 	public native boolean GetAnimationState (int index);

@@ -18,6 +18,7 @@
 #include <malloc.h>
 #include <string.h>
 #include "Tilengine.h"
+#include "LoadFile.h"
 
 /*!
  * \brief
@@ -36,7 +37,7 @@
  * \remarks
  * An associated palette is also created, it can be obtained calling TLN_GetSpritesetPalette()
  */
-TLN_Spriteset TLN_LoadSpriteset (char *name)
+TLN_Spriteset TLN_LoadSpriteset (const char* name)
 {
 	FILE *pf;
 	char filename[64];
@@ -55,7 +56,7 @@ TLN_Spriteset TLN_LoadSpriteset (char *name)
 
 	/* load txt file */
 	sprintf (filename, "%s.txt", name);
-	pf = fopen (filename, "rt");
+	pf = FileOpen (filename);
 	if (!pf)
 	{
 		TLN_DeleteBitmap (bitmap);
@@ -80,16 +81,35 @@ TLN_Spriteset TLN_LoadSpriteset (char *name)
 	fseek (pf, 0, SEEK_SET);
 	for (c=0; c<entries; c++)
 	{
-		char* src;
+		char* equals;
+		char imagename[64];
 
 		/* lee linea */
 		fgets (line, 64, pf);
-		src = line;
-		while (*src!='=')
-			src++;
-		src++;
 		rect = &rects[c];
-		sscanf (src, "%d %d %d %d", &rect->x, &rect->y, &rect->w, &rect->h);
+
+		/* formato SpriteSheetPacker: name = x y w h */
+		equals = strchr (line, '=');
+		if (equals != NULL)
+		{
+			sscanf (line, "%s = %d %d %d %d", imagename, &rect->x, &rect->y, &rect->w, &rect->h);
+			continue;
+		}
+
+		/* formato Leshy SpriteSheet Tool csv: name,x,y,w,h */
+		equals = strchr (line, ',');
+		if (equals != NULL)
+		{
+			char* del = line;
+			while (*del)
+			{
+				if (*del == ',')
+					*del = ' ';
+				del++;
+			}
+			sscanf (line, "%s %d %d %d %d", imagename, &rect->x, &rect->y, &rect->w, &rect->h);
+			continue;
+		}
 	}
 	fclose (pf);
 

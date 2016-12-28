@@ -51,6 +51,7 @@ struct
 {
 	char layer_name[64];		/* name of layer to load */
 	bool load;					/* loading in progress */
+	bool done;					/* loading complete */
 	int cols, rows;				/* map size */
 	encoding_t encoding;		/* encoding */
 	compression_t compression;	/* compression */
@@ -68,14 +69,19 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		break;
 
 	case ADD_ATTRIBUTE:
-		if (!strcasecmp(szName, "layer"))
+		if (!strcasecmp(szName, "layer") && loader.done == false)
 		{
 			if (!strcasecmp(szAttribute, "name"))
 			{
-				if (!strcasecmp(szValue, loader.layer_name))
-					loader.load = true;
+				if (loader.layer_name[0] != 0)
+				{
+					if (!strcasecmp(szValue, loader.layer_name))
+						loader.load = true;
+					else
+						loader.load = false;
+				}
 				else
-					loader.load = false;
+					loader.load = true;
 			}
 			else if (!strcasecmp(szAttribute, "width"))
 				loader.cols = atoi(szValue);
@@ -108,7 +114,10 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 
 	case FINISH_ATTRIBUTES:
 		if (!strcasecmp(szName, "data") && loader.load)
+		{
 			loader.tilemap = TLN_CreateTilemap (loader.rows, loader.cols, NULL);
+			loader.done = true;
+		}
 		break;
 
 	case ADD_CONTENT:
@@ -166,8 +175,8 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
  * 
  * \param filename
  * TMX file with the tilemap
- * \param name
- * name of the layer inside the tmx file to load
+ * \param layername
+ * name of the layer inside the tmx file to load. NULL to load the first layer
  * 
  * \returns
  * Reference to the newly loaded tilemap or NULL if error
@@ -176,7 +185,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
  * A tmx map file from Tiled can contain one or more layers, each with its own name. TLN_LoadTilemap()
  * doesn't load a full tmx file, only the specified layer
  */
-TLN_Tilemap TLN_LoadTilemap (char *filename, char *name)
+TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 {
 	SimpleXmlParser parser;
 	size_t size;
@@ -194,8 +203,10 @@ TLN_Tilemap TLN_LoadTilemap (char *filename, char *name)
 	}
 
 	/* parse */
+	memset (&loader, 0, sizeof(loader));
 	loader.tilemap = NULL;
-	strcpy (loader.layer_name, name);
+	if (layername)
+		strcpy (loader.layer_name, layername);
 	parser = simpleXmlCreateParser (data, (long)size);
 	if (parser != NULL)
 	{

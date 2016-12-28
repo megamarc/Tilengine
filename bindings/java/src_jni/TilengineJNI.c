@@ -75,7 +75,7 @@ JNIEXPORT jint JNICALL Java_Tilengine_GetNumSprites (JNIEnv* env, jobject thisob
 	return TLN_GetNumSprites ();
 }
 
-JNIEXPORT void JNICALL Java_Tilengine_SetBGColor (JNIEnv* env, jobject thisobj, jint r, jint g, jint b)
+JNIEXPORT void JNICALL Java_Tilengine_SetBGColor (JNIEnv* env, jobject thisobj, jbyte r, jbyte g, jbyte b)
 {
 	TLN_SetBGColor (r, g, b);
 }
@@ -101,7 +101,7 @@ JNIEXPORT void JNICALL Java_Tilengine_SetRasterCallback (JNIEnv* env, jobject th
 	/* crea nuevo */
 	if (obj && methodname)
 	{
-		char* strmethod;
+		const char* strmethod;
 		jclass cls;
 		
 		strmethod = (*env)->GetStringUTFChars (env, methodname, NULL);
@@ -157,6 +157,14 @@ JNIEXPORT bool JNICALL Java_Tilengine_DrawNextScanline (JNIEnv* env, jobject thi
 	return TLN_DrawNextScanline ();
 }
 
+JNIEXPORT void JNICALL Java_Tilengine_SetLoadPath (JNIEnv* env, jobject thisobj, jstring path)
+{
+	const char* chars = NULL;
+	
+	chars = (*env)->GetStringUTFChars (env, path, NULL);
+	TLN_SetLoadPath (chars);
+	(*env)->ReleaseStringUTFChars (env, path, chars);
+}
 
 // ****************************************************************************
 // Error handling
@@ -179,7 +187,7 @@ JNIEXPORT jint JNICALL Java_Tilengine_GetLastError (JNIEnv* env, jobject thisobj
 JNIEXPORT jboolean JNICALL Java_Tilengine_CreateWindow (JNIEnv* env, jobject thisobj, jstring filename, jint flags)
 {
 	jboolean retval;
-	char* overlay = NULL;
+	const char* overlay = NULL;
 	
 	if (filename)
 		overlay = (*env)->GetStringUTFChars (env, filename, NULL);
@@ -193,7 +201,7 @@ JNIEXPORT jboolean JNICALL Java_Tilengine_CreateWindow (JNIEnv* env, jobject thi
 JNIEXPORT jboolean JNICALL Java_Tilengine_CreateWindowThread (JNIEnv* env, jobject thisobj, jstring filename, jint flags)
 {
 	jboolean retval;
-	char* overlay = NULL;
+	const char* overlay = NULL;
 	
 	if (filename)
 		overlay = (*env)->GetStringUTFChars (env, filename, NULL);
@@ -266,7 +274,7 @@ JNIEXPORT void JNICALL Java_Tilengine_EndWindowFrame (JNIEnv* env, jobject thiso
 JNIEXPORT jint JNICALL Java_Tilengine_LoadSpriteset (JNIEnv* env, jobject thisobj, jstring filename)
 {
 	TLN_Spriteset spriteset;
-	char* name = NULL;
+	const char* name = NULL;
 
 	if (!filename)
 		return 0;
@@ -332,7 +340,7 @@ JNIEXPORT jint JNICALL Java_Tilengine_CreateTileset (JNIEnv* env, jobject thisob
 JNIEXPORT jint JNICALL Java_Tilengine_LoadTileset (JNIEnv* env, jobject thisobj, jstring filename)
 {
 	TLN_Tileset tileset;
-	char* name;
+	const char* name;
 
 	if (!filename)
 		return 0;
@@ -398,8 +406,8 @@ JNIEXPORT jint JNICALL Java_Tilengine_CreateTilemap (JNIEnv* env, jobject thisob
 
 JNIEXPORT jint JNICALL Java_Tilengine_LoadTilemap (JNIEnv* env, jobject thisobj, jstring filename, jstring layername)
 {
-	char* name;
-	char* layer;
+	const char* name;
+	const char* layer;
 	TLN_Tilemap tilemap;
 
 	if (!filename || !layername)
@@ -498,7 +506,7 @@ JNIEXPORT jint JNICALL Java_Tilengine_CreatePalette (JNIEnv* env, jobject thisob
 
 JNIEXPORT jint JNICALL Java_Tilengine_LoadPalette (JNIEnv* env, jobject thisobj, jstring filename)
 {
-	char* name;
+	const char* name;
 	TLN_Palette palette;
 
 	if (!filename)
@@ -541,7 +549,7 @@ JNIEXPORT jint JNICALL Java_Tilengine_CreateBitmap (JNIEnv* env, jobject thisobj
 
 JNIEXPORT jint JNICALL Java_Tilengine_LoadBitmap (JNIEnv* env, jobject thisobj, jstring filename)
 {
-	char* name;
+	const char* name;
 	TLN_Bitmap bitmap;
 
 	if (!filename)
@@ -779,7 +787,7 @@ JNIEXPORT jint JNICALL Java_Tilengine_GetSpritePalette (JNIEnv* env, jobject thi
 JNIEXPORT jint JNICALL Java_Tilengine_CreateSequence (JNIEnv* env, jobject thisobj, jstring name, jint delay, jint first, jint num_frames, jintArray data)
 {
 	TLN_Sequence sequence = (TLN_Sequence)1;
-	char* text;
+	const char* text;
 	jint* buffer;
 
 	if (!name)
@@ -821,7 +829,7 @@ JNIEXPORT jint JNICALL Java_Tilengine_CreateSequencePack (JNIEnv* env, jobject t
 
 JNIEXPORT jint JNICALL Java_Tilengine_LoadSequencePack (JNIEnv* env, jobject thisobj, jstring filename)
 {
-	char* name;
+	const char* name;
 	TLN_SequencePack sp;
 
 	if (!filename)
@@ -835,7 +843,7 @@ JNIEXPORT jint JNICALL Java_Tilengine_LoadSequencePack (JNIEnv* env, jobject thi
 
 JNIEXPORT jint JNICALL Java_Tilengine_FindSequence (JNIEnv* env, jobject thisobj, jint sp, jstring seqname)
 {
-	char* name;
+	const char* name;
 	TLN_Sequence sequence;
 
 	if (!seqname)
@@ -869,6 +877,11 @@ JNIEXPORT jboolean JNICALL Java_Tilengine_SetPaletteAnimation (JNIEnv* env, jobj
 JNIEXPORT jboolean JNICALL Java_Tilengine_SetPaletteAnimationSource (JNIEnv* env, jobject thisobj, jint index, jint palette)
 {
 	return TLN_SetPaletteAnimationSource (index, (TLN_Palette)palette);
+}
+
+JNIEXPORT jboolean JNICALL Java_Tilengine_SetTilesetAnimation (JNIEnv* env, jobject thisobj, jint index, jint nlayer, jint sequence)
+{
+	return TLN_SetTilesetAnimation (index, nlayer, (TLN_Sequence)sequence);
 }
 
 JNIEXPORT jboolean JNICALL Java_Tilengine_SetTilemapAnimation (JNIEnv* env, jobject thisobj, jint index, jint nlayer, jint sequence)

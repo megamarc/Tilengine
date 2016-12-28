@@ -23,6 +23,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SeizeTheDay", "SeizeTheDay.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Benchmark", "Benchmark.vcproj", "{94C7A71A-BA57-4058-B662-455D3D75F063}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SuperMarioClone", "SuperMarioClone.vcproj", "{A2BF0E2A-1B17-41E9-8309-EFBC926CEE11}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -119,6 +121,14 @@ Global
 		{94C7A71A-BA57-4058-B662-455D3D75F063}.Release|Win32.Build.0 = Release|Win32
 		{94C7A71A-BA57-4058-B662-455D3D75F063}.Release|x64.ActiveCfg = Release|x64
 		{94C7A71A-BA57-4058-B662-455D3D75F063}.Release|x64.Build.0 = Release|x64
+		{A2BF0E2A-1B17-41E9-8309-EFBC926CEE11}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A2BF0E2A-1B17-41E9-8309-EFBC926CEE11}.Debug|Win32.Build.0 = Debug|Win32
+		{A2BF0E2A-1B17-41E9-8309-EFBC926CEE11}.Debug|x64.ActiveCfg = Debug|x64
+		{A2BF0E2A-1B17-41E9-8309-EFBC926CEE11}.Debug|x64.Build.0 = Debug|x64
+		{A2BF0E2A-1B17-41E9-8309-EFBC926CEE11}.Release|Win32.ActiveCfg = Release|Win32
+		{A2BF0E2A-1B17-41E9-8309-EFBC926CEE11}.Release|Win32.Build.0 = Release|Win32
+		{A2BF0E2A-1B17-41E9-8309-EFBC926CEE11}.Release|x64.ActiveCfg = Release|x64
+		{A2BF0E2A-1B17-41E9-8309-EFBC926CEE11}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -139,6 +139,7 @@ namespace Tilengine
         public int Col;
         public int Xoffset;
         public int Yoffset;
+        public byte Color;
     }
 
     /// <summary>
@@ -227,7 +228,7 @@ namespace Tilengine
         private static extern int TLN_GetNumSprites();
 
         [DllImport("Tilengine")]
-        private static extern void TLN_SetBGColor(int r, int g, int b);
+        private static extern void TLN_SetBGColor(byte r, byte g, byte b);
 
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
@@ -260,7 +261,13 @@ namespace Tilengine
         private static extern Error TLN_GetLastError();
 
         [DllImport("Tilengine")]
+        private static extern string TLN_GetErrorString(Error error);
+
+        [DllImport("Tilengine")]
         private static extern int TLN_GetAvailableSprite();
+
+        [DllImport("Tilengine")]
+        private static extern void TLN_SetLoadPath(string path);
 
         private Engine (int hres, int vres, int numLayers, int numSprites, int numAnimations)
         {
@@ -416,6 +423,16 @@ namespace Tilengine
         {
             set { TLN_SetLastError(value); }
             get { return TLN_GetLastError(); }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="error"></param>
+        /// <returns>Returns a string description about the given error</returns>
+        public string GetErrorString(Error error)
+        {
+            return TLN_GetErrorString(error);
         }
 
         /// <summary>

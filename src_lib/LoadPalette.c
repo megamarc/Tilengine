@@ -16,6 +16,7 @@
 #include <malloc.h>
 #include <string.h>
 #include "Tilengine.h"
+#include "LoadFile.h"
 
 #define SWAP(w) ((w)&0xFF)<<8 | ((w)>>8)
 
@@ -47,7 +48,7 @@ trailing;
  * \see
  * TLN_GetTilesetPalette(), TLN_GetSpritesetPalette()
  */
-TLN_Palette TLN_LoadPalette (char *filename)
+TLN_Palette TLN_LoadPalette (const char* filename)
 {
 	FILE *pf;
 	TLN_Palette palette = NULL;
@@ -55,7 +56,7 @@ TLN_Palette TLN_LoadPalette (char *filename)
 	int c;
 
 	/* open file */
-	pf = fopen (filename, "rb");
+	pf = FileOpen (filename);
 	if (!pf)
 	{
 		TLN_SetLastError (TLN_ERR_FILE_NOT_FOUND);

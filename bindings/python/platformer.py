@@ -54,7 +54,7 @@ def raster_effect (line):
 		tln.SetBGColor (0,128,238)
 
 # initialise
-tln.Init (400,240,2,80,1)
+tln.Init (400,240,2,80,1,0)
 tln.CreateWindow ("overlay.bmp", tln.CWF_VSYNC)
 
 # setup layers

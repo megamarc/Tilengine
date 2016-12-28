@@ -80,7 +80,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
  * \remarks
  * An associated palette is also created, it can be obtained calling TLN_GetTilesetPalette()
  */
-TLN_Tileset TLN_LoadTileset (char *filename)
+TLN_Tileset TLN_LoadTileset (const char* filename)
 {
 	SimpleXmlParser parser;
 	size_t size;

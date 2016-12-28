@@ -10,6 +10,8 @@ clean.bat
 deploy.bat
 benchmark.txt
 android/
+deploy/
+*.pyc
 
 # archivos de visual studio
 Debug/

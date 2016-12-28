@@ -9,6 +9,7 @@
 *******************************************************************************
 */
 
+#include <stdio.h>
 #include "Tilengine.h"
 
 /* win32 replacement for unix strcasecmp() */
@@ -18,5 +19,6 @@
 #include <strings.h>
 #endif
 
-BYTE* LoadFile (char* filename, size_t* out_size);
-bool CheckFile (char* filename);
+BYTE* LoadFile (const char* filename, size_t* out_size);
+FILE* FileOpen (const char* filename);
+bool CheckFile (const char* filename);

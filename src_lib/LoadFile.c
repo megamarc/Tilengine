@@ -14,17 +14,51 @@
 
 #include <stdio.h>
 #include <malloc.h>
+#include <string.h>
 #include "LoadFile.h"
 
+#if defined (_MSC_VER)
+	#define DASH "\\"
+#else
+	#define DASH "//"
+#endif
+
+static char localpath[255] = ".";
+
+/*!
+ * \brief
+ * Sets base path for TLN_LoadXXX functions.
+ * 
+ * \param path
+ * Base path. Files will load at path/filename. Can be NULL
+ */
+void TLN_SetLoadPath (const char* path)
+{
+	if (path)
+		strcpy (localpath, path);
+	else
+		strcpy (localpath, ".");
+}
+
+FILE* FileOpen (const char* filename)
+{
+	FILE* pf;
+	char path[255];
+	
+	sprintf (path, "%s" DASH "%s", localpath, filename);
+	pf = fopen (path, "rb");
+	return pf;
+}
+
 /* generic load file into RAM buffer */
-BYTE* LoadFile (char* filename, size_t* out_size)
+BYTE* LoadFile (const char* filename, size_t* out_size)
 {
 	size_t size;
 	FILE* pf;
 	BYTE* data;
 
 	/* abre */
-	pf = fopen (filename, "rb");
+	pf = FileOpen (filename);
 	if (!pf)
 	{
 		*out_size = 0;
@@ -49,11 +83,11 @@ BYTE* LoadFile (char* filename, size_t* out_size)
 }
 
 /* check if file exists */
-bool CheckFile (char* filename)
+bool CheckFile (const char* filename)
 {
 	FILE* pf;
 
-	pf = fopen (filename, "rb");
+	pf = FileOpen (filename);
 	if (!pf)
 		return false;
 

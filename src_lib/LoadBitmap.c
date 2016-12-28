@@ -19,8 +19,8 @@
 #include "png.h"
 #include "DIB.h"
 
-static TLN_Bitmap LoadPNG (char *filename);
-static TLN_Bitmap LoadBMP (char *filename);
+static TLN_Bitmap LoadPNG (const char* filename);
+static TLN_Bitmap LoadBMP (const char* filename);
 
 /*!
  * \brief
@@ -35,7 +35,7 @@ static TLN_Bitmap LoadBMP (char *filename);
  * \see
  * TLN_DeleteBitmap()
  */
-TLN_Bitmap TLN_LoadBitmap (char *filename)
+TLN_Bitmap TLN_LoadBitmap (const char* filename)
 {
 	TLN_Bitmap bitmap;
 
@@ -71,7 +71,7 @@ TLN_Bitmap TLN_LoadBitmap (char *filename)
 }
 
 /* Loads PNG using libpng 1.2 */
-static TLN_Bitmap LoadPNG (char *filename)
+static TLN_Bitmap LoadPNG (const char* filename)
 {
 	TLN_Bitmap bitmap = NULL;
 	FILE* fp;
@@ -84,7 +84,7 @@ static TLN_Bitmap LoadPNG (char *filename)
 	char header[8];
 	int y;
 
-	fp = fopen (filename, "rb");
+	fp = FileOpen (filename);
 	if (!fp)
 		return NULL;
 
@@ -143,7 +143,7 @@ static TLN_Bitmap LoadPNG (char *filename)
 }
 
 /* loads BMP */
-static TLN_Bitmap LoadBMP (char *filename)
+static TLN_Bitmap LoadBMP (const char* filename)
 {
 	BITMAPFILEHEADER bfh;
 	BITMAPV5HEADER bv5;
@@ -154,7 +154,7 @@ static TLN_Bitmap LoadBMP (char *filename)
 	int pitch;
 
 	/* open file */
-	pf = fopen (filename, "rb");
+	pf = FileOpen (filename);
 	if (!pf)
 		return NULL;
 

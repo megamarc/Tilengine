@@ -50,17 +50,17 @@ typedef struct
 	int height;
 	int bpp;
 	TLN_WindowFlags flags;
-	char* file_overlay;
+	const char* file_overlay;
 	volatile int retval;
 }
 WndParams;
 
 /* local prototypes */
-static SDL_Surface* CreateOverlaySurface (char* filename, int dstw, int dsth, int bpp);
+static SDL_Surface* CreateOverlaySurface (const char* filename, int dstw, int dsth, int bpp);
 static SDL_Texture* LoadTexture (char* filename);
 static void hblur (BYTE* scan, int width, int height, int pitch);
 
-static bool CreateWindow (int width, int height, int bpp, TLN_WindowFlags flags, char* file_overlay)
+static bool CreateWindow (int width, int height, int bpp, TLN_WindowFlags flags, const char* file_overlay)
 {
 	SDL_DisplayMode mode;
 	SDL_Surface* surface = NULL;
@@ -181,7 +181,7 @@ static bool CreateWindow (int width, int height, int bpp, TLN_WindowFlags flags,
  * Text with the title to set
  * 
  */
-void TLN_SetWindowTitle (char* title)
+void TLN_SetWindowTitle (const char* title)
 {
 	SDL_SetWindowTitle (window, title);
 }
@@ -215,7 +215,7 @@ static int WindowThread (void* data)
 	return 0;
 }
 
-static bool CreateWindowThread (int width, int height, int bpp, TLN_WindowFlags flags, char* file_overlay)
+static bool CreateWindowThread (int width, int height, int bpp, TLN_WindowFlags flags, const char* file_overlay)
 {
 	WndParams params;
 
@@ -268,7 +268,7 @@ static bool CreateWindowThread (int width, int height, int bpp, TLN_WindowFlags 
  * \see
  * TLN_DeleteWindow(), TLN_ProcessWindow(), TLN_GetInput(), TLN_DrawFrame()
  */
-bool TLN_CreateWindow (char* overlay, TLN_WindowFlags flags)
+bool TLN_CreateWindow (const char* overlay, TLN_WindowFlags flags)
 {
 	bool ok;
 
@@ -314,7 +314,7 @@ bool TLN_CreateWindow (char* overlay, TLN_WindowFlags flags)
  * \see
  * TLN_DeleteWindow(), TLN_IsWindowActive(), TLN_GetInput(), TLN_UpdateFrame()
  */
-bool TLN_CreateWindowThread (char* overlay, TLN_WindowFlags flags)
+bool TLN_CreateWindowThread (const char* overlay, TLN_WindowFlags flags)
 {
 	bool ok;
 
@@ -665,7 +665,7 @@ void TLN_Delay (DWORD time)
 }
 
 /* loads a BMP image as overlay */
-static SDL_Surface* CreateOverlaySurface (char* filename, int dstw, int dsth, int bpp)
+static SDL_Surface* CreateOverlaySurface (const char* filename, int dstw, int dsth, int bpp)
 {
 	SDL_Surface* srcsurf;
 	SDL_Surface* surface;

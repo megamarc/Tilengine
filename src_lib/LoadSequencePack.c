@@ -59,7 +59,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 				strcpy (loader.name, szValue);
 			else if (!strcasecmp(szAttribute, "delay"))
 				loader.delay = atoi(szValue);
-			else if (!strcasecmp(szAttribute, "first"))
+			else if (!strcasecmp(szAttribute, "first") || !strcasecmp(szAttribute, "target"))
 				loader.first = atoi(szValue);
 			else if (!strcasecmp(szAttribute, "count"))
 				loader.count = atoi(szValue);
@@ -152,7 +152,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
  * \see
  * TLN_FindSequence()
  */
-TLN_SequencePack TLN_LoadSequencePack (char* filename)
+TLN_SequencePack TLN_LoadSequencePack (const char* filename)
 {
 	SimpleXmlParser parser;
 	size_t size;
