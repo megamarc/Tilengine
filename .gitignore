@@ -7,9 +7,10 @@ Tilengine.doc
 Tilengine.sln
 Tilengine.pdf
 clean.bat
-deploy.bat
+deploy*.bat
 benchmark.txt
-android/
+android/lib
+android/wrapper/obj
 deploy/
 *.pyc
 
@@ -47,7 +48,7 @@ src_lib/android/
 src_lib/doxygen/
 src_lib/libpng/
 src_lib/sdl/
-Makefile*
+src_lib/Makefile*
 Animation.*
 Bitmap.*
 Blitters.*
