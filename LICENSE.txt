@@ -1,6 +1,5 @@
-/*
 Tilengine - 2D Graphics library with raster effects
-Copyright (c) 2015-2017 Marc Palacios DomÃ¨nech (megamarc@hotmail.com)
+Copyright (c) 2015-2017 Marc Palacios Domènech (megamarc@hotmail.com)
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification 
@@ -23,29 +22,3 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
-
-/*
-*******************************************************************************
-	
-	Public Tilengine source code - Megamarc 20 sep 2015
-	http://www.tilengine.org
-	
-	File loading support
-
-*******************************************************************************
-*/
-
-#include <stdio.h>
-#include "Tilengine.h"
-
-/* win32 replacement for unix strcasecmp() */
-#if defined (_MSC_VER)
-#define strcasecmp _stricmp
-#else
-#include <strings.h>
-#endif
-
-BYTE* LoadFile (const char* filename, size_t* out_size);
-FILE* FileOpen (const char* filename);
-bool CheckFile (const char* filename);
