@@ -1,9 +1,9 @@
-platform  = raspbian
+platform  = linux64
 header    = Tilengine.h
 library   = libTilengine.so
 jnibridge = libTilengineJNI.so
 incpath   = /usr/include
-libpath   = /usr/lib/arm-linux-gnueabihf
+libpath   = /usr/lib/x86_64-linux-gnu
 
 install: lib/$(header) lib/$(platform)/$(library)
 	cp lib/$(header) $(incpath)

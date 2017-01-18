@@ -8,7 +8,7 @@ libpath   = /usr/lib/i386-linux-gnu
 install: lib/$(header) lib/$(platform)/$(library)
 	cp lib/$(header) $(incpath)
 	cp lib/$(platform)/$(library) $(libpath)
-	cp bindings/java/bin/$(jnibridge) $(libpath)
 	chmod a+x $(incpath)/$(header)
 	chmod a+x $(libpath)/$(library)
+	cp bindings/java/bin/$(jnibridge) $(libpath)
 	chmod a+x $(libpath)/$(jnibridge)

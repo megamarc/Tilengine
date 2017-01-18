@@ -1,12 +1,12 @@
 CC       = gcc
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
-PLATFORM = linux
-JAVA_HOME= /usr/lib/jvm/java-1.8.0-openjdk-i386
+PLATFORM = linux64
+JAVA_HOME= /usr/lib/jvm/java-1.8.0-openjdk-amd64
 INCS     = -I"$(JAVA_HOME)/include" -I"$(JAVA_HOME)/include/linux"
 LIBS     = -lTilengine -lc
 BIN      = libTilengineJNI.so
-CFLAGS   = $(INCS) -msse2 -m32 -std=c99 -fpic -O2
+CFLAGS   = $(INCS) -msse2 -m64 -std=c99 -fpic -O2
 RM       = rm
 
 .PHONY: all all-before all-after clean clean-custom
