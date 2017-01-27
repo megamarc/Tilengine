@@ -1,6 +1,6 @@
 /*
 Tilengine - 2D Graphics library with raster effects
-Copyright (c) 2015-2017 Marc Palacios Domènech (megamarc@hotmail.com)
+Copyright (c) 2015-2017 Marc Palacios Domenech (megamarc@hotmail.com)
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification 

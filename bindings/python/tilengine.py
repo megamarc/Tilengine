@@ -1,6 +1,6 @@
 '''
 Tilengine - 2D Graphics library with raster effects
-Copyright (c) 2015-2017 Marc Palacios Domènech (megamarc@hotmail.com)
+Copyright (c) 2015-2017 Marc Palacios Domenech (megamarc@hotmail.com)
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification 
@@ -139,6 +139,8 @@ if _platform == "linux" or _platform == "linux2":
 	_tln = cdll.LoadLibrary("libTilengine.so")
 elif _platform == "win32":
 	_tln = cdll.LoadLibrary("Tilengine.dll")
+elif _platform == "darwin":
+	_tln = cdll.LoadLibrary("Tilengine.dylib")
 	
 RasterCallbackFunc = CFUNCTYPE(None, c_int)
 

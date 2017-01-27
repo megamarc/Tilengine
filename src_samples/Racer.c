@@ -10,7 +10,7 @@
 *
 ******************************************************************************/
 
-#include <malloc.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include "Racer.h"
 #include "Tree.h"

@@ -1,0 +1,16 @@
+platform  = osx
+header    = Tilengine.h
+library   = Tilengine.dylib
+jnibridge = libTilengineJNI.jnilib
+incpath   = /usr/local/include
+libpath   = /usr/local/lib
+
+install: lib/$(header) lib/$(platform)/$(library)
+	mkdir -p $(incpath)
+	mkdir -p $(libpath)
+	cp lib/$(header) $(incpath)
+	cp lib/$(platform)/$(library) $(libpath)
+	chmod a+x $(incpath)/$(header)
+	chmod a+x $(libpath)/$(library)
+	cp bindings/java/bin/$(jnibridge) $(libpath)
+	chmod a+x $(libpath)/$(jnibridge)
