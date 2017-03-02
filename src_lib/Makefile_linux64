@@ -1,0 +1,26 @@
+CC       = gcc
+SOURCES  = $(wildcard *.c)
+OBJECTS  = $(SOURCES:.c=.o)
+LIBS     = -lpng -lSDL2 -lc -lz
+BIN      = libTilengine.so
+CFLAGS   = -msse2 -m64 -std=c99 -fpic -O2 -DLIB_EXPORTS
+RM       = rm
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(BIN) all-after
+
+clean: clean-custom
+	${RM} $(OBJECTS) $(BIN)
+
+$(BIN): $(OBJECTS)
+	$(CC) -shared $(OBJECTS) -o $(BIN) $(LIBS) -s -fvisibility=hidden
+
+%.o: %.c
+	$(CC) -c $(CFLAGS) $< -o $@
+
+install: $(BIN) $(header)
+	cp $(BIN) $(libpath)
+	cp $(header) $(incpath)
+	chmod a+x $(incpath)/$(header)
+	chmod a+x $(libpath)/$(BIN)

@@ -29,9 +29,11 @@ obj/
 
 #precompilados
 bin/linux
+bin/linux64
 bin/raspbian
 bin/win32
 bin/x64
+bin/osx
 bin/*.class
 bin/*.exe
 bin/*.dll
@@ -48,7 +50,6 @@ src_lib/android/
 src_lib/doxygen/
 src_lib/libpng/
 src_lib/sdl/
-src_lib/Makefile*
 Animation.*
 Bitmap.*
 Blitters.*
@@ -68,3 +69,4 @@ Tilengine.c
 Tileset.*
 Types.h
 Tilengine.vcproj
+Tilengine.odt
