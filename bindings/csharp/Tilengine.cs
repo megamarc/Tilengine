@@ -733,6 +733,14 @@ namespace Tilengine
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
         private static extern bool TLN_SetLayerColumnOffset(int nlayer, int[] offset);
+		
+        [DllImport("Tilengine")]
+        [return: MarshalAsAttribute(UnmanagedType.I1)]
+        private static extern bool TLN_SetLayerClip(int nlayer, int x1, int y1, int x2, int y2);
+		
+        [DllImport("Tilengine")]
+        [return: MarshalAsAttribute(UnmanagedType.I1)]
+        private static extern bool TLN_DisableLayerClip(int nlayer);
 
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
@@ -822,6 +830,26 @@ namespace Tilengine
         {
             set { TLN_SetLayerColumnOffset(index, value); }
         }
+		
+        /// <summary>
+        /// 
+        /// </summary>
+		/// <param name="x1"></param>
+		/// <param name="y1"></param>
+		/// <param name="x2"></param>
+		/// <param name="y2"></param>
+		public bool SetClip(int x1, int y1, int x2, int y2)
+		{
+			return TLN_SetLayerClip(index, x1, y1, x2, y2);
+		}
+		
+        /// <summary>
+        /// 
+        /// </summary>
+		public bool DisableClip()
+		{
+			return TLN_DisableLayerClip(index);
+		}
 
         /// <summary>
         /// 

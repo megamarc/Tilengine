@@ -217,6 +217,8 @@ public class Tilengine
 	public native boolean SetLayerTransform (int layer, float angle, float dx, float dy, float sx, float sy);
 	public native boolean SetLayerBlendMode (int nlayer, int mode, byte factor);
 	public native boolean SetLayerColumnOffset (int nlayer, int[] offset);
+	public native boolean SetLayerClip (int nlayer, int x1, int y1, int x2, int y2);
+	public native boolean DisableLayerClip (int nlayer);
 	public native boolean ResetLayerMode (int nlayer);
 	public native boolean DisableLayer (int nlayer);
 	public native int GetLayerPalette (int nlayer);

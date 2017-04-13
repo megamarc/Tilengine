@@ -461,6 +461,14 @@ SetLayerBlendMode.restype = c_bool
 SetLayerColumnOffset = _tln.TLN_SetLayerColumnOffset
 SetLayerColumnOffset.argtypes = [c_int, POINTER(c_int)]
 SetLayerColumnOffset.restype = c_bool
+
+SetLayerClip = _tln.TLN_SetLayerClip
+SetLayerClip.argtypes = [c_int, c_int, c_int, c_int, c_int]
+SetLayerClip.restype = c_bool
+
+DisableLayerClip = _tln.TLN_DisableLayerClip
+DisableLayerClip.argtypes = [c_int]
+DisableLayerClip.restype = c_bool
 	
 ResetLayerMode = _tln.TLN_ResetLayerMode
 ResetLayerMode.argtypes = [c_int]
@@ -614,3 +622,12 @@ GetAvailableAnimation.restype = c_int
 DisableAnimation = _tln.TLN_DisableAnimation
 DisableAnimation.argtypes = [c_int]
 DisableAnimation.restype = c_bool
+
+# Bloom  ------------------------------------------------------------
+EnableBloom = _tln.TLN_EnableBloom
+EnableBloom.argtypes = [c_byte, c_byte]
+EnableBloom.restype = c_bool
+
+DisableBloom = _tln.TLN_DisableBloom
+DisableBloom.argtypes = []
+DisableBloom.restype = c_bool

@@ -101,11 +101,11 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 			if (!strcasecmp(szAttribute, "delay"))
 				loader.strips[loader.count].delay = atoi(szValue);
 			else if (!strcasecmp(szAttribute, "first"))
-				loader.strips[loader.count].first = (BYTE)atoi(szValue);
+				loader.strips[loader.count].first = (uint8_t)atoi(szValue);
 			else if (!strcasecmp(szAttribute, "count"))
-				loader.strips[loader.count].count = (BYTE)atoi(szValue);
+				loader.strips[loader.count].count = (uint8_t)atoi(szValue);
 			else if (!strcasecmp(szAttribute, "dir"))
-				loader.strips[loader.count].dir = (BYTE)atoi(szValue);
+				loader.strips[loader.count].dir = (uint8_t)atoi(szValue);
 		}
 		break;
 
@@ -183,7 +183,7 @@ TLN_SequencePack TLN_LoadSequencePack (const char* filename)
 {
 	SimpleXmlParser parser;
 	size_t size;
-	BYTE *data;
+	uint8_t *data;
 
 	/* load file */
 	data = LoadFile (filename, &size);

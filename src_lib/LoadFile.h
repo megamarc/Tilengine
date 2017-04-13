@@ -46,6 +46,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <strings.h>
 #endif
 
-BYTE* LoadFile (const char* filename, size_t* out_size);
+uint8_t* LoadFile (const char* filename, size_t* out_size);
 FILE* FileOpen (const char* filename);
 bool CheckFile (const char* filename);

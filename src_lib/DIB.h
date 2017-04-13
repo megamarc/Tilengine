@@ -6,42 +6,42 @@
 
 typedef struct
 {
-	BYTE b,g,r;
+	uint8_t b,g,r;
 }
 RGBTRIPLE;
 
 typedef struct
 {
-	BYTE b,g,r,a;
+	uint8_t b,g,r,a;
 }
 RGBQUAD;
 
 typedef struct
 {
-	WORD	Type;
-	DWORD	Size;
-	DWORD	Reserved;
-	DWORD	OffsetData;
+	uint16_t	Type;
+	uint32_t	Size;
+	uint32_t	Reserved;
+	uint32_t	OffsetData;
 }
 BITMAPFILEHEADER;
 
 typedef struct
 { 
-	DWORD        bV5Size; 
-	DWORD        bV5Width; 
-	DWORD        bV5Height; 
-	WORD         bV5Planes; 
-	WORD         bV5BitCount; 
-	DWORD        bV5Compression; 
-	DWORD        bV5SizeImage; 
-	DWORD        bV5XPelsPerMeter; 
-	DWORD        bV5YPelsPerMeter; 
-	DWORD        bV5ClrUsed; 
-	DWORD        bV5ClrImportant; 
-	DWORD        bV5RedMask; 
-	DWORD        bV5GreenMask; 
-	DWORD        bV5BlueMask; 
-	DWORD        bV5AlphaMask; 
+	uint32_t        bV5Size; 
+	uint32_t        bV5Width; 
+	uint32_t        bV5Height; 
+	uint16_t         bV5Planes; 
+	uint16_t         bV5BitCount; 
+	uint32_t        bV5Compression; 
+	uint32_t        bV5SizeImage; 
+	uint32_t        bV5XPelsPerMeter; 
+	uint32_t        bV5YPelsPerMeter; 
+	uint32_t        bV5ClrUsed; 
+	uint32_t        bV5ClrImportant; 
+	uint32_t        bV5RedMask; 
+	uint32_t        bV5GreenMask; 
+	uint32_t        bV5BlueMask; 
+	uint32_t        bV5AlphaMask; 
 }
 BITMAPV5HEADER;
 

@@ -174,7 +174,7 @@ static TLN_Bitmap LoadBMP (const char* filename)
 {
 	BITMAPFILEHEADER bfh;
 	BITMAPV5HEADER bv5;
-	DWORD StructSize;
+	uint32_t StructSize;
 	FILE* pf;
 	TLN_Bitmap bitmap = NULL;
 	unsigned int c;
@@ -212,7 +212,7 @@ static TLN_Bitmap LoadBMP (const char* filename)
 	fseek (pf, bfh.OffsetData, SEEK_SET);
 	for (c=0; c<bv5.bV5Height; c++)
 	{
-		BYTE* line = TLN_GetBitmapPtr (bitmap, 0, bv5.bV5Height - c - 1);
+		uint8_t* line = TLN_GetBitmapPtr (bitmap, 0, bv5.bV5Height - c - 1);
 		fread (line, pitch, 1, pf);
 	}
 

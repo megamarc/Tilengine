@@ -55,16 +55,16 @@ int inc_background[3] = {0};
 unsigned int frame;
 unsigned int time;
 
-BYTE sky1[3] = {107,205,255};
-BYTE sky2[3] = {255,242,167};
-BYTE sky3[3] = {131, 72,148};
-BYTE sky4[3] = {237,219,149};
+uint8_t sky1[3] = {107,205,255};
+uint8_t sky2[3] = {255,242,167};
+uint8_t sky3[3] = {131, 72,148};
+uint8_t sky4[3] = {237,219,149};
 int sky_hi[3];
 int sky_lo[3];
 
 static void raster_callback (int line);
-static void AddPaletteColor (TLN_Palette palette, BYTE r, BYTE g, BYTE b);
-static void MulPaletteColor (TLN_Palette palette, BYTE r, BYTE g, BYTE b);
+static void AddPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b);
+static void MulPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b);
 
 /* helper for loading a related tileset + tilemap and configure the appropiate layer */
 static void LoadLayer (int index, char* name)
@@ -147,7 +147,7 @@ int main (int argc, char *argv[])
 		/* bg color (sky) */
 		if (time>=PAL_T0 && time<=PAL_T1 && (time&0x07)==0)
 		{
-			BYTE colormul[3], coloradd[3];
+			uint8_t colormul[3], coloradd[3];
 
 			/* sky color */
 			for (c=0; c<3; c++)
@@ -217,9 +217,9 @@ static void raster_callback (int line)
 	/* sky color gradient */
 	if (line < 64)
 	{
-		BYTE r = lerp(line, 0,63, sky_hi[0], sky_lo[0]);
-		BYTE g = lerp(line, 0,63, sky_hi[1], sky_lo[1]);
-		BYTE b = lerp(line, 0,63, sky_hi[2], sky_lo[2]);
+		uint8_t r = lerp(line, 0,63, sky_hi[0], sky_lo[0]);
+		uint8_t g = lerp(line, 0,63, sky_hi[1], sky_lo[1]);
+		uint8_t b = lerp(line, 0,63, sky_hi[2], sky_lo[2]);
 		TLN_SetBGColor (r, g, b);
 	}
 
@@ -241,7 +241,7 @@ static void raster_callback (int line)
 	}
 
 	if (line >= 64 && line <112)
-		TLN_SetLayerBlendMode (LAYER_FOREGROUND, BLEND_MIX, (BYTE)(line<<1));
+		TLN_SetLayerBlendMode (LAYER_FOREGROUND, BLEND_MIX, (uint8_t)(line<<1));
 
 	if (line==112)
 		TLN_DisableLayer (LAYER_FOREGROUND);
@@ -263,14 +263,14 @@ static void raster_callback (int line)
 	}
 }
 
-static void AddPaletteColor (TLN_Palette palette, BYTE r, BYTE g, BYTE b)
+static void AddPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b)
 {
 	int c;
 	int tmp;
 
 	for (c=0; c<32; c++)
 	{
-		BYTE* data = (BYTE*)TLN_GetPaletteData (palette, c);
+		uint8_t* data = (uint8_t*)TLN_GetPaletteData (palette, c);
 		tmp = data[0] + g;
 		data[0] = tmp<255? tmp:255;
 		tmp = data[1] + b;
@@ -280,15 +280,15 @@ static void AddPaletteColor (TLN_Palette palette, BYTE r, BYTE g, BYTE b)
 	}
 }
 
-static void MulPaletteColor (TLN_Palette palette, BYTE r, BYTE g, BYTE b)
+static void MulPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b)
 {
 	int c;
 
 	for (c=0; c<32; c++)
 	{
-		BYTE* data = (BYTE*)TLN_GetPaletteData (palette, c);
-		data[0] = (BYTE)(int)b*data[0]/255;
-		data[1] = (BYTE)(int)g*data[1]/255;
-		data[2] = (BYTE)(int)r*data[2]/255;
+		uint8_t* data = (uint8_t*)TLN_GetPaletteData (palette, c);
+		data[0] = (uint8_t)(int)b*data[0]/255;
+		data[1] = (uint8_t)(int)g*data[1]/255;
+		data[2] = (uint8_t)(int)r*data[2]/255;
 	}
 }

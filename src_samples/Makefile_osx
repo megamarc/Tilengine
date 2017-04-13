@@ -1,10 +1,10 @@
 CC       = gcc
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
-CFLAGS   = -std=c99 -O2 -I"../lib"
+CFLAGS   = -std=c99 -O2
 TARGETS  = barrel mode7 platformer racer scaling shadow shooter tutorial wobble seizetheday colorcycle benchmark supermarioclone
 DSTPATH  = ../bin
-LDFLAGS = "../lib/osx/Tilengine.dylib" -lm
+LDFLAGS = "../usr/local/lib/Tilengine.dylib" -lm
 
 .PHONY: all all-before all-after clean clean-custom
 

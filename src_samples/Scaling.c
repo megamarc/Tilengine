@@ -41,7 +41,7 @@ layer_t;
 static layer_t layers[MAX_LAYER];
 static int xpos, ypos;
 static int scale;
-static BYTE alpha;
+static uint8_t alpha;
 
 /* helper for loading a related tileset + tilemap and configure the appropiate layer */
 static void LoadLayer (int index, char* name)

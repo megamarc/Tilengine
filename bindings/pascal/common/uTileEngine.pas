@@ -193,6 +193,8 @@ function SetLayerTransform(layer : Integer; angle, dx, dy, sx, sy : Single) : Bo
 function SetLayerBlendMode(nlayer : Integer; blend : TBlend) : Boolean ; cdecl; external dllname name 'TLN_SetLayerBlendMode'; overload;
 function SetLayerBlendMode(nlayer : Integer; blend : TBlend; a : Integer) : Boolean ; cdecl; external dllname name 'TLN_SetLayerBlendMode'; overload;
 function SetLayerColumnOffset(nlayer : Integer; offset : TIntArr) : Boolean ; cdecl; external dllname name 'TLN_SetLayerColumnOffset';
+function SetLayerClip(nlayer, x1, y1, x2, y2 : Integer) : Boolean ; cdecl; external dllname name 'SetLayerClip';
+function DisableLayerClip(nlayer : Integer) : Boolean ; cdecl; external dllname name 'TLN_DisableLayerClip';
 function ResetLayerMode(nlayer : Integer) : Boolean ; cdecl; external dllname name 'TLN_ResetLayerMode';
 function DisableLayer(nlayer : Integer) : Boolean ; cdecl; external dllname name 'TLN_DisableLayer';
 function GetLayerPalette(nlayer : Integer) : Pointer; cdecl; external dllname name 'TLN_GetLayerPalette';

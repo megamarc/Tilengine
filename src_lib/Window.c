@@ -64,7 +64,7 @@ static int			 tln_height;
 static int			 tln_bpp;
 static int			 instances = 0;
 static bool			 blur = false;
-static BYTE*		 rt_pixels;
+static uint8_t*		 rt_pixels;
 static int			 rt_pitch;
 
 static int			inputs;
@@ -85,7 +85,7 @@ WndParams;
 /* local prototypes */
 static SDL_Surface* CreateOverlaySurface (const char* filename, int dstw, int dsth, int bpp);
 static SDL_Texture* LoadTexture (char* filename);
-static void hblur (BYTE* scan, int width, int height, int pitch);
+static void hblur (uint8_t* scan, int width, int height, int pitch);
 
 static bool CreateWindow (int width, int height, int bpp, TLN_WindowFlags flags, const char* file_overlay)
 {
@@ -676,7 +676,7 @@ void TLN_DrawFrame (int time)
  * \brief
  * Returns the number of milliseconds since application start
  */
-DWORD TLN_GetTicks (void)
+uint32_t TLN_GetTicks (void)
 {
 	return SDL_GetTicks ();
 }
@@ -686,7 +686,7 @@ DWORD TLN_GetTicks (void)
  * Suspends execition for a fixed time
  * \param time Number of milliseconds to wait
  */
-void TLN_Delay (DWORD time)
+void TLN_Delay (uint32_t time)
 {
 	SDL_Delay (time);
 }
@@ -725,10 +725,10 @@ static SDL_Surface* CreateOverlaySurface (const char* filename, int dstw, int ds
 }
 
 /* basic horizontal blur emulating RF blurring */
-static void hblur (BYTE* scan, int width, int height, int pitch)
+static void hblur (uint8_t* scan, int width, int height, int pitch)
 {
 	int x,y;
-	BYTE *pixel;
+	uint8_t *pixel;
 	
 	width -= 1;
 	for (y=0; y<height; y++)
@@ -739,7 +739,7 @@ static void hblur (BYTE* scan, int width, int height, int pitch)
 			pixel[0] = (pixel[0] + pixel[4]) >> 1;
 			pixel[1] = (pixel[1] + pixel[5]) >> 1;
 			pixel[2] = (pixel[2] + pixel[6]) >> 1;
-			pixel += sizeof(DWORD);
+			pixel += sizeof(uint32_t);
 		}
 		scan += pitch;
 	}

@@ -55,9 +55,9 @@ TLN_Affine transform;
 int xpos, ypos;
 
 static void raster_callback (int line);
-static void AddPaletteColor (TLN_Palette palette, BYTE r, BYTE g, BYTE b);
-static void MulPaletteColor (TLN_Palette palette, BYTE r, BYTE g, BYTE b);
-static void SubPaletteColor (TLN_Palette palette, BYTE r, BYTE g, BYTE b);
+static void AddPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b);
+static void MulPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b);
+static void SubPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b);
 
 /* helper for loading a related tileset + tilemap and configure the appropiate layer */
 static void LoadLayer (int index, char* name)
@@ -178,7 +178,7 @@ static void raster_callback (int line)
 		TLN_SetLayerPalette (LAYER_BACKGROUND, palettes[7]);
 }
 
-static void AddPaletteColor (TLN_Palette palette, BYTE r, BYTE g, BYTE b)
+static void AddPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b)
 {
 	int c;
 	int tmp;
@@ -188,7 +188,7 @@ static void AddPaletteColor (TLN_Palette palette, BYTE r, BYTE g, BYTE b)
 
 	for (c=0; c<32; c++)
 	{
-		BYTE* data = (BYTE*)TLN_GetPaletteData (palette, c);
+		uint8_t* data = (uint8_t*)TLN_GetPaletteData (palette, c);
 		tmp = data[0] + g;
 		data[0] = tmp<255? tmp:255;
 		tmp = data[1] + b;
@@ -198,7 +198,7 @@ static void AddPaletteColor (TLN_Palette palette, BYTE r, BYTE g, BYTE b)
 	}
 }
 
-static void SubPaletteColor (TLN_Palette palette, BYTE r, BYTE g, BYTE b)
+static void SubPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b)
 {
 	int c;
 	int tmp;
@@ -208,7 +208,7 @@ static void SubPaletteColor (TLN_Palette palette, BYTE r, BYTE g, BYTE b)
 
 	for (c=0; c<32; c++)
 	{
-		BYTE* data = (BYTE*)TLN_GetPaletteData (palette, c);
+		uint8_t* data = (uint8_t*)TLN_GetPaletteData (palette, c);
 		tmp = data[0] - g;
 		data[0] = tmp>0? tmp:0;
 		tmp = data[1] - b;
@@ -218,7 +218,7 @@ static void SubPaletteColor (TLN_Palette palette, BYTE r, BYTE g, BYTE b)
 	}
 }
 
-static void MulPaletteColor (TLN_Palette palette, BYTE r, BYTE g, BYTE b)
+static void MulPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b)
 {
 	int c;
 
@@ -227,9 +227,9 @@ static void MulPaletteColor (TLN_Palette palette, BYTE r, BYTE g, BYTE b)
 
 	for (c=0; c<32; c++)
 	{
-		BYTE* data = (BYTE*)TLN_GetPaletteData (palette, c);
-		data[0] = (BYTE)(int)b*data[0]/255;
-		data[1] = (BYTE)(int)g*data[1]/255;
-		data[2] = (BYTE)(int)r*data[2]/255;
+		uint8_t* data = (uint8_t*)TLN_GetPaletteData (palette, c);
+		data[0] = (uint8_t)(int)b*data[0]/255;
+		data[1] = (uint8_t)(int)g*data[1]/255;
+		data[2] = (uint8_t)(int)r*data[2]/255;
 	}
 }

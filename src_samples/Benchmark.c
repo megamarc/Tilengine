@@ -14,13 +14,13 @@ TLN_Tilemap tilemap;
 TLN_Spriteset spriteset;
 int frame;
 int pixels;
-DWORD t0, t1;
+uint32_t t0, t1;
 
 static TLN_Palette CreateRandomPalette (void);
 static TLN_Tileset CreateRandomTileset (int ntiles, int coverage, TLN_Palette palette);
 static TLN_Tilemap CreateRandomTilemap (int rows, int cols, int maxtile, int coverage);
 static TLN_Spriteset CreateRandomSpriteset (int coverage, TLN_Palette palette);
-static void FillRandomData (BYTE* data, int len, int coverage);
+static void FillRandomData (uint8_t* data, int len, int coverage);
 static int Profile (void);
 
 int main (int argc, char* argv[])
@@ -28,7 +28,7 @@ int main (int argc, char* argv[])
 	int c;
 	int result;
 	bool ok;
-	BYTE* framebuffer;
+	uint8_t* framebuffer;
 	int pcen;
 	int bpp;
 
@@ -141,7 +141,7 @@ static int Profile (void)
 	return pixels/t1*1000;
 }
 
-static void FillRandomData (BYTE* data, int len, int coverage)
+static void FillRandomData (uint8_t* data, int len, int coverage)
 {
 	int c;
 
@@ -170,7 +170,7 @@ static TLN_Tileset CreateRandomTileset (int ntiles, int coverage, TLN_Palette pa
 {
 	TLN_Tileset tileset;
 	int c;
-	BYTE* data;
+	uint8_t* data;
 
 	data = malloc (8*8);
 
@@ -212,7 +212,7 @@ static TLN_Tilemap CreateRandomTilemap (int rows, int cols, int maxtile, int cov
 static TLN_Spriteset CreateRandomSpriteset (int coverage, TLN_Palette palette)
 {
 	TLN_Spriteset spriteset;
-	BYTE* data;
+	uint8_t* data;
 	TLN_Rect rect;
 
 	data = malloc (32*48);

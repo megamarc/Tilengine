@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "Tilengine.h"
 #include "simplexml.h"
 #include "LoadFile.h"
@@ -109,7 +110,7 @@ TLN_Tileset TLN_LoadTileset (const char* filename)
 {
 	SimpleXmlParser parser;
 	size_t size;
-	BYTE *data;
+	uint8_t *data;
 	TLN_Tileset tileset;
 	TLN_Bitmap bitmap;
 	int htiles, vtiles;
@@ -172,7 +173,7 @@ TLN_Tileset TLN_LoadTileset (const char* filename)
 	{
 		for (x=0; x<htiles; x++, id++)
 		{
-			BYTE *srcptr = TLN_GetBitmapPtr (bitmap, loader.margin + x*dx, loader.margin + y*dy);
+			uint8_t *srcptr = TLN_GetBitmapPtr (bitmap, loader.margin + x*dx, loader.margin + y*dy);
 			TLN_SetTilesetPixels (tileset, id, srcptr, pitch);
 		}
 	}

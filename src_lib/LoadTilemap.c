@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "LoadFile.h"
 
 extern int base64decode (const char* in, int inLen, unsigned char *out, int *outLen);
-static int csvdecode (const char* in, int numtiles, DWORD* data);
+static int csvdecode (const char* in, int numtiles, uint32_t* data);
 static int decompress (unsigned char* in, int in_size, unsigned char* out, int out_size);
 
 /* encoding */
@@ -150,8 +150,8 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		if (!strcasecmp(szName, "data") && loader.load)
 		{
 			int numtiles = loader.cols * loader.rows;
-			int size = numtiles * sizeof(DWORD);
-			DWORD* data = malloc (size);
+			int size = numtiles * sizeof(uint32_t);
+			uint32_t* data = malloc (size);
 			int c;
 			
 			memset (data, 0, size);
@@ -164,24 +164,24 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 					base64decode (szValue, (int)strlen(szValue), (unsigned char*)data, &size);
 				else
 				{
-					BYTE* deflated = malloc (size);
+					uint8_t* deflated = malloc (size);
 					int in_size = size;
 					base64decode (szValue, (int)strlen(szValue), (unsigned char*)deflated, &in_size);
-					decompress (deflated, in_size, (BYTE*)data, size);
+					decompress (deflated, in_size, (uint8_t*)data, size);
 					free (deflated);
 				}
 			}
 
 			for (c=0; c<numtiles; c++)
 			{
-				DWORD val = data[c];
+				uint32_t val = data[c];
 				Tile tile;
 				
 				int col = c % loader.cols;
 				int row = c / loader.cols;
 
-				tile.flags = (WORD)((val & 0xFFFF0000) >> 16);
-				tile.index = (WORD) (val & 0x000FFFFF);
+				tile.flags = (uint16_t)((val & 0xFFFF0000) >> 16);
+				tile.index = (uint16_t) (val & 0x000FFFFF);
 				TLN_SetTilemapTile (loader.tilemap, row, col, &tile);
 			}
 
@@ -215,7 +215,7 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 {
 	SimpleXmlParser parser;
 	size_t size;
-	BYTE *data;
+	uint8_t *data;
 	
 	/* load file */
 	data = LoadFile (filename, &size);
@@ -255,7 +255,7 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 }
 
 /* read CSV string */
-static int csvdecode (const char* in, int numtiles, DWORD *data)
+static int csvdecode (const char* in, int numtiles, uint32_t *data)
 {
 	int c;
 	char *token = strtok ((char*)in, ",\n");

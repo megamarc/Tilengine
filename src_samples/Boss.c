@@ -19,7 +19,7 @@ enum
 struct
 {
 	int picture;
-	WORD flags;
+	uint16_t flags;
 }
 static BossGfx[MAX_PART] =
 {

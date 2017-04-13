@@ -7,7 +7,7 @@
 static int frame;
 static TLN_Tileset tileset;
 static TLN_Tilemap tilemap;
-static BYTE framebuffer[WIDTH * HEIGHT * 4];
+static uint8_t framebuffer[WIDTH * HEIGHT * 4];
 
 /* entry point */
 int main (int argc, char* argv[])

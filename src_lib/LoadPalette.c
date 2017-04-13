@@ -109,7 +109,7 @@ TLN_Palette TLN_LoadPalette (const char* filename)
 	fseek (pf, 0, SEEK_SET);
 	for (c=0; c<trailing.entries; c++)
 	{
-		BYTE src[3];
+		uint8_t src[3];
 		fread (src, sizeof(src), 1, pf);
 		TLN_SetPaletteColor (palette, c, src[0], src[1], src[2]);
 	}

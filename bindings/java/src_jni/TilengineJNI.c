@@ -168,7 +168,7 @@ JNIEXPORT void JNICALL Java_Tilengine_UpdateFrame (JNIEnv* env, jobject thisobj,
 	if (target.pitch)
 	{
 		buffer = (*env)->GetIntArrayElements (env, target.jia, NULL);
-		TLN_SetRenderTarget ((BYTE*)buffer, target.pitch);
+		TLN_SetRenderTarget ((uint8_t*)buffer, target.pitch);
 		TLN_UpdateFrame (time);
 		(*env)->ReleaseIntArrayElements (env, target.jia, buffer, 0);
 	}
@@ -679,6 +679,16 @@ JNIEXPORT jboolean JNICALL Java_Tilengine_SetLayerColumnOffset (JNIEnv* env, job
 	(*env)->ReleaseIntArrayElements (env, columns, buffer, 0);
 	
 	return retval;
+}
+
+JNIEXPORT jboolean JNICALL Java_Tilengine_SetLayerClip (JNIEnv* env, jobject thisobj, jint nlayer, jint x1, jint y1, jint x2, jint y2)
+{
+	return TLN_SetLayerClip (nlayer, x1, y1, x2, y2);
+}
+
+JNIEXPORT jboolean JNICALL Java_Tilengine_DisableLayerClip (JNIEnv* env, jobject thisobj, jint nlayer)
+{
+	return TLN_DisableLayerClip (nlayer);
 }
 
 JNIEXPORT jboolean JNICALL Java_Tilengine_ResetLayerMode (JNIEnv* env, jobject thisobj, jint nlayer)

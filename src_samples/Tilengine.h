@@ -1,3 +1,30 @@
+/*
+Tilengine - 2D Graphics library with raster effects
+Copyright (c) 2015-2017 Marc Palacios Domenech (megamarc@hotmail.com)
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification 
+are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation 
+   and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
 /**
  ****************************************************************************
  * \file
@@ -14,12 +41,14 @@
 #ifndef _TILENGINE_H
 #define _TILENGINE_H
 
+#include <stdio.h>
+
 /* Tilengine_core */
 #if defined _LIB
 	#define TLNAPI
 
 /* Tilengine shared */
-#elif defined (_MSC_VER)
+#elif defined _MSC_VER
 	#ifdef LIB_EXPORTS
 		#define TLNAPI __declspec(dllexport)
 	#else
@@ -33,13 +62,10 @@
 	#endif
 #endif	
 
-#ifndef _WINDEF_
-typedef unsigned char	BYTE;	/*!< 8-bit wide data */
-typedef unsigned short	WORD;	/*!< 16-bit wide data */
-typedef unsigned int	DWORD;	/*!< 32-bit wide data */
-#endif
-#ifndef NULL
-#define NULL			0
+#if defined _MSC_VER
+typedef unsigned char	uint8_t;	/*!< 8-bit wide data */
+typedef unsigned short	uint16_t;	/*!< 16-bit wide data */
+typedef unsigned int	uint32_t;	/*!< 32-bit wide data */
 #endif
 
 /* bool C++ */
@@ -51,7 +77,7 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 
 /* version */
 #define TILENGINE_VER_MAJ	1
-#define TILENGINE_VER_MIN	10
+#define TILENGINE_VER_MIN	11
 #define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ<<16) | (TILENGINE_VER_MIN<<8) | TILENGINE_VER_REV)
 
@@ -104,8 +130,8 @@ TLN_Affine;
 /*! Tile description */
 typedef struct Tile
 {
-	WORD index;		/*!< tile index */
-	WORD flags;		/*!< attributes (FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY) */
+	uint16_t index;		/*!< tile index */
+	uint16_t flags;		/*!< attributes (FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY) */
 }
 Tile;
 
@@ -113,9 +139,9 @@ Tile;
 typedef struct
 {
 	int delay;		/*!< time delay between frames */
-	BYTE first;		/*!< index of first color to cycle */
-	BYTE count;		/*!< number of colors in the cycle */
-	BYTE dir;		/*!< direction: 0=descending, 1=ascending */
+	uint8_t first;		/*!< index of first color to cycle */
+	uint8_t count;		/*!< number of colors in the cycle */
+	uint8_t dir;		/*!< direction: 0=descending, 1=ascending */
 }
 TLN_ColorStrip;
 
@@ -141,13 +167,13 @@ TLN_SpriteInfo;
 /*! Tile information in screen coordinates */
 typedef struct
 {
-	WORD index;		/*!< tile index */
-	WORD flags;		/*!< attributes (FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY) */
+	uint16_t index;		/*!< tile index */
+	uint16_t flags;		/*!< attributes (FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY) */
 	int row;		/*!< row number in the tilemap */
 	int col;		/*!< col number in the tilemap */
 	int xoffset;	/*!< horizontal position inside the title */
 	int yoffset;	/*!< vertical position inside the title */
-	BYTE color;		/*!< color index at collision point */
+	uint8_t color;		/*!< color index at collision point */
 }
 TLN_TileInfo;
 
@@ -229,16 +255,16 @@ TLNAPI void TLN_Deinit (void);
 TLNAPI int TLN_GetWidth (void);
 TLNAPI int TLN_GetHeight (void);
 TLNAPI int TLN_GetBPP (void);
-TLNAPI DWORD TLN_GetNumObjects (void);
-TLNAPI DWORD TLN_GetUsedMemory (void);
-TLNAPI DWORD TLN_GetVersion (void);
+TLNAPI uint32_t TLN_GetNumObjects (void);
+TLNAPI uint32_t TLN_GetUsedMemory (void);
+TLNAPI uint32_t TLN_GetVersion (void);
 TLNAPI int TLN_GetNumLayers (void);
 TLNAPI int TLN_GetNumSprites (void);
-TLNAPI void TLN_SetBGColor (BYTE r, BYTE g, BYTE b);
+TLNAPI void TLN_SetBGColor (uint8_t r, uint8_t g, uint8_t b);
 TLNAPI bool TLN_SetBGBitmap (TLN_Bitmap bitmap);
 TLNAPI bool TLN_SetBGPalette (TLN_Palette palette);
 TLNAPI void TLN_SetRasterCallback (void (*callback)(int));
-TLNAPI void TLN_SetRenderTarget (BYTE* data, int pitch);
+TLNAPI void TLN_SetRenderTarget (uint8_t* data, int pitch);
 TLNAPI void TLN_UpdateFrame (int time);
 TLNAPI void TLN_BeginFrame (int time);
 TLNAPI bool TLN_DrawNextScanline (void);
@@ -272,8 +298,8 @@ TLNAPI void TLN_DrawFrame (int time);
 TLNAPI void TLN_WaitRedraw (void);
 TLNAPI void TLN_DeleteWindow (void);
 TLNAPI void TLN_EnableBlur (bool mode);
-TLNAPI void TLN_Delay (DWORD msecs);
-TLNAPI DWORD TLN_GetTicks (void);
+TLNAPI void TLN_Delay (uint32_t msecs);
+TLNAPI uint32_t TLN_GetTicks (void);
 TLNAPI void TLN_BeginWindowFrame (int time);
 TLNAPI void TLN_EndWindowFrame (void);
 
@@ -284,7 +310,7 @@ TLNAPI void TLN_EndWindowFrame (void);
  * \name Spritesets
  * Spriteset resources management for sprites */
 /**@{*/
-TLNAPI TLN_Spriteset TLN_CreateSpriteset (int entries, TLN_Rect* rects, BYTE* data, int width, int height, int pitch, TLN_Palette palette);
+TLNAPI TLN_Spriteset TLN_CreateSpriteset (int entries, TLN_Rect* rects, uint8_t* data, int width, int height, int pitch, TLN_Palette palette);
 TLNAPI TLN_Spriteset TLN_LoadSpriteset (const char* name);
 TLNAPI TLN_Spriteset TLN_CloneSpriteset (TLN_Spriteset src);
 TLNAPI bool TLN_GetSpriteInfo (TLN_Spriteset spriteset, int entry, TLN_SpriteInfo* info);
@@ -300,7 +326,7 @@ TLNAPI bool TLN_DeleteSpriteset (TLN_Spriteset Spriteset);
 TLNAPI TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette palette);
 TLNAPI TLN_Tileset TLN_LoadTileset (const char* filename);
 TLNAPI TLN_Tileset TLN_CloneTileset (TLN_Tileset src);
-TLNAPI bool TLN_SetTilesetPixels (TLN_Tileset tileset, int entry, BYTE* srcdata, int srcpitch);
+TLNAPI bool TLN_SetTilesetPixels (TLN_Tileset tileset, int entry, uint8_t* srcdata, int srcpitch);
 TLNAPI bool TLN_CopyTile (TLN_Tileset tileset, int src, int dst);
 TLNAPI int TLN_GetTileWidth (TLN_Tileset tileset);
 TLNAPI int TLN_GetTileHeight (TLN_Tileset tileset);
@@ -332,9 +358,9 @@ TLNAPI bool TLN_DeleteTilemap (TLN_Tilemap tilemap);
 TLNAPI TLN_Palette TLN_CreatePalette (int entries);
 TLNAPI TLN_Palette TLN_LoadPalette (const char* filename);
 TLNAPI TLN_Palette TLN_ClonePalette (TLN_Palette src);
-TLNAPI bool TLN_SetPaletteColor (TLN_Palette palette, int color, BYTE r, BYTE g, BYTE b);
-TLNAPI bool TLN_MixPalettes (TLN_Palette src1, TLN_Palette src2, TLN_Palette dst, BYTE factor);
-TLNAPI BYTE* TLN_GetPaletteData (TLN_Palette palette, int index);
+TLNAPI bool TLN_SetPaletteColor (TLN_Palette palette, int color, uint8_t r, uint8_t g, uint8_t b);
+TLNAPI bool TLN_MixPalettes (TLN_Palette src1, TLN_Palette src2, TLN_Palette dst, uint8_t factor);
+TLNAPI uint8_t* TLN_GetPaletteData (TLN_Palette palette, int index);
 TLNAPI bool TLN_DeletePalette (TLN_Palette palette);
 /**@}*/
 
@@ -346,7 +372,7 @@ TLNAPI bool TLN_DeletePalette (TLN_Palette palette);
 TLNAPI TLN_Bitmap TLN_CreateBitmap (int width, int height, int bpp);
 TLNAPI TLN_Bitmap TLN_LoadBitmap (const char* filename);
 TLNAPI TLN_Bitmap TLN_CloneBitmap (TLN_Bitmap src);
-TLNAPI BYTE* TLN_GetBitmapPtr (TLN_Bitmap bitmap, int x, int y);
+TLNAPI uint8_t* TLN_GetBitmapPtr (TLN_Bitmap bitmap, int x, int y);
 TLNAPI int TLN_GetBitmapWidth (TLN_Bitmap bitmap);
 TLNAPI int TLN_GetBitmapHeight (TLN_Bitmap bitmap);
 TLNAPI int TLN_GetBitmapDepth (TLN_Bitmap bitmap);
@@ -367,8 +393,10 @@ TLNAPI bool TLN_SetLayerPosition (int nlayer, int hstart, int vstart);
 TLNAPI bool TLN_SetLayerScaling (int nlayer, float xfactor, float yfactor);
 TLNAPI bool TLN_SetLayerAffineTransform (int nlayer, TLN_Affine *affine);
 TLNAPI bool TLN_SetLayerTransform (int layer, float angle, float dx, float dy, float sx, float sy);
-TLNAPI bool TLN_SetLayerBlendMode (int nlayer, TLN_Blend mode, BYTE factor);
+TLNAPI bool TLN_SetLayerBlendMode (int nlayer, TLN_Blend mode, uint8_t factor);
 TLNAPI bool TLN_SetLayerColumnOffset (int nlayer, int* offset);
+TLNAPI bool TLN_SetLayerClip (int nlayer, int x1, int y1, int x2, int y2);
+TLNAPI bool TLN_DisableLayerClip (int nlayer);
 TLNAPI bool TLN_ResetLayerMode (int nlayer);
 TLNAPI bool TLN_DisableLayer (int nlayer);
 TLNAPI TLN_Palette TLN_GetLayerPalette (int nlayer);
@@ -386,7 +414,7 @@ TLNAPI bool TLN_SetSpriteFlags (int nsprite, TLN_TileFlags flags);
 TLNAPI bool TLN_SetSpritePosition (int nsprite, int x, int y);
 TLNAPI bool TLN_SetSpritePicture (int nsprite, int entry);
 TLNAPI bool TLN_SetSpritePalette (int nsprite, TLN_Palette palette);
-TLNAPI bool TLN_SetSpriteBlendMode (int nsprite, TLN_Blend mode, BYTE factor);
+TLNAPI bool TLN_SetSpriteBlendMode (int nsprite, TLN_Blend mode, uint8_t factor);
 TLNAPI bool TLN_SetSpriteScaling (int nsprite, float sx, float sy);
 TLNAPI bool TLN_ResetSpriteScaling (int nsprite);
 TLNAPI int  TLN_GetSpritePicture (int nsprite);

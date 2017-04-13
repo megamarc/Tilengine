@@ -99,8 +99,8 @@ int main (int argc, char *argv[])
 {
 	int c;
 	int pitch, size;
-	BYTE* framebuffer;
-	DWORD t0, t1;	
+	uint8_t* framebuffer;
+	uint32_t t0, t1;	
 
 	/* setup engine */
 	TLN_Init (WIDTH,HEIGHT, MAX_LAYER, 0, 1);
