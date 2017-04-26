@@ -186,9 +186,7 @@ static void raster_callback (int line)
 	int pos =- 1;
 	RGB color;
 	
-	line += 1;
-
-	if (line==1)
+	if (line==0)
 		pos = pos_background[0];
 	else if (line==32)
 		pos = pos_background[1];

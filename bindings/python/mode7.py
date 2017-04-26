@@ -54,8 +54,7 @@ tileset_track   = tln.LoadTileset ("track1.tsx")
 tilemap_track   = tln.LoadTilemap ("track1.tmx", "Layer 1")
 
 # set raster callback
-CB_FUNC_TYPE = CFUNCTYPE (None, c_int)
-cb_func = CB_FUNC_TYPE(raster_callback)
+cb_func = tln.RasterCallbackFunc(raster_callback)
 tln.SetRasterCallback (cb_func)
 
 # main loop

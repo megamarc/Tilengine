@@ -25,13 +25,12 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/******************************************************************************
-*
-* C# Tilengine wrapper
-* 2016 Marc Palacios
+/*
+*****************************************************************************
+* C# Tilengine wrapper - Up to date to library version 1.11
 * http://www.tilengine.org
-*
-******************************************************************************/
+*****************************************************************************
+*/
 
 using System;
 using System.IO;

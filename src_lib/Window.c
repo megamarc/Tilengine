@@ -43,13 +43,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef TLN_EXCLUDE_WINDOW
 
+#include <string.h>
 #include "SDL2/SDL.h"
 #include "Tilengine.h"
+
+/* linear interploation */
+#define lerp(x, x0,x1, fx0,fx1) \
+	fx0 + (fx1-fx0)*(x-x0)/(x1-x0)
 
 static SDL_Window*   window;
 static SDL_Renderer* renderer;
 static SDL_Texture*	 backbuffer;
-static SDL_Texture*	 overlay;
+static SDL_Surface*	 resize_half_width;
 static SDL_Thread*   thread;
 static SDL_mutex*	 lock;
 static SDL_cond*	 cond;
@@ -70,6 +75,21 @@ static int			 rt_pitch;
 static int			inputs;
 static int			last_key;
 
+/* CRT effect */
+struct
+{
+	bool enable;
+	bool gaussian;
+	bool table[256];
+	TLN_Overlay overlay_id;
+	SDL_Texture* glow;
+	SDL_Texture* overlay;
+	SDL_Surface* overlays[TLN_MAX_OVERLAY];
+	SDL_Surface* blur;
+	uint8_t glow_factor;
+}
+static crt;
+
 /* Window manager */
 typedef struct
 {
@@ -82,10 +102,34 @@ typedef struct
 }
 WndParams;
 
+#define RED		0xFF,0x00,0x00,0xFF
+#define GREEN	0x00,0xFF,0x00,0xFF
+#define BLUE	0x00,0x00,0xFF,0xFF
+#define BLACK	0x00,0x00,0x00,0xFF
+
+static char pattern_aperture[] =
+{
+	RED,   GREEN, BLUE,  RED,   GREEN, BLUE,
+	RED,   GREEN, BLUE,  BLACK, BLACK, BLACK,
+	RED,   GREEN, BLUE,  RED,   GREEN, BLUE,
+	BLACK, BLACK, BLACK, RED,   GREEN, BLUE
+};
+
+static char pattern_shadowmask[] =
+{
+	RED, RED, GREEN, GREEN, BLUE, BLUE,
+	GREEN, BLUE, BLUE, RED, RED, GREEN
+};
+
 /* local prototypes */
 static SDL_Surface* CreateOverlaySurface (const char* filename, int dstw, int dsth, int bpp);
 static SDL_Texture* LoadTexture (char* filename);
 static void hblur (uint8_t* scan, int width, int height, int pitch);
+static void Downsample2 (uint8_t* src, uint8_t* dst, int width, int height, int src_pitch, int dst_pitch);
+static void BuildFullOverlay (SDL_Texture* texture, SDL_Surface* pattern, uint8_t factor);
+
+/* external prototypes */
+void GaussianBlur (uint8_t* src, uint8_t* dst, int width, int height, int pitch, int radius);
 
 static bool CreateWindow (int width, int height, int bpp, TLN_WindowFlags flags, const char* file_overlay)
 {
@@ -95,6 +139,8 @@ static bool CreateWindow (int width, int height, int bpp, TLN_WindowFlags flags,
 	int rflags;
 	char quality;
 	Uint32 format = 0;
+	void* pixels;
+	int pitch;
 
 	if (SDL_Init (SDL_INIT_VIDEO|SDL_INIT_JOYSTICK) != 0)
 		return false;
@@ -170,16 +216,28 @@ static bool CreateWindow (int width, int height, int bpp, TLN_WindowFlags flags,
 		TLN_DeleteWindow ();
 		return false;
 	}
+	SDL_SetTextureAlphaMod (backbuffer, 0);
 
-	/* textura de overlay RGB */
+	/* texturas CRT effect */
+	crt.glow = SDL_CreateTexture (renderer, format, SDL_TEXTUREACCESS_STREAMING, width/2,height/2);
+	crt.blur = SDL_CreateRGBSurface (0, width/2,height/2,32, 0,0,0,0);
+	SDL_SetTextureBlendMode (crt.glow, SDL_BLENDMODE_ADD);
+	SDL_LockTexture (crt.glow, NULL, &pixels, &pitch);
+	memset (pixels, 0, pitch*height/2);
+	SDL_UnlockTexture (crt.glow);
+	crt.overlay = SDL_CreateTexture (renderer, format, SDL_TEXTUREACCESS_STREAMING, wnd_width, wnd_height);
+	SDL_SetTextureBlendMode (crt.overlay, SDL_BLENDMODE_MOD);
+	crt.overlays[TLN_OVERLAY_APERTURE  ] = SDL_CreateRGBSurfaceFrom (pattern_aperture, 6,4,32,24, 0,0,0,0);
+	crt.overlays[TLN_OVERLAY_SHADOWMASK] = SDL_CreateRGBSurfaceFrom (pattern_shadowmask, 6,2,32,24, 0,0,0,0);
 	if (file_overlay)
-		surface = CreateOverlaySurface (file_overlay, wnd_width, wnd_height, bpp);
-	if (surface)
-	{
-		overlay = SDL_CreateTextureFromSurface (renderer, surface);
-		SDL_SetTextureBlendMode (overlay, SDL_BLENDMODE_MOD);
-		SDL_FreeSurface (surface);
-	}
+		crt.overlays[TLN_OVERLAY_CUSTOM] = SDL_LoadBMP (file_overlay);
+
+	TLN_EnableCRTEffect (TLN_OVERLAY_APERTURE, 128, 192, 0,64, 64,128, false, 255);
+	//TLN_EnableCRTEffect (212, 0,0, 212,224, 224);
+
+	/* temporal downsampl surface */
+	resize_half_width = SDL_CreateRGBSurface (0, width/2, height, 32, 0,0,0,0);
+	memset (resize_half_width->pixels, 255, resize_half_width->pitch * resize_half_width->h);
 	
 	if (flags & CWF_FULLSCREEN)
 	{
@@ -370,6 +428,8 @@ bool TLN_CreateWindowThread (const char* overlay, TLN_WindowFlags flags)
  */
 void TLN_DeleteWindow (void)
 {
+	int c;
+
 	/* single instance, delete when reach 0 */
 	if (!instances)
 		return;
@@ -380,11 +440,16 @@ void TLN_DeleteWindow (void)
     if (SDL_JoystickGetAttached(joy))
         SDL_JoystickClose(joy);
 
-	if (overlay)
+	/* CRT effect resources */
+	SDL_DestroyTexture (crt.glow);
+	SDL_DestroyTexture (crt.overlay);
+	SDL_FreeSurface (crt.blur);
+	for (c=0; c<TLN_MAX_OVERLAY; c++)
 	{
-		SDL_DestroyTexture (overlay);
-		overlay = NULL;
+		if (crt.overlays[c])
+			SDL_FreeSurface (crt.overlays[c]);
 	}
+	SDL_FreeSurface (resize_half_width);
 
 	if (backbuffer)
 	{
@@ -464,6 +529,7 @@ bool TLN_ProcessWindow (void)
 			case SDLK_x: SetInput(INPUT_B); break;
 			case SDLK_c: SetInput(INPUT_C); break;
 			case SDLK_v: SetInput(INPUT_D); break;
+			case SDLK_BACKSPACE: crt.enable = !crt.enable; break;
 			}
 			break;
 
@@ -561,13 +627,94 @@ void TLN_WaitRedraw (void)
  * Enable or disable effect
  * 
  * \remarks
- * Many games in Sega Genesis / Megadrive faked transparencies and more colors by alternating
- * thin vertical strips of colors that were blended together at the RF signal, trading horizontal
- * resolution by color range. Enable this filter to emulate that effect.
+ * As of release 1.12, this function has been deprecated and doesn't have effect anymore. It has been
+ * left only for ABI compatibility. Use the new TLN_EnableCRTEffect instead.
+ * \see
+ * TLN_EnableCRTEffect()
  */
 void TLN_EnableBlur (bool mode)
 {
 	blur = mode && tln_bpp == 32;
+}
+
+/*!
+ * \brief
+ * Enables CRT simulation post-processing effect to give true retro appeareance
+ * 
+ * \param overlay
+ * One of the enumerated TLN_Overlay types. Choosing TLN_OVERLAY_CUSTOM selects the image passed when calling TLN_CreateWindow
+ *
+ * \param overlay_factor
+ * Blend factor for overlay image. 0 is full transparent (no effect), 255 is full blending
+ 
+ * \param threshold
+ * Middle point of the brightness mapping function
+ *
+ * \param v0
+ * output brightness for input brightness = 0
+ *
+ * \param v1
+ * output brightness for input brightness = threshold
+ *
+ * \param v2
+ * output brightness for input brightness = threshold
+ *
+ * \param v3
+ * output brightness for input brightness = 255
+ *
+ * \param blur
+ * adds gaussian blur to brightness overlay, softens image
+ *
+ * \param glow_factor
+ * blend addition factor for brightness overlay. 0 is not addition, 255 is full addition
+ * 
+ * This function combines various effects to simulate the output of a CRT monitor with low CPU/GPU usage.
+ * A small horizontal blur is added to the frame, simulating the continuous output of a RF modulator where adjacent pixels got mixed.
+ * Many graphic designers use this feature where alternating vertical lines are used to create the illusion of more colors or blending.
+ * An secondary image is created with overbright pixels. In a real CRT, brighter colors bleed into surrounding area: the pixel size depends
+ * somewhat on its brightness. The threshold and v0 to v3 parametes define a two-segment linear mapping between source and destination 
+ * brightness for the overlay. Optionally the overlay can be softened more using a slight gaussian blur filter te create a kind of "bloom"
+ * effect, and finally it is added on top of the frame with the glow_factor value.
+ * 
+ * \see
+ * TLN_CreateWindow(),TLN_DisableCRTEffect()
+ */ 
+void TLN_EnableCRTEffect (TLN_Overlay overlay, uint8_t overlay_factor, uint8_t threshold, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, bool blur, uint8_t glow_factor)
+{
+	int c;
+
+	crt.enable = true;
+	crt.gaussian = blur;
+	crt.glow_factor = glow_factor;
+	SDL_SetTextureAlphaMod (crt.glow, glow_factor);
+
+	for (c=0; c<threshold; c++)
+		crt.table[c] = lerp (c, 0,threshold, v0,v1);
+	for (c=threshold; c<256; c++)
+		crt.table[c] = lerp (c, threshold,255, v2,v3);
+
+	if (crt.overlay_id != overlay)
+	{
+		if (crt.overlays[overlay] != NULL)
+		{
+			BuildFullOverlay (crt.overlay, crt.overlays[overlay], 255 - overlay_factor);
+			crt.overlay_id = overlay;
+		}
+		else
+			crt.overlay_id = TLN_OVERLAY_NONE;
+	}
+}
+
+/*!
+ * \brief
+ * Disables the CRT post-processing effect
+ * 
+ * \see
+ * TLN_EnableCRTEffect()
+ */ 
+void TLN_DisableCRTEffect (void)
+{
+	crt.enable = false;
 }
 
 /*!
@@ -634,17 +781,56 @@ void TLN_BeginWindowFrame (int time)
  */
 void TLN_EndWindowFrame (void)
 {
-	if (blur)
+	/* pixeles con threshold */
+	if (crt.enable && crt.glow_factor != 0)
+	{
+		const int dst_width = tln_width / 2;
+		const int dst_height = tln_height / 2;
+		uint8_t* pixels_glow;
+		int pitch_glow;
+		int x,y;
+
+		/* downscale backbuffer */
+		SDL_LockTexture (crt.glow, NULL, &pixels_glow, &pitch_glow);
+		Downsample2 (rt_pixels, pixels_glow, tln_width,tln_height, rt_pitch, pitch_glow);
+
+		/* replace color vales with LUT mapped */
+		for (y=0; y<dst_height; y++)
+		{
+			uint8_t* pixel = pixels_glow + y*pitch_glow;
+			for (x=0; x<dst_width; x++)
+			{
+				pixel[0] = *(crt.table + pixel[0]);
+				pixel[1] = *(crt.table + pixel[1]);
+				pixel[2] = *(crt.table + pixel[2]);
+				pixel[3] = 255;
+				pixel += sizeof(uint32_t);
+			}
+		}
+
+		/* apply gaussian blur (opitional) */
+		if (crt.gaussian)
+			GaussianBlur (pixels_glow, crt.blur->pixels, dst_width,dst_height,pitch_glow, 2);
+
+		SDL_UnlockTexture (crt.glow);
+	}
+
+	/* horizontal blur in-place */
+	if (crt.enable)
 		hblur (rt_pixels, tln_width, tln_height, rt_pitch);
-	
+
 	/* end frame and apply overlay */
 	SDL_UnlockTexture (backbuffer);
-	SDL_SetRenderDrawColor (renderer, 0,0,0,255);
+
 	SDL_RenderClear (renderer);
-	SDL_SetTextureAlphaMod (backbuffer, 0);
-	SDL_RenderCopy (renderer, backbuffer, NULL, &dstrect);
-	if (overlay)
-		SDL_RenderCopy (renderer, overlay, NULL, &dstrect);
+	SDL_RenderCopy (renderer, backbuffer, NULL, NULL);
+
+	if (crt.enable)
+	{
+		if (crt.overlay_id != TLN_OVERLAY_NONE)
+			SDL_RenderCopy (renderer, crt.overlay, NULL, NULL);
+		SDL_RenderCopy (renderer, crt.glow, NULL, NULL);
+	}
 	SDL_RenderPresent (renderer);
 }
 
@@ -691,37 +877,57 @@ void TLN_Delay (uint32_t time)
 	SDL_Delay (time);
 }
 
-/* loads a BMP image as overlay */
-static SDL_Surface* CreateOverlaySurface (const char* filename, int dstw, int dsth, int bpp)
+#define blendfunc(t,a,b) *(t  + ((a)<<8) + (b))
+extern uint8_t* SelectBlendTable (TLN_Blend mode, uint8_t factor);
+
+/* fills full-frame overlay texture with repeated pattern */
+static void BuildFullOverlay (SDL_Texture* texture, SDL_Surface* pattern, uint8_t factor)
 {
-	SDL_Surface* srcsurf;
-	SDL_Surface* surface;
+	SDL_Surface* src_surface;
+	SDL_Surface* dst_surface;
 	SDL_Rect rect;
-	int retval;
+	uint8_t* pixels = NULL;
+	uint8_t* add_table = SelectBlendTable (BLEND_ADD, 255);
+	int pitch = 0;
+	int x,y;
 
-	/* crea supercicie destino */
-	srcsurf = SDL_LoadBMP (filename);
-	if (!srcsurf)
-		return NULL;
-	if (bpp == 16)
-		surface = SDL_CreateRGBSurface (0, dstw,dsth,16, 0xF800,0x07E0,0x001F,0x0000);
-	else
-		surface = SDL_CreateRGBSurface (0, dstw,dsth,32, 0,0,0,0xFF000000);
-	if (!surface)
-		return NULL;
+	/* create auxiliar surfaces */
+	src_surface = SDL_CreateRGBSurface (0, pattern->w, pattern->h, 32, 0,0,0,0);
+	dst_surface = SDL_CreateRGBSurface (0, wnd_width, wnd_height, 32, 0,0,0,0);
 
-	/* replica patron original en mosaico detino */
-	rect.w = srcsurf->w;
-	rect.h = srcsurf->h;
-	for (rect.y=0; rect.y<dsth; rect.y+=rect.h)
+	/* modulate overlay brightness in source surface */
+	for (y=0; y<pattern->h; y++)
 	{
-		for (rect.x=0; rect.x<dstw; rect.x+=rect.w)
-			retval = SDL_BlitSurface (srcsurf, NULL, surface, &rect);
+		uint8_t* srcpixel = (uint8_t*)pattern->pixels + y*pattern->pitch;
+		uint8_t* dstpixel = (uint8_t*)src_surface->pixels + y*src_surface->pitch;
+		for (x=0; x<pattern->w; x++)
+		{
+			dstpixel[0] = blendfunc(add_table, srcpixel[0], factor);
+			dstpixel[1] = blendfunc(add_table, srcpixel[1], factor);
+			dstpixel[2] = blendfunc(add_table, srcpixel[2], factor);
+			dstpixel[3] = 255;
+			srcpixel += sizeof(uint32_t);
+			dstpixel += sizeof(uint32_t);
+		}
 	}
 
-	SDL_FreeSurface (srcsurf);
+	/* fill destination surface with mosaic of modulated source surface */
+	rect.w = pattern->w;
+	rect.h = pattern->h;
+	for (rect.y=0; rect.y<dst_surface->h; rect.y+=rect.h)
+	{
+		for (rect.x=0; rect.x<dst_surface->w; rect.x+=rect.w)
+			SDL_BlitSurface (src_surface, NULL, dst_surface, &rect);
+	}
 
-	return surface;
+	/* copy pixels into final texture */
+	SDL_LockTexture (texture, NULL, &pixels, &pitch);
+	memcpy (pixels, dst_surface->pixels, pitch*dst_surface->h);
+	SDL_UnlockTexture (texture);
+	
+	/* release resources */
+	SDL_FreeSurface (dst_surface);
+	SDL_FreeSurface (src_surface);
 }
 
 /* basic horizontal blur emulating RF blurring */
@@ -742,6 +948,50 @@ static void hblur (uint8_t* scan, int width, int height, int pitch)
 			pixel += sizeof(uint32_t);
 		}
 		scan += pitch;
+	}
+}
+
+/* resample rápido dividio 2 */
+static void Downsample2 (uint8_t* src, uint8_t* dst, int width, int height, int src_pitch, int dst_pitch)
+{
+	uint8_t* src_pixel;
+	uint8_t* dst_pixel;
+	int x,y;
+	const int dst_width = width/2;
+	const int dst_height = height/2;
+
+	/* de src horizontal/2 en tmp */
+	for (y=0; y<height; y++)
+	{
+		src_pixel = src + (y*src_pitch);
+		dst_pixel = (uint8_t*)resize_half_width->pixels + (y*resize_half_width->pitch);
+		for (x=0; x<dst_width; x++)
+		{
+			dst_pixel[0] = (src_pixel[0] + src_pixel[4]) >> 1;
+			dst_pixel[1] = (src_pixel[1] + src_pixel[5]) >> 1;
+			dst_pixel[2] = (src_pixel[2] + src_pixel[6]) >> 1;
+			src_pixel += 2*sizeof(uint32_t);
+			dst_pixel += sizeof(uint32_t);
+		}
+	}
+
+	/* de tmp a vertical/2 en dst */
+	for (y=0; y<dst_height; y++)
+	{
+		const int index0 = resize_half_width->pitch + 0;
+		const int index1 = resize_half_width->pitch + 1;
+		const int index2 = resize_half_width->pitch + 2;
+
+		src_pixel = (uint8_t*)resize_half_width->pixels + ((y << 1)*resize_half_width->pitch);
+		dst_pixel = dst + (y*dst_pitch);
+		for (x=0; x<dst_width; x++)
+		{
+			dst_pixel[0] = (src_pixel[0] + src_pixel[index0]) >> 1;
+			dst_pixel[1] = (src_pixel[1] + src_pixel[index1]) >> 1;
+			dst_pixel[2] = (src_pixel[2] + src_pixel[index2]) >> 1;
+			src_pixel += sizeof(uint32_t);
+			dst_pixel += sizeof(uint32_t);
+		}
 	}
 }
 

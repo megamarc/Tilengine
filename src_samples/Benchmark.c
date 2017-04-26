@@ -12,41 +12,39 @@ TLN_Palette palette;
 TLN_Tileset tileset;
 TLN_Tilemap tilemap;
 TLN_Spriteset spriteset;
-int frame;
 int pixels;
-uint32_t t0, t1;
 
 static TLN_Palette CreateRandomPalette (void);
 static TLN_Tileset CreateRandomTileset (int ntiles, int coverage, TLN_Palette palette);
 static TLN_Tilemap CreateRandomTilemap (int rows, int cols, int maxtile, int coverage);
 static TLN_Spriteset CreateRandomSpriteset (int coverage, TLN_Palette palette);
 static void FillRandomData (uint8_t* data, int len, int coverage);
-static int Profile (void);
+static uint32_t Profile (void);
 
 int main (int argc, char* argv[])
 {
 	int c;
-	int result;
 	bool ok;
 	uint8_t* framebuffer;
+	uint32_t version;
 	int pcen;
 	int bpp;
 
+	version = TLN_GetVersion ();
 	printf ("\nTilengine benchmark tool\n");
 	printf ("Written by Megamarc - %s %s\n", __DATE__, __TIME__);
+	printf ("Library version: %d.%d.%d\n", (version >> 16)&0xFF, (version >> 8)&0xFF, version&0xFF);
 	printf ("http://www.tilengine.org\n\n");
 
-	if (argc != 3)
+	if (argc != 2)
 	{
-		printf ("Syntax: benchmark format percent\n");
+		printf ("Syntax: benchmark format\n");
 		printf ("  format : pixel format (16 or 32)\n");
-		printf ("  percent: pixel coverage percentage (0-100)\n");
-		printf ("    Real game is about 70%%\n");
 		return 0;
 	}
 
 	bpp = atoi (argv[1]);
-	pcen = atoi (argv[2]);
+	pcen = 70;
 
 	if (bpp != 16 && bpp != 32)
 		return 0;
@@ -59,43 +57,40 @@ int main (int argc, char* argv[])
 
 	/* create assets */
 	palette = CreateRandomPalette ();
-	tileset = CreateRandomTileset (1024, pcen, palette);
-	tilemap = CreateRandomTilemap (50,30, 1023, pcen);
+	//tileset = CreateRandomTileset (1024, pcen, palette);
+	//tilemap = CreateRandomTilemap (50,30, 1023, pcen);
+	tileset = TLN_LoadTileset ("TF4_bg1.tsx");
+	tilemap = TLN_LoadTilemap ("TF4_bg1.tmx", NULL);
+
 	spriteset = CreateRandomSpriteset (pcen, palette);
 	
 	/* setup layer */
 	ok = TLN_SetLayer (0, tileset, tilemap);
-	pixels = FRAMES*HRES*VRES;
+	pixels = HRES*VRES;
 
 	printf ("Normal layer..........");
-	result = Profile ();
-	printf ("%10d pixels/s\n", result);
+	Profile ();
 
 	printf ("Scaling layer.........");
 	TLN_SetLayerScaling (0, 2.0f, 2.0f);
-	result = Profile ();
-	printf ("%10d pixels/s\n", result);
+	Profile ();
 
 	printf ("Affine layer..........");
 	TLN_SetLayerTransform (0, 45.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-	result = Profile ();
-	printf ("%10d pixels/s\n", result);
+	Profile ();
 
 	printf ("Blend layer...........");
 	TLN_ResetLayerMode (0);
 	TLN_SetLayerBlendMode (0, BLEND_MIX, 128);
-	result = Profile ();
-	printf ("%10d pixels/s\n", result);
+	Profile ();
 
 	printf ("Scaling blend layer...");
 	TLN_SetLayerScaling (0, 2.0f, 2.0f);
-	result = Profile ();
-	printf ("%10d pixels/s\n", result);
+	Profile ();
 
 	printf ("Affine blend layer....");
 	TLN_SetLayerTransform (0, 45.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-	result = Profile ();
-	printf ("%10d pixels/s\n", result);
+	Profile ();
 
 	TLN_DisableLayer (0);
 
@@ -108,17 +103,15 @@ int main (int argc, char* argv[])
 		ok = TLN_SetSpritePicture (c, 0);
 		TLN_SetSpritePosition (c, x*15, y*21);
 	}
-	pixels = FRAMES*SPRITES*SIZE;
+	pixels = SPRITES*SIZE;
 
 	printf ("Normal sprites........");
-	result = Profile ();
-	printf ("%10d pixels/s\n", result);
+	Profile ();
 
 	printf ("Colliding sprites.....");
 	for (c=0; c<SPRITES; c++)
 		TLN_EnableSpriteCollision (c, true);
-	result = Profile ();
-	printf ("%10d pixels/s\n", result);
+	Profile ();
 
 	free (framebuffer);
 	TLN_DeleteTilemap (tilemap);
@@ -128,17 +121,23 @@ int main (int argc, char* argv[])
 	return 0;
 }
 
-static int Profile (void)
+static uint32_t Profile (void)
 {
-	frame = 0;
+	uint32_t t0, elapse;
+	uint32_t frame = 0;
+	uint32_t result;
 
 	t0 = TLN_GetTicks ();
-	while (TLN_ProcessWindow () && frame<FRAMES)
+	do
+	{
 		TLN_UpdateFrame (frame++);
-		//TLN_DrawFrame (frame++);
-	t1 = TLN_GetTicks () - t0;
+	}
+	while (frame < FRAMES);
+	elapse = TLN_GetTicks () - t0;
+	result = frame*pixels/elapse;
 
-	return pixels/t1*1000;
+	printf (" %3u.%03u Mpixels/s\n", result/1000, result%1000);
+	return result;
 }
 
 static void FillRandomData (uint8_t* data, int len, int coverage)

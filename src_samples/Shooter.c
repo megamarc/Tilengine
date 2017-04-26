@@ -240,8 +240,8 @@ static void raster_callback (int line)
 		TLN_SetLayerPosition (LAYER_FOREGROUND, (frame<<2)/3, 192 - line);
 	}
 
-	if (line >= 64 && line <112)
-		TLN_SetLayerBlendMode (LAYER_FOREGROUND, BLEND_MIX, (uint8_t)(line<<1));
+	if (line == 64)
+		TLN_SetLayerBlendMode (LAYER_FOREGROUND, BLEND_MIX50, 0);
 
 	if (line==112)
 		TLN_DisableLayer (LAYER_FOREGROUND);

@@ -41,7 +41,6 @@ layer_t;
 static layer_t layers[MAX_LAYER];
 static int xpos, ypos;
 static int scale;
-static uint8_t alpha;
 
 /* helper for loading a related tileset + tilemap and configure the appropiate layer */
 static void LoadLayer (int index, char* name)
@@ -92,7 +91,6 @@ int main (int argc, char* argv[])
 	xpos = 0;
 	ypos = 192;
 	scale = 100;
-	alpha = 255;
 	
 	/* main loop */
 	while (TLN_ProcessWindow ())
@@ -115,10 +113,6 @@ int main (int argc, char* argv[])
 			scale += 1;
 		if (TLN_GetInput (INPUT_B) && scale > MIN_SCALE)
 			scale -= 1;
-		if (TLN_GetInput (INPUT_C) && alpha < 255)
-			alpha += 2;
-		if (TLN_GetInput (INPUT_D) && alpha > 1)
-			alpha -= 2;
 
 		/* calculate scale factor from fixed point base */
 		fgscale = (float)scale/100.0f;
@@ -136,12 +130,6 @@ int main (int argc, char* argv[])
 		TLN_SetLayerScaling (LAYER_FOREGROUND, fgscale, fgscale);
 		TLN_SetLayerScaling (LAYER_BACKGROUND, bgscale, bgscale);
 
-		/* update transparency */
-		if (alpha < 255)
-			TLN_SetLayerBlendMode (LAYER_FOREGROUND, BLEND_MIX, alpha);
-		else
-			TLN_SetLayerBlendMode (LAYER_FOREGROUND, BLEND_NONE, 0);
-		
 		/* render to the window */
 		TLN_DrawFrame (frame);
 		frame++;

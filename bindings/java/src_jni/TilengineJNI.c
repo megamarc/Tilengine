@@ -25,6 +25,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// ****************************************************************************
+// Tilengine Java JNI wrapper - Up to date to library version 1.11
+// http://www.tilengine.org
+// ****************************************************************************
+
 #include <jni.h>
 #include "Tilengine.h"
 
@@ -119,13 +124,13 @@ JNIEXPORT jboolean JNICALL Java_Tilengine_SetBGPalette (JNIEnv* env, jobject thi
 
 JNIEXPORT void JNICALL Java_Tilengine_SetRasterCallback (JNIEnv* env, jobject thisobj, jobject obj, jstring methodname)
 {
-	/* borra anterior */
+	/* release previous */
 	TLN_SetRasterCallback (NULL);
 	if (callback.obj)
 		(*env)->DeleteGlobalRef (env, callback.obj);
 	callback.obj = NULL;
 	
-	/* crea nuevo */
+	/* store new */
 	if (obj && methodname)
 	{
 		const char* strmethod;

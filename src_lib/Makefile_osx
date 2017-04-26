@@ -1,9 +1,9 @@
 CC       = gcc
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
-LIBS     = "../../libpng/libpng.a" -framework SDL2 -lc
+LIBS     = "libpng/osx/libpng.a" -framework SDL2 -lc
 BIN      = Tilengine.dylib
-CFLAGS   = -std=c99 -O2 -DLIB_EXPORTS -I"../../libpng"
+CFLAGS   = -std=c99 -O2 -DLIB_EXPORTS -I"libpng"
 RM       = rm
 
 .PHONY: all all-before all-after clean clean-custom

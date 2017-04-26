@@ -74,7 +74,7 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 
 /* version */
 #define TILENGINE_VER_MAJ	1
-#define TILENGINE_VER_MIN	11
+#define TILENGINE_VER_MIN	12
 #define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ<<16) | (TILENGINE_VER_MIN<<8) | TILENGINE_VER_REV)
 
@@ -104,12 +104,16 @@ typedef int fix_t;
  */
 typedef enum
 {
-	BLEND_NONE,	/*!< blending disabled */
-	BLEND_MIX,	/*!< color averaging */
-	BLEND_ADD,	/*!< color is always brighter (simulate light effects) */
-	BLEND_SUB,	/*!< color is always darker (simulate shadow effects) */
-	BLEND_MOD,	/*!< color is always darker (simulate shadow effects) */
-	MAX_BLEND
+	BLEND_NONE,		/*!< blending disabled */
+	BLEND_MIX25,	/*!< color averaging 1 */
+	BLEND_MIX50,	/*!< color averaging 2 */
+	BLEND_MIX75,	/*!< color averaging 3 */
+	BLEND_ADD,		/*!< color is always brighter (simulate light effects) */
+	BLEND_SUB,		/*!< color is always darker (simulate shadow effects) */
+	BLEND_MOD,		/*!< color is always darker (simulate shadow effects) */
+	BLEND_CUSTOM,	/*!< user provided blend function */
+	MAX_BLEND,
+	BLEND_MIX = BLEND_MIX50
 }
 TLN_Blend;
 
@@ -164,15 +168,26 @@ TLN_SpriteInfo;
 /*! Tile information in screen coordinates */
 typedef struct
 {
-	uint16_t index;		/*!< tile index */
-	uint16_t flags;		/*!< attributes (FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY) */
+	uint16_t index;	/*!< tile index */
+	uint16_t flags;	/*!< attributes (FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY) */
 	int row;		/*!< row number in the tilemap */
 	int col;		/*!< col number in the tilemap */
 	int xoffset;	/*!< horizontal position inside the title */
 	int yoffset;	/*!< vertical position inside the title */
-	uint8_t color;		/*!< color index at collision point */
+	uint8_t color;	/*!< color index at collision point */
 }
 TLN_TileInfo;
+
+/*! overlays for CRT effect */
+typedef enum
+{
+	TLN_OVERLAY_NONE,
+	TLN_OVERLAY_SHADOWMASK,
+	TLN_OVERLAY_APERTURE,
+	TLN_OVERLAY_CUSTOM,
+	TLN_MAX_OVERLAY
+}
+TLN_Overlay;
 
 typedef struct Tile*		 TLN_Tile;				/*!< Tile reference */
 typedef struct Tileset*		 TLN_Tileset;			/*!< Opaque tileset reference */
@@ -266,6 +281,7 @@ TLNAPI void TLN_UpdateFrame (int time);
 TLNAPI void TLN_BeginFrame (int time);
 TLNAPI bool TLN_DrawNextScanline (void);
 TLNAPI void TLN_SetLoadPath (const char* path);
+TLNAPI void TLN_SetCustomBlendFunction (uint8_t (*blend_function)(uint8_t src, uint8_t dst));
 
 /**@}*/
 
@@ -295,6 +311,8 @@ TLNAPI void TLN_DrawFrame (int time);
 TLNAPI void TLN_WaitRedraw (void);
 TLNAPI void TLN_DeleteWindow (void);
 TLNAPI void TLN_EnableBlur (bool mode);
+TLNAPI void TLN_EnableCRTEffect (TLN_Overlay overlay, uint8_t overlay_factor, uint8_t threshold, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, bool blur, uint8_t glow_factor);
+TLNAPI void TLN_DisableCRTEffect (void);
 TLNAPI void TLN_Delay (uint32_t msecs);
 TLNAPI uint32_t TLN_GetTicks (void);
 TLNAPI void TLN_BeginWindowFrame (int time);
@@ -357,6 +375,9 @@ TLNAPI TLN_Palette TLN_LoadPalette (const char* filename);
 TLNAPI TLN_Palette TLN_ClonePalette (TLN_Palette src);
 TLNAPI bool TLN_SetPaletteColor (TLN_Palette palette, int color, uint8_t r, uint8_t g, uint8_t b);
 TLNAPI bool TLN_MixPalettes (TLN_Palette src1, TLN_Palette src2, TLN_Palette dst, uint8_t factor);
+TLNAPI bool TLN_AddPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b, uint8_t start, uint8_t num);
+TLNAPI bool TLN_SubPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b, uint8_t start, uint8_t num);
+TLNAPI bool TLN_ModPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b, uint8_t start, uint8_t num);
 TLNAPI uint8_t* TLN_GetPaletteData (TLN_Palette palette, int index);
 TLNAPI bool TLN_DeletePalette (TLN_Palette palette);
 /**@}*/
@@ -394,6 +415,8 @@ TLNAPI bool TLN_SetLayerBlendMode (int nlayer, TLN_Blend mode, uint8_t factor);
 TLNAPI bool TLN_SetLayerColumnOffset (int nlayer, int* offset);
 TLNAPI bool TLN_SetLayerClip (int nlayer, int x1, int y1, int x2, int y2);
 TLNAPI bool TLN_DisableLayerClip (int nlayer);
+TLNAPI bool TLN_SetLayerMosaic (int nlayer, int width, int height);
+TLNAPI bool TLN_DisableLayerMosaic (int nlayer);
 TLNAPI bool TLN_ResetLayerMode (int nlayer);
 TLNAPI bool TLN_DisableLayer (int nlayer);
 TLNAPI TLN_Palette TLN_GetLayerPalette (int nlayer);
