@@ -74,8 +74,8 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 
 /* version */
 #define TILENGINE_VER_MAJ	1
-#define TILENGINE_VER_MIN	12
-#define TILENGINE_VER_REV	0
+#define TILENGINE_VER_MIN	13
+#define TILENGINE_VER_REV	1
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ<<16) | (TILENGINE_VER_MIN<<8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))

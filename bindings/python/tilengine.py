@@ -464,14 +464,14 @@ def SetPaletteColor(palette, entry, r, g, b):
 def MixPalettes(src_palette1, src_palette2, dst_palette, factor):
 	return _tln.TLN_MixPalettes(src_palette1, src_palette2, dst_palette, factor)
 
-def AddPaletteColor(palette, entry, r, g, b):
-	return _tln.TLN_AddPaletteColor(palette, entry, r, g, b)
+def AddPaletteColor(palette, first, count, r, g, b):
+	return _tln.TLN_AddPaletteColor(palette, first, count, r, g, b)
 
-def SubPaletteColor(palette, entry, r, g, b):
-	return _tln.TLN_SubPaletteColor(palette, entry, r, g, b)
+def SubPaletteColor(palette, first, count, r, g, b):
+	return _tln.TLN_SubPaletteColor(palette, first, count, r, g, b)
 
-def ModPaletteColor(palette, entry, r, g, b):
-	return _tln.TLN_ModPaletteColor(palette, entry, r, g, b)
+def ModPaletteColor(palette, first, count, r, g, b):
+	return _tln.TLN_ModPaletteColor(palette, first, count, r, g, b)
 	
 def GetPaletteData(palette, entry):
 	return _tln.TLN_GetPaletteData(palette, entry)

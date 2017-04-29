@@ -64,11 +64,7 @@ static SDL_Rect		 dstrect;
 static bool			 done;
 static int			 wnd_width;
 static int			 wnd_height;
-static int			 tln_width;
-static int			 tln_height;
-static int			 tln_bpp;
 static int			 instances = 0;
-static bool			 blur = false;
 static uint8_t*		 rt_pixels;
 static int			 rt_pitch;
 
@@ -95,12 +91,13 @@ typedef struct
 {
 	int width;
 	int height;
-	int bpp;
 	TLN_WindowFlags flags;
-	const char* file_overlay;
+	char file_overlay[128];
 	volatile int retval;
 }
 WndParams;
+
+static WndParams wnd_params;
 
 #define RED		0xFF,0x00,0x00,0xFF
 #define GREEN	0x00,0xFF,0x00,0xFF
@@ -122,7 +119,9 @@ static char pattern_shadowmask[] =
 };
 
 /* local prototypes */
-static SDL_Surface* CreateOverlaySurface (const char* filename, int dstw, int dsth, int bpp);
+static bool CreateWindow (void);
+static void DeleteWindow (void);
+static SDL_Surface* CreateOverlaySurface (const char* filename, int dstw, int dsth);
 static SDL_Texture* LoadTexture (char* filename);
 static void hblur (uint8_t* scan, int width, int height, int pitch);
 static void Downsample2 (uint8_t* src, uint8_t* dst, int width, int height, int src_pitch, int dst_pitch);
@@ -131,7 +130,8 @@ static void BuildFullOverlay (SDL_Texture* texture, SDL_Surface* pattern, uint8_
 /* external prototypes */
 void GaussianBlur (uint8_t* src, uint8_t* dst, int width, int height, int pitch, int radius);
 
-static bool CreateWindow (int width, int height, int bpp, TLN_WindowFlags flags, const char* file_overlay)
+/* create window delegate */
+static bool CreateWindow (void)
 {
 	SDL_DisplayMode mode;
 	SDL_Surface* surface = NULL;
@@ -142,23 +142,21 @@ static bool CreateWindow (int width, int height, int bpp, TLN_WindowFlags flags,
 	void* pixels;
 	int pitch;
 
-	if (SDL_Init (SDL_INIT_VIDEO|SDL_INIT_JOYSTICK) != 0)
-		return false;
-
 	/* obtiene tamaño escritorio y tamaño máximo de ventana*/
 	SDL_GetDesktopDisplayMode (0, &mode);
-	if (!(flags & CWF_FULLSCREEN))
+	if (!(wnd_params.flags & CWF_FULLSCREEN))
 	{
-		factor = (flags >> 2) & 0x07;
+		rflags = 0;
+		factor = (wnd_params.flags >> 2) & 0x07;
 		if (!factor)
 		{
 			factor = 1;
-			while (width*(factor + 1) < mode.w && height*(factor + 1) < mode.h && factor < 3)
+			while (wnd_params.width*(factor + 1) < mode.w && wnd_params.height*(factor + 1) < mode.h && factor < 3)
 				factor++;
 		}
 		
-		wnd_width = width*factor;
-		wnd_height = height*factor;
+		wnd_width = wnd_params.width*factor;
+		wnd_height = wnd_params.height*factor;
 
 		dstrect.x = 0;
 		dstrect.y = 0;
@@ -167,14 +165,15 @@ static bool CreateWindow (int width, int height, int bpp, TLN_WindowFlags flags,
 	}
 	else
 	{
+		rflags = CWF_FULLSCREEN;
 		wnd_width = mode.w;
-		wnd_height = wnd_width*height/width;
+		wnd_height = wnd_width*wnd_params.height/wnd_params.width;
 		if (wnd_height > mode.h)
 		{
 			wnd_height = mode.h;
-			wnd_width = wnd_height*width/height;
+			wnd_width = wnd_height*wnd_params.width/wnd_params.height;
 		}
-		factor = wnd_height / height;
+		factor = wnd_height / wnd_params.height;
 
 		dstrect.x = (mode.w - wnd_width) >> 1;
 		dstrect.y = (mode.h - wnd_height) >> 1;
@@ -182,67 +181,63 @@ static bool CreateWindow (int width, int height, int bpp, TLN_WindowFlags flags,
 		dstrect.h = wnd_height;
 	}
 
-	rflags = 0;
-
 	/* ventana */
 	window = SDL_CreateWindow ("Tilengine window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, wnd_width,wnd_height, rflags);
 	if (!window)
 	{
-		TLN_DeleteWindow ();
+		DeleteWindow ();
 		return false;
 	}
 
 	/* contexto de render */
 	rflags = SDL_RENDERER_ACCELERATED;
-	if (flags & CWF_VSYNC)
+	if (wnd_params.flags & CWF_VSYNC)
 		rflags |= SDL_RENDERER_PRESENTVSYNC;
 	renderer = SDL_CreateRenderer (window, -1, rflags);
 	if (!renderer)
 	{
-		TLN_DeleteWindow ();
+		DeleteWindow ();
 		return false;
 	}
 	quality = 1;
 	SDL_SetHint (SDL_HINT_RENDER_SCALE_QUALITY, &quality);
 	
 	/* textura para recibir los pixeles de Tilengine */
-	if (bpp == 32)
-		format = SDL_PIXELFORMAT_ARGB8888;
-	else if (bpp == 16)
-		format = SDL_PIXELFORMAT_RGB565;
-	backbuffer = SDL_CreateTexture (renderer, format, SDL_TEXTUREACCESS_STREAMING, width,height);
+	format = SDL_PIXELFORMAT_ARGB8888;
+	backbuffer = SDL_CreateTexture (renderer, format, SDL_TEXTUREACCESS_STREAMING, wnd_params.width,wnd_params.height);
 	if (!backbuffer)
 	{
-		TLN_DeleteWindow ();
+		DeleteWindow ();
 		return false;
 	}
 	SDL_SetTextureAlphaMod (backbuffer, 0);
 
 	/* texturas CRT effect */
-	crt.glow = SDL_CreateTexture (renderer, format, SDL_TEXTUREACCESS_STREAMING, width/2,height/2);
-	crt.blur = SDL_CreateRGBSurface (0, width/2,height/2,32, 0,0,0,0);
+	crt.overlay_id = TLN_OVERLAY_NONE;
+	crt.glow = SDL_CreateTexture (renderer, format, SDL_TEXTUREACCESS_STREAMING, wnd_params.width/2,wnd_params.height/2);
+	crt.blur = SDL_CreateRGBSurface (0, wnd_params.width/2,wnd_params.height/2,32, 0,0,0,0);
 	SDL_SetTextureBlendMode (crt.glow, SDL_BLENDMODE_ADD);
 	SDL_LockTexture (crt.glow, NULL, &pixels, &pitch);
-	memset (pixels, 0, pitch*height/2);
+	memset (pixels, 0, pitch*wnd_params.height/2);
 	SDL_UnlockTexture (crt.glow);
 	crt.overlay = SDL_CreateTexture (renderer, format, SDL_TEXTUREACCESS_STREAMING, wnd_width, wnd_height);
 	SDL_SetTextureBlendMode (crt.overlay, SDL_BLENDMODE_MOD);
 	crt.overlays[TLN_OVERLAY_APERTURE  ] = SDL_CreateRGBSurfaceFrom (pattern_aperture, 6,4,32,24, 0,0,0,0);
 	crt.overlays[TLN_OVERLAY_SHADOWMASK] = SDL_CreateRGBSurfaceFrom (pattern_shadowmask, 6,2,32,24, 0,0,0,0);
-	if (file_overlay)
-		crt.overlays[TLN_OVERLAY_CUSTOM] = SDL_LoadBMP (file_overlay);
+	if (wnd_params.file_overlay[0])
+		crt.overlays[TLN_OVERLAY_CUSTOM] = SDL_LoadBMP (wnd_params.file_overlay);
 
 	TLN_EnableCRTEffect (TLN_OVERLAY_APERTURE, 128, 192, 0,64, 64,128, false, 255);
 	//TLN_EnableCRTEffect (212, 0,0, 212,224, 224);
 
 	/* temporal downsampl surface */
-	resize_half_width = SDL_CreateRGBSurface (0, width/2, height, 32, 0,0,0,0);
+	resize_half_width = SDL_CreateRGBSurface (0, wnd_params.width/2, wnd_params.height, 32, 0,0,0,0);
 	memset (resize_half_width->pixels, 255, resize_half_width->pitch * resize_half_width->h);
 	
-	if (flags & CWF_FULLSCREEN)
+	if (wnd_params.flags & CWF_FULLSCREEN)
 	{
-		SDL_SetWindowDisplayMode (window, &mode);
-		SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN);
+		//SDL_SetWindowDisplayMode (window, &mode);
+		//SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN);
 		SDL_ShowCursor (SDL_DISABLE);
 	}
 
@@ -256,6 +251,44 @@ static bool CreateWindow (int width, int height, int bpp, TLN_WindowFlags flags,
 	}
 
 	return true;
+}
+
+/* destroy window delegate */
+static void DeleteWindow (void)
+{
+	int c;
+
+    if (SDL_JoystickGetAttached(joy))
+        SDL_JoystickClose(joy);
+
+	/* CRT effect resources */
+	SDL_DestroyTexture (crt.glow);
+	SDL_DestroyTexture (crt.overlay);
+	SDL_FreeSurface (crt.blur);
+	for (c=0; c<TLN_MAX_OVERLAY; c++)
+	{
+		if (crt.overlays[c])
+			SDL_FreeSurface (crt.overlays[c]);
+	}
+	SDL_FreeSurface (resize_half_width);
+
+	if (backbuffer)
+	{
+		SDL_DestroyTexture (backbuffer);
+		backbuffer = NULL;
+	}
+	
+	if (renderer)
+	{
+		SDL_DestroyRenderer (renderer);
+		renderer = NULL;
+	}
+
+	if (window)
+	{
+		SDL_DestroyWindow (window);
+		window = NULL;
+	}
 }
 
 /*!
@@ -275,14 +308,13 @@ static int WindowThread (void* data)
 {
 	int time = 0;
 	bool ok;
-	WndParams* params = (WndParams*)data;
 
-	ok = CreateWindow (params->width, params->height, params->bpp, params->flags, params->file_overlay);
+	ok = CreateWindow ();
 	if (ok == true)
-		params->retval = 1;
+		wnd_params.retval = 1;
 	else
 	{
-		params->retval = 2;
+		wnd_params.retval = 2;
 		return 0;
 	}
 
@@ -295,35 +327,7 @@ static int WindowThread (void* data)
 		SDL_UnlockMutex (lock);
 		TLN_ProcessWindow ();
 	}
-
-	TLN_DeleteWindow ();
 	return 0;
-}
-
-static bool CreateWindowThread (int width, int height, int bpp, TLN_WindowFlags flags, const char* file_overlay)
-{
-	WndParams params;
-
-	/* fill parameters for window creation */
-	params.width = width;
-	params.height = height;
-	params.bpp = bpp;
-	params.flags = flags|CWF_VSYNC;
-	params.file_overlay = file_overlay;
-	params.retval = 0;
-
-	lock = SDL_CreateMutex ();
-	cond = SDL_CreateCond ();
-
-	/* init thread & wait window creation result */
-	thread = SDL_CreateThread (WindowThread, "WindowThread", &params);
-	while (params.retval == 0)
-		SDL_Delay (10);
-
-	if (params.retval == 1)
-		return true;
-	else
-		return false;
 }
 
 /*!
@@ -364,14 +368,20 @@ bool TLN_CreateWindow (const char* overlay, TLN_WindowFlags flags)
 		return true;
 	}
 
-	tln_width  = TLN_GetWidth ();
-	tln_height = TLN_GetHeight ();
-	tln_bpp = TLN_GetBPP ();
-	ok = CreateWindow (tln_width, tln_height, tln_bpp, flags, overlay);
+	if (SDL_Init (SDL_INIT_VIDEO|SDL_INIT_JOYSTICK) != 0)
+		return false;
+
+	/* fill parameters for window creation */
+	wnd_params.width = TLN_GetWidth ();
+	wnd_params.height = TLN_GetHeight ();
+	wnd_params.flags = flags|CWF_VSYNC;
+	if (overlay)
+		strcpy (wnd_params.file_overlay, overlay);
+
+	ok = CreateWindow ();
 	if (ok)
 		instances++;
 	return ok;
-
 }
 
 /*!
@@ -410,10 +420,30 @@ bool TLN_CreateWindowThread (const char* overlay, TLN_WindowFlags flags)
 		return true;
 	}
 
-	tln_width  = TLN_GetWidth ();
-	tln_height = TLN_GetHeight ();
-	tln_bpp = TLN_GetBPP ();
-	ok = CreateWindowThread (tln_width, tln_height, tln_bpp, flags, overlay);
+	if (SDL_Init (SDL_INIT_VIDEO|SDL_INIT_JOYSTICK) != 0)
+		return false;
+
+	/* fill parameters for window creation */
+	wnd_params.retval = 0;
+	wnd_params.width = TLN_GetWidth ();
+	wnd_params.height = TLN_GetHeight ();
+	wnd_params.flags = flags|CWF_VSYNC;
+	if (overlay)
+		strcpy (wnd_params.file_overlay, overlay);
+
+	lock = SDL_CreateMutex ();
+	cond = SDL_CreateCond ();
+
+	/* init thread & wait window creation result */
+	thread = SDL_CreateThread (WindowThread, "WindowThread", &wnd_params);
+	while (wnd_params.retval == 0)
+		SDL_Delay (10);
+
+	if (wnd_params.retval == 1)
+		return true;
+	else
+		return false;
+
 	if (ok)
 		instances++;
 	return ok;
@@ -428,8 +458,6 @@ bool TLN_CreateWindowThread (const char* overlay, TLN_WindowFlags flags)
  */
 void TLN_DeleteWindow (void)
 {
-	int c;
-
 	/* single instance, delete when reach 0 */
 	if (!instances)
 		return;
@@ -437,38 +465,7 @@ void TLN_DeleteWindow (void)
 	if (instances)
 		return;
 
-    if (SDL_JoystickGetAttached(joy))
-        SDL_JoystickClose(joy);
-
-	/* CRT effect resources */
-	SDL_DestroyTexture (crt.glow);
-	SDL_DestroyTexture (crt.overlay);
-	SDL_FreeSurface (crt.blur);
-	for (c=0; c<TLN_MAX_OVERLAY; c++)
-	{
-		if (crt.overlays[c])
-			SDL_FreeSurface (crt.overlays[c]);
-	}
-	SDL_FreeSurface (resize_half_width);
-
-	if (backbuffer)
-	{
-		SDL_DestroyTexture (backbuffer);
-		backbuffer = NULL;
-	}
-	
-	if (renderer)
-	{
-		SDL_DestroyRenderer (renderer);
-		renderer = NULL;
-	}
-
-	if (window)
-	{
-		SDL_DestroyWindow (window);
-		window = NULL;
-	}
-
+	DeleteWindow ();
 	SDL_Quit ();
 }
 
@@ -507,6 +504,9 @@ bool TLN_ProcessWindow (void)
 	SDL_JoyAxisEvent* joyaxisevt;
 	int input = 0;
 
+	if (done)
+		return false;
+
 	/* dispatch message queue */
 	while (SDL_PollEvent (&evt))
 	{
@@ -530,6 +530,13 @@ bool TLN_ProcessWindow (void)
 			case SDLK_c: SetInput(INPUT_C); break;
 			case SDLK_v: SetInput(INPUT_D); break;
 			case SDLK_BACKSPACE: crt.enable = !crt.enable; break;
+			case SDLK_RETURN:
+				if (keybevt->keysym.mod & KMOD_ALT)
+				{
+					DeleteWindow ();
+					wnd_params.flags ^= CWF_FULLSCREEN;
+					CreateWindow ();
+				}
 			}
 			break;
 
@@ -581,6 +588,10 @@ bool TLN_ProcessWindow (void)
 			break;
     	}
 	}
+
+	/* delete */
+	if (done)
+		TLN_DeleteWindow ();
 
 	return TLN_IsWindowActive ();
 }
@@ -634,7 +645,6 @@ void TLN_WaitRedraw (void)
  */
 void TLN_EnableBlur (bool mode)
 {
-	blur = mode && tln_bpp == 32;
 }
 
 /*!
@@ -784,15 +794,15 @@ void TLN_EndWindowFrame (void)
 	/* pixeles con threshold */
 	if (crt.enable && crt.glow_factor != 0)
 	{
-		const int dst_width = tln_width / 2;
-		const int dst_height = tln_height / 2;
+		const int dst_width = wnd_params.width / 2;
+		const int dst_height = wnd_params.height / 2;
 		uint8_t* pixels_glow;
 		int pitch_glow;
 		int x,y;
 
 		/* downscale backbuffer */
 		SDL_LockTexture (crt.glow, NULL, &pixels_glow, &pitch_glow);
-		Downsample2 (rt_pixels, pixels_glow, tln_width,tln_height, rt_pitch, pitch_glow);
+		Downsample2 (rt_pixels, pixels_glow, wnd_params.width,wnd_params.height, rt_pitch, pitch_glow);
 
 		/* replace color vales with LUT mapped */
 		for (y=0; y<dst_height; y++)
@@ -817,19 +827,19 @@ void TLN_EndWindowFrame (void)
 
 	/* horizontal blur in-place */
 	if (crt.enable)
-		hblur (rt_pixels, tln_width, tln_height, rt_pitch);
+		hblur (rt_pixels, wnd_params.width, wnd_params.height, rt_pitch);
 
 	/* end frame and apply overlay */
 	SDL_UnlockTexture (backbuffer);
 
 	SDL_RenderClear (renderer);
-	SDL_RenderCopy (renderer, backbuffer, NULL, NULL);
+	SDL_RenderCopy (renderer, backbuffer, NULL, &dstrect);
 
 	if (crt.enable)
 	{
 		if (crt.overlay_id != TLN_OVERLAY_NONE)
-			SDL_RenderCopy (renderer, crt.overlay, NULL, NULL);
-		SDL_RenderCopy (renderer, crt.glow, NULL, NULL);
+			SDL_RenderCopy (renderer, crt.overlay, NULL, &dstrect);
+		SDL_RenderCopy (renderer, crt.glow, NULL, &dstrect);
 	}
 	SDL_RenderPresent (renderer);
 }

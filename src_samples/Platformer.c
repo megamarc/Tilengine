@@ -15,7 +15,7 @@
 #include <string.h>
 #include "Tilengine.h"
 
-#define WIDTH	400
+#define WIDTH	320
 #define HEIGHT	240
 
 /* linear interploation */
