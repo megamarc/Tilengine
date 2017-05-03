@@ -146,7 +146,13 @@ class Rect(Structure):
 		("w", c_int),
 		("h", c_int)
 	]
-
+	
+class PixelMap(Structure):
+	_fields_ = [
+		("dx", c_short),
+		("dy", c_short)
+	]
+	
 # load native library
 from sys import platform as _platform
 if _platform == "linux" or _platform == "linux2":
@@ -159,6 +165,18 @@ elif _platform == "darwin":
 # callback types for user functions
 RasterCallbackFunc = CFUNCTYPE(None, c_int)
 CustomBlendFunc = CFUNCTYPE(c_ubyte, c_ubyte, c_ubyte)
+
+# return c_char_p compatible string
+def _encode_string(string):
+	if string != None:
+		return string.encode()
+	else:
+		return None
+		
+# global arrays holding references to indexed entities
+layers 		= None
+sprites 	= None
+animations  = None
 
 # basic management ------------------------------------------------------------
 _tln.TLN_Init.argtypes = [c_int, c_int, c_int, c_int, c_int]
@@ -180,7 +198,15 @@ _tln.TLN_DrawNextScanline.restype = c_bool
 _tln.TLN_SetLoadPath.argtypes = [c_char_p]
 
 def Init(width, height, num_layers, num_sprites, num_animations):
-	return _tln.TLN_Init(width, height, num_layers, num_sprites, num_animations)
+	ok = _tln.TLN_Init(width, height, num_layers, num_sprites, num_animations)
+	if ok == True:
+		global layers
+		layers = [Layer(n) for n in range(num_layers)]
+		global sprites
+		sprites = [Sprite(n) for n in range(num_sprites)]
+		global animations
+		animations = [Animation(n) for n in range(num_animations)]
+	return ok
 		
 def Deinit():
 	_tln.TLN_Deinit()
@@ -212,24 +238,24 @@ def SetBGPalette(palette):
 def SetRasterCallback(raster_callback):
 	_tln.TLN_SetRasterCallback(raster_callback)
 
-def SetRenderTarget(pixels, picth):
-	_tln.TLN_SetRenderTarget(pixels, picth)
+def SetRenderTarget(pixels, pitch):
+	_tln.TLN_SetRenderTarget(pixels, pitch)
 
-def UpdateFrame(num_frame):
+def UpdateFrame(num_frame=0):
 	_tln.TLN_UpdateFrame(num_frame)
 
-def BeginFrame(num_frame):
+def BeginFrame(num_frame=0):
 	_tln.TLN_BeginFrame(num_frame)
 
 def DrawNextScanline():
 	return _tln.TLN_DrawNextScanline()
 
 def SetLoadPath(path):
-	_tln.TLN_SetLoadPath(path)
+	_tln.TLN_SetLoadPath(_encode_string(path))
 
 def SetCustomBlendFunction(blend_function):
 	_tln.TLN_SetCustomBlendFunction(blend_function)
-
+	
 # error handling --------------------------------------------------------------
 _tln.TLN_GetLastError.restype = c_int
 _tln.TLN_GetErrorString.argtypes = [c_int]
@@ -239,7 +265,7 @@ def GetLastError():
 	return _tln.TLN_GetLastError()
 
 def GetErrorString(num_error):
-	return _tln.TLN_GetErrorString(num_error)
+	return _tln.TLN_GetErrorString(num_error).decode()
 
 # window management -----------------------------------------------------------
 _tln.TLN_CreateWindow.argtypes = [c_char_p, c_int]
@@ -257,50 +283,53 @@ _tln.TLN_Delay.argtypes = [c_int]
 _tln.TLN_BeginWindowFrame.argtypes = [c_int]
 
 def CreateWindow(overlay, flags):
-	return _tln.TLN_CreateWindow(overlay, flags)
+	ok = _tln.TLN_CreateWindow(_encode_string(overlay), flags)
+	if ok == True:
+		return Window()
+	else:
+		return None
 
 def CreateWindowThread(overlay, flags):
-	return _tln.TLN_CreateWindowThread(overlay, flags)
+	ok = _tln.TLN_CreateWindowThread(_encode_string(overlay), flags)
+	if ok == True:
+		return Window()
+	else:
+		return None
 
-def ProcessWindow():
-	return _tln.TLN_ProcessWindow()
+class Window:
+	def Process(self):
+		return _tln.TLN_ProcessWindow()
 
-def IsWindowActive():
-	return _tln.TLN_IsWindowActive()
+	def IsActive(self):
+		return _tln.TLN_IsWindowActive()
+		
+	def GetInput(self, input_id):
+		return _tln.TLN_GetInput(input_id)
+
+	def DrawFrame(self, num_frame=0):
+		_tln.TLN_DrawFrame (num_frame)
+
+	def WaitRedraw(self):
+		_tln.TLN_WaitRedraw()
+
+	def EnableCRTEffect(self, overlay_id, overlay_blend, threshold, v0, v1, v2, v3, blur, glow_factor):
+		_tln.TLN_EnableCRTEffect(overlay_id, overlay_blend, threshold, v0, v1, v2, v3, blur, glow_factor)
+
+	def DisableCRTEffect(self):
+		_tln.TLN_DisableCRTEffect()
+
+	def GetTicks(self):
+		return _tln.TLN_GetTicks()
+
+	def Delay(self, msecs):
+		_tln.TLN_Delay(msecs)
+
+	def BeginFrame(self, num_frame):
+		_tln.TLN_BeginWindowFrame(num_frame)
+
+	def EndFrame(self):
+		_tln.TLN_EndWindowFrame()
 	
-def GetInput(input_id):
-	return _tln.TLN_GetInput(input_id)
-
-def DrawFrame(num_frame):
-	_tln.TLN_DrawFrame (num_frame)
-
-def WaitRedraw():
-	_tln.TLN_WaitRedraw()
-
-def DeleteWindow():
-	_tln.TLN_DeleteWindow()
-
-def EnableBlur(mode):
-	None
-	
-def EnableCRTEffect(overlay_id, overlay_blend, threshold, v0, v1, v2, v3, blur, glow_factor):
-	_tln.TLN_EnableCRTEffect(overlay_id, overlay_blend, threshold, v0, v1, v2, v3, blur, glow_factor)
-
-def DisableCRTEffect():
-	_tln.TLN_DisableCRTEffect()
-
-def GetTicks():
-	return _tln.TLN_GetTicks()
-
-def Delay(msecs):
-	_tln.TLN_Delay(msecs)
-
-def BeginWindowFrame(num_frame):
-	_tln.TLN_BeginWindowFrame(num_frame)
-
-def EndWindowFrame():
-	_tln.TLN_EndWindowFrame()
-
 # spritesets management -----------------------------------------------------------
 _tln.TLN_CreateSpriteset.argtypes = [c_int, POINTER(Rect), c_void_p, c_int, c_int, c_int, c_void_p]
 _tln.TLN_CreateSpriteset.restype = c_void_p
@@ -316,22 +345,36 @@ _tln.TLN_DeleteSpriteset.argtypes = [c_void_p]
 _tln.TLN_DeleteSpriteset.restype = c_bool
 
 def CreateSpriteset(entries, rects, data, width, height, pitch, palette):
-	return _tln.TLN_CreateSpriteset(entries, rects, data, width, height, pitch, palette)
+	handle = _tln.TLN_CreateSpriteset(entries, rects, data, width, height, pitch, palette)
+	if handle != None:
+		return Spriteset(handle)
+	else:
+		return None
 
 def LoadSpriteset(filename):
-	return _tln.TLN_LoadSpriteset(filename)
-
-def CloneSpriteset(spriteset):
-	return _tln.TLN_CloneSpriteset(spriteset)
-
-def GetSpriteInfo(spriteset, entry, info):
-	return _tln.TLN_GetSpriteInfo(spriteset, entry, info) 
+	handle = _tln.TLN_LoadSpriteset(_encode_string(filename))
+	if handle != None:
+		return Spriteset(handle)
+	else:
+		return None
+		
+class Spriteset:
+	def __init__(self, handle):
+		self._as_parameter_ = handle
+		self.palette = Palette(_tln.TLN_GetSpritesetPalette(handle))
 	
-def GetSpritesetPalette(spriteset):
-	return _tln.TLN_GetSpritesetPalette(spriteset)
-	
-def DeleteSpriteset(spriteset):
-	return _tln.TLN_DeleteSpriteset(spriteset)
+	def Clone(self):
+		handle = _tln.TLN_CloneSpriteset(self)
+		if handle != None:
+			return Spriteset(handle)
+		else:
+			return None
+
+	def GetSpriteInfo(self, entry, info):
+		return _tln.TLN_GetSpriteInfo(self, entry, info) 
+		
+	def Delete(self):
+		return _tln.TLN_DeleteSpriteset(self)
 
 # tilesets management ---------------------------------------------------------
 _tln.TLN_CreateTileset.argtypes = [c_int, c_int, c_int, c_void_p]
@@ -354,31 +397,41 @@ _tln.TLN_DeleteTileset.argtypes = [c_void_p]
 _tln.TLN_DeleteTileset.restype = c_bool
 
 def CreateTileset(num_tiles, width, height, palette):
-	return _tln.TLN_CreateTileset(num_tiles, width, height, palette)
+	handle = _tln.TLN_CreateTileset(num_tiles, width, height, palette)
+	if handle != None:
+		return Tileset(handle)
+	else:
+		return None
 
 def LoadTileset(filename):
-	return _tln.TLN_LoadTileset(filename)
+	handle = _tln.TLN_LoadTileset(_encode_string(filename))
+	if handle != None:
+		return Tileset(handle)
+	else:
+		return None
+		
+class Tileset:
+	def __init__(self, handle):
+		self._as_parameter_ = handle
+		self.palette = Palette(_tln.TLN_GetTilesetPalette(handle))
+		self.tile_width = _tln.TLN_GetTileWidth(handle)
+		self.tile_height = _tln.TLN_GetTileHeight(handle)	
 
-def CloneTileset(tileset):
-	return _tln.TLN_CloneTileset(tileset)
+	def Clone(self):
+		handle = _tln.TLN_CloneTileset(self)
+		if handle != None:
+			return Tileset(handle)
+		else:
+			return None
 
-def SetTilesetPixels(tileset, entry, data, pitch):
-	return _tln.TLN_SetTilesetPixels(tileset, entry, data, pitch)
+	def SetPixels(self, entry, data, pitch):
+		return _tln.TLN_SetTilesetPixels(self, entry, data, pitch)
 
-def CopyTile(tileset, source, destination):
-	return _tln.TLN_CopyTile()
+	def CopyTile(self, source, destination):
+		return _tln.TLN_CopyTile(self, source, destination)
 
-def GetTileWidth(tileset):
-	_tln.TLN_GetTileWidth(tileset)
-
-def GetTileHeight(tileset):
-	return _tln.TLN_GetTileHeight(tileset)
-
-def GetTilesetPalette(tileset):
-	return _tln.TLN_GetTilesetPalette(tileset)
-
-def DeleteTileset(tileset):
-	return _tln.TLN_DeleteTileset(tileset)
+	def Delete(self):
+		return _tln.TLN_DeleteTileset(self)
 
 # tilemaps management ---------------------------------------------------------
 _tln.TLN_CreateTilemap.argtypes = [c_int, c_int, POINTER(Tile)]
@@ -401,32 +454,44 @@ _tln.TLN_DeleteTilemap.argtypes = [c_void_p]
 _tln.TLN_DeleteTilemap.restype = c_bool
 
 def CreateTilemap(rows, cols, tiles):
-	return _tln.TLN_CreateTilemap(rows, cols, tiles)
+	handle = _tln.TLN_CreateTilemap(rows, cols, tiles)
+	if handle != None:
+		return Tilemap(handle)
+	else:
+		return None		
+
+def LoadTilemap(filename, layer_name=None):
+	handle = _tln.TLN_LoadTilemap(_encode_string(filename), _encode_string(layer_name))
+	if handle != None:
+		return Tilemap(handle)
+	else:
+		return None		
+
+class Tilemap:
+	def __init__(self, handle):
+		self._as_parameter_ = handle
+		self.rows = _tln.TLN_GetTilemapRows(handle)
+		self.cols = _tln.TLN_GetTilemapCols(handle)
+
+	def Clone(self):
+		handle = _tln.TLN_CloneTilemap(self)
+		if handle != None:
+			return Tilemap(handle)
+		else:
+			return None		
+
+	def GetTile(self, entry, tile_info):
+		return _tln.TLN_GetTilemapTile(self, entry, tile_info)
+
+	def SetTile(self, entry, tile_info):
+		return _tln.TLN_SetTilemapTile(self, entry, tile_info)
+		
+	def CopyTiles(self, src_row, sr_ccol, num_rows, num_cols, dst_tilemap, dst_row, dst_col):
+		return _tln.TLN_CopyTiles(self, src_row, sr_ccol, num_rows, num_cols, dst_tilemap, dst_row, dst_col)
+
+	def Delete(self):
+		return _tln.TLN_DeleteTilemap(self)
 	
-def LoadTilemap(filename, layer_name):
-	return _tln.TLN_LoadTilemap(filename, layer_name)
-
-def CloneTilemap(tilemap):
-	return _tln.TLN_CloneTilemap(tilemap)
-
-def GetTilemapRows(tilemap):
-	return _tln.TLN_GetTilemapRows(tilemap)
-	
-def GetTilemapCols(tilemap):
-	return _tln.TLN_GetTilemapRows(tilemap)
-
-def GetTilemapTile(tilemap, entry, tile_info):
-	return _tln.TLN_GetTilemapTile(tilemap, entry, tile_info)
-
-def SetTilemapTile(tilemap, entry, tile_info):
-	return _tln.TLN_SetTilemapTile(tilemap, entry, tile_info)
-	
-def CopyTiles(src_tilemap, src_row, sr_ccol, num_rows, num_cols, dst_tilemap, dst_row, dst_col):
-	return _tln.TLN_CopyTiles(src_tilemap, src_row, sr_ccol, num_rows, num_cols, dst_tilemap, dst_row, dst_col)
-
-def DeleteTilemap(tilemap):
-	return _tln.TLN_DeleteTilemap(tilemap)
-
 # color tables management -----------------------------------------------------
 _tln.TLN_CreatePalette.argtypes = [c_int]
 _tln.TLN_CreatePalette.restype = c_void_p
@@ -450,35 +515,51 @@ _tln.TLN_DeletePalette.argtypes = [c_void_p]
 _tln.TLN_DeletePalette.restype = c_bool
 
 def CreatePalette(num_entries):
-	return _tln.TLN_CreatePalette(num_entries)
+	handle = _tln.TLN_CreatePalette(num_entries)
+	if handle != None:
+		return Palette(handle)
+	else:
+		return None
 
 def LoadPalette(filename):
-	return _tln.TLN_LoadPalette(filename)
-
-def ClonePalette(palette):
-	return _tln.TLN_ClonePalette(palette)
-
-def SetPaletteColor(palette, entry, r, g, b):
-	return _tln.TLN_SetPaletteColor(palette, entry, r, g, b)
-
-def MixPalettes(src_palette1, src_palette2, dst_palette, factor):
-	return _tln.TLN_MixPalettes(src_palette1, src_palette2, dst_palette, factor)
-
-def AddPaletteColor(palette, first, count, r, g, b):
-	return _tln.TLN_AddPaletteColor(palette, first, count, r, g, b)
-
-def SubPaletteColor(palette, first, count, r, g, b):
-	return _tln.TLN_SubPaletteColor(palette, first, count, r, g, b)
-
-def ModPaletteColor(palette, first, count, r, g, b):
-	return _tln.TLN_ModPaletteColor(palette, first, count, r, g, b)
+	handle = _tln.TLN_LoadPalette(_encode_string(filename))
+	if handle != None:
+		return Palette(handle)
+	else:
+		return None
+		
+class Palette:
+	def __init__(self, handle):
+		self._as_parameter_ = handle
 	
-def GetPaletteData(palette, entry):
-	return _tln.TLN_GetPaletteData(palette, entry)
+	def Clone(self):
+		handle = _tln.TLN_ClonePalette(self)
+		if handle != None:
+			return Palette(handle)
+		else:
+			return None
 
-def DeletePalette(palette):
-	return _tln.TLN_DeletePalette(palette)
+	def SetColor(self, entry, r, g, b):
+		return _tln.TLN_SetPaletteColor(self, entry, r, g, b)
 
+	def Mix(self, src_palette1, src_palette2, factor):
+		return _tln.TLN_MixPalettes(src_palette1, src_palette2, self, factor)
+
+	def AddColor(self, first, count, r, g, b):
+		return _tln.TLN_AddPaletteColor(self, first, count, r, g, b)
+
+	def SubColor(self, first, count, r, g, b):
+		return _tln.TLN_SubPaletteColor(self, first, count, r, g, b)
+
+	def ModColor(self, first, count, r, g, b):
+		return _tln.TLN_ModPaletteColor(self, first, count, r, g, b)
+		
+	def GetData(self, entry):
+		return _tln.TLN_GetPaletteData(self, entry)
+
+	def Delete(self):
+		return _tln.TLN_DeletePalette(self)
+	
 # bitmaps ---------------------------------------------------------------------
 _tln.TLN_CreateBitmap.argtypes = [c_int, c_int, c_int]
 _tln.TLN_CreateBitmap.restype = c_void_p
@@ -502,34 +583,121 @@ _tln.TLN_DeleteBitmap.argtypes = [c_void_p]
 _tln.TLN_DeleteBitmap.restype = c_bool
 
 def CreateBitmap(width, height, bpp):
-	return _tln.TLN_CreateBitmap(width, height, bpp)
+	handle = _tln.TLN_CreateBitmap(width, height, bpp)
+	if handle != None:
+		return Bitmap(handle)
+	else:
+		return None
 
 def LoadBitmap(filename):
-	return _tln.TLN_LoadBitmap(filename)
+	handle = _tln.TLN_LoadBitmap(_encode_string(filename))
+	if handle != None:
+		return Bitmap(handle)
+	else:
+		return None
+	
+class Bitmap:
+	def __init__(self, handle):
+		self._as_parameter_ = handle
+		self.width   = _tln.TLN_GetBitmapWidth(handle)
+		self.height  = _tln.TLN_GetBitmapHeight(handle)
+		self.depth   = _tln.TLN_GetBitmapDepth(handle)
+		self.pitch   = _tln.TLN_GetBitmapPitch(handle)
+		self.palette = _tln.TLN_GetBitmapPalette(handle)
 
-def CloneBitmap(bitmap):
-	return _tln.TLN_CloneBitmap(bitmap)
+	def Clone(bitmap):
+		handle = _tln.TLN_CloneBitmap(self)
+		if handle != None:
+			return Bitmap(handle)
+		else:
+			return None
 
-def GetBitmapPtr(bitmap, x, y):
-	return _tln.TLN_GetBitmapPtr(bitmap, x, y)
+	def GetData(self, x, y):
+		return _tln.TLN_GetBitmapPtr(self, x, y)
 
-def GetBitmapWidth(bitmap):
-	return _tln.TLN_GetBitmapWidth(bitmap)
+	def Delete(self):
+		return _tln.TLN_DeleteBitmap(self)
 
-def GetBitmapHeight(bitmap):
-	return _tln.TLN_GetBitmapHeight(bitmap)
+# sequences management --------------------------------------------------------
+_tln.TLN_CreateSequence.argtypes = [c_char_p, c_int, c_int, c_int, POINTER(c_int)]
+_tln.TLN_CreateSequence.restype = c_void_p
+_tln.TLN_CreateCycle.argtypes = [c_char_p, c_int, POINTER(ColorStrip)]
+_tln.TLN_CreateCycle.restype = c_void_p
+_tln.TLN_CloneSequence.argtypes = [c_void_p]
+_tln.TLN_CloneSequence.restype = c_void_p
+_tln.TLN_DeleteSequence.argtypes = [c_void_p]
+_tln.TLN_DeleteSequence.restype = c_bool
 
-def GetBitmapDepth(bitmap):
-	return _tln.TLN_GetBitmapDepth(bitmap)
+def CreateSequence(name, delay, first, num_frames, data):
+	handle =  _tln.TLN_CreateSequence(_encode_string(name), delay, first, num_frames, data)
+	if handle != None:
+		return Sequence(handle)
+	else:
+		return None
 
-def GetBitmapPitch(bitmap):
-	return _tln.TLN_GetBitmapPitch(bitmap)
+def CreateCycle(name, num_strips, strips):
+	handle = _tln.TLN_CreateCycle(_encode_string(name), num_strips, strips)
+	if handle != None:
+		return Sequence(handle)
+	else:
+		return None
 
-def GetBitmapPalette(bitmap):
-	return _tln.TLN_GetBitmapPalette(bitmap)
+class Sequence:
+	def __init__(self, handle):
+		self._as_parameter_ = handle
 
-def DeleteBitmap(bitmap):
-	return _tln.TLN_DeleteBitmap(bitmap)
+	def Clone(sequence):
+		handle = _tln.TLN_CloneSequence(sequence)
+		if handle != None:
+			return Sequence(handle)
+		else:
+			return None
+
+	def Delete(sequence):
+		return _tln.TLN_DeleteSequence(sequence)
+
+# sequence pack management --------------------------------------------------------
+_tln.TLN_CreateSequencePack.restype = c_void_p
+_tln.TLN_LoadSequencePack.argtypes = [c_char_p]
+_tln.TLN_LoadSequencePack.restype = c_void_p
+_tln.TLN_FindSequence.argtypes = [c_void_p, c_char_p]
+_tln.TLN_FindSequence.restype = c_void_p
+_tln.TLN_AddSequenceToPack.argtypes = [c_void_p, c_void_p]
+_tln.TLN_AddSequenceToPack.restype = c_bool
+_tln.TLN_DeleteSequencePack.argtypes = [c_void_p]
+_tln.TLN_DeleteSequencePack.restype = c_bool
+
+def CreateSequencePack():
+	handle = _tln.TLN_CreateSequencePack()
+	if handle != None:
+		return SequencePack(handle)
+	else:
+		return None
+
+def LoadSequencePack(filename):
+	handle = _tln.TLN_LoadSequencePack(_encode_string(filename))
+	if handle != None:
+		return SequencePack(handle)
+	else:
+		return None
+	
+class SequencePack:
+
+	def __init__(self, handle):
+		self._as_parameter_ = handle
+
+	def FindSequence(sequence_pack, name):
+		handle = _tln.TLN_FindSequence(sequence_pack, _encode_string(name))
+		if (handle != None):
+			return Sequence(handle)
+		else:
+			return None			
+
+	def AddSequence(sequence_pack, sequence):
+		return _tln.TLN_AddSequenceToPack(sequence_pack, sequence)
+
+	def Delete(sequence_pack):
+		return _tln.TLN_DeleteSequencePack(sequence_pack)
 
 # layer management ------------------------------------------------------------
 _tln.TLN_SetLayer.argtypes = [c_int, c_void_p, c_void_p]
@@ -544,6 +712,8 @@ _tln.TLN_SetLayerAffineTransform.argtypes = [c_int, POINTER(Affine)]
 _tln.TLN_SetLayerAffineTransform.restype = c_bool
 _tln.TLN_SetLayerTransform.argtypes = [c_int, c_float, c_float, c_float, c_float, c_float]
 _tln.TLN_SetLayerTransform.restype = c_bool
+_tln.TLN_SetLayerPixelMapping.argtypes = [c_int, POINTER(PixelMap)];
+_tln.TLN_SetLayerPixelMapping.restype = c_bool
 _tln.TLN_ResetLayerMode.argtypes = [c_int]
 _tln.TLN_ResetLayerMode.restype = c_bool
 _tln.TLN_SetLayerBlendMode.argtypes = [c_int, c_int, c_ubyte]
@@ -565,53 +735,57 @@ _tln.TLN_GetLayerPalette.restype = c_void_p
 _tln.TLN_GetLayerTile.argtypes = [c_int, c_int, c_int, POINTER(TileInfo)]
 _tln.TLN_GetLayerTile.restype = c_bool
 
-def SetLayer(index, tileset, tilemap):
-	return _tln.TLN_SetLayer(index, tileset, tilemap)
-	
-def SetLayerPalette(index, palette):
-	return _tln.TLN_SetLayerPalette(index, palette)
+class Layer:
+	def __init__(self, index):
+		self._as_parameter_ = index
 
-def SetLayerPosition(index, x, y):
-	return _tln.TLN_SetLayerPosition(index, x, y)
+	def Setup(self, tileset, tilemap):
+		return _tln.TLN_SetLayer(self, tileset, tilemap)
+		
+	def SetPalette(self, palette):
+		return _tln.TLN_SetLayerPalette(self, palette)
 
-def SetLayerScaling(layer, hor_factor, ver_factor):
-	return _tln.TLN_SetLayerScaling(layer, hor_factor, ver_factor)
+	def SetPosition(self, x, y):
+		return _tln.TLN_SetLayerPosition(self, int(x), int(y))
 
-def SetLayerAffineTransform(index, affine):
-	return _tln.TLN_SetLayerAffineTransform(index, affine)
+	def SetScaling(self, hor_factor, ver_factor):
+		return _tln.TLN_SetLayerScaling(self, hor_factor, ver_factor)
 
-def SetLayerTransform(index, angle, x, y, sx, sy):
-	return _tln.TLN_SetLayerTransform(index, angle, x, y, sx, sy)
+	def SetTransform(self, angle, x, y, sx, sy):
+		return _tln.TLN_SetLayerTransform(self, angle, x, y, sx, sy)
 
-def ResetLayerMode(index):
-	return _tln.TLN_ResetLayerMode(index)
+	def SetPixelMapping(self, pixel_map):
+		return _tln.TLN_SetLayerPixelMapping(self, pixel_map)
+		
+	def ResetMode(self):
+		return _tln.TLN_ResetLayerMode(self)
 
-def SetLayerBlendMode(index, mode, factor=0):
-	return _tln.TLN_SetLayerBlendMode(index, mode, factor)
+	def SetBlendMode(self, mode, factor=0):
+		return _tln.TLN_SetLayerBlendMode(self, mode, 0)
 
-def SetLayerColumnOffset(index, offsets):
-	return _tln.TLN_SetLayerColumnOffset(index, offsets)
+	def SetColumnOffset(self, offsets):
+		return _tln.TLN_SetLayerColumnOffset(self, offsets)
 
-def SetLayerClip(index, x1, y1, x2, y2):
-	return _tln.TLN_SetLayerClip(index, x1, y1, x2, y2)
+	def SetClip(self, x1, y1, x2, y2):
+		return _tln.TLN_SetLayerClip(self, x1, y1, x2, y2)
 
-def DisableLayerClip(index):
-	return _tln.TLN_DisableLayerClip(index)
+	def DisableClip(self):
+		return _tln.TLN_DisableLayerClip(self)
 
-def SetLayerMosaic(index, pixel_w, pixel_h):
-	return _tln.TLN_SetLayerMosaic(index, pixel_w, pixel_h)
+	def SetMosaic(self, pixel_w, pixel_h):
+		return _tln.TLN_SetLayerMosaic(self, pixel_w, pixel_h)
 
-def DisableLayerMosaic(index):
-	return _tln.TLN_DisableLayerMosaic(index)
-	
-def DisableLayer(index):
-	return _tln.TLN_DisableLayer(index)
+	def DisableMosaic(self):
+		return _tln.TLN_DisableLayerMosaic(self)
+		
+	def Disable(self):
+		return _tln.TLN_DisableLayer(self)
 
-def GetLayerPalette(index):
-	return _tln.TLN_GetLayerPalette(index)
-	
-def GetLayerTile(index, x, y, tile_info):
-	return _tln.TLN_GetLayerTile(index, x, y, tile_info)
+	def GetPalette(self):
+		return Palette(_tln.TLN_GetLayerPalette(self))
+		
+	def GetTile(self, x, y, tile_info):
+		return _tln.TLN_GetLayerTile(self, x, y, tile_info)
 
 def CreateTileInfoPtr(info):
 	return POINTER(TileInfo)(info)
@@ -647,98 +821,54 @@ _tln.TLN_DisableSprite.restype = c_bool
 _tln.TLN_GetSpritePalette.argtypes = [c_int]
 _tln.TLN_GetSpritePalette.restype = c_void_p
 
-def ConfigSprite(index, spriteset, flags):
-	return _tln.TLN_ConfigSprite(index, spriteset, flags)
-
-def SetSpriteSet(index, spriteset):
-	return _tln.TLN_SetSpriteSet(index, spriteset)
-
-def SetSpriteFlags(index, flags):
-	return _tln.TLN_SetSpriteFlags(index, flags)
-	
-def SetSpritePosition(index, x, y):
-	return _tln.TLN_SetSpritePosition(index, x, y)
-	
-def SetSpritePicture(index, picture):
-	return _tln.TLN_SetSpritePicture(index, picture)
-
-def SetSpritePalette(index, palette):
-	return _tln.TLN_SetSpritePalette(index, palette)
-
-def SetSpriteBlendMode(index, mode):
-	return _tln.TLN_SetSpriteBlendMode(index, mode)
-
-def SetSpriteScaling(index, sx, sy):
-	return _tln.TLN_SetSpriteScaling(index, sx, sy)
-
-def ResetSpriteScaling(index):
-	return _tln.TLN_ResetSpriteScaling(index)
-
-def GetSpritePicture(index):
-	return _tln.TLN_GetSpritePicture(index)
-
 def GetAvailableSprite():
 	return _tln.TLN_GetAvailableSprite()
 
-def EnableSpriteCollision(index, mode):
-	return _tln.TLN_EnableSpriteCollision(index, mode)
-	
-def GetSpriteCollision(index):
-	return _tln.TLN_GetSpriteCollision(index)
-	
-def DisableSprite(index):
-	return _tln.TLN_DisableSprite(index)
+class Sprite:
+	def __init__(self, index):
+		self._as_parameter_ = index
 
-def GetSpritePalette(index):
-	return _tln.TLN_GetSpritePalette(index)
+	def Setup(self, spriteset, flags):
+		return _tln.TLN_ConfigSprite(self, spriteset, flags)
 
-# sequences management --------------------------------------------------------
-_tln.TLN_CreateSequence.argtypes = [c_char_p, c_int, c_int, c_int, POINTER(c_int)]
-_tln.TLN_CreateSequence.restype = c_void_p
-_tln.TLN_CreateCycle.argtypes = [c_char_p, c_int, POINTER(ColorStrip)]
-_tln.TLN_CreateCycle.restype = c_void_p
-_tln.TLN_CloneSequence.argtypes = [c_void_p]
-_tln.TLN_CloneSequence.restype = c_void_p
-_tln.TLN_DeleteSequence.argtypes = [c_void_p]
-_tln.TLN_DeleteSequence.restype = c_bool
+	def SetSpriteSet(self, spriteset):
+		return _tln.TLN_SetSpriteSet(self, spriteset)
 
-def CreateSequence(name, delay, first, num_frames, data):
-	return _tln.TLN_CreateSequence(name, delay, first, num_frames, data)
+	def SetFlags(self, flags):
+		return _tln.TLN_SetSpriteFlags(self, flags)
+		
+	def SetPosition(self, x, y):
+		return _tln.TLN_SetSpritePosition(self, x, y)
+		
+	def SetPicture(self, picture):
+		return _tln.TLN_SetSpritePicture(self, picture)
 
-def CreateCycle(name, num_strips, strips):
-	return _tln.TLN_CreateCycle(name, num_strips, strips)
+	def SetPalette(self, palette):
+		return _tln.TLN_SetSpritePalette(self, palette)
 
-def CloneSequence(sequence):
-	return _tln.TLN_CloneSequence(sequence)
+	def SetBlendMode(self, mode):
+		return _tln.TLN_SetSpriteBlendMode(self, mode)
 
-def DeleteSequence(sequence):
-	return _tln.TLN_DeleteSequence(sequence)
+	def SetScaling(self, sx, sy):
+		return _tln.TLN_SetSpriteScaling(self, sx, sy)
 
-# sequence pack management --------------------------------------------------------
-_tln.TLN_CreateSequencePack.restype = c_void_p
-_tln.TLN_LoadSequencePack.argtypes = [c_char_p]
-_tln.TLN_LoadSequencePack.restype = c_void_p
-_tln.TLN_FindSequence.argtypes = [c_void_p, c_char_p]
-_tln.TLN_FindSequence.restype = c_void_p
-_tln.TLN_AddSequenceToPack.argtypes = [c_void_p, c_void_p]
-_tln.TLN_AddSequenceToPack.restype = c_bool
-_tln.TLN_DeleteSequencePack.argtypes = [c_void_p]
-_tln.TLN_DeleteSequencePack.restype = c_bool
+	def ResetScaling(self):
+		return _tln.TLN_ResetSpriteScaling(self)
 
-def CreateSequencePack():
-	return _tln.TLN_CreateSequencePack()
+	def GetPicture(self):
+		return _tln.TLN_GetSpritePicture(self)
 
-def LoadSequencePack(filename):
-	return _tln.TLN_LoadSequencePack(filename)
+	def EnableCollision(self, mode):
+		return _tln.TLN_EnableSpriteCollision(self, mode)
+		
+	def GetCollision(self):
+		return _tln.TLN_GetSpriteCollision(self)
+		
+	def Disable(self):
+		return _tln.TLN_DisableSprite(self)
 
-def FindSequence(sequence_pack, name):
-	return _tln.TLN_FindSequence(sequence_pack, name)
-
-def AddSequenceToPack(sequence_pack, sequence):
-	return _tln.TLN_AddSequenceToPack(sequence_pack, sequence)
-
-def DeleteSequencePack(sequence_pack):
-	return _tln.TLN_DeleteSequencePack(sequence_pack)
+	def GetPalette(self):
+		return Palette(_tln.TLN_GetSpritePalette(self))
 
 # animation engine ------------------------------------------------------------
 _tln.TLN_SetPaletteAnimation.argtypes = [c_int, c_void_p, c_void_p, c_bool]
@@ -759,29 +889,34 @@ _tln.TLN_GetAvailableAnimation.restype = c_int
 _tln.TLN_DisableAnimation.argtypes = [c_int]
 _tln.TLN_DisableAnimation.restype = c_bool
 
-def SetPaletteAnimation(index, palette, sequence, blend):
-	return _tln.TLN_SetPaletteAnimation(index, palette, sequence, blend)
-
-def SetPaletteAnimationSource(index, palette):
-	return _tln.TLN_SetPaletteAnimationSource(index, palette)
-
-def SetTilesetAnimation(index, num_layer, sequence):
-	return _tln.TLN_SetTilesetAnimation(index, num_layer, sequence)
-
-def SetTilemapAnimation(index, num_layer, sequence):
-	return _tln.TLN_SetTilemapAnimation(index, num_layer, sequence)
-
-def SetSpriteAnimation(index, num_sprite, sequence, loop):
-	return _tln.TLN_SetSpriteAnimation(index, num_sprite, sequence, loop)
-
-def GetAnimationState(index):
-	return _tln.TLN_GetAnimationState(index)
-
-def SetAnimationDelay(index, delay):
-	return _tln.TLN_SetAnimationDelay(index, delay)
-
 def GetAvailableAnimation():
 	return _tln.TLN_GetAvailableAnimation()
 
-def DisableAnimation(index):
-	return _tln.TLN_DisableAnimation(index)
+class Animation:
+
+	def __init__(self, index):
+		self._as_parameter_ = index
+
+	def SetPaletteAnimation(self, palette, sequence, blend):
+		return _tln.TLN_SetPaletteAnimation(self, palette, sequence, blend)
+
+	def SetPaletteAnimationSource(self, palette):
+		return _tln.TLN_SetPaletteAnimationSource(self, palette)
+
+	def SetTilesetAnimation(self, layer, sequence):
+		return _tln.TLN_SetTilesetAnimation(self, layer, sequence)
+
+	def SetTilemapAnimation(self, layer, sequence):
+		return _tln.TLN_SetTilemapAnimation(self, layer, sequence)
+
+	def SetSpriteAnimation(self, sprite, sequence, loop):
+		return _tln.TLN_SetSpriteAnimation(self, sprite, sequence, loop)
+
+	def GetState(self):
+		return _tln.TLN_GetAnimationState(self)
+
+	def SetDelay(self, delay):
+		return _tln.TLN_SetAnimationDelay(self, delay)
+
+	def Disable(self):
+		return _tln.TLN_DisableAnimation(self)
