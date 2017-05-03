@@ -1,8 +1,3 @@
-"""
-Tilengine perspective projection demo
-  Cursors or joystick d-pad: scroll
-"""
-
 # imports
 import tilengine as tln
 from math import sin, cos, radians

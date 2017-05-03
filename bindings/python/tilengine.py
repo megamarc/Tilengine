@@ -184,8 +184,6 @@ _tln.TLN_Init.restype = c_bool
 _tln.TLN_GetNumObjects.restype = c_int
 _tln.TLN_GetVersion.restype = c_int
 _tln.TLN_GetUsedMemory.restype = c_int
-_tln.TLN_GetNumLayers.restype = c_int
-_tln.TLN_GetNumSprites.restype = c_int
 _tln.TLN_SetBGColor.argtypes = [c_ubyte, c_ubyte, c_ubyte]
 _tln.TLN_SetBGBitmap.argtypes = [c_void_p]
 _tln.TLN_SetBGBitmap.restype = c_bool
@@ -221,15 +219,18 @@ def GetUsedMemory():
 	return _tln.TLN_GetUsedMemory()
 	
 def GetNumLayers():
-	return _tln.TLN_GetNumLayers()
+	return len(layers)
 
 def GetNumSprites():
-	return _tln.TLN_GetNumSprites()
+	return len(sprites)
+	
+def GetNumAnimations():
+	return len(animations)
 
 def SetBGColor(r, g, b):
 	_tln.TLN_SetBGColor(r, g, b)
 
-def SetBGBitmap():
+def SetBGBitmap(bitmap):
 	return _tln.TLN_SetBGBitmap(bitmap)
 
 def SetBGPalette(palette):
@@ -712,8 +713,8 @@ _tln.TLN_SetLayerAffineTransform.argtypes = [c_int, POINTER(Affine)]
 _tln.TLN_SetLayerAffineTransform.restype = c_bool
 _tln.TLN_SetLayerTransform.argtypes = [c_int, c_float, c_float, c_float, c_float, c_float]
 _tln.TLN_SetLayerTransform.restype = c_bool
-_tln.TLN_SetLayerPixelMapping.argtypes = [c_int, POINTER(PixelMap)];
-_tln.TLN_SetLayerPixelMapping.restype = c_bool
+#_tln.TLN_SetLayerPixelMapping.argtypes = [c_int, POINTER(PixelMap)];
+#_tln.TLN_SetLayerPixelMapping.restype = c_bool
 _tln.TLN_ResetLayerMode.argtypes = [c_int]
 _tln.TLN_ResetLayerMode.restype = c_bool
 _tln.TLN_SetLayerBlendMode.argtypes = [c_int, c_int, c_ubyte]

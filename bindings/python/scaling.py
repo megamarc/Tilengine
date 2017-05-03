@@ -1,10 +1,3 @@
-"""
-Tilengine scaling & transparency demo
-  Cursors or joystick d-pad: scroll
-  Z/X or joystick buttons 1/2: modify scale factor
-  C/V or joystick buttons 3/4: modify transparency
-"""
-
 # imports
 import tilengine as tln
 

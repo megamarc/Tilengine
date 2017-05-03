@@ -53,7 +53,6 @@ Layer (1, "Sonic_md_bg1")
 foreground = tln.layers[0]
 background = tln.layers[1]
 
-
 # color cycle animation
 sp = tln.LoadSequencePack ("Sonic_md_seq.sqx")
 sequence = sp.FindSequence ("seq_water")
