@@ -1,10 +1,14 @@
 CC       = gcc
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
-LIBS     = -lpng -lSDL2 -lc -lz
+LIBS     = -lSDL2 -lc -lz ./libpng16.a
 BIN      = libTilengine.so
 CFLAGS   = -msse2 -m64 -std=c99 -fpic -O2 -DLIB_EXPORTS
 RM       = rm
+header 	 = Tilengine.h
+incpath  = /usr/include
+libpath  = /usr/lib/x86_64-linux-gnu
+
 
 .PHONY: all all-before all-after clean clean-custom
 
