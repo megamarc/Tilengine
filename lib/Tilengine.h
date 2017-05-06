@@ -58,9 +58,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdio.h>
 #if defined _MSC_VER
-typedef unsigned char	uint8_t;	/*!< 8-bit wide data */
-typedef unsigned short	uint16_t;	/*!< 16-bit wide data */
-typedef unsigned int	uint32_t;	/*!< 32-bit wide data */
+typedef char			int8_t;		/*!< signed 8-bit wide data */
+typedef short			int16_t;	/*!< signed 16-bit wide data */
+typedef int				int32_t;	/*!< signed 32-bit wide data */
+typedef unsigned char	uint8_t;	/*!< unsigned 8-bit wide data */
+typedef unsigned short	uint16_t;	/*!< unsigned 16-bit wide data */
+typedef unsigned int	uint32_t;	/*!< unsigned 32-bit wide data */
 #else
 #include <stdint.h>
 #endif
@@ -75,7 +78,7 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 /* version */
 #define TILENGINE_VER_MAJ	1
 #define TILENGINE_VER_MIN	13
-#define TILENGINE_VER_REV	1
+#define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ<<16) | (TILENGINE_VER_MIN<<8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -111,7 +114,7 @@ typedef enum
 	BLEND_ADD,		/*!< color is always brighter (simulate light effects) */
 	BLEND_SUB,		/*!< color is always darker (simulate shadow effects) */
 	BLEND_MOD,		/*!< color is always darker (simulate shadow effects) */
-	BLEND_CUSTOM,	/*!< user provided blend function */
+	BLEND_CUSTOM,	/*!< user provided blend function with TLN_SetCustomBlendFunction() */
 	MAX_BLEND,
 	BLEND_MIX = BLEND_MIX50
 }
@@ -128,7 +131,7 @@ typedef struct
 }
 TLN_Affine;
 
-/*! Tile description */
+/*! Tile item for Tilemap access methods */
 typedef struct Tile
 {
 	uint16_t index;		/*!< tile index */
@@ -165,7 +168,7 @@ typedef struct
 }
 TLN_SpriteInfo;
 
-/*! Tile information in screen coordinates */
+/*! Tile information returned by TLN_GetLayerTile() */
 typedef struct
 {
 	uint16_t index;	/*!< tile index */
@@ -189,6 +192,14 @@ typedef enum
 }
 TLN_Overlay;
 
+/*! pixel mapping for TLN_SetLayerMapping() */
+typedef struct
+{
+	int16_t dx;
+	int16_t dy;
+}
+TLN_PixelMap;
+
 typedef struct Tile*		 TLN_Tile;				/*!< Tile reference */
 typedef struct Tileset*		 TLN_Tileset;			/*!< Opaque tileset reference */
 typedef struct Tilemap*		 TLN_Tilemap;			/*!< Opaque tilemap reference */
@@ -199,7 +210,7 @@ typedef struct SequencePack* TLN_SequencePack;		/*!< Opaque sequence pack refere
 typedef struct Bitmap*		 TLN_Bitmap;			/*!< Opaque bitmap reference */
 typedef struct Cycle*		 TLN_Cycle;				/*!< Opaque color cycle reference */
 
-/*! Standard inputs. Must be one of these and are mutually exclusive: */
+/*! Standard inputs query for TLN_GetInput() */
 typedef enum
 {
 	INPUT_NONE,		/*!< no input */
@@ -411,6 +422,7 @@ TLNAPI bool TLN_SetLayerPosition (int nlayer, int hstart, int vstart);
 TLNAPI bool TLN_SetLayerScaling (int nlayer, float xfactor, float yfactor);
 TLNAPI bool TLN_SetLayerAffineTransform (int nlayer, TLN_Affine *affine);
 TLNAPI bool TLN_SetLayerTransform (int layer, float angle, float dx, float dy, float sx, float sy);
+TLNAPI bool TLN_SetLayerPixelMapping (int nlayer, TLN_PixelMap* table);
 TLNAPI bool TLN_SetLayerBlendMode (int nlayer, TLN_Blend mode, uint8_t factor);
 TLNAPI bool TLN_SetLayerColumnOffset (int nlayer, int* offset);
 TLNAPI bool TLN_SetLayerClip (int nlayer, int x1, int y1, int x2, int y2);

@@ -17,6 +17,7 @@ typedef struct
 }
 RGB;
 
+/* RGB sky colors */
 static RGB sky[] = 
 {
 	{0x19, 0x54, 0x75},
@@ -54,7 +55,7 @@ static void LoadLayer (int index, char* name)
 
 	/* load tilemap */
 	sprintf (filename, "%s.tmx", name);
-	layer->tilemap = TLN_LoadTilemap (filename, "Layer 1");
+	layer->tilemap = TLN_LoadTilemap (filename, NULL);
 
 	TLN_SetLayer (index, layer->tileset, layer->tilemap);
 }
@@ -68,7 +69,6 @@ static void FreeLayer (int index)
 	TLN_DeleteTilemap (layer->tilemap);
 }
 
-static int frame;
 static TLN_Tileset tileset;
 static TLN_Tilemap tilemap;
 
@@ -79,7 +79,7 @@ int main (int argc, char* argv[])
 {
 	/* setup engine */
 	TLN_Init (WIDTH, HEIGHT, MAX_LAYER,0,0);
-	TLN_CreateWindow ("overlay.bmp", CWF_VSYNC);
+	TLN_CreateWindow (NULL, CWF_VSYNC);
 	TLN_SetBGColor (34,136,170);
 	TLN_SetRasterCallback (raster_callback);
 
@@ -131,19 +131,18 @@ int main (int argc, char* argv[])
 		TLN_SetLayerScaling (LAYER_BACKGROUND, bgscale, bgscale);
 
 		/* render to the window */
-		TLN_DrawFrame (frame);
-		frame++;
+		TLN_DrawFrame (0);
 	}
 
 	/* release resources */
 	FreeLayer (LAYER_FOREGROUND);
 	FreeLayer (LAYER_BACKGROUND);
-	TLN_DeleteWindow ();
 	TLN_Deinit ();
 
 	return 0;
 }
 
+/* sky color gradient with raster effect */
 static void raster_callback (int line)
 {
 	if (line <= 152)

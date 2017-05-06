@@ -1,4 +1,8 @@
-# imports
+'''
+Tilengine python example:
+	Raster effect to simulate depth with scroll strips and linescroll
+'''
+
 import tilengine as tln
 from ctypes import *
 
@@ -13,13 +17,12 @@ def lerp (x, x0, x1, fx0, fx1):
 	return fx0 + (fx1 - fx0)*(x - x0)/(x1 - x0)
 	
 # load layer assets and basic setup
-class Layer:
-	def __init__(self, index, base_name):
-		self.tileset = tln.LoadTileset (base_name + ".tsx")
-		self.tilemap = tln.LoadTilemap (base_name + ".tmx")
-		tln.layers[index].Setup (self.tileset, self.tilemap)
+def SetupLayer(layer, base_name):
+	tileset = tln.LoadTileset (base_name + ".tsx")
+	tilemap = tln.LoadTilemap (base_name + ".tmx")
+	layer.Setup (tileset, tilemap)
 
-# raster effect
+# raster effect callback
 def raster_effect (line):
 	pos = -1
 	
@@ -46,12 +49,12 @@ def raster_effect (line):
 
 # initialise
 tln.Init (400,240,2,80,1)
-
-# setup layers
-Layer (0, "Sonic_md_fg1")
-Layer (1, "Sonic_md_bg1")
 foreground = tln.layers[0]
 background = tln.layers[1]
+
+# setup layers
+SetupLayer (foreground, "Sonic_md_fg1")
+SetupLayer (background, "Sonic_md_bg1")
 
 # color cycle animation
 sp = tln.LoadSequencePack ("Sonic_md_seq.sqx")
@@ -59,7 +62,7 @@ sequence = sp.FindSequence ("seq_water")
 palette  = background.GetPalette ()
 tln.animations[0].SetPaletteAnimation (palette, sequence, True)
 
-#setup raster callback
+# setup raster callback
 myRasterCallback = tln.RasterCallbackFunc(raster_effect)
 tln.SetRasterCallback (myRasterCallback)
 

@@ -58,9 +58,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdio.h>
 #if defined _MSC_VER
-typedef unsigned char	uint8_t;	/*!< 8-bit wide data */
-typedef unsigned short	uint16_t;	/*!< 16-bit wide data */
-typedef unsigned int	uint32_t;	/*!< 32-bit wide data */
+typedef char			int8_t;		/*!< signed 8-bit wide data */
+typedef short			int16_t;	/*!< signed 16-bit wide data */
+typedef int				int32_t;	/*!< signed 32-bit wide data */
+typedef unsigned char	uint8_t;	/*!< unsigned 8-bit wide data */
+typedef unsigned short	uint16_t;	/*!< unsigned 16-bit wide data */
+typedef unsigned int	uint32_t;	/*!< unsigned 32-bit wide data */
 #else
 #include <stdint.h>
 #endif
@@ -74,7 +77,7 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 
 /* version */
 #define TILENGINE_VER_MAJ	1
-#define TILENGINE_VER_MIN	12
+#define TILENGINE_VER_MIN	13
 #define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ<<16) | (TILENGINE_VER_MIN<<8) | TILENGINE_VER_REV)
 
@@ -188,6 +191,14 @@ typedef enum
 	TLN_MAX_OVERLAY
 }
 TLN_Overlay;
+
+/*! pixel mapping for TLN_SetLayerMapping */
+typedef struct
+{
+	int16_t dx;
+	int16_t dy;
+}
+TLN_PixelMap;
 
 typedef struct Tile*		 TLN_Tile;				/*!< Tile reference */
 typedef struct Tileset*		 TLN_Tileset;			/*!< Opaque tileset reference */
@@ -411,6 +422,7 @@ TLNAPI bool TLN_SetLayerPosition (int nlayer, int hstart, int vstart);
 TLNAPI bool TLN_SetLayerScaling (int nlayer, float xfactor, float yfactor);
 TLNAPI bool TLN_SetLayerAffineTransform (int nlayer, TLN_Affine *affine);
 TLNAPI bool TLN_SetLayerTransform (int layer, float angle, float dx, float dy, float sx, float sy);
+TLNAPI bool TLN_SetLayerPixelMapping (int nlayer, TLN_PixelMap* table);
 TLNAPI bool TLN_SetLayerBlendMode (int nlayer, TLN_Blend mode, uint8_t factor);
 TLNAPI bool TLN_SetLayerColumnOffset (int nlayer, int* offset);
 TLNAPI bool TLN_SetLayerClip (int nlayer, int x1, int y1, int x2, int y2);

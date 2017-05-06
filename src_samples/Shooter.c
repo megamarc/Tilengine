@@ -63,8 +63,6 @@ int sky_hi[3];
 int sky_lo[3];
 
 static void raster_callback (int line);
-static void AddPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b);
-static void MulPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b);
 
 /* helper for loading a related tileset + tilemap and configure the appropiate layer */
 static void LoadLayer (int index, char* name)
@@ -147,22 +145,12 @@ int main (int argc, char *argv[])
 		/* bg color (sky) */
 		if (time>=PAL_T0 && time<=PAL_T1 && (time&0x07)==0)
 		{
-			uint8_t colormul[3], coloradd[3];
-
 			/* sky color */
 			for (c=0; c<3; c++)
 			{
 				sky_hi[c] = lerp(time, PAL_T0,PAL_T1, sky1[c], sky3[c]);
 				sky_lo[c] = lerp(time, PAL_T0,PAL_T1, sky2[c], sky4[c]);
 			}
-
-			/* palettes */
-			colormul[0] = lerp(time, PAL_T0,PAL_T1, 255,255);
-			colormul[1] = lerp(time, PAL_T0,PAL_T1, 255,240);
-			colormul[2] = lerp(time, PAL_T0,PAL_T1, 255,220);
-			coloradd[0] = lerp(time, PAL_T0,PAL_T1,   0,32);
-			coloradd[1] = lerp(time, PAL_T0,PAL_T1,   0,24);
-			coloradd[2] = lerp(time, PAL_T0,PAL_T1,   0,16);
 
 			for (c=0; c<MAX_LAYER; c++)
 			{
@@ -205,7 +193,6 @@ int main (int argc, char *argv[])
 	FreeLayer (LAYER_FOREGROUND);
 	FreeLayer (LAYER_BACKGROUND);
 	TLN_DeleteSequencePack (sp);
-	TLN_DeleteWindow ();
 	TLN_Deinit ();
 
 	return 0;
@@ -260,35 +247,5 @@ static void raster_callback (int line)
 		if (line >= 120 && line <= 230)
 			y += CalcSin(line*5+frame, 5);
 		TLN_SetLayerPosition (LAYER_BACKGROUND, fix2int(pos) + CalcSin(line*5+frame, 5), y);
-	}
-}
-
-static void AddPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b)
-{
-	int c;
-	int tmp;
-
-	for (c=0; c<32; c++)
-	{
-		uint8_t* data = (uint8_t*)TLN_GetPaletteData (palette, c);
-		tmp = data[0] + g;
-		data[0] = tmp<255? tmp:255;
-		tmp = data[1] + b;
-		data[1] = tmp<255? tmp:255;
-		tmp = data[2] + r;
-		data[2] = tmp<255? tmp:255;
-	}
-}
-
-static void MulPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b)
-{
-	int c;
-
-	for (c=0; c<32; c++)
-	{
-		uint8_t* data = (uint8_t*)TLN_GetPaletteData (palette, c);
-		data[0] = (uint8_t)(int)b*data[0]/255;
-		data[1] = (uint8_t)(int)g*data[1]/255;
-		data[2] = (uint8_t)(int)r*data[2]/255;
 	}
 }

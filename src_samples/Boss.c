@@ -43,26 +43,22 @@ void BossTasks (Actor* actor);
 void CreateBoss (void)
 {
 	TLN_SpriteInfo si;
-	Boss* boss;
-	int c, index, x,y;
-
+	const x = WIDTH + 80;
+	const y = 100;
 	Actor* actor = GetActor (ACTOR_BOSS);
-	boss = (Boss*)actor->usrdata;
-	x = WIDTH + 80;
-	y = 100;
+	Boss* boss = (Boss*)actor->usrdata;
+	int c;	
 
 	for (c=0; c<MAX_PART; c++)
 	{
+		const index = ACTOR_BOSS + c;
 		Actor* part;
-		index = ACTOR_BOSS + c;
 		TLN_GetSpriteInfo (spritesets[SPRITESET_HELLARM], BossGfx[c].picture, &si);
 		part = SetActor (index, TYPE_ENEMY, x,y, si.w, si.h, c==0? BossTasks:NULL);
 		boss->parts[c] = part;
-
 		TLN_ConfigSprite (part->index, spritesets[SPRITESET_HELLARM], BossGfx[c].flags);
 		TLN_SetSpritePicture (part->index, BossGfx[c].picture);
 	}
-
 	actor->vx = -1;
 }
 

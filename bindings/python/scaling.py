@@ -1,4 +1,8 @@
-# imports
+'''
+Tilengine python example:
+	Layer scaling demo
+'''
+
 import tilengine as tln
 
 # constants
@@ -17,21 +21,20 @@ def lerp (x, x0, x1, fx0, fx1):
 	return fx0 + (fx1 - fx0)*(x - x0)/(x1 - x0)
 
 # load layer assets and basic setup
-class Layer:
-	def __init__(self, index, base_name):
-		self.tileset = tln.LoadTileset (base_name + ".tsx")
-		self.tilemap = tln.LoadTilemap (base_name + ".tmx")
-		tln.layers[index].Setup (self.tileset, self.tilemap)
+def SetupLayer(layer, base_name):
+	tileset = tln.LoadTileset (base_name + ".tsx")
+	tilemap = tln.LoadTilemap (base_name + ".tmx")
+	layer.Setup (tileset, tilemap)
 
 # setup engine
 tln.Init (WIDTH, HEIGHT, 2,0,0)
 tln.SetBGColor (34,136,170)
-
-# setup layers
-Layer (0, "psycho")
-Layer (1, "rolo")
 foreground = tln.layers[0]
 background = tln.layers[1]
+
+# setup layers
+SetupLayer (foreground, "psycho")
+SetupLayer (background, "rolo")
 
 # main loop
 window = tln.CreateWindow (None, tln.CWF_VSYNC)
