@@ -27,6 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
 Python wrapper for Tilengine retro graphics engine
+Updated to library version 1.13.0
 http://www.tilengine.org
 """
 from ctypes import *
@@ -713,8 +714,8 @@ _tln.TLN_SetLayerAffineTransform.argtypes = [c_int, POINTER(Affine)]
 _tln.TLN_SetLayerAffineTransform.restype = c_bool
 _tln.TLN_SetLayerTransform.argtypes = [c_int, c_float, c_float, c_float, c_float, c_float]
 _tln.TLN_SetLayerTransform.restype = c_bool
-#_tln.TLN_SetLayerPixelMapping.argtypes = [c_int, POINTER(PixelMap)];
-#_tln.TLN_SetLayerPixelMapping.restype = c_bool
+_tln.TLN_SetLayerPixelMapping.argtypes = [c_int, POINTER(PixelMap)];
+_tln.TLN_SetLayerPixelMapping.restype = c_bool
 _tln.TLN_ResetLayerMode.argtypes = [c_int]
 _tln.TLN_ResetLayerMode.restype = c_bool
 _tln.TLN_SetLayerBlendMode.argtypes = [c_int, c_int, c_ubyte]
