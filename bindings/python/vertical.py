@@ -3,7 +3,7 @@ Tilengine python example:
 	Use raster effects and clipping to fake progressive perspective scaling
 '''
 
-import tilengine as tln
+from tilengine import *
 from math import tan,radians
 
 # helper constants
@@ -16,10 +16,10 @@ LAND_HEIGHT  = HEIGHT - SKY_HEIGHT
 world_y = 6144 - 240
 
 # load layer assets and basic setup
-def SetupLayer(layer, base_name):
-	tileset = tln.LoadTileset (base_name + ".tsx")
-	tilemap = tln.LoadTilemap (base_name + ".tmx")
-	layer.Setup (tileset, tilemap)
+def setup_layer(layer, base_name):
+	tileset = Tileset.fromfile (base_name + ".tsx")
+	tilemap = Tilemap.fromfile (base_name + ".tmx")
+	layer.setup (tileset, tilemap)
 
 # linear interpolation
 def lerp (x, x0, x1, fx0, fx1):
@@ -29,36 +29,36 @@ def lerp (x, x0, x1, fx0, fx1):
 def raster_effect (line):
 	if line >= SKY_HEIGHT:
 		line -= SKY_HEIGHT
-		clouds.SetPosition (0,world_y*2 + rows[line] - line)
-		terrain.SetPosition (0,world_y/2 + rows[line] - line)
+		clouds.set_position (0,world_y*2 + rows[line] - line)
+		terrain.set_position (0,world_y/2 + rows[line] - line)
 
 # init
-tln.Init (WIDTH,HEIGHT, 3,0,0)
-tln.SetBGColor (0,0,0)
+tln = Engine.create (WIDTH,HEIGHT, 3,0,0)
+tln.set_background_color (Color(0,0,0))
 skyfog  = tln.layers[0]
 clouds  = tln.layers[1]
 terrain = tln.layers[2]
 
 # setup layers
-SetupLayer (skyfog,  "sky")
-SetupLayer (clouds,  "clouds")
-SetupLayer (terrain, "zelda")
-skyfog.SetBlendMode (tln.BLEND_ADD)
-skyfog.SetClip  (0,0, WIDTH,SKY_HEIGHT + 63)
-clouds.SetClip  (0,SKY_HEIGHT, WIDTH,HEIGHT)
-terrain.SetClip (0,SKY_HEIGHT, WIDTH,HEIGHT)
+setup_layer (skyfog,  "sky")
+setup_layer (clouds,  "clouds")
+setup_layer (terrain, "zelda")
+skyfog.set_blend_mode (BLEND_ADD)
+skyfog.set_clip  (0,0, WIDTH,SKY_HEIGHT + 63)
+clouds.set_clip  (0,SKY_HEIGHT, WIDTH,HEIGHT)
+terrain.set_clip (0,SKY_HEIGHT, WIDTH,HEIGHT)
 
 # setup raster callback
-my_raster_callback = tln.RasterCallbackFunc(raster_effect)
-tln.SetRasterCallback (my_raster_callback)
+my_raster_callback = raster_callback_function(raster_effect)
+tln.set_raster_callback (my_raster_callback)
 
 # precalc raster effect values and store in rows list
 rows = [int(tan(radians(lerp(n, 0,LAND_HEIGHT, 105.0,180.0))) * 240) for n in range(LAND_HEIGHT)]
 
 # main loop
-window = tln.CreateWindow (None, tln.CWF_VSYNC)
-while window.Process ():
-	window.DrawFrame ()
+window = Window.create()
+while window.process ():
+	window.draw_frame ()
 	world_y -= 1
 
-tln.Deinit ()
+tln.delete()

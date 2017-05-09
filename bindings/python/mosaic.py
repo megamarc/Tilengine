@@ -3,7 +3,7 @@ Tilengine python example:
 	Mosaic effect demo
 '''
 
-import tilengine as tln
+from tilengine import *
 
 # helper constants
 WIDTH 		 = 400
@@ -15,29 +15,29 @@ pixel_size = 0		# pixel size
 pixel_delta = 0.4	# pixel size variation per frame
 
 # load layer assets and basic setup
-def SetupLayer(layer, base_name):
-	tileset = tln.LoadTileset (base_name + ".tsx")
-	tilemap = tln.LoadTilemap (base_name + ".tmx")
-	layer.Setup (tileset, tilemap)
+def setup_layer(layer, base_name):
+	tileset = Tileset.fromfile (base_name + ".tsx")
+	tilemap = Tilemap.fromfile (base_name + ".tmx")
+	layer.setup (tileset, tilemap)
 
 # linear interpolation
 def lerp (x, x0, x1, fx0, fx1):
 	return fx0 + (fx1 - fx0)*(x - x0)/(x1 - x0)
 	
 # init
-tln.Init (WIDTH,HEIGHT, 3,0,0)
-tln.SetBGColor (28,0,140)
+tln = Engine.create (WIDTH,HEIGHT,3,0,0)
+tln.set_background_color (Color(28,0,140))
 foreground = tln.layers[0]
 background = tln.layers[1]
 
 # setup layers
-SetupLayer(foreground, "Sonic_md_fg1")
-SetupLayer(background, "Sonic_md_bg1")
+setup_layer(foreground, "Sonic_md_fg1")
+setup_layer(background, "Sonic_md_bg1")
 
 # main window loop
 target_layer = foreground
-window = tln.CreateWindow (None, tln.CWF_VSYNC)
-while window.Process ():
+window = Window.create()
+while window.process ():
 	frame += 1
 	pixel_size += pixel_delta
 	if pixel_size >= 16:
@@ -51,9 +51,9 @@ while window.Process ():
 
 	size = int(pixel_size)
 	
-	target_layer.SetMosaic (size,size)
-	foreground.SetPosition (int(frame),0)
-	background.SetPosition (int(frame/2),0)
-	window.DrawFrame(frame)
+	target_layer.set_mosaic (size,size)
+	foreground.set_position (int(frame),0)
+	background.set_position (int(frame/2),0)
+	window.draw_frame(frame)
 
-tln.Deinit ()
+tln.delete()

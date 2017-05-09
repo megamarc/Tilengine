@@ -46,7 +46,7 @@ class Platformer
     {
         layer.Setup (
             Tileset.FromFile(name + ".tsx"), 
-            Tilemap.FromFile(name + ".tmx", "Layer 1")
+            Tilemap.FromFile(name + ".tmx", null)
             );
     }
 
@@ -73,14 +73,12 @@ class Platformer
         Palette palette = background.Palette;
         engine.Animations[0].SetPaletteAnimation(palette, waterSequence, true);
 
-        foreground.SetPosition(0, 0);
-        background.SetPosition(0, 0);
+        /* setup raster callback */
+        RasterCallback callback = new RasterCallback(MyRasterEffects);
+        engine.SetRasterCallback(callback);
 
-	    /* startup display */
-	    window = Window.Create("overlay.bmp", WindowFlags.Vsync);
-        window.Blur = true;
-
-	    /* main loop */
+        /* main loop */
+	    window = Window.Create(null, WindowFlags.Vsync);
 	    while (window.Process ())
 	    {
             /* inputs */
@@ -117,31 +115,19 @@ class Platformer
 			    posBackground[c] += (incBackground[c] * speed);
 
 		    /* render to window */
-		    DrawFrame(frame);
+            window.DrawFrame(frame);
 		    frame++;
 	    }
 
 	    /* deinit */
         sp.Delete();
-        window.Delete();
         engine.Deinit();
 
 	    return 0;
     }
 
-    /* draw frame line by line */
-    static void DrawFrame(int frame)
-    {
-        int line = 1;
-
-        window.BeginFrame(frame);
-        while (engine.DrawNextScanline())
-            DoRasterEffects(line++);
-        window.EndFrame();
-    }
-
     /* raster effects (virtual HBLANK) */
-    static void DoRasterEffects(int line)
+    static void MyRasterEffects(int line)
     {
 	    float pos =- 1;
 

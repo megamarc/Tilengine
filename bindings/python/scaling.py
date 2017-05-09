@@ -3,7 +3,7 @@ Tilengine python example:
 	Layer scaling demo
 '''
 
-import tilengine as tln
+from tilengine import *
 
 # constants
 WIDTH		= 400
@@ -21,36 +21,36 @@ def lerp (x, x0, x1, fx0, fx1):
 	return fx0 + (fx1 - fx0)*(x - x0)/(x1 - x0)
 
 # load layer assets and basic setup
-def SetupLayer(layer, base_name):
-	tileset = tln.LoadTileset (base_name + ".tsx")
-	tilemap = tln.LoadTilemap (base_name + ".tmx")
-	layer.Setup (tileset, tilemap)
+def setup_layer(layer, base_name):
+	tileset = Tileset.fromfile (base_name + ".tsx")
+	tilemap = Tilemap.fromfile (base_name + ".tmx")
+	layer.setup (tileset, tilemap)
 
 # setup engine
-tln.Init (WIDTH, HEIGHT, 2,0,0)
-tln.SetBGColor (34,136,170)
+tln = Engine.create (WIDTH, HEIGHT, 2,0,0)
+tln.set_background_color (Color(34,136,170))
 foreground = tln.layers[0]
 background = tln.layers[1]
 
 # setup layers
-SetupLayer (foreground, "psycho")
-SetupLayer (background, "rolo")
+setup_layer (foreground, "psycho")
+setup_layer (background, "rolo")
 
 # main loop
-window = tln.CreateWindow (None, tln.CWF_VSYNC)
-while window.Process():
+window = Window.create()
+while window.process():
 	# user input
-	if window.GetInput (tln.INPUT_LEFT):
+	if window.get_input (INPUT_LEFT):
 		xpos -= 1
-	elif window.GetInput (tln.INPUT_RIGHT):
+	elif window.get_input (INPUT_RIGHT):
 		xpos += 1
-	if window.GetInput (tln.INPUT_UP) and ypos > 0:
+	if window.get_input (INPUT_UP) and ypos > 0:
 		ypos -= 1
-	elif window.GetInput (tln.INPUT_DOWN):
+	elif window.get_input (INPUT_DOWN):
 		ypos += 1
-	if window.GetInput (tln.INPUT_A) and scale < MAX_SCALE:
+	if window.get_input (INPUT_A) and scale < MAX_SCALE:
 		scale += 1
-	elif window.GetInput (tln.INPUT_B) and scale > MIN_SCALE:
+	elif window.get_input (INPUT_B) and scale > MIN_SCALE:
 		scale -= 1
 
 	# calculate scale factor from fixed point base
@@ -64,12 +64,12 @@ while window.Process():
 	
 	# update position and scaling
 	bgypos = lerp(scale,MIN_SCALE,MAX_SCALE, 0,80)
-	foreground.SetPosition (xpos*2, ypos)
-	background.SetPosition (xpos, bgypos)
-	foreground.SetScaling (fgscale, fgscale)
-	background.SetScaling (bgscale, bgscale)
+	foreground.set_position (xpos*2, ypos)
+	background.set_position (xpos, bgypos)
+	foreground.set_position (fgscale, fgscale)
+	background.set_position (bgscale, bgscale)
 
 	# render to the window
-	window.DrawFrame ()
+	window.draw_frame ()
 	
-tln.Deinit ()
+tln.delete()

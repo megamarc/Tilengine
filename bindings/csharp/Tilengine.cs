@@ -27,7 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*
 *****************************************************************************
-* C# Tilengine wrapper - Up to date to library version 1.11
+* C# Tilengine wrapper - Up to date to library version 1.13
 * http://www.tilengine.org
 *****************************************************************************
 */
@@ -49,6 +49,7 @@ namespace Tilengine
     }
 
     public delegate void RasterCallback(int line);
+	public delegate byte BlendFunction(byte src, byte dst);
 
     /// <summary>
     /// 
@@ -112,10 +113,14 @@ namespace Tilengine
     public enum Blend
     {
         None,
-        Mix,
+        Mix25,
+		Mix50,
+		Mix75,
         Add,
         Sub,
-        MaxBlend,
+		Mod,
+		Custom,
+		Mix = Mix50
     }
 
     /// <summary>
@@ -193,6 +198,26 @@ namespace Tilengine
             B = b;
         }
     }
+	
+    /// <summary>
+    /// overlays for CRT effect
+    /// </summary>
+	public enum Overlay
+	{
+		None,
+		ShadowMask,
+		Aperture,
+		Scanlines,
+		Custom
+	}
+	
+    /// <summary>
+    /// pixel mapping for Layer.SetPixelMapping()
+    /// </summary>
+	public struct PixelMap
+	{
+		public ushort dx, dy;
+	}
 
     /// <summary>
     /// Creaton error exception
@@ -294,6 +319,9 @@ namespace Tilengine
 
         [DllImport("Tilengine")]
         private static extern void TLN_SetLoadPath(string path);
+		
+        [DllImport("Tilengine")]
+        private static extern void TLN_SetCustomBlendFunction(BlendFunction function);
 
         private Engine (int hres, int vres, int numLayers, int numSprites, int numAnimations)
         {
@@ -424,6 +452,24 @@ namespace Tilengine
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="callback"></param>
+        public void SetRasterCallback(RasterCallback callback)
+        {
+            TLN_SetRasterCallback(callback);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="function"></param>
+        public void SetCustomBlendFunction(BlendFunction function)
+        {
+            TLN_SetCustomBlendFunction(function);
+        }
+
+        /// <summary>
         /// Starts active rendering of the current frame
         /// </summary>
         /// <param name="frame">Timestamp value</param>
@@ -518,9 +564,12 @@ namespace Tilengine
 
         [DllImport("Tilengine")]
         private static extern void TLN_DeleteWindow();
-
-        [DllImport("Tilengine")]
-        private static extern void TLN_EnableBlur([MarshalAsAttribute(UnmanagedType.I1)] bool mode);
+		
+		[DllImport("Tilengine")]
+		private static extern void TLN_EnableCRTEffect(Overlay overlay, byte overlay_factor, byte threshold, byte v0, byte v1, byte v2, byte v3, bool blur, byte glow_factor);
+		
+		[DllImport("Tilengine")]
+		private static extern void TLN_DisableCRTEffect();		
 
         [DllImport("Tilengine")]
         private static extern void TLN_Delay(uint msecs);
@@ -665,12 +714,28 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        /// Deprecated, use EnableCRTEffect() instead
         /// </summary>
         public bool Blur
         {
-            set { TLN_EnableBlur(value); }
+            set { return; }
         }
+		
+        /// <summary>
+        /// 
+        /// </summary>
+		public void EnableCRTEffect(Overlay overlay, byte overlay_factor, byte threshold, byte v0, byte v1, byte v2, byte v3, bool blur, byte glow_factor)
+		{
+			TLN_EnableCRTEffect(overlay, overlay_factor, threshold, v0, v1, v2, v3, blur, glow_factor);
+		}
+		
+        /// <summary>
+        /// 
+        /// </summary>
+		public void DisableCRTEffect()
+		{
+			TLN_DisableCRTEffect();
+		}		
 
         /// <summary>
         /// 
@@ -723,7 +788,11 @@ namespace Tilengine
 
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
-        private static extern bool TLN_SetLayerTransform(int layer, float angle, float dx, float dy, float sx, float sy);
+        private static extern bool TLN_SetLayerTransform(int nlayer, float angle, float dx, float dy, float sx, float sy);
+		
+        [DllImport("Tilengine")]
+        [return: MarshalAsAttribute(UnmanagedType.I1)]
+		private static extern bool TLN_SetLayerPixelMapping (int nlayer, PixelMap[] table);
 
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
@@ -740,6 +809,14 @@ namespace Tilengine
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
         private static extern bool TLN_DisableLayerClip(int nlayer);
+
+        [DllImport("Tilengine")]
+        [return: MarshalAsAttribute(UnmanagedType.I1)]
+        private static extern bool TLN_SetLayerMosaic (int nlayer, int width, int height);
+
+        [DllImport("Tilengine")]
+        [return: MarshalAsAttribute(UnmanagedType.I1)]
+        private static extern bool TLN_DisableLayerMosaic(int nlayer);
 
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
@@ -805,6 +882,16 @@ namespace Tilengine
         /// <summary>
         /// 
         /// </summary>
+		/// <param name="">map</param>
+        /// <returns></returns>
+		public bool SetPixelMapping(PixelMap[] map)
+		{
+			return TLN_SetLayerPixelMapping(index, map);
+		}
+		
+        /// <summary>
+        /// 
+        /// </summary>
         /// <returns></returns>
         public bool Reset()
         {
@@ -842,13 +929,44 @@ namespace Tilengine
 			return TLN_SetLayerClip(index, x1, y1, x2, y2);
 		}
 		
-        /// <summary>
-        /// 
-        /// </summary>
-		public bool DisableClip()
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="rect"></param>
+		/// <returns></returns>
+        public bool SetClip(Rect rect)
+		{
+			return TLN_SetLayerClip(index, rect.X, rect.Y, rect.X + rect.W, rect.Y + rect.H);
+		}
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+        public bool DisableClip()
 		{
 			return TLN_DisableLayerClip(index);
 		}
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        public bool SetMosaic(int width, int height)
+        {
+            return TLN_SetLayerMosaic(index, width, height);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public bool DisableMosaic()
+        {
+            return TLN_DisableLayerMosaic(index);
+        }
 
         /// <summary>
         /// 
@@ -1614,6 +1732,18 @@ namespace Tilengine
         private static extern bool TLN_MixPalettes(IntPtr src1, IntPtr src2, IntPtr dst, byte factor);
 
         [DllImport("Tilengine")]
+        [return: MarshalAsAttribute(UnmanagedType.I1)]
+        private static extern bool TLN_AddPaletteColor(IntPtr palette, byte r, byte g, byte b, byte start, byte num);
+
+        [DllImport("Tilengine")]
+        [return: MarshalAsAttribute(UnmanagedType.I1)]
+        private static extern bool TLN_SubPaletteColor(IntPtr palette, byte r, byte g, byte b, byte start, byte num);
+
+        [DllImport("Tilengine")]
+        [return: MarshalAsAttribute(UnmanagedType.I1)]
+        private static extern bool TLN_ModPaletteColor(IntPtr palette, byte r, byte g, byte b, byte start, byte num);
+
+        [DllImport("Tilengine")]
         private static extern IntPtr TLN_GetPaletteData(IntPtr palette, int index);
 
         [DllImport("Tilengine")]
@@ -1690,6 +1820,42 @@ namespace Tilengine
         public bool Mix(Palette src1, Palette src2, byte factor)
         {
             return TLN_MixPalettes(src1.ptr, src2.ptr, ptr, factor);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="color"></param>
+        /// <param name="first"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public bool AddColor(Color color, byte first, byte count)
+        {
+            return TLN_AddPaletteColor(ptr, color.R, color.G, color.B, first, count);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="color"></param>
+        /// <param name="first"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public bool SubColor(Color color, byte first, byte count)
+        {
+            return TLN_SubPaletteColor(ptr, color.R, color.G, color.B, first, count);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="color"></param>
+        /// <param name="first"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public bool MulColor(Color color, byte first, byte count)
+        {
+            return TLN_ModPaletteColor(ptr, color.R, color.G, color.B, first, count);
         }
 
         /// <summary>
