@@ -12,17 +12,17 @@ WIDTH 		 = 400
 HEIGHT 		 = 240
 
 # load layer assets and basic setup
-def setup_layer(layer, base_name):
-	tileset = Tileset.fromfile (base_name + ".tsx")
-	tilemap = Tilemap.fromfile (base_name + ".tmx")
-	layer.setup (tileset, tilemap)
+def setup_layer(layer, name):
+	tilemap = Tilemap.fromfile (name)
+	layer.set_map (tilemap)
+	layer.set_background_color_tilemap (tilemap)
 
 # init
 tln = Engine.create (WIDTH,HEIGHT, 1,0,0)
 foreground = tln.layers[0]
 
 # setup layers
-setup_layer (foreground, "zelda")
+setup_layer (foreground, "zelda.tmx")
 
 # build pixel mapping table of WIDTH*HEIGHT PixelMap elements
 num_pixels = WIDTH*HEIGHT

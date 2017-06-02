@@ -16,10 +16,10 @@ def lerp (x, x0, x1, fx0, fx1):
 	return fx0 + (fx1 - fx0)*(x - x0)/(x1 - x0)
 	
 # load layer assets and basic setup
-def setup_layer(layer, base_name):
-	tileset = Tileset.fromfile (base_name + ".tsx")
-	tilemap = Tilemap.fromfile (base_name + ".tmx")
-	layer.setup (tileset, tilemap)
+def setup_layer(layer, name):
+	tilemap = Tilemap.fromfile (name)
+	layer.set_map (tilemap)
+	tln.set_background_color_tilemap (tilemap)
 
 # raster effect callback
 def raster_effect (line):
@@ -52,14 +52,8 @@ foreground = tln.layers[0]
 background = tln.layers[1]
 
 # setup layers
-setup_layer (foreground, "Sonic_md_fg1")
-setup_layer (background, "Sonic_md_bg1")
-
-# color cycle animation
-sp = SequencePack.fromfile ("Sonic_md_seq.sqx")
-sequence = sp.find_sequence ("seq_water")
-palette  = background.get_palette ()
-tln.animations[0].set_palette_animation (palette, sequence, True)
+setup_layer (foreground, "Sonic_md_fg1.tmx")
+setup_layer (background, "Sonic_md_bg1.tmx")
 
 # setup raster callback
 my_raster_callback = raster_callback_function(raster_effect)

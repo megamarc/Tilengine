@@ -42,12 +42,10 @@ class Platformer
     static Layer background;
 
     /* helper for loading a related tileset + tilemap and configure the appropiate layer */
-    static void LoadLayer (Layer layer, string name)
+    static void LoadLayer (Layer layer, string filename)
     {
-        layer.Setup (
-            Tileset.FromFile(name + ".tsx"), 
-            Tilemap.FromFile(name + ".tmx", null)
-            );
+        Tilemap tilemap = Tilemap.FromFile(filename, null);
+        layer.SetMap (tilemap);
     }
 
     /* entry point */
@@ -59,13 +57,12 @@ class Platformer
 
 	    /* setup engine */
         engine = Engine.Init(Hres, Vres, 2, 0, 1);
-        engine.BackgroundColor = new Color(0, 128, 128);
         foreground = engine.Layers[0];
         background = engine.Layers[1];
 
 	    /* load resources*/
-        LoadLayer(foreground, "Sonic_md_fg1");
-        LoadLayer(background, "Sonic_md_bg1");
+        LoadLayer(foreground, "Sonic_md_fg1.tmx");
+        LoadLayer(background, "Sonic_md_bg1.tmx");
 
         // load sequences for animations
 	    SequencePack sp = SequencePack.FromFile("Sonic_md_seq.sqx");
@@ -149,9 +146,9 @@ class Platformer
     	
 	    /* background color gradients */
 	    if (line < 112)
-            engine.BackgroundColor = InterpolateColor(line, 0, 112, skyColor[0], skyColor[1]);
+            engine.SetBackgroundColor (InterpolateColor(line, 0, 112, skyColor[0], skyColor[1]));
 	    else if (line >= 144)
-            engine.BackgroundColor = InterpolateColor(line, 144, Vres, waterColor[0], waterColor[1]);
+            engine.SetBackgroundColor (InterpolateColor(line, 144, Vres, waterColor[0], waterColor[1]));
     }
 
     /* integer linear interploation */

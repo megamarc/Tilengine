@@ -48,6 +48,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "simplexml.h"
 #include "LoadFile.h"
 
+/* properties */
+typedef enum
+{
+	PROPERTY_NONE,
+	PROPERTY_TYPE,
+}
+Property;
+
 /* load manager */
 struct
 {
@@ -56,6 +64,12 @@ struct
 	int tileheight;
 	int spacing;
 	int margin;
+	int tile_id;
+	Property property;
+	uint8_t* tile_types;
+	TLN_SequencePack sp;
+	TLN_SequenceFrame frames[100];
+	int frame_count;
 }
 static loader;
 
@@ -66,19 +80,72 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 	switch (evt)
 	{
 	case ADD_SUBTAG:
+		/* <animation> */
+		if (!strcasecmp(szName, "animation"))
+		{
+			loader.frame_count = 0;
+		}
 		break;
 
 	case ADD_ATTRIBUTE:
-		if (!strcasecmp(szAttribute, "source"))
-			strcpy (loader.source, szValue);
-		else if (!strcasecmp(szAttribute, "tilewidth"))
-			loader.tilewidth = atoi(szValue);
-		else if (!strcasecmp(szAttribute, "tileheight"))
-			loader.tileheight = atoi(szValue);
-		else if (!strcasecmp(szAttribute, "margin"))
-			loader.margin = atoi(szValue);
-		else if (!strcasecmp(szAttribute, "spacing"))
-			loader.spacing = atoi(szValue);
+		/* <tileset name="dkc_bg1" tilewidth="8" tileheight="8" tilecount="784" columns="16"> */
+		if (!strcasecmp(szName, "tileset"))
+		{
+			if (!strcasecmp(szAttribute, "tilewidth"))
+				loader.tilewidth = atoi(szValue);
+			else if (!strcasecmp(szAttribute, "tileheight"))
+				loader.tileheight = atoi(szValue);
+			else if (!strcasecmp(szAttribute, "margin"))
+				loader.margin = atoi(szValue);
+			else if (!strcasecmp(szAttribute, "spacing"))
+				loader.spacing = atoi(szValue);
+			else if (!strcasecmp(szAttribute, "tilecount"))
+			{
+				const int tilecount = atoi(szValue);
+				loader.tile_types = malloc(tilecount);
+				memset (loader.tile_types, 0, tilecount);
+			}
+		}
+
+		/* <image source="dkc_bg1.png" width="128" height="392"/> */
+		else if (!strcasecmp(szName, "image"))
+		{
+			if (!strcasecmp(szAttribute, "source"))
+				strcpy (loader.source, szValue);
+		}
+
+		/* <tile id="314"> */
+		else if (!strcasecmp(szName, "tile"))
+		{
+			if (!strcasecmp(szAttribute, "id"))
+				loader.tile_id = atoi(szValue);
+		}
+
+		/* <property name="type" type="int" value="12"/> */
+		else if (!strcasecmp(szName, "property"))
+		{
+			if (!strcasecmp(szAttribute, "name"))
+			{
+				if (!strcasecmp(szValue, "type"))
+					loader.property = PROPERTY_TYPE;
+				else
+					loader.property = PROPERTY_NONE;
+			}
+			else if (!strcasecmp(szAttribute, "value"))
+			{
+				if (loader.property == PROPERTY_TYPE)
+					loader.tile_types[loader.tile_id] = atoi(szValue);
+			}
+		}
+
+		/* <frame tileid="50" duration="100"/> */
+		else if (!strcasecmp(szName, "frame"))
+		{
+			if (!strcasecmp(szAttribute, "tileid"))
+				loader.frames[loader.frame_count].index = atoi(szValue);
+			else if (!strcasecmp(szAttribute, "duration"))
+				loader.frames[loader.frame_count].delay = atoi(szValue)*60/1000;
+		}
 		break;
 
 	case FINISH_ATTRIBUTES:
@@ -88,6 +155,18 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		break;
 
 	case FINISH_TAG:
+		if (!strcasecmp(szName, "frame"))
+			loader.frame_count++;
+		else if (!strcasecmp(szName, "animation"))
+		{
+			char name[16];
+			TLN_Sequence sequence;
+			sprintf (name, "%d", loader.tile_id);
+			sequence = TLN_CreateSequence (name, loader.tile_id, loader.frame_count, loader.frames);
+			if (loader.sp == NULL)
+				loader.sp = TLN_CreateSequencePack ();
+			TLN_AddSequenceToPack (loader.sp, sequence);
+		}
 		break;
 	}
 	return handler;
@@ -165,7 +244,7 @@ TLN_Tileset TLN_LoadTileset (const char* filename)
 	dy = loader.tileheight + loader.spacing;
 	htiles = (TLN_GetBitmapWidth(bitmap) - loader.margin*2 + loader.spacing) / dx;
 	vtiles = (TLN_GetBitmapHeight(bitmap) - loader.margin*2 + loader.spacing) / dy;
-	tileset = TLN_CreateTileset (htiles*vtiles, loader.tilewidth, loader.tileheight, TLN_ClonePalette(TLN_GetBitmapPalette(bitmap)));
+	tileset = TLN_CreateTileset (htiles*vtiles, loader.tilewidth, loader.tileheight, TLN_ClonePalette(TLN_GetBitmapPalette(bitmap)), loader.sp, loader.tile_types);
 	pitch = TLN_GetBitmapPitch (bitmap);
 
 	/* load tiles */
@@ -179,6 +258,8 @@ TLN_Tileset TLN_LoadTileset (const char* filename)
 	}
 
 	TLN_DeleteBitmap (bitmap);
+	if (loader.tile_types != NULL)
+		free (loader.tile_types);
 
 	TLN_SetLastError (TLN_ERR_OK);
 	return tileset;

@@ -22,10 +22,10 @@ bg3_colors = (
 	Color(0x00,0x00,0x00))
 
 # load layer assets and basic setup
-def setup_layer(layer, base_name):
-	tileset = Tileset.fromfile (base_name + ".tsx")
-	tilemap = Tilemap.fromfile (base_name + ".tmx")
-	layer.setup (tileset, tilemap)
+def setup_layer(layer, name):
+	tilemap = Tilemap.fromfile (name)
+	layer.set_map (tilemap)
+	tln.set_background_color_tilemap (tilemap)
 
 # linear interpolation
 def lerp (x, x0, x1, fx0, fx1):
@@ -86,9 +86,9 @@ bg2 = tln.layers[1]
 bg3 = tln.layers[2]
 
 # setup layers
-setup_layer(bg1, "dkc_bg1")
-setup_layer(bg2, "dkc_bg2")
-setup_layer(bg3, "dkc_bg3")
+setup_layer(bg1, "dkc_bg1.tmx")
+setup_layer(bg2, "dkc_bg2.tmx")
+setup_layer(bg3, "dkc_bg3.tmx")
 bg3_palette = bg3.get_palette()
 bg3.set_clip(0,0, WIDTH,112)
 
@@ -104,6 +104,8 @@ y_speed = 0
 max_speed = 3
 accel = 0.2
 brake = 0.05
+max_x = bg1.width - WIDTH
+max_y = 240
 
 # create window and main loop
 window = Window.create()
@@ -133,8 +135,8 @@ while window.process ():
 	# update world
 	x_world += x_speed
 	y_world += y_speed
-	x_world = clamp(x_world,0,4976)
-	y_world = clamp(y_world,0,240)
+	x_world = clamp(x_world,0,max_x)
+	y_world = clamp(y_world,0,max_y)
 	bg1.set_position(x_world, y_world)
 	bg2.set_position(x_world/2, y_world/3)
 	window.draw_frame ()

@@ -23,19 +23,13 @@ class affine:
 	dx = WIDTH/2
 	dy = HEIGHT
 
-# load map assets
-class Map:
-	def __init__(self, base_name):
-		self.tileset = Tileset.fromfile (base_name + ".tsx")
-		self.tilemap = Tilemap.fromfile (base_name + ".tmx")
-
 # linear interpolation
 def lerp (pos_x, x0, x1, fx0, fx1):
 	return fx0 + (fx1 - fx0)*(pos_x - x0)/(x1 - x0)
 	
 def raster_callback (line):
 	if line == 24:
-		background.setup (map_track.tileset, map_track.tilemap);
+		background.set_map (map_track);
 		background.set_position (pos_x, pos_y);
 		foreground.disable ();
 
@@ -52,8 +46,8 @@ foreground = tln.layers[0]
 background = tln.layers[1]
 
 # load resources
-map_horizon = Map("track1_bg")
-map_track   = Map("track1")
+map_horizon = Tilemap.fromfile("track1_bg.tmx")
+map_track   = Tilemap.fromfile("track1.tmx")
 
 # set raster callback
 cb_func = raster_callback_function(raster_callback)
@@ -62,8 +56,8 @@ tln.set_raster_callback (cb_func)
 # main loop
 window = Window.create ()
 while window.process ():
-	foreground.setup (map_horizon.tileset, map_horizon.tilemap)
-	background.setup (map_horizon.tileset, map_horizon.tilemap)
+	foreground.set_map (map_horizon)
+	background.set_map (map_horizon)
 	foreground.set_position (lerp(angle*2, 0,360, 0,256), 24)
 	background.set_position (lerp(angle, 0,360, 0,256), 0)
 	background.reset_mode ()

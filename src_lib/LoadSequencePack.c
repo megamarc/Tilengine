@@ -53,10 +53,10 @@ struct
 {
 	TLN_SequencePack sp;
 	char name[16];
-	int first;
+	int target;
 	int count;
 	int delay;
-	int frames[100];
+	TLN_SequenceFrame frames[100];
 	TLN_ColorStrip strips[MAX_COLOR_STRIP];
 }
 static loader;
@@ -87,7 +87,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 			else if (!strcasecmp(szAttribute, "delay"))
 				loader.delay = atoi(szValue);
 			else if (!strcasecmp(szAttribute, "first") || !strcasecmp(szAttribute, "target"))
-				loader.first = atoi(szValue);
+				loader.target = atoi(szValue);
 			else if (!strcasecmp(szAttribute, "count"))
 				loader.count = atoi(szValue);
 		}
@@ -142,7 +142,9 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 				else
 					sscanf (ptr, "%u", &value);
 
-				loader.frames[loader.count++] = value;
+				loader.frames[loader.count].index = value;
+				loader.frames[loader.count].delay = loader.delay;
+				loader.count++;
 				while (*ptr && ishex(*ptr))
 					ptr++;
 			}
@@ -151,7 +153,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 
 	case FINISH_TAG:
 		if (!strcasecmp(szName, "sequence"))
-			sequence = TLN_CreateSequence (loader.name, loader.delay, loader.first, loader.count, loader.frames);
+			sequence = TLN_CreateSequence (loader.name, loader.target, loader.count, loader.frames);
 		else if (!strcasecmp (szName, "cycle"))
 			sequence = (TLN_Sequence)TLN_CreateCycle (loader.name, loader.count, loader.strips);
 		if (sequence)

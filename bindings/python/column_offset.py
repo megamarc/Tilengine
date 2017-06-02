@@ -11,10 +11,10 @@ WIDTH  = 400
 HEIGHT = 240
 
 # load layer assets and basic setup
-def setup_layer(layer, base_name):
-	tileset = Tileset.fromfile (base_name + ".tsx")
-	tilemap = Tilemap.fromfile (base_name + ".tmx")
-	layer.setup (tileset, tilemap)
+def setup_layer(layer, name):
+	tilemap = Tilemap.fromfile (name)
+	layer.set_map (tilemap)
+	tln.set_background_color_tilemap (tilemap)
 
 # initialise
 tln = Engine.create (WIDTH,HEIGHT,3,0,0)
@@ -23,9 +23,9 @@ background = tln.layers[1]
 base_layer = tln.layers[2]
 
 # setup the layers
-setup_layer (foreground, "Sonic_md_fg1")
-setup_layer (background, "Sonic_md_bg1")
-setup_layer (base_layer, "Base")
+setup_layer (foreground, "Sonic_md_fg1.tmx")
+setup_layer (background, "Sonic_md_bg1.tmx")
+setup_layer (base_layer, "Base.tmx")
 
 # create and assign column offset array
 num_columns = int(WIDTH/8 + 2)

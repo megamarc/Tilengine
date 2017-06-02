@@ -15,10 +15,10 @@ pixel_size = 0		# pixel size
 pixel_delta = 0.4	# pixel size variation per frame
 
 # load layer assets and basic setup
-def setup_layer(layer, base_name):
-	tileset = Tileset.fromfile (base_name + ".tsx")
-	tilemap = Tilemap.fromfile (base_name + ".tmx")
-	layer.setup (tileset, tilemap)
+def setup_layer(layer, name):
+	tilemap = Tilemap.fromfile (name)
+	layer.set_map (tilemap)
+	tln.set_background_color_tilemap (tilemap)
 
 # linear interpolation
 def lerp (x, x0, x1, fx0, fx1):
@@ -26,13 +26,12 @@ def lerp (x, x0, x1, fx0, fx1):
 	
 # init
 tln = Engine.create (WIDTH,HEIGHT,3,0,0)
-tln.set_background_color (Color(28,0,140))
 foreground = tln.layers[0]
 background = tln.layers[1]
 
 # setup layers
-setup_layer(foreground, "Sonic_md_fg1")
-setup_layer(background, "Sonic_md_bg1")
+setup_layer(foreground, "Sonic_md_fg1.tmx")
+setup_layer(background, "Sonic_md_bg1.tmx")
 
 # main window loop
 target_layer = foreground

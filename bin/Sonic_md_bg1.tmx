@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="224" height="32" tilewidth="8" tileheight="8" nextobjectid="1">
+<map version="1.0.0" orientation="orthogonal" renderorder="right-down" width="224" height="32" tilewidth="8" tileheight="8" backgroundcolor="#2040c0" nextobjectid="1">
  <tileset firstgid="1" source="Sonic_md_bg1.tsx"/>
  <layer name="Layer 1" width="224" height="32">
   <data encoding="base64" compression="zlib">

@@ -27,7 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*
 *****************************************************************************
-* C# Tilengine wrapper - Up to date to library version 1.13
+* C# Tilengine wrapper - Up to date to library version 1.14
 * http://www.tilengine.org
 *****************************************************************************
 */
@@ -171,6 +171,18 @@ namespace Tilengine
         public int Xoffset;
         public int Yoffset;
         public byte Color;
+        public byte Type;
+        public bool Empty;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayoutAttribute(LayoutKind.Sequential)]
+    public struct SequenceFrame
+    {
+	    public int index;
+	    public int delay;
     }
 
     /// <summary>
@@ -251,10 +263,6 @@ namespace Tilengine
         private static extern bool TLN_Init(int hres, int vres, int numlayers, int numsprites, int numanimations);
 
         [DllImport("Tilengine")]
-        [return: MarshalAsAttribute(UnmanagedType.I1)]
-        private static extern bool TLN_InitBPP(int hres, int vres, int bpp, int numlayers, int numsprites, int numanimations);
-
-        [DllImport("Tilengine")]
         private static extern void TLN_Deinit();
 
         [DllImport("Tilengine")]
@@ -280,6 +288,10 @@ namespace Tilengine
 
         [DllImport("Tilengine")]
         private static extern void TLN_SetBGColor(byte r, byte g, byte b);
+
+        [DllImport("Tilengine")]
+        [return: MarshalAsAttribute(UnmanagedType.I1)]
+        private static extern bool TLN_SetBGColorFromTilemap(IntPtr tilemap);
 
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
@@ -419,11 +431,19 @@ namespace Tilengine
         /// <summary>
         /// Sets the background color, that is the color of the pixel when there isn't any layer or sprite at that position
         /// </summary>
-        public Color BackgroundColor
+        public void SetBackgroundColor(Color value)
         {
-            set { TLN_SetBGColor(value.R, value.G, value.B); }
+            TLN_SetBGColor(value.R, value.G, value.B);
         }
-        
+
+        /// <summary>
+        /// Sets the background color from a tilemap, that is the color of the pixel when there isn't any layer or sprite at that position
+        /// </summary>
+        public void SetBackgroundColor(Tilemap tilemap)
+        {
+            TLN_SetBGColorFromTilemap(tilemap.ptr);
+        }
+
         /// <summary>
         /// Sets an optionsl, static bitmap as background instead of a solid color
         /// </summary>
@@ -776,6 +796,10 @@ namespace Tilengine
 
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
+        private static extern bool TLN_SetLayerMap(int nlayer, IntPtr tilemap);
+
+        [DllImport("Tilengine")]
+        [return: MarshalAsAttribute(UnmanagedType.I1)]
         private static extern bool TLN_SetLayerPalette(int nlayer, IntPtr palette);
 
         [DllImport("Tilengine")]
@@ -833,6 +857,12 @@ namespace Tilengine
         [return: MarshalAsAttribute(UnmanagedType.I1)]
         private static extern bool TLN_GetLayerTile(int nlayer, int x, int y, out TileInfo info);
 
+        [DllImport("Tilengine")]
+        private static extern int TLN_GetLayerWidth(int nlayer);
+        
+        [DllImport("Tilengine")]
+        private static extern int TLN_GetLayerHeight(int nlayer);            
+
         /// <summary>
         /// 
         /// </summary>
@@ -842,6 +872,16 @@ namespace Tilengine
         public bool Setup(Tileset tileset, Tilemap tilemap)
         {
             return TLN_SetLayer(index, tileset.ptr, tilemap.ptr);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tilemap"></param>
+        /// <returns></returns>
+        public bool SetMap(Tilemap tilemap)
+        {
+            return TLN_SetLayerMap(index, tilemap.ptr);
         }
 
         /// <summary>
@@ -987,6 +1027,22 @@ namespace Tilengine
         {
             get { return new Palette(TLN_GetLayerPalette(index)); }
             set { TLN_SetLayerPalette(index, value.ptr); }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int Width
+        {
+            get { return TLN_GetLayerWidth(index); }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int Height
+        {
+            get { return TLN_GetLayerHeight(index); }
         }
 
         /// <summary>
@@ -1409,7 +1465,7 @@ namespace Tilengine
         internal IntPtr ptr;
 
         [DllImport("Tilengine")]
-        private static extern IntPtr TLN_CreateTileset(int numtiles, int width, int height, IntPtr palette);
+        private static extern IntPtr TLN_CreateTileset(int numtiles, int width, int height, IntPtr palette, IntPtr sequencepack, byte[] types);
 
         [DllImport("Tilengine")]
         private static extern IntPtr TLN_LoadTileset(string filename);
@@ -1435,6 +1491,9 @@ namespace Tilengine
         private static extern IntPtr TLN_GetTilesetPalette(IntPtr tileset);
 
         [DllImport("Tilengine")]
+        private static extern IntPtr TLN_GetTilesetSequencePack(IntPtr tileset);
+
+        [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
         private static extern bool TLN_DeleteTileset(IntPtr tileset);
 
@@ -1454,9 +1513,11 @@ namespace Tilengine
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <param name="palette"></param>
-        public Tileset(int numTiles, int width, int height, Palette palette)
+        /// <param name="palette"></param>
+        /// <param name="palette"></param>
+        public Tileset(int numTiles, int width, int height, Palette palette, SequencePack sp, byte[] types)
         {
-            IntPtr retval = TLN_CreateTileset(numTiles, width, height, palette.ptr);
+            IntPtr retval = TLN_CreateTileset(numTiles, width, height, palette.ptr, sp.ptr, types);
             if (retval != IntPtr.Zero)
                 ptr = retval;
             else
@@ -1540,6 +1601,14 @@ namespace Tilengine
         /// <summary>
         /// 
         /// </summary>
+        public SequencePack SequencePack
+        {
+            get { return new SequencePack(TLN_GetTilesetSequencePack(ptr)); }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <returns></returns>
         public bool Delete()
         {
@@ -1557,7 +1626,7 @@ namespace Tilengine
         internal IntPtr ptr;
 
         [DllImport("Tilengine")]
-        private static extern IntPtr TLN_CreateTilemap(int rows, int cols, Tile[] tiles);
+        private static extern IntPtr TLN_CreateTilemap(int rows, int cols, Tile[] tiles, uint bgcolor, Tileset tileset);
 
         [DllImport("Tilengine")]
         private static extern IntPtr TLN_LoadTilemap(string filename, string layername);
@@ -1570,6 +1639,9 @@ namespace Tilengine
 
         [DllImport("Tilengine")]
         private static extern int TLN_GetTilemapCols(IntPtr tilemap);
+
+        [DllImport("Tilengine")]
+        private static extern IntPtr TLN_GetTilemapTileset(IntPtr tilemap);
 
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
@@ -1602,9 +1674,14 @@ namespace Tilengine
         /// <param name="rows"></param>
         /// <param name="cols"></param>
         /// <param name="tiles"></param>
-        public Tilemap(int rows, int cols, Tile[] tiles)
+        /// <param name="bgcolor"></param>
+        /// <param name="tileset"></param>
+        public Tilemap(int rows, int cols, Tile[] tiles, Color bgcolor, Tileset tileset)
         {
-            IntPtr retval = TLN_CreateTilemap(rows, cols, tiles);
+            long color;
+            color = 0xFF000000 + (bgcolor.R << 16) + (bgcolor.G << 8) + bgcolor.B;
+
+            IntPtr retval = TLN_CreateTilemap(rows, cols, tiles, (uint)color, tileset);
             if (retval != IntPtr.Zero)
                 ptr = retval;
             else
@@ -1653,6 +1730,14 @@ namespace Tilengine
         public int Rows
         {
             get { return TLN_GetTilemapRows(ptr); }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Tileset Tileset
+        {
+            get { return new Tileset(TLN_GetTilemapTileset(ptr)); }
         }
 
         /// <summary>
@@ -2010,7 +2095,7 @@ namespace Tilengine
         internal IntPtr ptr;
 
         [DllImport("Tilengine")]
-        private static extern IntPtr TLN_CreateSequence(string name, int delay, int first, int num_frames, int[] data);
+        private static extern IntPtr TLN_CreateSequence(string name, int target, int num_frames, SequenceFrame[] frames);
 
         [DllImport("Tilengine")]
         private static extern IntPtr TLN_CreateCycle(string name, int num_strips, ColorStrip[] strips);
@@ -2039,9 +2124,9 @@ namespace Tilengine
         /// <param name="first"></param>
         /// <param name="numFrames"></param>
         /// <param name="data"></param>
-        public Sequence(string name, int delay, int first, int numFrames, int[] data)
+        public Sequence(string name, int target, int numFrames, SequenceFrame[] frames)
         {
-            IntPtr retval = TLN_CreateSequence(name, delay, first, numFrames, data);
+            IntPtr retval = TLN_CreateSequence(name, target, numFrames, frames);
             if (retval != IntPtr.Zero)
                 ptr = retval;
             else
@@ -2105,6 +2190,12 @@ namespace Tilengine
         private static extern IntPtr TLN_FindSequence(IntPtr sp, string name);
 
         [DllImport("Tilengine")]
+        private static extern IntPtr TLN_GetSequence(IntPtr sp, int index);
+
+        [DllImport("Tilengine")]
+        private static extern int TLN_GetSequencePackCount(IntPtr sp);
+
+        [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
         private static extern bool TLN_AddSequenceToPack(IntPtr sp, IntPtr sequence);
 
@@ -2138,11 +2229,33 @@ namespace Tilengine
         /// <summary>
         /// 
         /// </summary>
+        public int NumSequences
+        {
+            get { return TLN_GetSequencePackCount(ptr); }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
         public Sequence Find(string name)
         {
             IntPtr retval = TLN_FindSequence(ptr, name);
+            if (retval != IntPtr.Zero)
+                return new Sequence(retval);
+            else
+                throw new NotFoundException();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public Sequence Get(int index)
+        {
+            IntPtr retval = TLN_GetSequence(ptr, index);
             if (retval != IntPtr.Zero)
                 return new Sequence(retval);
             else

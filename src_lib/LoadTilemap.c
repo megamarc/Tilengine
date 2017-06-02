@@ -49,10 +49,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "simplexml.h"
 #include "zlib.h"
 #include "LoadFile.h"
+#include "Palette.h"
 
 extern int base64decode (const char* in, int inLen, unsigned char *out, int *outLen);
 static int csvdecode (const char* in, int numtiles, uint32_t* data);
 static int decompress (unsigned char* in, int in_size, unsigned char* out, int out_size);
+static uint32_t ParseHTMLColor (const char* string);
 
 /* encoding */
 typedef enum
@@ -81,7 +83,9 @@ struct
 	int cols, rows;				/* map size */
 	encoding_t encoding;		/* encoding */
 	compression_t compression;	/* compression */
+	uint32_t bgcolor;			/* background color */
 	TLN_Tilemap tilemap;		/* tilemap being built */
+	TLN_Tileset tileset;		/* optional associated tileset */
 }
 static loader;
 
@@ -95,7 +99,18 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		break;
 
 	case ADD_ATTRIBUTE:
-		if (!strcasecmp(szName, "layer") && loader.done == false)
+		
+		if (!strcasecmp(szName, "map"))
+		{
+			if (!strcasecmp(szAttribute, "backgroundcolor"))
+				loader.bgcolor = ParseHTMLColor (szValue);
+		}
+		else if (!strcasecmp(szName, "tileset") && loader.tileset == NULL)
+		{
+			if (!strcasecmp(szAttribute, "source"))
+				loader.tileset = TLN_LoadTileset (szValue);
+		}
+		else if (!strcasecmp(szName, "layer") && loader.done == false)
 		{
 			if (!strcasecmp(szAttribute, "name"))
 			{
@@ -141,7 +156,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 	case FINISH_ATTRIBUTES:
 		if (!strcasecmp(szName, "data") && loader.load)
 		{
-			loader.tilemap = TLN_CreateTilemap (loader.rows, loader.cols, NULL);
+			loader.tilemap = TLN_CreateTilemap (loader.rows, loader.cols, NULL, loader.bgcolor, loader.tileset);
 			loader.done = true;
 		}
 		break;
@@ -201,15 +216,17 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
  * 
  * \param filename
  * TMX file with the tilemap
+ *
  * \param layername
- * name of the layer inside the tmx file to load. NULL to load the first layer
+ * Optional name of the layer inside the tmx file to load. NULL to load the first layer
  * 
  * \returns
  * Reference to the newly loaded tilemap or NULL if error
  *
  * \remarks
  * A tmx map file from Tiled can contain one or more layers, each with its own name. TLN_LoadTilemap()
- * doesn't load a full tmx file, only the specified layer
+ * doesn't load a full tmx file, only the specified layer. The associated *external* tileset (TSX file) is
+ * also loaded and associated to the tilemap
  */
 TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 {
@@ -323,4 +340,35 @@ static int decompress (unsigned char* in, int in_size, unsigned char* out, int o
 	/* clean up and return */
 	(void)inflateEnd(&strm);
 	return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
+}
+
+static uint8_t ParseHexChar (char data)
+{
+	if (data >= '0' && data <= '9')
+		return data - '0';
+	else if (data >= 'A' && data <= 'F')
+		return data - 'A' + 10;
+	else if (data >= 'a' && data <= 'f')
+		return data - 'a' + 10;
+	else
+		return 0;
+}
+
+static uint8_t ParseHexByte (const char* string)
+{
+	return (ParseHexChar(string[0]) << 4) + ParseHexChar(string[1]);
+}
+
+static uint32_t ParseHTMLColor (const char* string)
+{
+	int r,g,b;
+
+	if (string[0] != '#')
+		return 0;
+
+	r = ParseHexByte (&string[1]);
+	g = ParseHexByte (&string[3]);
+	b = ParseHexByte (&string[5]);
+
+	return PackRGB32 (r,g,b);
 }

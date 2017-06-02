@@ -12,6 +12,12 @@ benchmark.txt
 android/lib
 android/wrapper/obj
 deploy/
+debug/
+release/
+Win32_Debug/
+Win32_Release/
+x64_Debug/
+x64_Release/
 *.pyc
 
 # archivos de visual studio

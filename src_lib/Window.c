@@ -118,6 +118,14 @@ static char pattern_shadowmask[] =
 	GREEN, BLUE, BLUE, RED, RED, GREEN
 };
 
+static char pattern_scanlines[] =
+{
+	RED, GREEN, BLUE,
+	RED, GREEN, BLUE,
+	BLACK, BLACK, BLACK,
+	BLACK, BLACK, BLACK,
+};
+
 /* local prototypes */
 static bool CreateWindow (void);
 static void DeleteWindow (void);
@@ -224,22 +232,18 @@ static bool CreateWindow (void)
 	SDL_SetTextureBlendMode (crt.overlay, SDL_BLENDMODE_MOD);
 	crt.overlays[TLN_OVERLAY_APERTURE  ] = SDL_CreateRGBSurfaceFrom (pattern_aperture, 6,4,32,24, 0,0,0,0);
 	crt.overlays[TLN_OVERLAY_SHADOWMASK] = SDL_CreateRGBSurfaceFrom (pattern_shadowmask, 6,2,32,24, 0,0,0,0);
+	crt.overlays[TLN_OVERLAY_SCANLINES ] = SDL_CreateRGBSurfaceFrom (pattern_scanlines, 3,4,32,12, 0,0,0,0);
 	if (wnd_params.file_overlay[0])
 		crt.overlays[TLN_OVERLAY_CUSTOM] = SDL_LoadBMP (wnd_params.file_overlay);
 
 	TLN_EnableCRTEffect (TLN_OVERLAY_APERTURE, 128, 192, 0,64, 64,128, false, 255);
-	//TLN_EnableCRTEffect (212, 0,0, 212,224, 224);
 
-	/* temporal downsampl surface */
+	/* temporal downsample surface */
 	resize_half_width = SDL_CreateRGBSurface (0, wnd_params.width/2, wnd_params.height, 32, 0,0,0,0);
 	memset (resize_half_width->pixels, 255, resize_half_width->pitch * resize_half_width->h);
 	
 	if (wnd_params.flags & CWF_FULLSCREEN)
-	{
-		//SDL_SetWindowDisplayMode (window, &mode);
-		//SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN);
 		SDL_ShowCursor (SDL_DISABLE);
-	}
 
 	done = false;
 
@@ -839,7 +843,8 @@ void TLN_EndWindowFrame (void)
 	{
 		if (crt.overlay_id != TLN_OVERLAY_NONE)
 			SDL_RenderCopy (renderer, crt.overlay, NULL, &dstrect);
-		SDL_RenderCopy (renderer, crt.glow, NULL, &dstrect);
+		if (crt.glow_factor != 0)
+			SDL_RenderCopy (renderer, crt.glow, NULL, &dstrect);
 	}
 	SDL_RenderPresent (renderer);
 }

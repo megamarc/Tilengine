@@ -27,7 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
 Python wrapper for Tilengine retro graphics engine
-Updated to library version 1.13.0
+Updated to library version 1.14.0
 http://www.tilengine.org
 """
 from ctypes import *
@@ -112,6 +112,12 @@ class ColorStrip(Structure):
 		("count", c_ubyte),
 		("dir", c_ubyte)
 	]
+	
+class SequenceFrame(Structure):
+	_fields_ = [
+		("index", c_int),
+		("delay", c_int)
+	]
 
 class SpriteInfo(Structure):
 	_fields_ = [
@@ -128,7 +134,8 @@ class TileInfo(Structure):
 		("col", c_int),
 		("xoffset", c_int),
 		("yoffset", c_int),
-		("color", c_ubyte)
+		("color", c_ubyte),
+		("type", c_ubyte)
 	]
 	
 class Rect(Structure):
@@ -178,6 +185,8 @@ _tln.TLN_GetNumObjects.restype = c_int
 _tln.TLN_GetVersion.restype = c_int
 _tln.TLN_GetUsedMemory.restype = c_int
 _tln.TLN_SetBGColor.argtypes = [c_ubyte, c_ubyte, c_ubyte]
+_tln.TLN_SetBGColorFromTilemap.argtypes = [c_void_p]
+_tln.TLN_SetBGColorFromTilemap.restype = c_bool
 _tln.TLN_SetBGBitmap.argtypes = [c_void_p]
 _tln.TLN_SetBGBitmap.restype = c_bool
 _tln.TLN_SetBGPalette.argtypes = [c_void_p]
@@ -217,6 +226,9 @@ class Engine:
 		
 	def set_background_color(self, color):
 		_tln.TLN_SetBGColor(color.r, color.g, color.b)
+
+	def set_background_color_tilemap(self, tilemap):
+		_tln.TLN_SetBGColorFromTilemap(tilemap)
 
 	def set_background_bitmap(self, bitmap):
 		return _tln.TLN_SetBGBitmap(bitmap)
@@ -344,7 +356,6 @@ _tln.TLN_DeleteSpriteset.restype = c_bool
 class Spriteset:
 	def __init__(self, handle):
 		self._as_parameter_ = handle
-		self.palette = Palette(_tln.TLN_GetSpritesetPalette(handle))
 	
 	@classmethod
 	def create(self, entries, rects, data, width, height, pitch, palette):
@@ -372,11 +383,14 @@ class Spriteset:
 	def get_sprite_info(self, entry, info):
 		return _tln.TLN_GetSpriteInfo(self, entry, info) 
 		
+	def get_palette(self):
+		return _tln.TLN_GetSpritesetPalette(self)
+		
 	def delete(self):
 		return _tln.TLN_DeleteSpriteset(self)
 
 # tilesets management ---------------------------------------------------------
-_tln.TLN_CreateTileset.argtypes = [c_int, c_int, c_int, c_void_p]
+_tln.TLN_CreateTileset.argtypes = [c_int, c_int, c_int, c_void_p, c_void_p, POINTER(c_int)]
 _tln.TLN_CreateTileset.restype = c_void_p
 _tln.TLN_LoadTileset.argtypes = [c_char_p]
 _tln.TLN_LoadTileset.restype = c_void_p
@@ -392,19 +406,20 @@ _tln.TLN_GetTileHeight.argtypes = [c_void_p]
 _tln.TLN_GetTileHeight.restype = c_int
 _tln.TLN_GetTilesetPalette.argtypes = [c_void_p]
 _tln.TLN_GetTilesetPalette.restype = c_void_p
+_tln.TLN_GetTilesetSequencePack.argtypes = [c_void_p]
+_tln.TLN_GetTilesetSequencePack.restype = c_void_p
 _tln.TLN_DeleteTileset.argtypes = [c_void_p]
 _tln.TLN_DeleteTileset.restype = c_bool
 
 class Tileset:
 	def __init__(self, handle):
 		self._as_parameter_ = handle
-		self.palette = Palette(_tln.TLN_GetTilesetPalette(handle))
 		self.tile_width = _tln.TLN_GetTileWidth(handle)
 		self.tile_height = _tln.TLN_GetTileHeight(handle)	
 
 	@classmethod
-	def create(self, num_tiles, width, height, palette):
-		handle = _tln.TLN_CreateTileset(num_tiles, width, height, palette)
+	def create(self, num_tiles, width, height, palette, sequence_pack=None, types=None):
+		handle = _tln.TLN_CreateTileset(num_tiles, width, height, palette, sequence_pack, types)
 		if handle != None:
 			return Tileset(handle)
 		else:
@@ -425,6 +440,12 @@ class Tileset:
 		else:
 			return None
 
+	def get_palette(self):
+		return _tln.TLN_GetTilesetPalette(self)
+		
+	def get_sequence_pack(self):
+		return _tln.TLN_GetTilesetSequencePack(self)
+
 	def set_pixels(self, entry, data, pitch):
 		return _tln.TLN_SetTilesetPixels(self, entry, data, pitch)
 
@@ -435,7 +456,7 @@ class Tileset:
 		return _tln.TLN_DeleteTileset(self)
 
 # tilemaps management ---------------------------------------------------------
-_tln.TLN_CreateTilemap.argtypes = [c_int, c_int, POINTER(Tile)]
+_tln.TLN_CreateTilemap.argtypes = [c_int, c_int, POINTER(Tile), c_int, c_void_p]
 _tln.TLN_CreateTilemap.restype = c_void_p
 _tln.TLN_LoadTilemap.argtypes = [c_char_p]
 _tln.TLN_LoadTilemap.restype = c_void_p
@@ -445,6 +466,8 @@ _tln.TLN_GetTilemapRows.argtypes = [c_void_p]
 _tln.TLN_GetTilemapRows.restype = c_int
 _tln.TLN_GetTilemapRows.argtypes = [c_void_p]
 _tln.TLN_GetTilemapRows.restype = c_int
+_tln.TLN_GetTilemapTileset.argtypes = [c_void_p]
+_tln.TLN_GetTilemapTileset.restype = c_void_p
 _tln.TLN_GetTilemapTile.argtypes = [c_void_p, c_int, c_int, POINTER(Tile)]
 _tln.TLN_GetTilemapTile.restype = c_bool
 _tln.TLN_SetTilemapTile.argtypes = [c_void_p, c_int, c_int, POINTER(Tile)]
@@ -461,8 +484,8 @@ class Tilemap:
 		self.cols = _tln.TLN_GetTilemapCols(handle)
 
 	@classmethod
-	def create(self, rows, cols, tiles):
-		handle = _tln.TLN_CreateTilemap(rows, cols, tiles)
+	def create(self, rows, cols, tiles, background_color=0, tileset=None):
+		handle = _tln.TLN_CreateTilemap(rows, cols, tiles, background_color, tileset)
 		if handle != None:
 			return Tilemap(handle)
 		else:
@@ -481,7 +504,10 @@ class Tilemap:
 		if handle != None:
 			return Tilemap(handle)
 		else:
-			return None		
+			return None
+			
+	def get_tileset(self):
+		return _tln.TLN_GetTilemapTileset(self)
 
 	def get_tile(self, entry, tile_info):
 		return _tln.TLN_GetTilemapTile(self, entry, tile_info)
@@ -594,7 +620,6 @@ class Bitmap:
 		self.height  = _tln.TLN_GetBitmapHeight(handle)
 		self.depth   = _tln.TLN_GetBitmapDepth(handle)
 		self.pitch   = _tln.TLN_GetBitmapPitch(handle)
-		self.palette = _tln.TLN_GetBitmapPalette(handle)
 
 	@classmethod
 	def create(self, width, height, bpp):
@@ -619,6 +644,9 @@ class Bitmap:
 		else:
 			return None
 
+	def get_palette(self):
+		return _tln.TLN_GetBitmapPalette(self)
+
 	def get_data(self, x, y):
 		return _tln.TLN_GetBitmapPtr(self, x, y)
 
@@ -626,7 +654,7 @@ class Bitmap:
 		return _tln.TLN_DeleteBitmap(self)
 
 # sequences management --------------------------------------------------------
-_tln.TLN_CreateSequence.argtypes = [c_char_p, c_int, c_int, c_int, POINTER(c_int)]
+_tln.TLN_CreateSequence.argtypes = [c_char_p, c_int, c_int, POINTER(SequenceFrame)]
 _tln.TLN_CreateSequence.restype = c_void_p
 _tln.TLN_CreateCycle.argtypes = [c_char_p, c_int, POINTER(ColorStrip)]
 _tln.TLN_CreateCycle.restype = c_void_p
@@ -640,8 +668,8 @@ class Sequence:
 		self._as_parameter_ = handle
 
 	@classmethod
-	def create_sequence(self, name, delay, first, num_frames, data):
-		handle =  _tln.TLN_CreateSequence(_encode_string(name), delay, first, num_frames, data)
+	def create_sequence(self, name, target, num_frames, frames):
+		handle =  _tln.TLN_CreateSequence(_encode_string(name), target, num_frames, data)
 		if handle != None:
 			return Sequence(handle)
 		else:
@@ -671,6 +699,10 @@ _tln.TLN_LoadSequencePack.argtypes = [c_char_p]
 _tln.TLN_LoadSequencePack.restype = c_void_p
 _tln.TLN_FindSequence.argtypes = [c_void_p, c_char_p]
 _tln.TLN_FindSequence.restype = c_void_p
+_tln.TLN_GetSequence.argtypes = [c_int]
+_tln.TLN_GetSequence.restype = c_void_p
+_tln.TLN_GetSequencePackCount.argtypes = [c_char_p]
+_tln.TLN_GetSequencePackCount.restype = c_void_p
 _tln.TLN_AddSequenceToPack.argtypes = [c_void_p, c_void_p]
 _tln.TLN_AddSequenceToPack.restype = c_bool
 _tln.TLN_DeleteSequencePack.argtypes = [c_void_p]
@@ -679,6 +711,7 @@ _tln.TLN_DeleteSequencePack.restype = c_bool
 class SequencePack:
 	def __init__(self, handle):
 		self._as_parameter_ = handle
+		self.count = TLN_GetSequencePackCount(self)
 
 	@classmethod
 	def create(self):
@@ -712,6 +745,8 @@ class SequencePack:
 # layer management ------------------------------------------------------------
 _tln.TLN_SetLayer.argtypes = [c_int, c_void_p, c_void_p]
 _tln.TLN_SetLayer.restype = c_bool
+_tln.TLN_SetLayerMap.argtypes = [c_int, c_void_p]
+_tln.TLN_SetLayerMap.restype = c_bool
 _tln.TLN_SetLayerPalette.argtypes = [c_int, c_void_p]
 _tln.TLN_SetLayerPalette.restype = c_bool
 _tln.TLN_SetLayerPosition.argtypes = [c_int, c_int, c_int]
@@ -742,14 +777,29 @@ _tln.TLN_GetLayerPalette.argtypes = [c_int]
 _tln.TLN_GetLayerPalette.restype = c_void_p
 _tln.TLN_GetLayerTile.argtypes = [c_int, c_int, c_int, POINTER(TileInfo)]
 _tln.TLN_GetLayerTile.restype = c_bool
+_tln.TLN_GetLayerWidth.argtypes = [c_int]
+_tln.TLN_GetLayerWidth.restype = c_int
+_tln.TLN_GetLayerHeight.argtypes = [c_int]
+_tln.TLN_GetLayerHeight.restype = c_int
 
 class Layer:
 	def __init__(self, index):
 		self._as_parameter_ = index
 
 	def setup(self, tileset, tilemap):
-		return _tln.TLN_SetLayer(self, tileset, tilemap)
+		retval = _tln.TLN_SetLayer(self, tileset, tilemap)
+		if retval == True:
+			self.width  = _tln.TLN_GetLayerWidth(self)
+			self.height = _tln.TLN_GetLayerHeight(self)
+		return retval
 		
+	def set_map(self, tilemap):
+		retval = _tln.TLN_SetLayerMap(self, tilemap)
+		if retval == True:
+			self.width  = _tln.TLN_GetLayerWidth(self)
+			self.height = _tln.TLN_GetLayerHeight(self)
+		return retval
+
 	def set_palette(self, palette):
 		return _tln.TLN_SetLayerPalette(self, palette)
 
