@@ -49,7 +49,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "simplexml.h"
 #include "zlib.h"
 #include "LoadFile.h"
-#include "Palette.h"
 
 extern int base64decode (const char* in, int inLen, unsigned char *out, int *outLen);
 static int csvdecode (const char* in, int numtiles, uint32_t* data);
@@ -370,5 +369,5 @@ static uint32_t ParseHTMLColor (const char* string)
 	g = ParseHexByte (&string[3]);
 	b = ParseHexByte (&string[5]);
 
-	return PackRGB32 (r,g,b);
+	return (uint32_t)(0xFF000000 | (r << 16) | (g << 8) | b);
 }
