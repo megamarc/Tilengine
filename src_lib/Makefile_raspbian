@@ -5,9 +5,6 @@ LIBS     = -lpng -L"/usr/local/lib" -lSDL2 -lc -lz
 BIN      = libTilengine.so
 CFLAGS = -W -Wall -O2 -I"/usr/local/include"
 RM       = rm
-header   = Tilengine.h
-incpath  = /usr/include
-libpath  = /usr/lib/arm-linux-gnueabihf
 
 .PHONY: all all-before all-after clean clean-custom
 
@@ -18,12 +15,7 @@ clean: clean-custom
 
 $(BIN): $(OBJECTS)
 	$(CC) -shared $(OBJECTS) -o $(BIN) $(LIBS) -s -fvisibility=hidden -Wl,-rpath,"/usr/local/lib"
+	cp $(BIN) ../lib/linux_arm
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@
-
-install: $(BIN) $(header)
-	cp $(BIN) $(libpath)
-	cp $(header) $(incpath)
-	chmod a+x $(incpath)/$(header)
-	chmod a+x $(libpath)/$(BIN)

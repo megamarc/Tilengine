@@ -1,11 +1,13 @@
-# archivos varios
+# misc
 .svn/
 .vs/
 map2tileset/
+test/
 Thumbs.db
 Tilengine.doc
 Tilengine.sln
 Tilengine.pdf
+Suplemento Tilengine.pdf
 clean.bat
 deploy*.bat
 benchmark.txt
@@ -19,8 +21,14 @@ Win32_Release/
 x64_Debug/
 x64_Release/
 *.pyc
+*.exe
 
-# archivos de visual studio
+# deploy packages
+*.zip
+*.gz
+*.bz2
+
+# Visual Studio specific
 Debug/
 Release/
 obj/
@@ -33,25 +41,13 @@ obj/
 *.o
 *.obj
 
-#precompilados
-bin/linux
-bin/linux64
-bin/raspbian
-bin/win32
-bin/x64
-bin/osx
-bin/*.class
-bin/*.exe
-bin/*.dll
-bin/*.py
-
-#bindings
+# bindings
 bindings/csharp/*.exe
 bindings/csharp/bin
 bindings/csharp/Properties
 bindings/java/bin
 
-# fuentes lib
+# library source code
 src_lib/android/
 src_lib/doxygen/
 src_lib/libpng/
@@ -61,6 +57,7 @@ Bitmap.*
 Blitters.*
 Draw.*
 Engine.h
+Hash.*
 Layer.*
 Math2D.*
 Object.*

@@ -1,0 +1,13 @@
+#!/bin/bash
+tgtpath="darwin_x86_64"
+include="Tilengine.h"
+library="Tilengine.dylib"
+incpath="/usr/local/include"
+libpath="/usr/local/lib"
+
+mkdir -p $incpath
+mkdir -p $libpath
+cp include/$include $incpath
+cp lib/$tgtpath/$library $libpath
+chmod a+x $incpath/$include
+chmod a+x $libpath/$library

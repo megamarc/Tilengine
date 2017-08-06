@@ -1,0 +1,11 @@
+#!/bin/bash
+tgtpath="linux_arm"
+include="Tilengine.h"
+library="libTilengine.so"
+incpath="/usr/include"
+libpath="/usr/lib/arm-linux-gnueabihf"
+
+cp include/$include $incpath
+cp lib/$tgtpath/$library $libpath
+chmod a+x $incpath/$include
+chmod a+x $libpath/$library

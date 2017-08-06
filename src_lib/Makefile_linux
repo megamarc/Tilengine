@@ -5,10 +5,6 @@ LIBS     = -lSDL2 -lc -lz ./libpng/libpng16.a
 BIN      = libTilengine.so
 CFLAGS   = -msse2 -m32 -std=c99 -fpic -O2 -DLIB_EXPORTS -I"libpng"
 RM       = rm
-header 	 = Tilengine.h
-incpath  = /usr/include
-libpath  = /usr/lib/i386-linux-gnu
-
 
 .PHONY: all all-before all-after clean clean-custom
 
@@ -19,12 +15,7 @@ clean: clean-custom
 
 $(BIN): $(OBJECTS)
 	$(CC) -shared $(OBJECTS) -o $(BIN) $(LIBS) -s -fvisibility=hidden
+	cp $(BIN) ../lib/linux_i686
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@
-
-install: $(BIN) $(header)
-	cp $(BIN) $(libpath)
-	cp $(header) $(incpath)
-	chmod a+x $(incpath)/$(header)
-	chmod a+x $(libpath)/$(BIN)

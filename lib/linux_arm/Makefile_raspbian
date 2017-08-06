@@ -1,0 +1,29 @@
+CC       = gcc
+SOURCES  = $(wildcard *.c)
+OBJECTS  = $(SOURCES:.c=.o)
+LIBS     = -lpng -L"/usr/local/lib" -lSDL2 -lc -lz
+BIN      = libTilengine.so
+CFLAGS = -W -Wall -fpic -O2 -I"/usr/local/include"
+RM       = rm
+header   = Tilengine.h
+incpath  = /usr/include
+libpath  = /usr/lib/arm-linux-gnueabihf
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(BIN) all-after
+
+clean: clean-custom
+	${RM} $(OBJECTS) $(BIN)
+
+$(BIN): $(OBJECTS)
+	$(CC) -shared $(OBJECTS) -o $(BIN) $(LIBS) -s -fvisibility=hidden -Wl,-rpath,"/usr/local/lib"
+
+%.o: %.c
+	$(CC) -c $(CFLAGS) $< -o $@
+
+install: $(BIN) $(header)
+	cp $(BIN) $(libpath)
+	cp $(header) $(incpath)
+	chmod a+x $(incpath)/$(header)
+	chmod a+x $(libpath)/$(BIN)

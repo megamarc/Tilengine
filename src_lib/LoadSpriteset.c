@@ -72,7 +72,7 @@ TLN_Spriteset TLN_LoadSpriteset (const char* name)
 	int entries = 0;
 	TLN_Bitmap bitmap;
 	TLN_Spriteset spriteset;
-	TLN_Rect *rects, *rect;
+	TLN_SpriteData *sprite_data;
 	int c;
 
 	/* load png file */
@@ -95,8 +95,8 @@ TLN_Spriteset TLN_LoadSpriteset (const char* name)
 	while (fgets (line, 64, pf))
 		entries++;
 
-	rects = malloc (sizeof(TLN_Rect)*entries);
-	if (!rects)
+	sprite_data = malloc (sizeof(TLN_SpriteData)*entries);
+	if (!sprite_data)
 	{
 		TLN_DeleteBitmap (bitmap);
 		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
@@ -109,21 +109,21 @@ TLN_Spriteset TLN_LoadSpriteset (const char* name)
 	for (c=0; c<entries; c++)
 	{
 		char* equals;
-		char imagename[64];
+		TLN_SpriteData* entry;
 
 		/* lee linea */
 		fgets (line, 64, pf);
-		rect = &rects[c];
+		entry = &sprite_data[c];
 
-		/* formato SpriteSheetPacker: name = x y w h */
+		/* format SpriteSheetPacker: name = x y w h */
 		equals = strchr (line, '=');
 		if (equals != NULL)
 		{
-			sscanf (line, "%s = %d %d %d %d", imagename, &rect->x, &rect->y, &rect->w, &rect->h);
+			sscanf (line, "%s = %d %d %d %d", entry->name, &entry->x, &entry->y, &entry->w, &entry->h);
 			continue;
 		}
 
-		/* formato Leshy SpriteSheet Tool csv: name,x,y,w,h */
+		/* format Leshy SpriteSheet Tool csv: name,x,y,w,h */
 		equals = strchr (line, ',');
 		if (equals != NULL)
 		{
@@ -134,26 +134,17 @@ TLN_Spriteset TLN_LoadSpriteset (const char* name)
 					*del = ' ';
 				del++;
 			}
-			sscanf (line, "%s %d %d %d %d", imagename, &rect->x, &rect->y, &rect->w, &rect->h);
+			sscanf (line, "%s %d %d %d %d", entry->name, &entry->x, &entry->y, &entry->w, &entry->h);
 			continue;
 		}
 	}
 	fclose (pf);
 
 	/* create */
-	spriteset = TLN_CreateSpriteset (
-		entries, 
-		rects, 
-		TLN_GetBitmapPtr (bitmap, 0,0), 
-		TLN_GetBitmapWidth (bitmap),
-		TLN_GetBitmapHeight (bitmap), 
-		TLN_GetBitmapPitch (bitmap), 
-		TLN_ClonePalette(TLN_GetBitmapPalette(bitmap))
-	);
+	spriteset = TLN_CreateSpriteset (bitmap, sprite_data, entries);
 	
 	/* free resources */
-	free (rects);
-	TLN_DeleteBitmap (bitmap);
+	free (sprite_data);
 	
 	if (spriteset)
 		TLN_SetLastError (TLN_ERR_OK);

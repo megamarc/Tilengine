@@ -44,11 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include "LoadFile.h"
 
-#if defined (_MSC_VER)
-	#define DASH "\\"
-#else
-	#define DASH "//"
-#endif
+#define SLASH	  '/'
+#define BACKSLASH '\\'
 
 static char localpath[255] = ".";
 
@@ -61,18 +58,44 @@ static char localpath[255] = ".";
  */
 void TLN_SetLoadPath (const char* path)
 {
+	size_t trailing;
+
 	if (path)
 		strcpy (localpath, path);
 	else
 		strcpy (localpath, ".");
+
+	/* cut trailing separator */
+	trailing = strlen (localpath) - 1;
+	if (trailing > 0 && (localpath[trailing] == SLASH || localpath[trailing] == BACKSLASH))
+		localpath[trailing] = 0;
 }
 
 FILE* FileOpen (const char* filename)
 {
 	FILE* pf;
 	char path[255];
+	char oldchar, newchar;
+	char* p;
 	
-	sprintf (path, "%s" DASH "%s", localpath, filename);
+	sprintf (path, "%s/%s", localpath, filename);
+
+	/* replace correct path separator */
+	p = path;
+#if defined (_MSC_VER)
+	oldchar = SLASH;
+	newchar = BACKSLASH;
+#else
+	oldchar = BACKSLASH;
+	newchar = SLASH;
+#endif
+	while (*p != 0)
+	{
+		if (*p == oldchar)
+			*p = newchar;
+		p++;
+	}
+
 	pf = fopen (path, "rb");
 	return pf;
 }

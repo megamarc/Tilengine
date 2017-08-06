@@ -1,9 +1,0 @@
-<sequences>
-	<cycle name="V11AM" >
-		<strip first="217" count="7" dir="1" delay="7" />
-		<strip first="192" count="11" dir="0" delay="11" />
-		<strip first="203" count="6" dir="1" delay="6" />
-		<strip first="209" count="8" dir="0" delay="9" />
-	</cycle>
-
-</sequences>
