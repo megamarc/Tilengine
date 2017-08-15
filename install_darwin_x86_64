@@ -4,10 +4,16 @@ include="Tilengine.h"
 library="Tilengine.dylib"
 incpath="/usr/local/include"
 libpath="/usr/local/lib"
+cmakepath="$libpath/cmake/Tilengine"
+pkgconfigpath="$libpath/pkgconfig"
 
 mkdir -p $incpath
 mkdir -p $libpath
 cp include/$include $incpath
 cp lib/$tgtpath/$library $libpath
+mkdir -p $cmakepath
+sed -e "s:<library>:$library:g" -e "s:<incpath>:$incpath:g" -e "s:<libpath>:$libpath:g" tilengine-config.cmake > $cmakepath/tilengine-config.cmake
+mkdir -p $pkgconfigpath
+sed -e "s:<library>:$library:g" -e "s:<incpath>:$incpath:g" -e "s:<libpath>:$libpath:g" tilengine.pc > $pkgconfigpath/tilengine.pc
 chmod a+x $incpath/$include
 chmod a+x $libpath/$library
