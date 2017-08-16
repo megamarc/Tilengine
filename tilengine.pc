@@ -1,0 +1,9 @@
+# tilengine pkg-config source file
+
+Name: tilengine
+Description: Tilengine is a free, cross-platform 2D graphics engine for creating classic/retro games with tilemaps, sprites and palettes. Its unique scanline-based rendering system makes raster effects a core feature, a technique used by many games running on real 2D graphics chips.
+Version: 1.15
+Requires:
+Conflicts:
+Libs: <libpath>/<library>
+Cflags: -I<incpath>

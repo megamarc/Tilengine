@@ -4,63 +4,54 @@ Tilengine is a free, cross-platform 2D graphics engine for creating classic/retr
 
 ## Features
 * Written in portable C (C99)
-* Licensed under MIT/FreeBSD: free for any project
+* MIT-Licensed: free for any project, including commercial ones
 * Cross platform: available builds for Windows (32/64), Linux PC(32/64), Mac OS X and Raspberry Pi
+* High performance: all samples run at 60 fps with CRT emulation enabled on a Raspberry Pi 3
 * Multiple language bindings: C/C++, C#, Python, Java, Pascal
 * Streamlined, easy to learn API that requires very little lines of code
 * Built-in SDL-based windowing for quick tests
 * Integrate inside any existing framework as a slave renderer
 * Loads assets from open standard standard file formats
-* Create or modify graphic assets procedurally at runtime
+* Create or modify graphic assets procedurally at run time
 * True raster effects: modify render parameters between scanlines
 * Background layer scaling and rotation
 * Sprite scaling
 * Several blending modes for layers and sprites
 * Pixel accurate sprite vs sprite and sprite vs layer collision detection
-* Special effects: per-column offset, mosaic, per-pixel displacement...
+* Special effects: per-column offset, mosaic, per-pixel displacement, CRT emulation...
 
 ## Installing
-You must run the suitable install script depending on your platform:
-### Windows 32-bit:
-```> install_windows_32.bat```
-### Windows 64-bit: 
-```> install_windows_64.bat```
-### Linux PC 32-bit: 
-```> ./sudo install_linux_i686```
-### Linux PC 64-bit: 
-```> ./sudo install_linux_x86_64```
-### Linux Raspberry Pi (ARM): 
-```> ./sudo install_linux_arm```
-### Apple OS X Mountain Lion (10.8) and later:
-```> ./sudo install_darwin_x86_64```
+Open a console window in Tilengine root directory  and type the suitable command depending on your platform:
+### Windows (any architecture)
+```> install```
+### Unix-like (Linux, Raspberry Pi, Apple OS X)
+```> ./sudo install```
+
+**Note for OS X users**: Tilengine depends on having SDL2 in Framework format installed on your system, that by default is not installed. Please download it here: https://www.libsdl.org/release/SDL2-2.0.5.dmg. Homebrew port won't work, use the official DMG file instead.
 ## Running the samples
-#### C/C++ language
+### C/C++
 C samples are located in `Tilengine/samples/c` folder. To build them you need the gcc compiler suite, and/or Visual C++ in windows.
 * **Linux**: the GCC compiler suite is already installed by default
 * **Windows**: you must install [MinGW](http://www.mingw.org/) or [Visual Studio Community](https://www.visualstudio.com/vs/community/)
 * **Apple OS X**: You must install [Command-line tools for Xcode](https://developer.apple.com/xcode/). An Apple ID account is required.
 
 Once installed, open a console window in the C samples folder and type the suitable command depending on your platform:
-#### Windows 32-bit
+### Windows (any architecture)
 ```
-> mingw32-make -f Makefile_mingw
+> mingw32-make
 ```
-#### Linux (32-bit, 64-bit or Raspberry Pi)
+### Unix-like (Linux, Raspberry Pi, Apple OS X)
 ```
-> make -f Makefile_linux
+> make
 ```
-#### Apple OS X
-```
-> make -f Makefile_darwin
-```
-### Python language
+### Python
 Python samples are located in `Tilengine/samples/python` folder. Make sure that Python v2 or v3 is installed on your system before proceeding.
 
 Open a terminal window in the python samples folder, and run any sample by typing python *name_of_the_sample*.py, for example:
 ```
 > python platformer.py
 ```
-### C# samples
+### C#
 C# samples are located in `Tilengine/samples/csharp` folder. Make sure that [Mono](http://www.mono-project.com/download/) or .NET Framework (Windows only) is installed on your system. The following guide assumes Mono usage, please check Microsoft website for .NET Framework related info. C# has separate build and run steps like C, but these steps are the same on all platforms, as in Python.
 
 In order to build the provided sample, open a console window in the C# samples folder and type the following command:
@@ -90,7 +81,7 @@ The following section shows how to create from scratch and execute a simple tile
 8. Release allocated resources
 
 ![Test](test.png)
-### C language
+### C/C++
 Create a file called `test.c` in `Tilengine/samples/c` folder, and type the following code:
 ```c
 #include "Tilengine.h"
@@ -131,7 +122,7 @@ Now the program must be built to produce an executable. Open a console window in
 > gcc test.c -o test "/usr/local/lib/Tilengine.dylib" -lm
 > ./test
 ```
-### Python language
+### Python
 Create a file called `test.py` in `Tilengine/samples/python` folder, and type the following code:
 ```python
 import tilengine as tln
@@ -153,7 +144,7 @@ Python doesn't need separate build/run steps, and unlike C language, the procedu
 ```
 > python test.py
 ```
-### C# language
+### C#
 Create a file called `test.cs` in `Tilengine/samples/csharp` folder, and type the following code:
 ```cs
 using Tilengine;
