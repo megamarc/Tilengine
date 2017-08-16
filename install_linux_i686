@@ -4,8 +4,14 @@ include="Tilengine.h"
 library="libTilengine.so"
 incpath="/usr/include"
 libpath="/usr/lib/i386-linux-gnu"
+cmakepath="$libpath/cmake/Tilengine"
+pkgconfigpath="$libpath/pkgconfig"
 
 cp include/$include $incpath
 cp lib/$tgtpath/$library $libpath
+mkdir -p $cmakepath
+sed -e "s:<library>:$library:g" -e "s:<incpath>:$incpath:g" -e "s:<libpath>:$libpath:g" tilengine-config.cmake > $cmakepath/tilengine-config.cmake
+mkdir -p $pkgconfigpath
+sed -e "s:<library>:$library:g" -e "s:<incpath>:$incpath:g" -e "s:<libpath>:$libpath:g" tilengine.pc > $pkgconfigpath/tilengine.pc
 chmod a+x $incpath/$include
 chmod a+x $libpath/$library
