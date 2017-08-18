@@ -174,3 +174,10 @@ Open a console window in the C# samples folder and type the following commands:
 > mcs test.cs Tilengine.cs
 > mono test.exe
 ```
+## Contributors
+Some people contributed to improve tilengine:
+
+@turric4an for the Pascal wrapper<br>
+@davideGiovannini for helping with the Linux-x86_64 port<br>
+@shayneoneill for helping with the OS X port<br>
+@adtennant for providing cmake and pkg-config support<br>
