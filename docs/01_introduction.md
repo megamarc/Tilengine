@@ -1,4 +1,4 @@
-# Introduction {#introduction}
+# Chapter 01. Introduction {#page_introduction}
 [TOC]
 # Introduction {#introduction}
 Tilengine is a free, cross-platform 2D graphics engine for creating classic/retro games with tile maps, sprites and palettes. Its unique scanline-based rendering algorithm makes raster effects a core feature, a technique used by many games running on real 2D graphics chips. This engine brings back the 16-bit era in its full glory and pushes it even further!

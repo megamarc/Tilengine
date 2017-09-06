@@ -1,4 +1,4 @@
-# Color palettes {#palettes}
+# Chapter 13. Color palettes {#page_palettes}
 [TOC]
 # Color palettes {#palettes}
 

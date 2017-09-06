@@ -1,4 +1,4 @@
-# First steps {#first_steps}
+# Chapter 03. First steps {#page_first_steps}
 [TOC]
 # First steps {#first_steps}
 ## Initialize {#first_steps_initialize}

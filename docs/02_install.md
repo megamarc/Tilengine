@@ -1,4 +1,4 @@
-# Installing {#install}
+# Chapter 02. Installing {#page_install}
 [TOC]
 # Installing {#install}
 1. Download tilengine from [GitHub](https://github.com/megamarc/Tilengine/archive/master.zip) or [itch.io](https://megamarc.itch.io/tilengine)

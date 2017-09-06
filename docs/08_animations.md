@@ -1,4 +1,4 @@
-# Animations {#animations}
+# Chapter 08. Animations {#page_animations}
 [TOC]
 # Animations {#animations}
 

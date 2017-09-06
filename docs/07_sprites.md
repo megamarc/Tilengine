@@ -1,4 +1,4 @@
-# Sprites {#sprites}
+# Chapter 07. Sprites {#page_sprites}
 [TOC]
 # Sprites {#sprites}
 

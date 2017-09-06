@@ -1,4 +1,4 @@
-# Sequences & seqpacks {#sequences}
+# Chapter 14. Sequences & seqpacks {#page_sequences}
 [TOC]
 # Sequences & seqpacks {#sequences}
 

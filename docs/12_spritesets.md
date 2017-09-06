@@ -1,4 +1,4 @@
-# Spritesets {#spritesets}
+# Chapter 12. Spritesets {#page_spritesets}
 [TOC]
 # Spritesets {#spritesets}
 

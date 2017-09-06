@@ -1,4 +1,4 @@
-# Blending {#blending}
+# Chapter 09. Blending {#page_blending}
 [TOC]
 # Blending {#blending}
 

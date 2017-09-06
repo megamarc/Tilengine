@@ -1,1 +1,1 @@
-# Raster effects {#rasters}
+# Chapter 16. Raster effects {#page_rasters}

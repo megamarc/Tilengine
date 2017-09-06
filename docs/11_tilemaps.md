@@ -1,4 +1,4 @@
-# Tilemaps {#tilemaps}
+# Chapter 11. Tilemaps {#page_tilemaps}
 [TOC]
 # Tilemaps {#tilemaps}
 

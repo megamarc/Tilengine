@@ -1,4 +1,4 @@
-# Windowing {#window}
+# Chapter 04. Windowing {#page_window}
 [TOC]
 # Windowing {#window}
 The built-in window in tilengine provides a basic, easy to setup environment for quick test and evaluation. It's a very simple environment to ease prototyping but is not intended to be used in production environment.
@@ -67,10 +67,10 @@ Tilengine window provides some basic timing functions. \ref TLN_GetTicks returns
 All low resolution, pixel art games were played on CRT displays that provided its unique texture and feel. Trying to watch this type of games in crystal-clear, big square pixels, is just wrong. The CRT effect simulates more or less faithfully the characteristics of a CRT display: visible RGB strips, horizontal blur, bright pixel bloom...
 
 Plain output without CRT:  
-![CRT disabled](http://www.tilengine.org/doc/crt_off.jpg)
+![CRT disabled](img/crt_off.jpg)
 
 The same output but with default CRT enabled:  
-![CRT enabled](http://www.tilengine.org/doc/crt_on.jpg)
+![CRT enabled](img/crt_on.jpg)
 
 By default the CRT effect is enabled when the window is created, but it can be disabled with the \ref TLN_DisableCRTEffect function. It can be toggled pressing the <kbd>Escape</kbd> key, too.
 

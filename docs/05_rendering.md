@@ -1,4 +1,4 @@
-# Rendering {#render}
+# Chapter 05. External rendering {#page_render}
 [TOC]
 # Rendering {#render}
 

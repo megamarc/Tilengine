@@ -1,4 +1,4 @@
-# Bitmaps {#bitmaps}
+# Chapter 15. Bitmaps {#page_bitmaps}
 [TOC]
 # Bitmaps {#bitmaps}
 

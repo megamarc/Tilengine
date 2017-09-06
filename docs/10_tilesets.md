@@ -1,4 +1,4 @@
-# Tilesets {#tilesets}
+# Chapter 10. Tilesets {#page_tilesets}
 [TOC]
 # Tilesets {#tilesets}
 
