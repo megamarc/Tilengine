@@ -8,7 +8,7 @@ Layers are referenced by an index, starting at 0 for the topmost, increasing up 
 ## Basic setup {#layers_setup}
 In order to get displayed, a layer needs to have attached three items: a tilemap, a tileset and a palette. Usually a tilemap has an internal reference to its associated tileset, and a tileset has a palette embedded, we only have to explicitly set the tilemap and the other items are loaded automatically. This is accomplished with the \ref TLN_SetLayer function.
 
-We have to load the tilemap first with \ref TLN_LoadTilemap (read more about tilemaps). Then we call \ref TLN_SetLayer to attach it to the layer, passing the index layer, an optional tileset, and the tilemap to attach:
+We have to load the tilemap first with \ref TLN_LoadTilemap (read more about [tilemaps](\ref page_tilemaps). Then we call \ref TLN_SetLayer to attach it to the layer, passing the index layer, an optional tileset, and the tilemap to attach:
 ```c
 TLN_Tilemap tilemap = TLN_LoadTilemap ("ruff_n_tumble.tmx");
 TLN_SetupLayer (0, NULL, tilemap);
@@ -58,7 +58,7 @@ while (TLN_ProcessWindow())
 ```
 
 ## Setting the palette {#layers_palette}
-By default, any layer uses the palette that came with the attached spriteset, but it can be changed and use any other palette with \ref TLN_SetLayerPalette. We can explicitly load a palette with \ref TLN_LoadPalette :
+By default, any layer uses the palette that came with the attached tileset, but it can be changed and use any other palette with \ref TLN_SetLayerPalette. We can explicitly load a palette with \ref TLN_LoadPalette :
 ```c
 TLN_Palette palette = TLN_LoadPalette ("palette.act");
 TLN_SetLayerPalette (0, palette);
@@ -125,7 +125,7 @@ TLN_SetLayerColumnOffset (0, NULL);
 ## Scaling {#layers_scaling}
 Scaling is the first of the three transformation modes supported by layers, in addition to affine transform and pixel mapping. Only one mode can be active at a given moment.
 
-Layers can be drawn upscaled or downscaled with an arbitrary factor. The scaling starts in screen space at the top-left corner, so the scrolling position isn't affected by scaling. To enable scaling, call \ref TLN_SetLayerScaling passing the layer index and fwo floating point values with the horizontal and vertical factor, respectively. Values greater than 1.0 upscale, and smaller than 1.0 downscale. For example to set an horizontal downscaling of 0.5 and vertical upscaling of 1.5 for layer 0:
+Layers can be drawn upscaled or downscaled with an arbitrary factor. The scaling starts in screen space at the top-left corner, so the scrolling position isn't affected by scaling. To enable scaling, call \ref TLN_SetLayerScaling passing the layer index and two floating point values with the horizontal and vertical factor, respectively. Values greater than 1.0 upscale, and smaller than 1.0 downscale. For example to set an horizontal downscaling of 0.5 and vertical upscaling of 1.5 for layer 0:
 ```c
 TLN_SetLayerScaling (0, 0.5f, 1.5f);
 ```
@@ -173,7 +173,7 @@ Then we set `dx` and `dy` with the coordinates of the desired source pixel:
 ```c
 int x = 320;          /* pixel we want to remap */
 int y = 240;
-int index = y * height + x;
+int index = y * width + x;
 /* ... */
 pixel_map[index].dx = 200;
 pixel_map[index].dy = 100;
@@ -210,7 +210,7 @@ TLN_GetLayerTile (0, 1800,300, &tile_info);  /* get layer 0 tile at 1800,300 */
 ```
 
 ## Disabling {#layers_disable}
-To disable a layer so it is not rendered, just call \ref TLN_DisableLayer passing the index layer:
+To disable a layer so it is not rendered, just call \ref TLN_DisableLayer passing the layer index:
 ```c
 TLN_DisableLayer (0);
 ```

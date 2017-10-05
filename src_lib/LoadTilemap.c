@@ -200,6 +200,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 			}
 
 			free (data);
+			loader.load = false;
 		}
 		break;
 

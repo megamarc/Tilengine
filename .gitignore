@@ -23,6 +23,12 @@ x64_Release/
 *.pyc
 *.exe
 
+docs/screens/
+samples/assets/mslug/
+samples/assets/sunny_land/
+samples/c/*.dll
+samples/csharp/*.dll
+
 # deploy packages
 *.zip
 *.gz

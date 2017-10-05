@@ -5,14 +5,12 @@
 2. Open a console window in Tilengine root directory and type the suitable command depending on your platform:
 
 ## Windows (any architecture) {#install_windows}
-
 ```
-> install
+install
 ```
 ## Unix-like (Linux, Raspberry Pi, Apple OS X) {#install_unix}
-
 ```
-> ./sudo install
+./sudo install
 ```
 
 **Note for OS X users**: Tilengine depends on having SDL2 in Framework format installed on your system, that by default is not installed. Please download it here: https://www.libsdl.org/release/SDL2-2.0.5.dmg. Homebrew port won't work, use the official DMG file instead.
@@ -26,14 +24,12 @@ C samples are located in `Tilengine/samples/c` folder. To build them you need th
 Once installed, open a console window in the C samples folder and type the suitable command depending on your platform:
 
 ### Windows (any architecture)
-
 ```
-> mingw32-make
+mingw32-make
 ```
 ### Unix-like (Linux, Raspberry Pi, Apple OS X)
-
 ```
-> make
+make
 ```
 
 ## Running the Python samples {#install_samples_python}
@@ -41,7 +37,7 @@ Python samples are located in `Tilengine/samples/python` folder. Make sure that 
 
 Open a terminal window in the python samples folder, and run any sample by typing python *name_of_the_sample*.py, for example:
 ```
-> python platformer.py
+python platformer.py
 ```
 
 ## Running the C# samples {#install_samples_csharp}
@@ -49,9 +45,9 @@ C# samples are located in `Tilengine/samples/csharp` folder. Make sure that [Mon
 
 In order to build the provided sample, open a console window in the C# samples folder and type the following command:
 ```
-> mcs *.cs
+mcs *.cs
 ```
 This will produce `Platform.exe` that can be run with this command:
 ```
-> mono Platformer.exe
+mono Platformer.exe
 ```
