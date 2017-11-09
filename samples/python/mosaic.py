@@ -57,6 +57,5 @@ while window.process():
 	target_layer.set_mosaic(size, size)
 	foreground.set_position(int(frame), 0)
 	background.set_position(int(frame / 2), 0)
-	window.draw_frame(frame)
 
 engine.delete()

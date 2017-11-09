@@ -63,7 +63,6 @@ rows = [int(tan(radians(lerp(n, 0, LAND_HEIGHT, 105.0, 180.0))) * 240) for n in 
 world_y = terrain.height - HEIGHT
 window = Window.create()
 while window.process():
-	window.draw_frame()
 	world_y -= 1
 
 engine.delete()

@@ -77,7 +77,7 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 
 /* version */
 #define TILENGINE_VER_MAJ	1
-#define TILENGINE_VER_MIN	16
+#define TILENGINE_VER_MIN	17
 #define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ<<16) | (TILENGINE_VER_MIN<<8) | TILENGINE_VER_REV)
 
@@ -190,6 +190,14 @@ typedef struct
 	bool empty;		/*!< cell is empty*/
 }
 TLN_TileInfo;
+
+/*! Tileset attributes for TLN_CreateTileset() */
+typedef struct
+{
+	uint8_t	type;		/*!< tile type */
+	bool	priority;	/*!< priority flag set */
+}
+TLN_TileAttributes;
 
 /*! overlays for CRT effect */
 typedef enum
@@ -362,7 +370,7 @@ TLNAPI bool TLN_DeleteSpriteset (TLN_Spriteset Spriteset);
  * \name Tilesets
  * Tileset resources management for background layers */
 /**@{*/
-TLNAPI TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette palette, TLN_SequencePack sp, uint8_t* types);
+TLNAPI TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette palette, TLN_SequencePack sp, TLN_TileAttributes* attributes);
 TLNAPI TLN_Tileset TLN_LoadTileset (const char* filename);
 TLNAPI TLN_Tileset TLN_CloneTileset (TLN_Tileset src);
 TLNAPI bool TLN_SetTilesetPixels (TLN_Tileset tileset, int entry, uint8_t* srcdata, int srcpitch);

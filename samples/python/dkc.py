@@ -142,6 +142,5 @@ while window.process():
 	y_world = clamp(y_world, 0, max_y)
 	bg1.set_position(x_world, y_world)
 	bg2.set_position(x_world / 2, y_world / 3)
-	window.draw_frame()
 
 engine.delete()

@@ -97,8 +97,4 @@ while window.process():
 	pos_background[4] = basepos * 1.000
 	pos_background[5] = basepos * 2.000
 
-	# draw frame
-	window.draw_frame(frame)
-	frame += 1
-
 engine.delete()

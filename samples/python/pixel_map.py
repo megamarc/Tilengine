@@ -10,12 +10,10 @@ from math import sin, radians
 WIDTH = 400
 HEIGHT = 240
 
-
 # load layer assets and basic setup
 def setup_layer(layer, name):
 	tilemap = Tilemap.fromfile(name)
 	layer.setup(tilemap)
-
 
 # init
 engine = Engine.create(WIDTH, HEIGHT, 1, 0, 0)
@@ -36,11 +34,8 @@ for y in range(HEIGHT):
 foreground.set_pixel_mapping(pixel_map)
 
 # main loop
-frame = 0
 window = Window.create()
 while window.process():
-	foreground.set_position(40, frame)
-	window.draw_frame()
-	frame += 1
+	foreground.set_position(40, window.num_frame)
 
 engine.delete()

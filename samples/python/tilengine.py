@@ -2,8 +2,7 @@
 Tilengine - 2D Graphics library with raster effects
 Copyright (c) 2015-2017 Marc Palacios Domenech (megamarc@hotmail.com)
 All rights reserved.
-"""
-"""
+
 Redistribution and use in source and binary forms, with or without modification
 are permitted provided that the following conditions are met:
 
@@ -26,6 +25,9 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
+# pylint: disable=C0103
+# pylint: disable=W0614
+# pylint: disable=R0201
 from sys import platform as _platform
 from ctypes import *
 
@@ -210,6 +212,16 @@ class SpriteData(Structure):
 	]
 
 
+class TileAttributes(Structure):
+	"""
+	Data used to create Tileset objects
+	"""
+	_fields_ = [
+		("type", c_ubyte),
+		("priority", c_bool)
+	]
+
+
 class PixelMap(Structure):
 	"""
 	Data passed to Layer::set_pixel_mapping() in a list
@@ -252,8 +264,7 @@ _blend_function = CFUNCTYPE(c_ubyte, c_ubyte, c_ubyte)
 def _encode_string(string):
 	if string is not None:
 		return string.encode()
-	else:
-		return None
+	return None
 
 
 # error handling --------------------------------------------------------------
@@ -363,7 +374,7 @@ class Engine(object):
 		"""
 		Disales background color rendering. If you know that the last background layer will always
 		cover the entire screen, you can disable it to gain some performance
- 		"""
+		"""
 		_tln.TLN_DisableBGColor()
 
 	def set_background_bitmap(self, bitmap):
@@ -487,7 +498,7 @@ class Window(object):
 	def create(cls, overlay=None, flags=WindowFlags.VSYNC):
 		"""
 		Static method that creates a single-threaded window that must be used in conjunction with
-		`Window::process()` and `Window::draw_frame()` in a loop
+		`Window::process()` in a loop
 		:param overlay: name of an optional bitmap for use as overlay by the CRT effect
 		:param flags: optional flags combination of `class WindowFlags` values
 		:return: instance of the created window
@@ -498,6 +509,7 @@ class Window(object):
 		ok = _tln.TLN_CreateWindow(_encode_string(overlay), flags)
 		if ok is True:
 			_window = Window()
+			_window.num_frame = 0
 			return _window
 		else:
 			_raise_exception(ok)
@@ -527,6 +539,8 @@ class Window(object):
 		:return: True if window is active or False if the user has requested to end the application
 		(by pressing Esc key or clicking the close button)
 		"""
+		_tln.TLN_DrawFrame(self.num_frame)
+		self.num_frame += 1
 		return _tln.TLN_ProcessWindow()
 
 	def is_active(self):
@@ -546,10 +560,8 @@ class Window(object):
 
 	def draw_frame(self, num_frame=0):
 		"""
-		Draws a frame to a single-threaded window
-		:param num_frame: optional timestamp value (frame number) for animation control
+		Deprecated, kept for old source code compatibility. Subsumed by Window::process.
 		"""
-		_tln.TLN_DrawFrame(num_frame)
 
 	def wait_redraw(self):
 		"""
@@ -686,7 +698,7 @@ class Spriteset(object):
 
 
 # tilesets management ---------------------------------------------------------
-_tln.TLN_CreateTileset.argtypes = [c_int, c_int, c_int, c_void_p, c_void_p, POINTER(c_byte)]
+_tln.TLN_CreateTileset.argtypes = [c_int, c_int, c_int, c_void_p, c_void_p, POINTER(TileAttributes)]
 _tln.TLN_CreateTileset.restype = c_void_p
 _tln.TLN_LoadTileset.argtypes = [c_char_p]
 _tln.TLN_LoadTileset.restype = c_void_p
@@ -722,7 +734,7 @@ class Tileset(object):
 		self.sequence_pack = SequencePack(_tln.TLN_GetTilesetSequencePack(handle))
 
 	@classmethod
-	def create(cls, num_tiles, width, height, palette, sequence_pack=None, types=None):
+	def create(cls, num_tiles, width, height, palette, sequence_pack=None, attributes=None):
 		"""
 		Static method that creates an empty Tileset at runtime
 		:param num_tiles: number of unique tiles
@@ -730,10 +742,10 @@ class Tileset(object):
 		:param height: Height of each tile (must be multiple of 8)
 		:param palette: Palette object
 		:param sequence_pack: Optional SequencePack with associated Tileset animations
-		:param types: Optional list of bytes with the type of each tile, one tile per byte
+		:param attributes: Optional list of attributes, one element per tile in the tileset
 		:return: instance of the created object 
 		"""
-		handle = _tln.TLN_CreateTileset(num_tiles, width, height, palette, sequence_pack, types)
+		handle = _tln.TLN_CreateTileset(num_tiles, width, height, palette, sequence_pack, attributes)
 		if handle is not None:
 			return Tileset(handle)
 		else:
@@ -799,8 +811,8 @@ _tln.TLN_CloneTilemap.argtypes = [c_void_p]
 _tln.TLN_CloneTilemap.restype = c_void_p
 _tln.TLN_GetTilemapRows.argtypes = [c_void_p]
 _tln.TLN_GetTilemapRows.restype = c_int
-_tln.TLN_GetTilemapRows.argtypes = [c_void_p]
-_tln.TLN_GetTilemapRows.restype = c_int
+_tln.TLN_GetTilemapCols.argtypes = [c_void_p]
+_tln.TLN_GetTilemapCols.restype = c_int
 _tln.TLN_GetTilemapTileset.argtypes = [c_void_p]
 _tln.TLN_GetTilemapTileset.restype = c_void_p
 _tln.TLN_GetTilemapTile.argtypes = [c_void_p, c_int, c_int, POINTER(Tile)]
@@ -838,7 +850,7 @@ class Tilemap(object):
 		:param tileset: Optional reference to associated tileset
 		:return: instance of the created object 
 		"""
-		handle = _tln.TLN_CreateTilemap(rows, cols, POINTER(tiles), background_color, tileset)
+		handle = _tln.TLN_CreateTilemap(rows, cols, tiles, background_color, tileset)
 		if handle is not None:
 			return Tilemap(handle)
 		else:
@@ -877,17 +889,16 @@ class Tilemap(object):
 		:param col: Horizontal position of the tile (0 <= col < cols)
 		:param tile_info: pointer to user-provided `Tile` object where to get the data
 		"""
-		ok = _tln.TLN_GetTilemapTile(self, row, col, POINTER(tile_info))
+		ok = _tln.TLN_GetTilemapTile(self, row, col, tile_info)
 		_raise_exception(ok)
 
 	def set_tile(self, row, col, tile_info):
 		"""
-		
 		:param row: Vertical position of the tile (0 <= row < rows)
 		:param col: Horizontal position of the tile (0 <= col < cols)
 		:param tile_info: pointer to user-provided `Tile` object 
 		"""
-		ok = _tln.TLN_SetTilemapTile(self, row, col, POINTER(tile_info))
+		ok = _tln.TLN_SetTilemapTile(self, row, col, tile_info)
 		_raise_exception(ok)
 
 	def copy_tiles(self, src_row, src_col, num_rows, num_cols, dst_tilemap, dst_row, dst_col):
@@ -1320,6 +1331,7 @@ class Layer(object):
 		self._as_parameter_ = index
 		self.width = 0
 		self.height = 0
+		self.tilemap = None
 
 	def setup(self, tilemap, tileset=None):
 		"""
@@ -1331,6 +1343,7 @@ class Layer(object):
 		if ok is True:
 			self.width = _tln.TLN_GetLayerWidth(self)
 			self.height = _tln.TLN_GetLayerHeight(self)
+			self.tilemap = tilemap
 			return ok
 		else:
 			_raise_exception()
@@ -1505,6 +1518,7 @@ class Sprite(object):
 	"""
 	def __init__(self, index):
 		self._as_parameter_ = index
+		self.spriteset = None
 
 	def setup(self, spriteset, flags=0):
 		"""
@@ -1513,6 +1527,7 @@ class Sprite(object):
 		:param flags: Optional combination of defined class Flag::xxx values, 0 by default
 		"""
 		ok = _tln.TLN_ConfigSprite(self, spriteset, flags)
+		self.spriteset = spriteset
 		_raise_exception(ok)
 
 	def set_spriteset(self, spriteset):
@@ -1521,6 +1536,7 @@ class Sprite(object):
 		:param spriteset: Spriteset object with the graphic data of the sprites 
 		"""
 		ok = _tln.TLN_SetSpriteSet(self, spriteset)
+		self.spriteset = spriteset
 		_raise_exception(ok)
 
 	def set_flags(self, flags):
@@ -1550,8 +1566,8 @@ class Sprite(object):
 		if param_type is int:
 			ok = _tln.TLN_SetSpritePicture(self, picture)
 		elif param_type is str:
-			entry = _tln.TLN_FindSpritesetSprite(picture)
-			if entry is not -1:
+			entry = _tln.TLN_FindSpritesetSprite(self.spriteset, picture)
+			if entry != -1:
 				ok = _tln.TLN_SetSpritePicture(self, entry)
 			else:
 				return

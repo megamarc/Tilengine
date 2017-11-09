@@ -43,7 +43,6 @@ while window.process():
 		columns[n] = int(sin(radians(x_world * 4 + n * 7)) * ((abs(sin(radians(x_world / 4)) * 12)) + 4))
 	foreground.set_position(x_world, 0)
 	background.set_position(x_world / 4, 0)
-	window.draw_frame()
 	x_world += 2
 
 # release resources

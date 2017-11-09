@@ -72,7 +72,4 @@ while window.process():
 	foreground.set_scaling(fgscale, fgscale)
 	background.set_scaling(bgscale, bgscale)
 
-	# render to the window
-	window.draw_frame()
-
 engine.delete()

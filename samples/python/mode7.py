@@ -93,7 +93,4 @@ while window.process():
 
 	affine.angle = angle
 
-	# render to window
-	window.draw_frame()
-
 engine.delete()

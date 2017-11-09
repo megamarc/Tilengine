@@ -53,6 +53,7 @@ typedef enum
 {
 	PROPERTY_NONE,
 	PROPERTY_TYPE,
+	PROPERTY_PRIORITY,
 }
 Property;
 
@@ -66,7 +67,7 @@ struct
 	int margin;
 	int tile_id;
 	Property property;
-	uint8_t* tile_types;
+	TLN_TileAttributes* attributes;
 	TLN_SequencePack sp;
 	TLN_SequenceFrame frames[100];
 	int frame_count;
@@ -102,8 +103,9 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 			else if (!strcasecmp(szAttribute, "tilecount"))
 			{
 				const int tilecount = atoi(szValue);
-				loader.tile_types = malloc(tilecount);
-				memset (loader.tile_types, 0, tilecount);
+				const int size_attribs = tilecount * sizeof(TLN_TileAttributes);
+				loader.attributes = malloc(size_attribs);
+				memset (loader.attributes, 0, size_attribs);
 			}
 		}
 
@@ -128,13 +130,22 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 			{
 				if (!strcasecmp(szValue, "type"))
 					loader.property = PROPERTY_TYPE;
+				else if (!strcasecmp(szValue, "priority"))
+					loader.property = PROPERTY_PRIORITY;
 				else
 					loader.property = PROPERTY_NONE;
 			}
 			else if (!strcasecmp(szAttribute, "value"))
 			{
 				if (loader.property == PROPERTY_TYPE)
-					loader.tile_types[loader.tile_id] = atoi(szValue);
+					loader.attributes[loader.tile_id].type = atoi(szValue);
+				else if (loader.property == PROPERTY_PRIORITY)
+				{
+					if (!strcasecmp(szValue, "true"))
+						loader.attributes[loader.tile_id].priority = true;
+					else
+						loader.attributes[loader.tile_id].priority = true;
+				}
 			}
 		}
 
@@ -244,7 +255,7 @@ TLN_Tileset TLN_LoadTileset (const char* filename)
 	dy = loader.tileheight + loader.spacing;
 	htiles = (TLN_GetBitmapWidth(bitmap) - loader.margin*2 + loader.spacing) / dx;
 	vtiles = (TLN_GetBitmapHeight(bitmap) - loader.margin*2 + loader.spacing) / dy;
-	tileset = TLN_CreateTileset (htiles*vtiles, loader.tilewidth, loader.tileheight, TLN_ClonePalette(TLN_GetBitmapPalette(bitmap)), loader.sp, loader.tile_types);
+	tileset = TLN_CreateTileset (htiles*vtiles, loader.tilewidth, loader.tileheight, TLN_ClonePalette(TLN_GetBitmapPalette(bitmap)), loader.sp, loader.attributes);
 	pitch = TLN_GetBitmapPitch (bitmap);
 
 	/* load tiles */
@@ -258,8 +269,8 @@ TLN_Tileset TLN_LoadTileset (const char* filename)
 	}
 
 	TLN_DeleteBitmap (bitmap);
-	if (loader.tile_types != NULL)
-		free (loader.tile_types);
+	if (loader.attributes != NULL)
+		free (loader.attributes);
 
 	TLN_SetLastError (TLN_ERR_OK);
 	return tileset;
