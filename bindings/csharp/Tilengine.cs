@@ -177,6 +177,16 @@ namespace Tilengine
     }
 
     /// <summary>
+    /// Tileset attributes for Tileset constructor
+    /// </summary>
+    [StructLayoutAttribute(LayoutKind.Sequential)]
+	public struct TileAttributes
+	{
+		public byte type;		// type of tile
+		public bool priority;	// priority bit set
+	}
+
+    /// <summary>
     /// 
     /// </summary>
     [StructLayoutAttribute(LayoutKind.Sequential)]
@@ -1479,7 +1489,7 @@ namespace Tilengine
         internal IntPtr ptr;
 
         [DllImport("Tilengine")]
-        private static extern IntPtr TLN_CreateTileset(int numtiles, int width, int height, IntPtr palette, IntPtr sequencepack, byte[] types);
+        private static extern IntPtr TLN_CreateTileset(int numtiles, int width, int height, IntPtr palette, IntPtr sequencepack, TileAttributes[] attributes);
 
         [DllImport("Tilengine")]
         private static extern IntPtr TLN_LoadTileset(string filename);
@@ -1529,9 +1539,9 @@ namespace Tilengine
         /// <param name="palette"></param>
         /// <param name="palette"></param>
         /// <param name="palette"></param>
-        public Tileset(int numTiles, int width, int height, Palette palette, SequencePack sp, byte[] types)
+        public Tileset(int numTiles, int width, int height, Palette palette, SequencePack sp, TileAttributes[] attributes)
         {
-            IntPtr retval = TLN_CreateTileset(numTiles, width, height, palette.ptr, sp.ptr, types);
+            IntPtr retval = TLN_CreateTileset(numTiles, width, height, palette.ptr, sp.ptr, attributes);
             if (retval != IntPtr.Zero)
                 ptr = retval;
             else
