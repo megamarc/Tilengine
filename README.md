@@ -25,7 +25,7 @@ Open a console window in Tilengine root directory  and type the suitable command
 ### Windows (any architecture)
 ```> install```
 ### Unix-like (Linux, Raspberry Pi, Apple OS X)
-```> ./sudo install```
+```> sudo ./install```
 
 **Note for OS X users**: Tilengine depends on having SDL2 in Framework format installed on your system, that by default is not installed. Please download it here: https://www.libsdl.org/release/SDL2-2.0.5.dmg. Homebrew port won't work, use the official DMG file instead.
 ## Running the samples
