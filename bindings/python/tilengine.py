@@ -1,4 +1,17 @@
 """
+Python wrapper for Tilengine retro graphics engine
+Updated to library version 1.17.0
+http://www.tilengine.org
+"""
+
+# pylint: disable=C0103
+# pylint: disable=W0614
+# pylint: disable=W0312
+# pylint: disable=R0201
+from sys import platform as _platform
+from ctypes import *
+
+"""
 Tilengine - 2D Graphics library with raster effects
 Copyright (c) 2015-2017 Marc Palacios Domenech (megamarc@hotmail.com)
 All rights reserved.
@@ -24,20 +37,6 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
-
-# pylint: disable=C0103
-# pylint: disable=W0614
-# pylint: disable=W0312
-# pylint: disable=R0201
-from sys import platform as _platform
-from ctypes import *
-
-"""
-Python wrapper for Tilengine retro graphics engine
-Updated to library version 1.17.0
-http://www.tilengine.org
-"""
-
 
 # constants --------------------------------------------------------------------
 
@@ -66,7 +65,7 @@ class Flags(object):
 
 class Error(object):
 	"""
-	List of possible error codes returned by :py:meth:`Engine.get_last_error()`
+	List of possible error codes returned by :meth:`Engine.get_last_error()`
 	"""
 	OK = 0	# No error
 	OUT_OF_MEMORY = 1  # Not enough memory
@@ -105,7 +104,7 @@ class Blend(object):
 
 class Input(object):
 	"""
-	Available inputs to query in :py:meth:`Window.get_input`
+	Available inputs to query in :meth:`Window.get_input`
 	"""
 	NONE = 0
 	UP = 1
@@ -144,6 +143,9 @@ class TilengineException(Exception):
 class Tile(Structure):
 	"""
 	Tile data contained in each cell of a Tilemap object
+
+	:attr:`index`: tile index
+	:attr:`flags`: sum of :class:`Flags` values
 	"""
 	_fields_ = [
 		("index", c_ushort),
@@ -175,7 +177,7 @@ class SequenceFrame(Structure):
 
 class SpriteInfo(Structure):
 	"""
-	Data returned by :py:meth:`Spriteset.get_sprite_info` with dimensions of the required sprite
+	Data returned by :meth:`Spriteset.get_sprite_info` with dimensions of the required sprite
 	"""
 	_fields_ = [
 		("w", c_int),
@@ -185,7 +187,7 @@ class SpriteInfo(Structure):
 
 class TileInfo(Structure):
 	"""
-	Data returned by :py:meth:`Layer.get_tile` about a given tile inside a background layer
+	Data returned by :meth:`Layer.get_tile` about a given tile inside a background layer
 	"""
 	_fields_ = [
 		("index", c_ushort),
@@ -225,7 +227,7 @@ class TileAttributes(Structure):
 
 class PixelMap(Structure):
 	"""
-	Data passed to :py:meth:`Layer.set_pixel_mapping` in a list
+	Data passed to :meth:`Layer.set_pixel_mapping` in a list
 	"""
 	_fields_ = [
 		("dx", c_short),
@@ -312,9 +314,9 @@ class Engine(object):
 	:ivar version: library version number
 	"""
 	def __init__(self, num_layers, num_sprites, num_animations):
-		self.layers = [Layer(n) for n in range(num_layers)]
-		self.sprites = [Sprite(n) for n in range(num_sprites)]
-		self.animations = [Animation(n) for n in range(num_animations)]
+		self.layers = tuple([Layer(n) for n in range(num_layers)])
+		self.sprites = tuple([Sprite(n) for n in range(num_sprites)])
+		self.animations = tuple([Animation(n) for n in range(num_animations)])
 		self.version = _tln.TLN_GetVersion()
 		self.cb_raster_func = None
 		self.cb_blend_func = None
@@ -365,8 +367,8 @@ class Engine(object):
 		"""
 		Sets the background color
 
-		:param param: can be a Color object or a Tilemap object. In this case,
-		it assigns de background color as defined inside the tilemap
+		:param param: can be a Color object or a Tilemap object. In this case, \
+			it assigns de background color as defined inside the tilemap
 		"""
 		param_type = type(param)
 		if param_type is Color:
@@ -378,7 +380,7 @@ class Engine(object):
 		"""
 		Disales background color rendering. If you know that the last background layer will always
 		cover the entire screen, you can disable it to gain some performance
-		 """
+		"""
 		_tln.TLN_DisableBGColor()
 
 	def set_background_bitmap(self, bitmap):
@@ -393,7 +395,7 @@ class Engine(object):
 	def set_background_palette(self, palette):
 		"""
 		Sets the palette for the background bitmap. By default it is assigned the palette
-		of the bitmap passed in :py:meth:`Engine.set_background_bitmap`
+		of the bitmap passed in :meth:`Engine.set_background_bitmap`
 
 		:param palette: Palette object to set
 		"""
@@ -404,12 +406,16 @@ class Engine(object):
 		"""
 		Enables raster effects processing, where any render parameter can be modified mid frame, between scanlines.
 
-		:param raster_callback: name of the user-defined function to call for each scanline. Set None to disable.
-		This function takes one integer parameter that indicates the current scanline, between 0 and vertical resolution::
+		:param raster_callback: name of the user-defined function to call for each scanline. Set None to disable. \
+			This function takes one integer parameter that indicates the current scanline, between 0 and vertical resolution.
 
-			# raster callback example
-			def raster_callback(num_scanline):
-			    # do something depending on the value of num_scanline
+		Example::
+
+			def my_raster_callback(num_scanline):
+			    if num_scanline is 32:
+			        engine.set_background_color(Color(0,0,0))
+
+			engine.set_raster_callback(my_raster_callback)
 		"""
 		self.cb_raster_func = _raster_callback_function(raster_callback)
 		_tln.TLN_SetRasterCallback(self.cb_raster_func)
@@ -433,8 +439,8 @@ class Engine(object):
 
 	def begin_frame(self, num_frame=0):
 		"""
-		Starts active rendering of the current frame, istead of the callback-based :py:meth:`Engine.update_frame`.
-		Used in conjunction with :py:meth:`Engine.draw_next_scanline`
+		Starts active rendering of the current frame, istead of the callback-based :meth:`Engine.update_frame`.
+		Used in conjunction with :meth:`Engine.draw_next_scanline`
 
 		:param num_frame: optional timestamp value (frame number) for animation control
 		"""
@@ -442,7 +448,7 @@ class Engine(object):
 
 	def draw_next_scanline(self):
 		"""
-		Draws the next scanline of the frame started with :py:meth:`Engine.begin_frame` or :py:meth:`Window.begin_frame`
+		Draws the next scanline of the frame started with :meth:`Engine.begin_frame` or :meth:`Window.begin_frame`
 
 		:return: True if there are still lines to be drawn, or False when the frame is camplete.
 		"""
@@ -459,15 +465,19 @@ class Engine(object):
 	def set_custom_blend_function(self, blend_function):
 		"""
 		Sets custom blend function to use in sprites or background layers when `BLEND_CUSTOM` mode
-		is selected with the :py:meth:`Layer.set_blend_mode` and :py:meth:`Sprite.set_blend_mode` methods.
+		is selected with the :meth:`Layer.set_blend_mode` and :meth:`Sprite.set_blend_mode` methods.
 
-		:param blend_function: name of the user-defined function to call when blending that takes
-		two integer arguments: source component intensity, destination component intensity, and returns
-		the desired intensity.::
+		:param blend_function: name of the user-defined function to call when blending that takes \
+			two integer arguments: source component intensity, destination component intensity, and returns \
+			the desired intensity.
 
-			# do 50%/50% blending example
-			def blend_function(src, dst):
+		Example::
+
+			# do 50%/50% blending
+			def blend_50(src, dst):
 			    return (src + dst) / 2
+
+			engine.set_custom_blend_function(blend_50)
 		"""
 		self.cb_blend_func = _blend_function(blend_function)
 		_tln.TLN_SetCustomBlendFunction(self.cb_blend_func)
@@ -515,10 +525,10 @@ class Window(object):
 	def create(cls, overlay=None, flags=WindowFlags.VSYNC):
 		"""
 		Static method that creates a single-threaded window that must be used in conjunction with
-		:py:meth:`Window.process` in a loop
+		:meth:`Window.process` in a loop
 
 		:param overlay: name of an optional bitmap for use as overlay by the CRT effect
-		:param flags: optional flags combination of `class WindowFlags` values
+		:param flags: optional flags combination of :class:`WindowFlags` values
 		:return: instance of the created window
 		"""
 		global _window
@@ -539,7 +549,7 @@ class Window(object):
 		Used mainly in python interactive console
 
 		:param overlay: name of an optional bitmap for use as overlay by the CRT effect
-		:param flags: optional flags combination of `class WindowFlags` values
+		:param flags: optional flags combination of :class:`WindowFlags` values
 		"""
 		global _window
 		if _window is not None:
@@ -553,7 +563,7 @@ class Window(object):
 
 	def process(self):
 		"""
-		Does basic window housekeeping in signgle-threaded window, created with :py:meth:`Window.create`.
+		Does basic window housekeeping in signgle-threaded window, created with :meth:`Window.create`.
 		This method must be called in a loop by the main thread.
 		:return: True if window is active or False if the user has requested to end the application
 		(by pressing Esc key or clicking the close button)
@@ -564,8 +574,8 @@ class Window(object):
 
 	def is_active(self):
 		"""
-		:return: True if window is active or False if the user has requested to end the application
-		(by pressing Esc key or clicking the close button)
+		:return: True if window is active or False if the user has requested to end the application \
+			(by pressing Esc key or clicking the close button)
 		"""
 		return _tln.TLN_IsWindowActive()
 
@@ -573,14 +583,14 @@ class Window(object):
 		"""
 		Returns the state of a given input
 
-		:param input_id: one of the `class Input` defined values
+		:param input_id: one of the :class:`Input` defined values
 		:return: True if that input is pressed or False if not
 		"""
 		return _tln.TLN_GetInput(input_id)
 
 	def draw_frame(self, num_frame=0):
 		"""
-		Deprecated, kept for old source code compatibility. Subsumed by :py:meth:`Window.process`.
+		Deprecated, kept for old source code compatibility. Subsumed by :meth:`Window.process`.
 		"""
 
 	def wait_redraw(self):
@@ -593,7 +603,7 @@ class Window(object):
 		"""
 		Enables CRT simulation post-processing effect to give true retro appearance. Enabled by default.
 
-		:param overlay_id: One of the defined `class Overlay` values. Choosing `Overlay::CUSTOM` selects the image passed when calling :py:meth:`Window.create`
+		:param overlay_id: One of the defined :class:`Overlay` values. Choosing `Overlay.CUSTOM` selects the image passed when calling :meth:`Window.create`
 		:param overlay_blend: blend factor for overlay image. 0 is full transparent (no effect), 255 is full blending
 		:param threshold: Middle point of the brightness mapping function
 		:param v0: output brightness when input brightness = 0
@@ -607,7 +617,7 @@ class Window(object):
 
 	def disable_crt_effect(self):
 		"""
-		Disables the CRT post-processing effect enabled with :py:meth:`Window.enable_crt_effect`
+		Disables the CRT post-processing effect enabled with :meth:`Window.enable_crt_effect`
 		"""
 		_tln.TLN_DisableCRTEffect()
 
@@ -627,7 +637,7 @@ class Window(object):
 
 	def begin_frame(self, num_frame):
 		"""
-		Begins active rendering frame to the window
+		Begins active rendering frame to the window, used in tandem with :meth:`Engine.draw_next_scanline` and :meth:`Window.end_frame`
 
 		:param num_frame: optional timestamp value (frame number) for animation control
 		"""
@@ -635,7 +645,7 @@ class Window(object):
 
 	def end_frame(self):
 		"""
-		Finishes rendering the current frame and updates the window
+		Finishes rendering the current frame and updates the window, used in tandem with :meth:`Window.begin_frame` and :meth:`Engine.draw_next_scanline`
 		"""
 		_tln.TLN_EndWindowFrame()
 
@@ -904,8 +914,8 @@ class Tilemap(object):
 		Static method that loads a Tiled TMX tilemap from file
 
 		:param filename: TMX file with the tilemap
-		:param layer_name: Optional name of the layer to load when the TMX file has more than one layer.
-		By default it loads the first layer inside the TMX
+		:param layer_name: Optional name of the layer to load when the TMX file has more than one layer. \
+			By default it loads the first layer inside the TMX
 		:return: instance of the created object
 		"""
 		handle = _tln.TLN_LoadTilemap(_encode_string(filename), _encode_string(layer_name))
@@ -1492,7 +1502,7 @@ class Layer(object):
 		"""
 		Enables blending mode with background objects
 
-		:param mode: One of the class Blend::xxx defined values
+		:param mode: One of the :class:`Blend` defined values
 		"""
 		ok = _tln.TLN_SetLayerBlendMode(self, mode, 0)
 		_raise_exception(ok)
@@ -1622,7 +1632,7 @@ class Sprite(object):
 		Enables a sprite by setting its Spriteset and optional flags
 
 		:param spriteset: Spriteset object with the graphic data of the sprites
-		:param flags: Optional combination of defined class Flag::xxx values, 0 by default
+		:param flags: Optional combination of defined :class:`Flag` values, 0 by default
 		"""
 		ok = _tln.TLN_ConfigSprite(self, spriteset, flags)
 		self.spriteset = spriteset
@@ -1642,7 +1652,7 @@ class Sprite(object):
 		"""
 		Sets modification flags
 
-		:param flags: Combination of defined class Flag::xxx values
+		:param flags: Combination of defined :class:`Flag` values
 		"""
 		ok = _tln.TLN_SetSpriteFlags(self, flags)
 		_raise_exception(ok)
@@ -1690,7 +1700,7 @@ class Sprite(object):
 		"""
 		Enables blending mode with background objects
 
-		:param mode: One of the class Blend::xxx defined values
+		:param mode: One of the :class:`Blend` defined values
 		"""
 		ok = _tln.TLN_SetSpriteBlendMode(self, mode)
 		_raise_exception(ok)
@@ -1731,7 +1741,7 @@ class Sprite(object):
 
 	def check_collision(self):
 		"""
-		Gets the collision status of the sprite. Requires :py:meth:`Sprite.enable_collision` set to True
+		Gets the collision status of the sprite. Requires :meth:`Sprite.enable_collision` set to True
 
 		:return: True if collision with another sprite detected, or False if not
 		"""
