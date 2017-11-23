@@ -9,7 +9,6 @@ This sections contains every class used in the Tilengine python wrapper API, gro
 Main object for engine creation and rendering
 
 * :meth:`Engine.create`
-* :meth:`Engine.delete`
 * :meth:`Engine.get_num_objects`
 * :meth:`Engine.get_used_memory`
 * :meth:`Engine.set_background_color`
@@ -35,6 +34,10 @@ Built-in window manager for easy setup and testing
 * :meth:`Window.process`
 * :meth:`Window.is_active`
 * :meth:`Window.get_input`
+* :meth:`Window.enable_input`
+* :meth:`Window.assign_joystick`
+* :meth:`Window.define_input_key`
+* :meth:`Window.define_input_button`
 * :meth:`Window.wait_redraw`
 * :meth:`Window.enable_crt_effect`
 * :meth:`Window.disable_crt_effect`
@@ -105,7 +108,6 @@ The Tilemap object holds the grid of tiles that define the background layout
 * :meth:`Tilemap.get_tile`
 * :meth:`Tilemap.set_tile`
 * :meth:`Tilemap.copy_tiles`
-* :meth:`Tilemap.delete`
 
 :class:`Tileset`
 ----------------------------
@@ -116,7 +118,6 @@ The Tileset object holds the graphic tiles used to render background layers from
 * :meth:`Tileset.clone`
 * :meth:`Tileset.set_pixels`
 * :meth:`Tileset.copy_tile`
-* :meth:`Tileset.delete`
 
 :class:`Spriteset`
 ----------------------------
@@ -126,7 +127,6 @@ The Spriteset object holds the graphic data used to render moving objects (sprit
 * :meth:`Spriteset.fromfile`
 * :meth:`Spriteset.clone`
 * :meth:`Spriteset.get_info`
-* :meth:`Spriteset.delete`
 
 :class:`Bitmap`
 ----------------------------
@@ -136,7 +136,6 @@ The Bitmap object holds graphic data used to build in backgrounds, Tileset and S
 * :meth:`Bitmap.fromfile`
 * :meth:`Bitmap.clone`
 * :meth:`Bitmap.get_data`
-* :meth:`Bitmap.delete`
 
 :class:`Palette`
 ----------------------------
@@ -150,7 +149,6 @@ The Palette object holds the color tables used by tileesets and spritesets to re
 * :meth:`Palette.add_color`
 * :meth:`Palette.sub_color`
 * :meth:`Palette.mod_color`
-* :meth:`Palette.delete`
 
 :class:`SequencePack`
 ----------------------------
@@ -160,7 +158,6 @@ The SequencePack object holds a collection of Sequence objects
 * :meth:`SequencePack.fromfile`
 * :meth:`SequencePack.find_sequence`
 * :meth:`SequencePack.add_sequence`
-* :meth:`SequencePack.delete`
 
 :class:`Sequence`
 ----------------------------
@@ -169,7 +166,6 @@ The Sequence object holds the sequences to feed the animation engine
 * :meth:`Sequence.create_sequence`
 * :meth:`Sequence.create_cycle`
 * :meth:`Sequence.clone`
-* :meth:`Sequence.delete`
 
 Miscellaneous classes
 ----------------------------

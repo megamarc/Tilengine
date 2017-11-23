@@ -1,5 +1,7 @@
 ![Tilengine logo](Tilengine.png)
 # Tilengine - The 2D retro graphics engine
+[![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)
+
 Tilengine is a free, cross-platform 2D graphics engine for creating classic/retro games with tile maps, sprites and palettes. Its unique scanline-based rendering algorithm makes raster effects a core feature, a technique used by many games running on real 2D graphics chips.
 
 ## Features
@@ -90,20 +92,20 @@ void main(void)
 {
     TLN_Tilemap foreground;
     int frame = 0;
-    
+
     TLN_Init (400,240,1,0,20);
     TLN_SetLoadPath ("../assets/sonic");
     foreground = TLN_LoadTilemap ("sonic_md_fg1.tmx", NULL);
     TLN_SetLayer (0, NULL, foreground);
-    
+
     TLN_CreateWindow (NULL, 0);
     while (TLN_ProcessWindow())
     {
         TLN_DrawFrame (frame);
-        frame += 1;     
+        frame += 1;
     }
-    
-    TLN_Deinit ();  
+
+    TLN_Deinit ();
 }
 ```
 Now the program must be built to produce an executable. Open a console window in the C samples folder and type the suitable command for your platform:
@@ -126,21 +128,17 @@ Now the program must be built to produce an executable. Open a console window in
 Create a file called `test.py` in `Tilengine/samples/python` folder, and type the following code:
 ```python
 import tilengine as tln
-    
-engine = tln.Engine.create(400,240,1,0,20)
+
+engine = tln.Engine.create(400, 240, 1, 0, 20)
 engine.set_load_path("../assets/sonic")
 foreground = tln.Tilemap.fromfile("sonic_md_fg1.tmx")
 engine.layers[0].setup(foreground)
 
-frame = 0
 window = tln.Window.create()
 while window.process():
     window.draw_frame(frame)
-    frame += 1
-
-engine.delete()
 ```
-Python doesn't need separate build/run steps, and unlike C language, the procedure is the same for any platform. Just open a console window in the python samples folder and type the following command:
+Python does not need separate build/run steps, and unlike C language, the procedure is the same for any platform. Just open a console window in the python samples folder and type the following command:
 ```
 > python test.py
 ```
@@ -157,7 +155,7 @@ class Test
         engine.LoadPath = "../assets/sonic";
         Tilemap background = Tilemap.FromFile("Sonic_md_fg1.tmx", null);
         engine.Layers[0].SetMap(background);
-        
+
         int frame = 0;
         Window window = Window.Create(null, 0);
         while (window.Process ())
