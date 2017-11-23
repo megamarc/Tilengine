@@ -10,6 +10,8 @@ frame = 0
 basepos = 0
 speed = 0
 pos_background = [0, 0, 0, 0, 0, 0]
+background_colors = [Color(28, 0, 140),
+			 		 Color(0, 128, 238)]
 
 
 # linear interpolation
@@ -45,9 +47,9 @@ def raster_effect(line):
 		background.set_position(pos, 0)
 
 	if line is 0:
-		engine.set_background_color(Color(28, 0, 140))
+		engine.set_background_color(background_colors[0])
 	elif line is 144:
-		engine.set_background_color(Color(0, 128, 238))
+		engine.set_background_color(background_colors[1])
 
 
 # initialise 400x240 resolution, 2 background layers, no sprites and 20 animation slots
@@ -62,10 +64,9 @@ setup_layer(background, "Sonic_md_bg1.tmx")
 
 # color cycle animation for water
 sequence_pack = SequencePack.fromfile("Sonic_md_seq.sqx")
-sequence = sequence_pack.find_sequence("seq_water")
-palette = background.get_palette();
+palette = background.tilemap.tileset.palette
 animation = engine.get_available_animation()
-engine.animations[animation].set_palette_animation(palette, sequence, True);
+engine.animations[animation].set_palette_animation(palette, sequence_pack.sequences["seq_water"], True);
 
 # setup raster callback
 engine.set_raster_callback(raster_effect)
@@ -96,5 +97,3 @@ while window.process():
 	pos_background[3] = basepos * 0.625
 	pos_background[4] = basepos * 1.000
 	pos_background[5] = basepos * 2.000
-
-engine.delete()

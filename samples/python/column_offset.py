@@ -44,6 +44,3 @@ while window.process():
 	foreground.set_position(x_world, 0)
 	background.set_position(x_world / 4, 0)
 	x_world += 2
-
-# release resources
-engine.delete()

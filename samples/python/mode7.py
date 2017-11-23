@@ -92,5 +92,3 @@ while window.process():
 		pos_y -= (cos(rad) * speed)
 
 	affine.angle = angle
-
-engine.delete()

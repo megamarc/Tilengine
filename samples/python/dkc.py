@@ -6,20 +6,20 @@ from tilengine import *
 WIDTH = 400
 HEIGHT = 240
 
-bg_colors = (
-	Color(0x00, 0x00, 0x32),
-	Color(0xf8, 0xf8, 0xf0),
-	Color(0xd8, 0xd0, 0x70),
-	Color(0x40, 0x68, 0x48),
-	Color(0x00, 0x00, 0x00),
-	Color(0x00, 0x28, 0x00),
-	Color(0x00, 0x00, 0x00))
+bg_colors = [
+	Color.fromstring("#000032"),
+	Color.fromstring("#f8f8f0"),
+	Color.fromstring("#d8d070"),
+	Color.fromstring("#406848"),
+	Color.fromstring("#000000"),
+	Color.fromstring("#002800"),
+	Color.fromstring("#000000")]
 
-bg3_colors = (
-	Color(0x68, 0x80, 0x60),
-	Color(0x28, 0x30, 0x28),
-	Color(0x20, 0x40, 0x20),
-	Color(0x00, 0x00, 0x00))
+bg3_colors = [
+	Color.fromstring("#688060"),
+	Color.fromstring("#283028"),
+	Color.fromstring("#204020"),
+	Color.fromstring("#000000")]
 
 
 # load layer assets and basic setup
@@ -31,7 +31,7 @@ def setup_layer(layer, name):
 
 # linear interpolation
 def lerp(x, x0, x1, fx0, fx1):
-	return fx0 + (fx1 - fx0) * (x - x0) / (x1 - x0)
+	return fx0 + (fx1 - fx0) * (x - x0) // (x1 - x0)
 
 
 # interpolates a color between other two
@@ -142,5 +142,3 @@ while window.process():
 	y_world = clamp(y_world, 0, max_y)
 	bg1.set_position(x_world, y_world)
 	bg2.set_position(x_world / 2, y_world / 3)
-
-engine.delete()

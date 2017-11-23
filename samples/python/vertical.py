@@ -32,8 +32,8 @@ def lerp(x, x0, x1, fx0, fx1):
 def raster_effect(line):
 	if line >= SKY_HEIGHT:
 		line -= SKY_HEIGHT
-		clouds.set_position(0, world_y * 2 + rows[line] - line)
-		terrain.set_position(0, world_y / 2 + rows[line] - line)
+		clouds.set_position(0, world_y * 2 + row_offsets[line] - line)
+		terrain.set_position(0, world_y / 2 + row_offsets[line] - line)
 
 
 # init
@@ -57,12 +57,10 @@ engine.set_background_color(Color(0, 0, 0))
 engine.set_raster_callback(raster_effect)
 
 # precalc raster effect values and store in rows list
-rows = [int(tan(radians(lerp(n, 0, LAND_HEIGHT, 105.0, 180.0))) * 240) for n in range(LAND_HEIGHT)]
+row_offsets = [int(tan(radians(lerp(n, 0, LAND_HEIGHT, 105.0, 180.0))) * 240) for n in range(LAND_HEIGHT)]
 
 # main loop
 world_y = terrain.height - HEIGHT
 window = Window.create()
 while window.process():
 	world_y -= 1
-
-engine.delete()

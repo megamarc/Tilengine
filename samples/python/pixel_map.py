@@ -37,5 +37,3 @@ foreground.set_pixel_mapping(pixel_map)
 window = Window.create()
 while window.process():
 	foreground.set_position(40, window.num_frame)
-
-engine.delete()

@@ -21,7 +21,7 @@ elif [ $name == "Darwin" ]; then
 	library="Tilengine.dylib"
 	incpath="/usr/local/include"
 	srcpath="darwin_x86_64"
-	libpath="/usr/lib/x86_64-linux-gnu"
+	libpath="/usr/local/lib"
 	mkdir -p $incpath
 	mkdir -p $libpath
 fi

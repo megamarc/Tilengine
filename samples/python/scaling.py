@@ -71,5 +71,3 @@ while window.process():
 	background.set_position(xpos, bgypos)
 	foreground.set_scaling(fgscale, fgscale)
 	background.set_scaling(bgscale, bgscale)
-
-engine.delete()

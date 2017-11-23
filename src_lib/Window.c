@@ -42,6 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef TLN_EXCLUDE_WINDOW
+#define MAX_PLAYERS	4		/* number of unique players */
+#define MAX_INPUTS	16		/* number of inputs per player */
 
 #include <string.h>
 #include "SDL2/SDL.h"
@@ -68,8 +70,22 @@ static int			 instances = 0;
 static uint8_t*		 rt_pixels;
 static int			 rt_pitch;
 
-static int			inputs;
 static int			last_key;
+
+/* player input */
+typedef struct
+{
+	bool enabled;
+	uint8_t joystick_id;
+	SDL_Joystick* joy;
+	SDL_Keycode keycodes[MAX_INPUTS];
+	uint8_t joybuttons[MAX_INPUTS];
+	uint16_t inputs;
+}
+PlayerInput;
+
+static PlayerInput player_inputs[MAX_PLAYERS];
+
 
 /* CRT effect */
 struct
@@ -247,11 +263,28 @@ static bool CreateWindow (void)
 
 	done = false;
 
+	/* Default input PLAYER 1 */
+	TLN_EnableInput (PLAYER1, true);
+	TLN_DefineInputKey (PLAYER1, INPUT_UP,      SDLK_UP);
+	TLN_DefineInputKey (PLAYER1, INPUT_DOWN,    SDLK_DOWN);
+	TLN_DefineInputKey (PLAYER1, INPUT_LEFT,    SDLK_LEFT);
+	TLN_DefineInputKey (PLAYER1, INPUT_RIGHT,   SDLK_RIGHT);
+	TLN_DefineInputKey (PLAYER1, INPUT_BUTTON1, SDLK_z);
+	TLN_DefineInputKey (PLAYER1, INPUT_BUTTON2, SDLK_x);
+	TLN_DefineInputKey (PLAYER1, INPUT_BUTTON3, SDLK_c);
+	TLN_DefineInputKey (PLAYER1, INPUT_BUTTON4, SDLK_v);
+	TLN_DefineInputKey (PLAYER1, INPUT_START,   SDLK_RETURN);
+
 	/* joystick */
 	if (SDL_NumJoysticks () > 0)
 	{
-	    joy = SDL_JoystickOpen(0);
 		SDL_JoystickEventState (SDL_ENABLE);
+		TLN_AssignInputJoystick (PLAYER1, 0);
+		TLN_DefineInputButton (PLAYER1, INPUT_BUTTON1, 1);
+		TLN_DefineInputButton (PLAYER1, INPUT_BUTTON2, 0);
+		TLN_DefineInputButton (PLAYER1, INPUT_BUTTON3, 2);
+		TLN_DefineInputButton (PLAYER1, INPUT_BUTTON4, 3);
+		TLN_DefineInputButton (PLAYER1, INPUT_START,   5);
 	}
 
 	return true;
@@ -474,16 +507,87 @@ void TLN_DeleteWindow (void)
 }
 
 /* marks input as pressed */
-static void SetInput (int input)
+static void SetInput (uint8_t player, uint16_t input)
 {
-	inputs |= (1 << input);
+	player_inputs[player].inputs |= (1 << input);
 	last_key = input;
 }
 
 /* marks input as unpressed */
-static void ClrInput (int input)
+static void ClrInput (uint8_t player, uint16_t input)
 {
-	inputs &= ~(1 << input);
+	player_inputs[player].inputs &= ~(1 << input);
+}
+
+/* process keyboard input */
+static void ProcessKeycodeInput (uint8_t player, SDL_Keycode keycode, uint8_t state)
+{
+	int c;
+	PlayerInput* player_input = &player_inputs[player];
+	TLN_Input input = INPUT_NONE;
+	
+	/* search input */
+	for (c=INPUT_UP; c<MAX_INPUTS && input == INPUT_NONE; c++)
+	{
+		if (player_input->keycodes[c] == keycode)
+			input = (TLN_Input)c;
+	}
+
+	/* update */
+	if (input != INPUT_NONE)
+	{
+		if (state == SDL_PRESSED)
+			SetInput (player, input);
+		else
+			ClrInput (player, input);
+	}
+}
+
+/* process joystick button input */
+static void ProcessJoybuttonInput (uint8_t player, uint8_t button, uint8_t state)
+{
+	int c;
+	PlayerInput* player_input = &player_inputs[player];
+	TLN_Input input = INPUT_NONE;
+
+	/* search input */
+	for (c=INPUT_BUTTON1; c<MAX_INPUTS && input == INPUT_NONE; c++)
+	{
+		if (player_input->joybuttons[c] == button)
+			input = (TLN_Input)c;
+	}
+
+	/* update */
+	if (input != INPUT_NONE)
+	{
+		if (state == SDL_PRESSED)
+			SetInput (player, input);
+		else
+			ClrInput (player, input);
+	}
+}
+
+/* process joystic axis input */
+static void ProcessJoyaxisInput (uint8_t player, uint8_t axis, int value)
+{
+	if (axis == 0)
+	{
+		ClrInput (player, INPUT_LEFT);
+		ClrInput (player, INPUT_RIGHT);
+		if (value > 1000)
+			SetInput (player, INPUT_RIGHT);
+		else if (value < -1000)
+			SetInput (player, INPUT_LEFT);
+	}
+	else if (axis == 1)
+	{
+		ClrInput (player, INPUT_UP);
+		ClrInput (player, INPUT_DOWN);
+		if (value > 1000)
+			SetInput (player, INPUT_DOWN);
+		else if (value < -1000)
+			SetInput (player, INPUT_UP);
+	}
 }
 
 /*!
@@ -507,6 +611,7 @@ bool TLN_ProcessWindow (void)
 	SDL_JoyButtonEvent* joybuttonevt;
 	SDL_JoyAxisEvent* joyaxisevt;
 	int input = 0;
+	int c;
 
 	if (done)
 		return false;
@@ -521,73 +626,45 @@ bool TLN_ProcessWindow (void)
 			break;
 
 		case SDL_KEYDOWN:
+		case SDL_KEYUP:
 			keybevt = (SDL_KeyboardEvent*)&evt;
-			switch (keybevt->keysym.sym)
+			if (keybevt->state == SDL_PRESSED)
 			{
-			case SDLK_ESCAPE: done = true;	break;
-			case SDLK_LEFT:	SetInput(INPUT_LEFT); break;
-			case SDLK_RIGHT: SetInput(INPUT_RIGHT); break;
-			case SDLK_UP: SetInput(INPUT_UP); break;
-			case SDLK_DOWN: SetInput(INPUT_DOWN); break;
-			case SDLK_z: SetInput(INPUT_A); break;
-			case SDLK_x: SetInput(INPUT_B); break;
-			case SDLK_c: SetInput(INPUT_C); break;
-			case SDLK_v: SetInput(INPUT_D); break;
-			case SDLK_BACKSPACE: crt.enable = !crt.enable; break;
-			case SDLK_RETURN:
-				if (keybevt->keysym.mod & KMOD_ALT)
+				if (keybevt->keysym.sym == SDLK_ESCAPE)
+					done = true;
+				else if (keybevt->keysym.sym == SDLK_BACKSPACE)
+					crt.enable = !crt.enable;
+				else if (keybevt->keysym.sym == SDLK_RETURN && keybevt->keysym.mod & KMOD_ALT)
 				{
 					DeleteWindow ();
 					wnd_params.flags ^= CWF_FULLSCREEN;
 					CreateWindow ();
 				}
 			}
-			break;
 
-		case SDL_KEYUP:
-			keybevt = (SDL_KeyboardEvent*)&evt;
-			switch (keybevt->keysym.sym)
+			for (c=0; c<MAX_PLAYERS; c++)
 			{
-			case SDLK_LEFT: ClrInput(INPUT_LEFT); break;
-			case SDLK_RIGHT: ClrInput(INPUT_RIGHT); break;
-			case SDLK_UP: ClrInput(INPUT_UP); break;
-			case SDLK_DOWN: ClrInput(INPUT_DOWN); break;
-			case SDLK_z: ClrInput(INPUT_A); break;
-			case SDLK_x: ClrInput(INPUT_B); break;
-			case SDLK_c: ClrInput(INPUT_C); break;
-			case SDLK_v: ClrInput(INPUT_D); break;
+				if (player_inputs[c].enabled == true)
+					ProcessKeycodeInput (c, keybevt->keysym.sym, keybevt->state);
 			}
 			break;
 
 		case SDL_JOYBUTTONDOWN:
 		case SDL_JOYBUTTONUP:
 			joybuttonevt = (SDL_JoyButtonEvent*)&evt;
-			input = INPUT_A + joybuttonevt->button;
-			if (joybuttonevt->state == 1)
-				SetInput (input);
-			else
-				ClrInput (input);
+			for (c=0; c<MAX_PLAYERS; c++)
+			{
+				if (player_inputs[c].enabled == true && player_inputs[c].joystick_id == joybuttonevt->which)
+					ProcessJoybuttonInput (c, joybuttonevt->button, joybuttonevt->state);
+			}
 			break;
 
 		case SDL_JOYAXISMOTION:
 			joyaxisevt = (SDL_JoyAxisEvent*)&evt;
-			if (joyaxisevt->axis == 0)
+			for (c=0; c<MAX_PLAYERS; c++)
 			{
-				ClrInput (INPUT_LEFT);
-				ClrInput (INPUT_RIGHT);
-				if (joyaxisevt->value > 1000)
-					SetInput (INPUT_RIGHT);
-				else if (joyaxisevt->value < -1000)
-					SetInput (INPUT_LEFT);
-			}
-			else if (joyaxisevt->axis == 1)
-			{
-				ClrInput (INPUT_UP);
-				ClrInput (INPUT_DOWN);
-				if (joyaxisevt->value > 1000)
-					SetInput (INPUT_DOWN);
-				else if (joyaxisevt->value < -1000)
-					SetInput (INPUT_UP);
+				if (player_inputs[c].enabled == true && player_inputs[c].joystick_id == joyaxisevt->which)
+					ProcessJoyaxisInput (c, joyaxisevt->axis, joyaxisevt->value);
 			}
 			break;
     	}
@@ -759,7 +836,84 @@ void TLN_DisableCRTEffect (void)
  */
 bool TLN_GetInput (TLN_Input input)
 {
-	return (inputs & (1 << input)) != 0;
+	const uint8_t player = input >> 4;
+	return (player_inputs[player].inputs & (1 << (input & 0xF))) != 0;
+}
+
+/*!
+ * \brief
+ * Enables or disables input for specified player
+ *
+ * \param player
+ * Player number to enable (PLAYER1 - PLAYER4)
+ *
+ * \param enable
+ * Set true to enable, false to disable
+ */
+void TLN_EnableInput (TLN_Player player, bool enable)
+{
+	player_inputs[player].enabled = enable;
+}
+
+/*!
+ * \brief
+ * Assigns a joystick index to the specified player
+ *
+ * \param player
+ * Player number to configure (PLAYER1 - PLAYER4)
+ *
+ * \param index
+ * Joystick index to assign, 0-based index. -1 = disable
+ */
+void TLN_AssignInputJoystick (TLN_Player player, int index)
+{
+	PlayerInput* player_input = &player_inputs[player];
+	if (player_input->joy != NULL)
+	{
+		SDL_JoystickClose (player_input->joy);
+		player_input->joy = NULL;
+	}
+	if (index >= 0)
+	{
+		player_input->joy = SDL_JoystickOpen (index);
+		player_input->joystick_id = SDL_JoystickInstanceID (player_input->joy);
+	}
+}
+
+/*!
+ * \brief
+ * Assigns a keyboard input to a player
+ *
+ * \param player
+ * Player number to configure (PLAYER1 - PLAYER4)
+ *
+ * \param input
+ * Input to associate to the given key
+ *
+ * \param keycode
+ * ASCII key value or scancode as defined in SDL.h
+ */
+void TLN_DefineInputKey (TLN_Player player, TLN_Input input, uint32_t keycode)
+{
+	player_inputs[player].keycodes[input & 0xF] = keycode;
+}
+
+/*!
+ * \brief
+ * Assigns a button joystick input to a player
+ *
+ * \param player
+ * Player number to configure (PLAYER1 - PLAYER4)
+ *
+ * \param input
+ * Input to associate to the given button
+ *
+ * \param joybutton
+ * Button index
+ */
+void TLN_DefineInputButton (TLN_Player player, TLN_Input input, uint8_t joybutton)
+{
+	player_inputs[player].joybuttons[input & 0xF] = joybutton;
 }
 
 /*!

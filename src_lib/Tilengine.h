@@ -77,7 +77,7 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 
 /* version */
 #define TILENGINE_VER_MAJ	1
-#define TILENGINE_VER_MIN	17
+#define TILENGINE_VER_MIN	18
 #define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ<<16) | (TILENGINE_VER_MIN<<8) | TILENGINE_VER_REV)
 
@@ -142,7 +142,7 @@ Tile;
 /*! frame animation definition */
 typedef struct
 {
-	int index;		/*!< tile index */
+	int index;		/*!< tile/sprite index */
 	int delay;		/*!< time delay between frames */
 }
 TLN_SequenceFrame;
@@ -156,6 +156,14 @@ typedef struct
 	uint8_t dir;	/*!< direction: 0=descending, 1=ascending */
 }
 TLN_ColorStrip;
+
+/*! sequence info returned by TLN_GetSequenceInfo */
+typedef struct
+{
+	char name[32];	/*!< sequence name */
+	int num_frames;	/*!< number of frames */
+}
+TLN_SequenceInfo;
 
 /*! Sprite creation info for TLN_CreateSpriteset() */
 typedef struct
@@ -240,8 +248,32 @@ typedef enum
 	INPUT_B,		/*!< second action button */
 	INPUT_C,		/*!< third action button */
 	INPUT_D,		/*!< fourth action button */
+	INPUT_E,
+	INPUT_F,
+	INPUT_START,
+
+	INPUT_BUTTON1 = INPUT_A,
+	INPUT_BUTTON2 = INPUT_B,
+	INPUT_BUTTON3 = INPUT_C,
+	INPUT_BUTTON4 = INPUT_D,
+	INPUT_BUTTON5 = INPUT_E,
+	INPUT_BUTTON6 = INPUT_F,
+
+	INPUT_P1 = 0,
+	INPUT_P2 = 16,
+	INPUT_P3 = 32,
+	INPUT_P4 = 48,
 }
 TLN_Input;
+
+typedef enum
+{
+	PLAYER1,
+	PLAYER2,
+	PLAYER3,
+	PLAYER4,
+}
+TLN_Player;
 
 /*! CreateWindow flags. Can be none or a combination of the following: */
 typedef enum
@@ -337,7 +369,10 @@ TLNAPI void TLN_SetWindowTitle (const char* title);
 TLNAPI bool TLN_ProcessWindow (void);
 TLNAPI bool TLN_IsWindowActive (void);
 TLNAPI bool TLN_GetInput (TLN_Input id);
-TLNAPI int  TLN_GetLastInput (void);
+TLNAPI void TLN_EnableInput (TLN_Player player, bool enable);
+TLNAPI void TLN_AssignInputJoystick (TLN_Player player, int index);
+TLNAPI void TLN_DefineInputKey (TLN_Player player, TLN_Input input, uint32_t keycode);
+TLNAPI void TLN_DefineInputButton (TLN_Player player, TLN_Input input, uint8_t joybutton);
 TLNAPI void TLN_DrawFrame (int time);
 TLNAPI void TLN_WaitRedraw (void);
 TLNAPI void TLN_DeleteWindow (void);
@@ -491,6 +526,7 @@ TLNAPI TLN_Palette TLN_GetSpritePalette (int nsprite);
 TLNAPI TLN_Sequence TLN_CreateSequence (const char* name, int target, int num_frames, TLN_SequenceFrame* frames);
 TLNAPI TLN_Sequence TLN_CreateCycle (const char* name, int num_strips, TLN_ColorStrip* strips);
 TLNAPI TLN_Sequence TLN_CloneSequence (TLN_Sequence src);
+TLNAPI bool TLN_GetSequenceInfo (TLN_Sequence sequence, TLN_SequenceInfo* info);
 TLNAPI bool TLN_DeleteSequence (TLN_Sequence sequence);
 /**@}*/
 

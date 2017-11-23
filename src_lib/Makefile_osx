@@ -15,6 +15,7 @@ clean: clean-custom
 
 $(BIN): $(OBJECTS)
 	$(CC) $(OBJECTS) -o $(BIN) $(LIBS) -dynamiclib -fvisibility=hidden
+	cp $(BIN) ../lib/darwin_x86_64
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@
