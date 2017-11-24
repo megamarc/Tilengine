@@ -326,6 +326,7 @@ class Engine(object):
 		self.version = _tln.TLN_GetVersion()
 		self.cb_raster_func = None
 		self.cb_blend_func = None
+		self.library = _tln
 
 		version = [1,18,0]	# expected library version
 		req_version = (version[0] << 16) + (version[1] << 8) + version[2]
@@ -359,9 +360,9 @@ class Engine(object):
 			_raise_exception(ok)
 
 	def __del__(self):
+		self.library.TLN_Deinit()
 		global _engine
 		_engine = None
-		_tln.TLN_Deinit()
 
 	def get_num_objects(self):
 		"""
@@ -733,7 +734,8 @@ class Spriteset(object):
 	def __init__(self, handle, owner=True):
 		self._as_parameter_ = handle
 		self.owner = owner
-		self.palette = Palette(_tln.TLN_GetSpritesetPalette(handle))
+		self.library = _tln
+		self.palette = Palette(_tln.TLN_GetSpritesetPalette(handle), False)
 
 	@classmethod
 	def create(cls, bitmap, sprite_data):
@@ -788,7 +790,7 @@ class Spriteset(object):
 
 	def __del__(self):
 		if self.owner:
-			ok = _tln.TLN_DeleteSpriteset(self)
+			ok = self.library.TLN_DeleteSpriteset(self)
 			_raise_exception(ok)
 
 
@@ -829,6 +831,7 @@ class Tileset(object):
 	def __init__(self, handle, owner=True):
 		self._as_parameter_ = handle
 		self.owner = owner
+		self.library = _tln
 		self.tile_width = _tln.TLN_GetTileWidth(handle)
 		self.tile_height = _tln.TLN_GetTileHeight(handle)
 		self.palette = Palette(_tln.TLN_GetTilesetPalette(handle), False)
@@ -902,7 +905,7 @@ class Tileset(object):
 
 	def __del__(self):
 		if self.owner:
-			ok = _tln.TLN_DeleteTileset(self)
+			ok = self.library.TLN_DeleteTileset(self)
 			_raise_exception(ok)
 
 
@@ -940,6 +943,7 @@ class Tilemap(object):
 	def __init__(self, handle, owner=True):
 		self._as_parameter_ = handle
 		self.owner = owner
+		self.library = _tln
 		self.rows = _tln.TLN_GetTilemapRows(handle)
 		self.cols = _tln.TLN_GetTilemapCols(handle)
 		tileset_handle = _tln.TLN_GetTilemapTileset(handle)
@@ -1033,7 +1037,7 @@ class Tilemap(object):
 
 	def __del__(self):
 		if self.owner:
-			ok = _tln.TLN_DeleteTilemap(self)
+			ok = self.library.TLN_DeleteTilemap(self)
 			_raise_exception(ok)
 
 
@@ -1067,6 +1071,7 @@ class Palette(object):
 	def __init__(self, handle, owner=True):
 		self._as_parameter_ = handle
 		self.owner = owner
+		self.library = _tln
 
 	@classmethod
 	def create(cls, num_entries=256):
@@ -1167,7 +1172,7 @@ class Palette(object):
 
 	def __del__(self):
 		if self.owner:
-			ok = _tln.TLN_DeletePalette(self)
+			ok = self.library.TLN_DeletePalette(self)
 			_raise_exception(ok)
 
 
@@ -1207,6 +1212,7 @@ class Bitmap(object):
 	def __init__(self, handle, owner=True):
 		self._as_parameter_ = handle
 		self.owner = owner
+		self.library = _tln
 		self.width = _tln.TLN_GetBitmapWidth(handle)
 		self.height = _tln.TLN_GetBitmapHeight(handle)
 		self.depth = _tln.TLN_GetBitmapDepth(handle)
@@ -1267,7 +1273,7 @@ class Bitmap(object):
 
 	def __del__(self):
 		if self.owner:
-			ok = _tln.TLN_DeleteBitmap(self)
+			ok = self.library.TLN_DeleteBitmap(self)
 			_raise_exception(ok)
 
 
@@ -1291,6 +1297,7 @@ class Sequence(object):
 	def __init__(self, handle, owner=True):
 		self._as_parameter_ = handle
 		self.owner = owner
+		self.library = _tln
 
 	@classmethod
 	def create_sequence(cls, name, target, frames):
@@ -1345,7 +1352,7 @@ class Sequence(object):
 
 	def __del__(self):
 		if self.owner:
-			ok = _tln.TLN_DeleteSequence(self)
+			ok = self.library.TLN_DeleteSequence(self)
 			_raise_exception(ok)
 
 
@@ -1375,6 +1382,7 @@ class SequencePack(object):
 	def __init__(self, handle, owner=True):
 		self._as_parameter_ = handle
 		self.owner = owner
+		self.library = _tln
 		self.count = _tln.TLN_GetSequencePackCount(self)
 		self.sequences = dict()
 		sequence_info = SequenceInfo()
@@ -1450,9 +1458,8 @@ class SequencePack(object):
 		_raise_exception(ok)
 
 	def __del__(self):
-		del self.sequences
 		if self.owner:
-			ok = _tln.TLN_DeleteSequencePack(self)
+			ok = self.library.TLN_DeleteSequencePack(self)
 			_raise_exception(ok)
 
 
