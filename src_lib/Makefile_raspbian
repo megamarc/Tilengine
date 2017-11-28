@@ -15,7 +15,10 @@ clean: clean-custom
 
 $(BIN): $(OBJECTS)
 	$(CC) -shared $(OBJECTS) -o $(BIN) $(LIBS) -s -fvisibility=hidden -Wl,-rpath,"/usr/local/lib"
+
+copy: $(BIN)
 	cp $(BIN) ../lib/linux_arm
+	cp Tilengine.h ../include
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@
