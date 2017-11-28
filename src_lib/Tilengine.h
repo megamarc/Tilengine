@@ -236,6 +236,16 @@ typedef struct Sequence*	 TLN_Sequence;			/*!< Opaque sequence reference */
 typedef struct SequencePack* TLN_SequencePack;		/*!< Opaque sequence pack reference */
 typedef struct Bitmap*		 TLN_Bitmap;			/*!< Opaque bitmap reference */
 
+/*! Player index for input assignment functions */
+typedef enum
+{
+	PLAYER1,	/*!< Player 1 */
+	PLAYER2,	/*!< Player 2 */
+	PLAYER3,	/*!< Player 3 */
+	PLAYER4,	/*!< Player 4 */
+}
+TLN_Player;
+
 /*! Standard inputs query for TLN_GetInput() */
 typedef enum
 {
@@ -244,36 +254,29 @@ typedef enum
 	INPUT_DOWN,		/*!< down direction */
 	INPUT_LEFT,		/*!< left direction */
 	INPUT_RIGHT,	/*!< right direction */
-	INPUT_A,		/*!< first action button */
-	INPUT_B,		/*!< second action button */
-	INPUT_C,		/*!< third action button */
-	INPUT_D,		/*!< fourth action button */
-	INPUT_E,
-	INPUT_F,
-	INPUT_START,
+	INPUT_BUTTON1,	/*!< 1st action button */
+	INPUT_BUTTON2,	/*!< 2nd action button */
+	INPUT_BUTTON3,	/*!< 3th action button */
+	INPUT_BUTTON4,	/*!< 4th action button */
+	INPUT_BUTTON5,	/*!< 5th action button */
+	INPUT_BUTTON6,	/*!< 6th action button */
+	INPUT_START,	/*!< Start button */
 
-	INPUT_BUTTON1 = INPUT_A,
-	INPUT_BUTTON2 = INPUT_B,
-	INPUT_BUTTON3 = INPUT_C,
-	INPUT_BUTTON4 = INPUT_D,
-	INPUT_BUTTON5 = INPUT_E,
-	INPUT_BUTTON6 = INPUT_F,
-
-	INPUT_P1 = 0,
-	INPUT_P2 = 16,
-	INPUT_P3 = 32,
-	INPUT_P4 = 48,
+	INPUT_P1 = (PLAYER1 << 4), 	/*!< request player 1 input (default) */
+	INPUT_P2 = (PLAYER2 << 4),	/*!< request player 2 input */
+	INPUT_P3 = (PLAYER3 << 4),	/*!< request player 3 input */
+	INPUT_P4 = (PLAYER4 << 4),	/*!< request player 4 input */
+	
+	/* compatibility symbols for pre-1.18 input model */ 
+	INPUT_A = INPUT_BUTTON1,
+	INPUT_B = INPUT_BUTTON2,
+	INPUT_C = INPUT_BUTTON3,
+	INPUT_D = INPUT_BUTTON4,
+	INPUT_E = INPUT_BUTTON5,
+	INPUT_F = INPUT_BUTTON6,
+	
 }
 TLN_Input;
-
-typedef enum
-{
-	PLAYER1,
-	PLAYER2,
-	PLAYER3,
-	PLAYER4,
-}
-TLN_Player;
 
 /*! CreateWindow flags. Can be none or a combination of the following: */
 typedef enum

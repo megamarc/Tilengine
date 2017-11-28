@@ -507,20 +507,20 @@ void TLN_DeleteWindow (void)
 }
 
 /* marks input as pressed */
-static void SetInput (uint8_t player, uint16_t input)
+static void SetInput (TLN_Player player, TLN_Input input)
 {
 	player_inputs[player].inputs |= (1 << input);
 	last_key = input;
 }
 
 /* marks input as unpressed */
-static void ClrInput (uint8_t player, uint16_t input)
+static void ClrInput (TLN_Player player, TLN_Input input)
 {
 	player_inputs[player].inputs &= ~(1 << input);
 }
 
 /* process keyboard input */
-static void ProcessKeycodeInput (uint8_t player, SDL_Keycode keycode, uint8_t state)
+static void ProcessKeycodeInput (TLN_Player player, SDL_Keycode keycode, uint8_t state)
 {
 	int c;
 	PlayerInput* player_input = &player_inputs[player];
@@ -544,7 +544,7 @@ static void ProcessKeycodeInput (uint8_t player, SDL_Keycode keycode, uint8_t st
 }
 
 /* process joystick button input */
-static void ProcessJoybuttonInput (uint8_t player, uint8_t button, uint8_t state)
+static void ProcessJoybuttonInput (TLN_Player player, uint8_t button, uint8_t state)
 {
 	int c;
 	PlayerInput* player_input = &player_inputs[player];
@@ -568,7 +568,7 @@ static void ProcessJoybuttonInput (uint8_t player, uint8_t button, uint8_t state
 }
 
 /* process joystic axis input */
-static void ProcessJoyaxisInput (uint8_t player, uint8_t axis, int value)
+static void ProcessJoyaxisInput (TLN_Player player, uint8_t axis, int value)
 {
 	if (axis == 0)
 	{
@@ -642,29 +642,29 @@ bool TLN_ProcessWindow (void)
 				}
 			}
 
-			for (c=0; c<MAX_PLAYERS; c++)
+			for (c=PLAYER1; c<MAX_PLAYERS; c++)
 			{
 				if (player_inputs[c].enabled == true)
-					ProcessKeycodeInput (c, keybevt->keysym.sym, keybevt->state);
+					ProcessKeycodeInput ((TLN_Player)c, keybevt->keysym.sym, keybevt->state);
 			}
 			break;
 
 		case SDL_JOYBUTTONDOWN:
 		case SDL_JOYBUTTONUP:
 			joybuttonevt = (SDL_JoyButtonEvent*)&evt;
-			for (c=0; c<MAX_PLAYERS; c++)
+			for (c=PLAYER1; c<MAX_PLAYERS; c++)
 			{
 				if (player_inputs[c].enabled == true && player_inputs[c].joystick_id == joybuttonevt->which)
-					ProcessJoybuttonInput (c, joybuttonevt->button, joybuttonevt->state);
+					ProcessJoybuttonInput ((TLN_Player)c, joybuttonevt->button, joybuttonevt->state);
 			}
 			break;
 
 		case SDL_JOYAXISMOTION:
 			joyaxisevt = (SDL_JoyAxisEvent*)&evt;
-			for (c=0; c<MAX_PLAYERS; c++)
+			for (c=PLAYER1; c<MAX_PLAYERS; c++)
 			{
 				if (player_inputs[c].enabled == true && player_inputs[c].joystick_id == joyaxisevt->which)
-					ProcessJoyaxisInput (c, joyaxisevt->axis, joyaxisevt->value);
+					ProcessJoyaxisInput ((TLN_Player)c, joyaxisevt->axis, joyaxisevt->value);
 			}
 			break;
     	}
@@ -713,16 +713,10 @@ void TLN_WaitRedraw (void)
 
 /*!
  * \brief
- * Enables or disables a simple horizontal blur effect to emulate noisy composite video
+ * Removed in release 1.12, use TLN_EnableCRTEffect() instead
  * 
  * \param mode
  * Enable or disable effect
- * 
- * \remarks
- * As of release 1.12, this function has been deprecated and doesn't have effect anymore. It has been
- * left only for ABI compatibility. Use the new TLN_EnableCRTEffect instead.
- * \see
- * TLN_EnableCRTEffect()
  */
 void TLN_EnableBlur (bool mode)
 {
@@ -818,25 +812,25 @@ void TLN_DisableCRTEffect (void)
  *	 * INPUT_DOWN
  *	 * INPUT_LEFT
  *	 * INPUT_RIGHT
- *	 * INPUT_A
- *	 * INPUT_B
- *	 * INPUT_C
- *	 * INPUT_D
+ *	 * INPUT_BUTTON1 - INPUT_BUTTON6,
+ *	 * INPUT_START
+ *	 * Optionally combine with INPUT_P1 to INPUT_P4 to request input for specific player
  * 
  * \returns
  * True if that input is pressed or false if not
  * 
  * If a window has been created with TLN_CreateWindow, it provides basic user input.
- * It simulates a classic arcade setup, with four directional buttons (INPUT_UP to INPUT_RIGHT) 
- * and four action buttons (INPUT_A to INPUT_D). Directional buttons are mapped to keyboard cursors
- * or joystick D-PAD, and the four action buttons are the keys Z,X,C,V or joystick buttons 1 to 4.
+ * It simulates a classic arcade setup, with 4 directional buttons (INPUT_UP to INPUT_RIGHT),
+ * 6 action buttons (INPUT_BUTTON1 to INPUT_BUTTON6) and a start button (INPUT_START). 
+ * By default directional buttons are mapped to keyboard cursors and joystick 1 D-PAD, 
+ * and the first four action buttons are the keys Z,X,C,V and joystick buttons 1 to 4.
  * 
  * \see
- * TLN_CreateWindow()
+ * TLN_CreateWindow(), TLN_DefineInputKey(), TLN_DefineInputButton()
  */
 bool TLN_GetInput (TLN_Input input)
 {
-	const uint8_t player = input >> 4;
+	const TLN_Player player = input >> 4;
 	return (player_inputs[player].inputs & (1 << (input & 0xF))) != 0;
 }
 
