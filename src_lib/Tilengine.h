@@ -77,7 +77,7 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 
 /* version */
 #define TILENGINE_VER_MAJ	1
-#define TILENGINE_VER_MIN	18
+#define TILENGINE_VER_MIN	19
 #define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ<<16) | (TILENGINE_VER_MIN<<8) | TILENGINE_VER_REV)
 
@@ -288,6 +288,7 @@ typedef enum
 	CWF_S3			=	(3<<2),	/*!< create a window 3x the size the framebuffer */
 	CWF_S4			=	(4<<2),	/*!< create a window 4x the size the framebuffer */
 	CWF_S5			=	(5<<2),	/*!< create a window 5x the size the framebuffer */
+	CWF_NEAREST		=   (1<<6),	/*<! unfiltered upscaling */
 }
 TLN_WindowFlags;
 
@@ -342,6 +343,7 @@ TLNAPI void TLN_DisableBGColor (void);
 TLNAPI bool TLN_SetBGBitmap (TLN_Bitmap bitmap);
 TLNAPI bool TLN_SetBGPalette (TLN_Palette palette);
 TLNAPI void TLN_SetRasterCallback (void (*callback)(int));
+TLNAPI void TLN_SetFrameCallback (void (*callback)(int));
 TLNAPI void TLN_SetRenderTarget (uint8_t* data, int pitch);
 TLNAPI void TLN_UpdateFrame (int time);
 TLNAPI void TLN_BeginFrame (int time);
@@ -400,6 +402,7 @@ TLNAPI TLN_Spriteset TLN_CloneSpriteset (TLN_Spriteset src);
 TLNAPI bool TLN_GetSpriteInfo (TLN_Spriteset spriteset, int entry, TLN_SpriteInfo* info);
 TLNAPI TLN_Palette TLN_GetSpritesetPalette (TLN_Spriteset spriteset);
 TLNAPI int TLN_FindSpritesetSprite (TLN_Spriteset spriteset, char* name);
+TLNAPI bool TLN_SetSpritesetData (TLN_Spriteset spriteset, int entry, TLN_SpriteData* data, void* pixels, int pitch);
 TLNAPI bool TLN_DeleteSpriteset (TLN_Spriteset Spriteset);
 /**@}*/
 

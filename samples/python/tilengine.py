@@ -51,6 +51,7 @@ class WindowFlags:
 	S3 = (3 << 2)
 	S4 = (4 << 2)
 	S5 = (5 << 2)
+	NEAREST = (1 << 6)
 
 
 class Flags:
@@ -137,6 +138,10 @@ class Tile(Structure):
 		("flags", c_ushort)
 	]
 
+	def __init__(self, index, flags):
+		self.index = index
+		self.flags = flags
+
 
 class ColorStrip(Structure):
 	"""
@@ -148,6 +153,12 @@ class ColorStrip(Structure):
 		("count", c_ubyte),
 		("dir", c_ubyte)
 	]
+
+	def __init__(self, delay, first, count, direction):
+		self.delay = delay
+		self.first = first
+		self.count = count
+		self.dir = direction
 
 
 class SequenceInfo(Structure):
@@ -166,6 +177,10 @@ class SequenceFrame(Structure):
 		("index", c_int),
 		("delay", c_int)
 	]
+
+	def __init__(self, index, delay):
+		self.index = index
+		self.delay = delay
 
 
 class SpriteInfo(Structure):
@@ -200,12 +215,19 @@ class SpriteData(Structure):
 	Data used to create :class:`Spriteset` objects
 	"""
 	_fields_ = [
-		("name", c_char_p),
+		("name", c_char * 64),
 		("x", c_int),
 		("y", c_int),
 		("w", c_int),
 		("h", c_int)
 	]
+
+	def __init__(self, name, x, y, width, height):
+		self.name = _encode_string(name)
+		self.x = x
+		self.y = y
+		self.w = width
+		self.h = height
 
 
 class TileAttributes(Structure):
@@ -216,6 +238,10 @@ class TileAttributes(Structure):
 		("type", c_ubyte),
 		("priority", c_bool)
 	]
+
+	def __init__(self, tile_type, priority):
+		self.type = tile_type
+		self.priority = priority
 
 
 class PixelMap(Structure):
@@ -259,7 +285,7 @@ elif _platform == "darwin":
 	_tln = cdll.LoadLibrary("Tilengine.dylib")
 
 # callback types for user functions
-_raster_callback_function = CFUNCTYPE(None, c_int)
+_video_callback_function = CFUNCTYPE(None, c_int)
 _blend_function = CFUNCTYPE(c_ubyte, c_ubyte, c_ubyte)
 
 
@@ -326,6 +352,7 @@ class Engine(object):
 		self.version = _tln.TLN_GetVersion()
 		self.cb_raster_func = None
 		self.cb_blend_func = None
+		self.library = _tln
 
 		version = [1,18,0]	# expected library version
 		req_version = (version[0] << 16) + (version[1] << 8) + version[2]
@@ -359,9 +386,9 @@ class Engine(object):
 			_raise_exception(ok)
 
 	def __del__(self):
+		self.library.TLN_Deinit()
 		global _engine
 		_engine = None
-		_tln.TLN_Deinit()
 
 	def get_num_objects(self):
 		"""
@@ -416,7 +443,7 @@ class Engine(object):
 
 	def set_raster_callback(self, raster_callback):
 		"""
-		Enables raster effects processing, where any render parameter can be modified mid frame, between scanlines.
+		Enables raster effects processing, like a virtual HBLANK interrupt where any render parameter can be modified between scanlines.
 
 		:param raster_callback: name of the user-defined function to call for each scanline. Set None to disable. \
 			This function takes one integer parameter that indicates the current scanline, between 0 and vertical resolution.
@@ -429,8 +456,31 @@ class Engine(object):
 
 			engine.set_raster_callback(my_raster_callback)
 		"""
-		self.cb_raster_func = _raster_callback_function(raster_callback)
+		if raster_callback is None:
+			self.cb_raster_func = None
+		else:
+			self.cb_raster_func = _video_callback_function(raster_callback)
 		_tln.TLN_SetRasterCallback(self.cb_raster_func)
+
+	def set_frame_callback(self, frame_callback):
+		"""
+		Enables user callback for each drawn frame, like a virtual VBLANK interrupt
+
+		:param frame_callback: name of the user-defined function to call for each frame. Set None to disable. \
+			This function takes one integer parameter that indicates the current frame.
+
+		Example::
+
+			def my_frame_callback(num_frame):
+		        engine.set_background_color(Color(0,0,0))
+
+			engine.set_frame_callback(my_frame_callback)
+		"""
+		if frame_callback is None:
+			self.cb_frame_func = None
+		else:
+			self.cb_frame_func = _video_callback_function(frame_callback)
+		_tln.TLN_SetFrameCallback(self.cb_frame_func)
 
 	def set_render_target(self, pixels, pitch):
 		"""
@@ -720,6 +770,8 @@ _tln.TLN_GetSpriteInfo.argtypes = [c_void_p, c_int, POINTER(SpriteInfo)]
 _tln.TLN_GetSpriteInfo.restype = c_bool
 _tln.TLN_GetSpritesetPalette.argtypes = [c_void_p]
 _tln.TLN_GetSpritesetPalette.restype = c_void_p
+_tln.TLN_SetSpritesetData.argtypes = [c_void_p, c_int, POINTER(SpriteData), POINTER(c_ubyte), c_int]
+_tln.TLN_SetSpritesetData.restype = c_bool
 _tln.TLN_DeleteSpriteset.argtypes = [c_void_p]
 _tln.TLN_DeleteSpriteset.restype = c_bool
 
@@ -733,7 +785,8 @@ class Spriteset(object):
 	def __init__(self, handle, owner=True):
 		self._as_parameter_ = handle
 		self.owner = owner
-		self.palette = Palette(_tln.TLN_GetSpritesetPalette(handle))
+		self.library = _tln
+		self.palette = Palette(_tln.TLN_GetSpritesetPalette(handle), False)
 
 	@classmethod
 	def create(cls, bitmap, sprite_data):
@@ -776,6 +829,18 @@ class Spriteset(object):
 		else:
 			_raise_exception()
 
+	def set_sprite_data(self, entry, data, pixels, pitch):
+		"""
+		Sets attributes and pixels of a given sprite inside a spriteset
+
+		:param entry: The entry index inside the spriteset to modify [0, num_sprites - 1]
+		:param data: Pointer to a user-provided SpriteData structure with sprite description
+		:param pixels: Pointer to user-provided pixel data block
+		:param pitch: Number of bytes per scanline of the source pixel data
+		"""
+		ok = _tln.TLN_SetSpritesetData(self, entry, data, pixels, pitch)
+		_raise_exception(ok)
+
 	def get_sprite_info(self, entry, info):
 		"""
 		Gets info about a given sprite into an user-provided SpriteInfo tuple
@@ -788,7 +853,7 @@ class Spriteset(object):
 
 	def __del__(self):
 		if self.owner:
-			ok = _tln.TLN_DeleteSpriteset(self)
+			ok = self.library.TLN_DeleteSpriteset(self)
 			_raise_exception(ok)
 
 
@@ -829,6 +894,7 @@ class Tileset(object):
 	def __init__(self, handle, owner=True):
 		self._as_parameter_ = handle
 		self.owner = owner
+		self.library = _tln
 		self.tile_width = _tln.TLN_GetTileWidth(handle)
 		self.tile_height = _tln.TLN_GetTileHeight(handle)
 		self.palette = Palette(_tln.TLN_GetTilesetPalette(handle), False)
@@ -902,7 +968,7 @@ class Tileset(object):
 
 	def __del__(self):
 		if self.owner:
-			ok = _tln.TLN_DeleteTileset(self)
+			ok = self.library.TLN_DeleteTileset(self)
 			_raise_exception(ok)
 
 
@@ -940,6 +1006,7 @@ class Tilemap(object):
 	def __init__(self, handle, owner=True):
 		self._as_parameter_ = handle
 		self.owner = owner
+		self.library = _tln
 		self.rows = _tln.TLN_GetTilemapRows(handle)
 		self.cols = _tln.TLN_GetTilemapCols(handle)
 		tileset_handle = _tln.TLN_GetTilemapTileset(handle)
@@ -1033,7 +1100,7 @@ class Tilemap(object):
 
 	def __del__(self):
 		if self.owner:
-			ok = _tln.TLN_DeleteTilemap(self)
+			ok = self.library.TLN_DeleteTilemap(self)
 			_raise_exception(ok)
 
 
@@ -1067,6 +1134,7 @@ class Palette(object):
 	def __init__(self, handle, owner=True):
 		self._as_parameter_ = handle
 		self.owner = owner
+		self.library = _tln
 
 	@classmethod
 	def create(cls, num_entries=256):
@@ -1167,7 +1235,7 @@ class Palette(object):
 
 	def __del__(self):
 		if self.owner:
-			ok = _tln.TLN_DeletePalette(self)
+			ok = self.library.TLN_DeletePalette(self)
 			_raise_exception(ok)
 
 
@@ -1207,6 +1275,7 @@ class Bitmap(object):
 	def __init__(self, handle, owner=True):
 		self._as_parameter_ = handle
 		self.owner = owner
+		self.library = _tln
 		self.width = _tln.TLN_GetBitmapWidth(handle)
 		self.height = _tln.TLN_GetBitmapHeight(handle)
 		self.depth = _tln.TLN_GetBitmapDepth(handle)
@@ -1267,7 +1336,7 @@ class Bitmap(object):
 
 	def __del__(self):
 		if self.owner:
-			ok = _tln.TLN_DeleteBitmap(self)
+			ok = self.library.TLN_DeleteBitmap(self)
 			_raise_exception(ok)
 
 
@@ -1291,6 +1360,7 @@ class Sequence(object):
 	def __init__(self, handle, owner=True):
 		self._as_parameter_ = handle
 		self.owner = owner
+		self.library = _tln
 
 	@classmethod
 	def create_sequence(cls, name, target, frames):
@@ -1345,7 +1415,7 @@ class Sequence(object):
 
 	def __del__(self):
 		if self.owner:
-			ok = _tln.TLN_DeleteSequence(self)
+			ok = self.library.TLN_DeleteSequence(self)
 			_raise_exception(ok)
 
 
@@ -1375,6 +1445,7 @@ class SequencePack(object):
 	def __init__(self, handle, owner=True):
 		self._as_parameter_ = handle
 		self.owner = owner
+		self.library = _tln
 		self.count = _tln.TLN_GetSequencePackCount(self)
 		self.sequences = dict()
 		sequence_info = SequenceInfo()
@@ -1450,9 +1521,8 @@ class SequencePack(object):
 		_raise_exception(ok)
 
 	def __del__(self):
-		del self.sequences
 		if self.owner:
-			ok = _tln.TLN_DeleteSequencePack(self)
+			ok = self.library.TLN_DeleteSequencePack(self)
 			_raise_exception(ok)
 
 

@@ -161,7 +161,7 @@ static bool CreateWindow (void)
 	SDL_Surface* surface = NULL;
 	int factor;
 	int rflags;
-	char quality;
+	char quality[2] = {0};
 	Uint32 format = 0;
 	void* pixels;
 	int pitch;
@@ -223,8 +223,11 @@ static bool CreateWindow (void)
 		DeleteWindow ();
 		return false;
 	}
-	quality = 1;
-	SDL_SetHint (SDL_HINT_RENDER_SCALE_QUALITY, &quality);
+	if (wnd_params.flags & CWF_NEAREST)
+		quality[0] = '0';	/* nearest */
+	else
+		quality[0] = '1';	/* linear */
+	SDL_SetHint (SDL_HINT_RENDER_SCALE_QUALITY, quality);
 	
 	/* textura para recibir los pixeles de Tilengine */
 	format = SDL_PIXELFORMAT_ARGB8888;
@@ -932,7 +935,7 @@ int TLN_GetLastInput (void)
  */
 void TLN_BeginWindowFrame (int time)
 {
-	SDL_LockTexture (backbuffer, NULL, &rt_pixels, &rt_pitch);
+	SDL_LockTexture (backbuffer, NULL, (void*)&rt_pixels, &rt_pitch);
 	TLN_SetRenderTarget (rt_pixels, rt_pitch);
 	TLN_BeginFrame (time);
 }
@@ -953,7 +956,7 @@ void TLN_EndWindowFrame (void)
 		int x,y;
 
 		/* downscale backbuffer */
-		SDL_LockTexture (crt.glow, NULL, &pixels_glow, &pitch_glow);
+		SDL_LockTexture (crt.glow, NULL, (void*)&pixels_glow, &pitch_glow);
 		Downsample2 (rt_pixels, pixels_glow, wnd_params.width,wnd_params.height, rt_pitch, pitch_glow);
 
 		/* replace color vales with LUT mapped */
@@ -1084,7 +1087,7 @@ static void BuildFullOverlay (SDL_Texture* texture, SDL_Surface* pattern, uint8_
 	}
 
 	/* copy pixels into final texture */
-	SDL_LockTexture (texture, NULL, &pixels, &pitch);
+	SDL_LockTexture (texture, NULL, (void*)&pixels, &pitch);
 	memcpy (pixels, dst_surface->pixels, pitch*dst_surface->h);
 	SDL_UnlockTexture (texture);
 	

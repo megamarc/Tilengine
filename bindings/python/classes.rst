@@ -16,6 +16,7 @@ Main object for engine creation and rendering
 * :meth:`Engine.set_background_bitmap`
 * :meth:`Engine.set_background_palette`
 * :meth:`Engine.set_raster_callback`
+* :meth:`Engine.set_frame_callback`
 * :meth:`Engine.set_render_target`
 * :meth:`Engine.update_frame`
 * :meth:`Engine.begin_frame`
@@ -126,6 +127,7 @@ The Spriteset object holds the graphic data used to render moving objects (sprit
 * :meth:`Spriteset.create`
 * :meth:`Spriteset.fromfile`
 * :meth:`Spriteset.clone`
+* :meth:`Spriteset.set_sprite_data`
 * :meth:`Spriteset.get_info`
 
 :class:`Bitmap`
