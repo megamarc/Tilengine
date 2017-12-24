@@ -1,6 +1,6 @@
 """
 Python wrapper for Tilengine retro graphics engine
-Updated to library version 1.18.0
+Updated to library version 1.19.0
 http://www.tilengine.org
 """
 
@@ -137,10 +137,6 @@ class Tile(Structure):
 		("index", c_ushort),
 		("flags", c_ushort)
 	]
-
-	def __init__(self, index, flags):
-		self.index = index
-		self.flags = flags
 
 
 class ColorStrip(Structure):
