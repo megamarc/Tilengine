@@ -41,6 +41,7 @@ uses
 const
   dllname = 'Tilengine.dll';
 
+{$REGION 'Type'}
 type
 
   TTileFlags =
@@ -171,6 +172,8 @@ type
 
   TRectArray = array of TRect;
 
+{$ENDREGION}
+
 // Main
 function Init(hres, vres, numlayers, numsprites, numanimations : Integer) : Boolean; cdecl; external dllname name 'TLN_Init';
 function InitBPP(hres, vres, bpp, numlayers, numsprites, numanimations : Integer) : Boolean; cdecl; external dllname name 'TLN_InitBPP';
@@ -182,7 +185,7 @@ function GetUsedMemory : UInt32; cdecl; external dllname name 'TLN_GetUsedMemory
 function GetVersion : UInt32; cdecl; external dllname name 'TLN_GetVersion';
 function GetNumLayers : Integer; cdecl; external dllname name 'TLN_GetNumLayers';
 function GetNumSprites : Integer; cdecl; external dllname name 'TLN_GetNumSprites';
-procedure SetBGColor(r, g , b: Byte); cdecl; external dllname name 'TLN_SetBGColor';
+procedure SetBGColor(r, g, b: Byte); cdecl; external dllname name 'TLN_SetBGColor';
 function SetBGBitmap(bitmap : Pointer) : Boolean; cdecl; external dllname name 'TLN_SetBGBitmap';
 procedure SetBGPalette(palette : Pointer); cdecl; external dllname name 'TLN_SetBGPalette';
 procedure SetRasterCallback(callback : Pointer); cdecl; external dllname name 'TLN_SetRasterCallback';
@@ -270,7 +273,7 @@ function DeleteSpriteset(spriteset : Pointer) : Boolean ; cdecl; external dllnam
 
 // Tileset
 function CreateTileset(numtiles, width, height : Integer; palette : Pointer) : Pointer; cdecl; external dllname name 'TLN_CreateTileset';
-function LoadTileset(filename : string) : Pointer; cdecl; external dllname name 'TLN_LoadTileset';
+function LoadTileset(filename : PAnsiChar) : Pointer; cdecl; external dllname name 'TLN_LoadTileset';
 function CloneTileset(src : Pointer) : Pointer; cdecl; external dllname name 'TLN_CloneTileset';
 function SetTilesetPixels(tileset : Pointer; entry : Integer; srcdata : PByte; srcpitch : Integer) : Boolean ; cdecl; external dllname name 'TLN_SetTilesetPixels';
 function GetTileWidth(tileset : Pointer) : Integer; cdecl; external dllname name 'TLN_GetTileWidth';
@@ -280,7 +283,7 @@ function DeleteTileset(tileset : Pointer) : Boolean ; cdecl; external dllname na
 
 // Tilemap
 function CreateTilemap(rows, cols : Integer; tiles : TTileArr) : Pointer; cdecl; external dllname name 'TLN_CreateTilemap';
-function LoadTilemap(filename, layername : string) : Pointer; cdecl; external dllname name 'TLN_LoadTilemap';
+function LoadTilemap(filename, layername : PAnsiChar) : Pointer; cdecl; external dllname name 'TLN_LoadTilemap';
 function CloneTilemap(src : Pointer) : Pointer; cdecl; external dllname name 'TLN_CloneTilemap';
 function GetTilemapRows(tilemap : Pointer) : Integer; cdecl; external dllname name 'TLN_GetTilemapRows';
 function GetTilemapCols(tilemap : Pointer) : Integer; cdecl; external dllname name 'TLN_GetTilemapCols';
