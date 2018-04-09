@@ -72,7 +72,7 @@ class Platformer
         engine.Animations[0].SetPaletteAnimation(palette, waterSequence, true);
 
         /* setup raster callback */
-        RasterCallback callback = new RasterCallback(MyRasterEffects);
+        VideoCallback callback = new VideoCallback(MyRasterEffects);
         engine.SetRasterCallback(callback);
 
         /* main loop */

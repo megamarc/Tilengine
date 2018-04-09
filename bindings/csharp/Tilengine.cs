@@ -3,14 +3,14 @@ Tilengine - 2D Graphics library with raster effects
 Copyright (c) 2015-2017 Marc Palacios Domenech (megamarc@hotmail.com)
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification 
+Redistribution and use in source and binary forms, with or without modification
 are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
    list of conditions and the following disclaimer.
 
 2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation 
+   this list of conditions and the following disclaimer in the documentation
    and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
@@ -27,7 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*
 *****************************************************************************
-* C# Tilengine wrapper - Up to date to library version 1.15
+* C# Tilengine wrapper - Up to date to library version 1.19
 * http://www.tilengine.org
 *****************************************************************************
 */
@@ -39,7 +39,7 @@ using System.Runtime.InteropServices;
 namespace Tilengine
 {
     /// <summary>
-    /// 
+    /// Tile data contained in each cell of a cref="Tilemap" object
     /// </summary>
     [StructLayoutAttribute(LayoutKind.Sequential)]
     public struct Tile
@@ -48,11 +48,8 @@ namespace Tilengine
         public ushort flags;
     }
 
-    public delegate void RasterCallback(int line);
-	public delegate byte BlendFunction(byte src, byte dst);
-
     /// <summary>
-    /// 
+    /// List of possible exception error codes
     /// </summary>
     public enum Error
     {
@@ -78,7 +75,7 @@ namespace Tilengine
     }
 
     /// <summary>
-    /// 
+    /// List of flag values for window creation
     /// </summary>
     public enum WindowFlags
     {
@@ -89,10 +86,22 @@ namespace Tilengine
         S3 = (3 << 2),
         S4 = (4 << 2),
         S5 = (5 << 2),
+        Nearest	= (1 << 6), // unfiltered upscaling
     }
 
     /// <summary>
-    /// 
+    /// Player index for input assignment functions
+    /// </summary>
+    public enum Player
+    {
+        P1,
+        P2,
+        P3,
+        P4
+    }
+
+    /// <summary>
+    /// Standard inputs query for cref="Window.GetInput()"
     /// </summary>
     public enum Input
     {
@@ -101,14 +110,30 @@ namespace Tilengine
         Down,
         Left,
         Right,
-        Button_A,
-        Button_B,
-        Button_C,
-        Button_D,
+        Button1,
+        Button2,
+        Button3,
+        Button4,
+        Button5,
+        Button6,
+        Start,
+
+        P1 = (Player.P1 << 4), // request player 1 input (default)
+        P2 = (Player.P2 << 4), // request player 2 input
+        P3 = (Player.P3 << 4), // request player 3 input
+        P4 = (Player.P4 << 4), // request player 4 input
+
+        /* compatibility symbols for pre-1.18 input model */
+        Button_A = Button1,
+        Button_B = Button2,
+        Button_C = Button3,
+        Button_D = Button4,
+        Button_E = Button5,
+        Button_F = Button6,
     }
 
     /// <summary>
-    /// 
+    /// Available blending modes for cref="Layer" and cref="Sprite"
     /// </summary>
     public enum Blend
     {
@@ -124,7 +149,7 @@ namespace Tilengine
     }
 
     /// <summary>
-    /// 
+    /// List of flags for tiles and sprites
     /// </summary>
     public enum TileFlags
     {
@@ -136,7 +161,7 @@ namespace Tilengine
     }
 
     /// <summary>
-    /// 
+    /// Data used to create cref="Spriteset" objects
     /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     public struct SpriteData
@@ -150,7 +175,7 @@ namespace Tilengine
     }
 
     /// <summary>
-    /// 
+    /// Data returned by cref="Spriteset.GetSpriteInfo" with dimensions of the requested sprite
     /// </summary>
     [StructLayoutAttribute(LayoutKind.Sequential)]
     public struct SpriteInfo
@@ -160,7 +185,7 @@ namespace Tilengine
     }
 
     /// <summary>
-    /// 
+    /// Data returned by cref="Layer.GetTile" about a given tile inside a background layer
     /// </summary>
     [StructLayoutAttribute(LayoutKind.Sequential)]
     public struct TileInfo
@@ -177,7 +202,7 @@ namespace Tilengine
     }
 
     /// <summary>
-    /// Tileset attributes for Tileset constructor
+    /// cref="Tileset" attributes for constructor
     /// </summary>
     [StructLayoutAttribute(LayoutKind.Sequential)]
 	public struct TileAttributes
@@ -187,7 +212,7 @@ namespace Tilengine
 	}
 
     /// <summary>
-    /// 
+    /// Data used to define each frame of an animation for cref="Sequence" objects
     /// </summary>
     [StructLayoutAttribute(LayoutKind.Sequential)]
     public struct SequenceFrame
@@ -197,7 +222,7 @@ namespace Tilengine
     }
 
     /// <summary>
-    /// 
+    /// Data used to define each frame of a color cycle for cref="Sequence" objects
     /// </summary>
     [StructLayoutAttribute(LayoutKind.Sequential)]
     public struct ColorStrip
@@ -209,7 +234,18 @@ namespace Tilengine
     }
 
     /// <summary>
-    /// 
+    /// Sequence info returned by cref="Sequence.GetInfo"
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+    public struct SequenceInfo
+    {
+        [MarshalAs(UnmanagedType.LPStr, SizeConst = 32)]
+        public string Name;	    // sequence name
+        public int NumFrames;	// number of frames
+    }
+
+    /// <summary>
+    /// Represents a color value in RGB format
     /// </summary>
     public struct Color
     {
@@ -221,7 +257,7 @@ namespace Tilengine
             B = b;
         }
     }
-	
+
     /// <summary>
     /// overlays for CRT effect
     /// </summary>
@@ -233,9 +269,9 @@ namespace Tilengine
 		Scanlines,
 		Custom
 	}
-	
+
     /// <summary>
-    /// pixel mapping for Layer.SetPixelMapping()
+    /// pixel mapping for cref="Layer.SetPixelMapping"
     /// </summary>
 	public struct PixelMap
 	{
@@ -243,24 +279,23 @@ namespace Tilengine
 	}
 
     /// <summary>
-    /// Creaton error exception
+    /// Generic Tilengine exception
     /// </summary>
-    public class CreationException : Exception
+    public class TilengineException : Exception
     {
+        public TilengineException(string message) : base(message)
+        {
+        }
     }
 
+    public delegate void VideoCallback(int line);
+	public delegate byte BlendFunction(byte src, byte dst);
+
     /// <summary>
-    /// 
-    /// </summary>
-    public class NotFoundException : Exception
-    {
-    }
-    
-    /// <summary>
-    /// 
+    /// Main object for engine creation and rendering
     /// </summary>
     public struct Engine
-    {    
+    {
         // singleton
         private static Engine instance;
         private static bool init;
@@ -268,6 +303,10 @@ namespace Tilengine
 		public Layer[] Layers;
 		public Sprite[] Sprites;
 		public Animation[] Animations;
+
+        public int Width;		// Width in pixels of the framebuffer
+        public int Height;		// Height in pixels of the framebuffer
+        public uint Version;	// Tilengine dll version, in a 32-bit integer
 
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
@@ -316,7 +355,10 @@ namespace Tilengine
         private static extern bool TLN_SetBGPalette(IntPtr palette);
 
         [DllImport("Tilengine")]
-        private static extern void TLN_SetRasterCallback(RasterCallback callback);
+        private static extern void TLN_SetRasterCallback(VideoCallback callback);
+
+        [DllImport("Tilengine")]
+        private static extern void TLN_SetFrameCallback(VideoCallback callback);
 
         [DllImport("Tilengine")]
         private static extern void TLN_SetRenderTarget(byte[] data, int pitch);
@@ -345,11 +387,11 @@ namespace Tilengine
 
         [DllImport("Tilengine")]
         private static extern void TLN_SetLoadPath(string path);
-		
+
         [DllImport("Tilengine")]
         private static extern void TLN_SetCustomBlendFunction(BlendFunction function);
 
-        private Engine (int hres, int vres, int numLayers, int numSprites, int numAnimations)
+        private Engine (int numLayers, int numSprites, int numAnimations)
         {
             int c;
 
@@ -364,6 +406,10 @@ namespace Tilengine
             Animations = new Animation[numAnimations];
             for (c = 0; c < numAnimations; c++)
                 Animations[c].index = c;
+
+            Width = 0;
+            Height = 0;
+            Version = 0;
         }
 
         /// <summary>
@@ -382,15 +428,13 @@ namespace Tilengine
             if (!init)
             {
                 bool retval = TLN_Init(hres, vres, numLayers, numSprites, numAnimations);
-                if (retval)
-                {
-                    init = true;
-                    instance = new Engine(hres, vres, numLayers, numSprites, numAnimations);
-                }
-                else
-                    throw new CreationException();
+                Engine.ThrowException(retval);
+                init = true;
+                instance = new Engine(numLayers, numSprites, numAnimations);
+                instance.Width = hres;
+                instance.Height = vres;
+                instance.Version = TLN_GetVersion();
             }
-
             return instance;
         }
 
@@ -400,22 +444,6 @@ namespace Tilengine
         public void Deinit()
         {
             TLN_Deinit();
-        }
-
-        /// <summary>
-        /// Returns the width in pixels of the framebuffer
-        /// </summary>
-        public int Width
-        {
-            get { return TLN_GetWidth(); }
-        }
-
-        /// <summary>
-        /// Returns the height in pixels of the framebuffer
-        /// </summary>
-        public int Height
-        {
-            get { return TLN_GetHeight(); }
         }
 
         /// <summary>
@@ -432,14 +460,6 @@ namespace Tilengine
         public uint UsedMemory
         {
             get { return TLN_GetUsedMemory(); }
-        }
-
-        /// <summary>
-        /// Retrieves Tilengine dll version, in a 32-bit integer
-        /// </summary>
-        public uint Version
-        {
-            get { return TLN_GetVersion(); }
         }
 
         /// <summary>
@@ -472,7 +492,11 @@ namespace Tilengine
         /// </summary>
         public Bitmap BackgroundBitmap
         {
-            set { TLN_SetBGBitmap(value.ptr); }
+            set
+            {
+                bool ok = TLN_SetBGBitmap(value.ptr);
+                Engine.ThrowException(ok);
+            }
         }
 
         /// <summary>
@@ -480,7 +504,11 @@ namespace Tilengine
         /// </summary>
         public Palette BackgroundPalette
         {
-            set { TLN_SetBGPalette(value.ptr); }
+            set
+            {
+                bool ok = TLN_SetBGPalette(value.ptr);
+                Engine.ThrowException(ok);
+            }
         }
 
         /// <summary>
@@ -495,26 +523,40 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        /// Enables raster effects processing, like a virtual HBLANK interrupt where
+        /// any render parameter can be modified between scanlines.
         /// </summary>
-        /// <param name="callback"></param>
-        public void SetRasterCallback(RasterCallback callback)
+        /// <param name="callback">name of the user-defined function to call for each scanline. Set Null to disable.</param>
+        public void SetRasterCallback(VideoCallback callback)
         {
             TLN_SetRasterCallback(callback);
         }
 
         /// <summary>
-        /// 
+        /// Enables user callback for each drawn frame, like a virtual VBLANK interrupt
+        /// </summary>
+        /// <param name="callback">name of the user-defined function to call for each frame. Set Null to disable.</param>
+        public void SetFrameCallback(VideoCallback callback)
+        {
+            TLN_SetFrameCallback(callback);
+        }
+
+        /// <summary>
+        /// Base path for all data loading .FromFile() static methods
         /// </summary>
         public String LoadPath
         {
             set { TLN_SetLoadPath(value); }
         }
-        
+
         /// <summary>
-        /// 
+        /// Sets custom blend function to use in sprites or background layers when cref="Blend.Custom" mode
+		/// is selected with the cref="Layer.BlendMode" and cref="Sprite.BlendMode" properties.
         /// </summary>
-        /// <param name="function"></param>
+        /// <param name="function">user-defined function to call when blending that takes
+		/// two integer arguments: source component intensity, destination component intensity, and returns
+		/// the desired intensity.
+        /// </param>
         public void SetCustomBlendFunction(BlendFunction function)
         {
             TLN_SetCustomBlendFunction(function);
@@ -540,35 +582,28 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// Returns the last error after an invalid operation
+        /// Throws a TilengineException after an unsuccessful operation
         /// </summary>
-        public Error LastError
+        /// <param name="success"></param>
+        internal static void ThrowException(bool success)
         {
-            set { TLN_SetLastError(value); }
-            get { return TLN_GetLastError(); }
+            if (success == false)
+            {
+                Error error = TLN_GetLastError();
+                string name = TLN_GetErrorString(error);
+                throw new TilengineException(name);
+            }
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="error"></param>
-        /// <returns>Returns a string description about the given error</returns>
-        public string GetErrorString(Error error)
-        {
-            return TLN_GetErrorString(error);
-        }
-
-        /// <summary>
-        /// 
+        /// Returns reference to first unused sprite
         /// </summary>
         /// <returns></returns>
         public Sprite GetAvailableSprite()
         {
             int index = TLN_GetAvailableSprite();
-            if (index >= 0)
-                return Sprites[index];
-            else
-                throw new NotFoundException();
+            Engine.ThrowException(index != -1);
+            return Sprites[index];
         }
     }
 
@@ -595,7 +630,7 @@ namespace Tilengine
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
         private static extern bool TLN_ProcessWindow();
-        
+
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
         private static extern bool TLN_IsWindowActive();
@@ -605,7 +640,16 @@ namespace Tilengine
         private static extern bool TLN_GetInput(Input id);
 
         [DllImport("Tilengine")]
-        private static extern Input TLN_GetLastInput();
+        private static extern void TLN_EnableInput (Player player, bool enable);
+
+        [DllImport("Tilengine")]
+        private static extern void TLN_AssignInputJoystick (Player player, int index);
+
+        [DllImport("Tilengine")]
+        private static extern void TLN_DefineInputKey (Player player, Input input, int keycode);
+
+        [DllImport("Tilengine")]
+        private static extern void TLN_DefineInputButton (Player player, Input input, byte joybutton);
 
         [DllImport("Tilengine")]
         private static extern void TLN_DrawFrame(int time);
@@ -615,12 +659,12 @@ namespace Tilengine
 
         [DllImport("Tilengine")]
         private static extern void TLN_DeleteWindow();
-		
+
 		[DllImport("Tilengine")]
 		private static extern void TLN_EnableCRTEffect(Overlay overlay, byte overlay_factor, byte threshold, byte v0, byte v1, byte v2, byte v3, bool blur, byte glow_factor);
-		
+
 		[DllImport("Tilengine")]
-		private static extern void TLN_DisableCRTEffect();		
+		private static extern void TLN_DisableCRTEffect();
 
         [DllImport("Tilengine")]
         private static extern void TLN_Delay(uint msecs);
@@ -647,15 +691,10 @@ namespace Tilengine
             if (!init)
             {
                 bool retval = TLN_CreateWindow (overlay, flags);
-                if (retval)
-                {
-                    init = true;
-                    instance = new Window();
-                }
-                else
-                    throw new CreationException();
+                Engine.ThrowException(retval);
+                init = true;
+                instance = new Window();
             }
-
             return instance;
         }
 
@@ -672,15 +711,10 @@ namespace Tilengine
             if (!init)
             {
                 bool retval = TLN_CreateWindowThread (overlay, flags);
-                if (retval)
-                {
-                    init = true;
-                    instance = new Window();
-                }
-                else
-                    throw new CreationException();
+                Engine.ThrowException(retval);
+                init = true;
+                instance = new Window();
             }
-
             return instance;
         }
 
@@ -701,7 +735,7 @@ namespace Tilengine
         {
             return TLN_ProcessWindow ();
         }
-        
+
         /// <summary>
         /// true if window is active or false if the user has requested to end the application (by pressing Esc key or clicking the close button)
         /// </summary>
@@ -713,26 +747,60 @@ namespace Tilengine
         /// <summary>
         /// Returns the state of a given input
         /// </summary>
-        /// <param name="id">Input identificator to check state</param>
+        /// <param name="id">Input identifier to check state</param>
         /// <returns>true if that input is pressed or false if not</returns>
-        public bool GetInput (Input id)
+        public bool GetInput(Input id)
         {
             return TLN_GetInput(id);
         }
 
         /// <summary>
-        /// Returns the last pressed input button
+        ///
         /// </summary>
-        public Input LastInput
+        /// <param name="player">Player number to configure</param>
+        /// <param name="enable"></param>
+        public void EnableInput(Player player, bool enable)
         {
-            get { return TLN_GetLastInput(); }
+            TLN_EnableInput(player, enable);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="player">Player number to configure</param>
+        /// <param name="index"></param>
+        public void AssignInputJoystick(Player player, int index)
+        {
+            TLN_AssignInputJoystick (player, index);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="player">Player number to configure</param>
+        /// <param name="input"></param>
+        /// <param name="keycode"></param>
+        public void DefineInputKey(Player player, Input input, int keycode)
+        {
+            TLN_DefineInputKey (player, input, keycode);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="player">Player number to configure</param>
+        /// <param name="input"></param>
+        /// <param name="joybutton"></param>
+        public void DefineInputButton(Player player, Input input, byte joybutton)
+        {
+            TLN_DefineInputButton (player, input, joybutton);
         }
 
         /// <summary>
         /// Begins active rendering frame
         /// </summary>
         /// <param name="frame">Timestamp value</param>
-        /// <remarks>Use this method instead of Engine.BeginFrame() when using build-in windowing</remarks>
+        /// <remarks>Use this method instead of Engine::BeginFrame() when using build-in windowing</remarks>
         public void BeginFrame(int frame)
         {
             TLN_BeginWindowFrame(frame);
@@ -749,7 +817,7 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void EndFrame()
         {
@@ -757,7 +825,7 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void WaitRedraw()
         {
@@ -765,31 +833,23 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// Deprecated, use EnableCRTEffect() instead
-        /// </summary>
-        public bool Blur
-        {
-            set { return; }
-        }
-		
-        /// <summary>
-        /// 
+        ///
         /// </summary>
 		public void EnableCRTEffect(Overlay overlay, byte overlay_factor, byte threshold, byte v0, byte v1, byte v2, byte v3, bool blur, byte glow_factor)
 		{
 			TLN_EnableCRTEffect(overlay, overlay_factor, threshold, v0, v1, v2, v3, blur, glow_factor);
 		}
-		
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
 		public void DisableCRTEffect()
 		{
 			TLN_DisableCRTEffect();
-		}		
+		}
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="msecs"></param>
         public void Delay(uint msecs)
@@ -798,7 +858,7 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public uint Ticks
         {
@@ -806,7 +866,7 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void Delete()
         {
@@ -820,7 +880,7 @@ namespace Tilengine
     public struct Layer
     {
 		internal int index;
-		
+
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
         private static extern bool TLN_SetLayer(int nlayer, IntPtr tileset, IntPtr tilemap);
@@ -840,7 +900,7 @@ namespace Tilengine
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
         private static extern bool TLN_SetLayerTransform(int nlayer, float angle, float dx, float dy, float sx, float sy);
-		
+
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
 		private static extern bool TLN_SetLayerPixelMapping (int nlayer, PixelMap[] table);
@@ -852,11 +912,11 @@ namespace Tilengine
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
         private static extern bool TLN_SetLayerColumnOffset(int nlayer, int[] offset);
-		
+
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
         private static extern bool TLN_SetLayerClip(int nlayer, int x1, int y1, int x2, int y2);
-		
+
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
         private static extern bool TLN_DisableLayerClip(int nlayer);
@@ -886,167 +946,181 @@ namespace Tilengine
 
         [DllImport("Tilengine")]
         private static extern int TLN_GetLayerWidth(int nlayer);
-        
+
         [DllImport("Tilengine")]
-        private static extern int TLN_GetLayerHeight(int nlayer);            
+        private static extern int TLN_GetLayerHeight(int nlayer);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="tileset"></param>
         /// <param name="tilemap"></param>
-        /// <returns></returns>
-        public bool Setup(Tileset tileset, Tilemap tilemap)
+        public void Setup(Tileset tileset, Tilemap tilemap)
         {
-            return TLN_SetLayer(index, tileset.ptr, tilemap.ptr);
+            bool ok = TLN_SetLayer(index, tileset.ptr, tilemap.ptr);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="tilemap"></param>
-        /// <returns></returns>
-        public bool SetMap(Tilemap tilemap)
+        public void SetMap(Tilemap tilemap)
         {
-            return TLN_SetLayer(index, IntPtr.Zero, tilemap.ptr);
+            bool ok = TLN_SetLayer(index, IntPtr.Zero, tilemap.ptr);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        public bool SetPosition(int x, int y)
+        public void SetPosition(int x, int y)
         {
-            return TLN_SetLayerPosition(index, x, y);
+            bool ok = TLN_SetLayerPosition(index, x, y);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="sx"></param>
         /// <param name="sy"></param>
-        /// <returns></returns>
-        public bool SetScaling(float sx, float sy)
+        public void SetScaling(float sx, float sy)
         {
-            return TLN_SetLayerScaling(index, sx, sy);
+            bool ok = TLN_SetLayerScaling(index, sx, sy);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="angle"></param>
         /// <param name="dx"></param>
         /// <param name="dy"></param>
         /// <param name="sx"></param>
         /// <param name="sy"></param>
-        /// <returns></returns>
-        public bool SetTransform(float angle, float dx, float dy, float sx, float sy)
+        public void SetTransform(float angle, float dx, float dy, float sx, float sy)
         {
-            return TLN_SetLayerTransform(index, angle, dx, dy, sx, sy);
+            bool ok = TLN_SetLayerTransform(index, angle, dx, dy, sx, sy);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-		/// <param name="">map</param>
-        /// <returns></returns>
-		public bool SetPixelMapping(PixelMap[] map)
+		/// <param name="map"></param>
+		public void SetPixelMapping(PixelMap[] map)
 		{
-			return TLN_SetLayerPixelMapping(index, map);
+            bool ok = TLN_SetLayerPixelMapping(index, map);
+            Engine.ThrowException(ok);
 		}
-		
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <returns></returns>
-        public bool Reset()
+        public void Reset()
         {
-            return TLN_ResetLayerMode(index);
+            bool ok = TLN_ResetLayerMode(index);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <param name="blend"></param>
-        /// <returns></returns>
-        public bool SetBlendMode(Blend blend)
+        public Blend BlendMode
         {
-            return TLN_SetLayerBlendMode(index, blend, 0);
+            set
+            {
+                bool ok = TLN_SetLayerBlendMode(index, value, 0);
+                Engine.ThrowException(ok);
+            }
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        public int[] ColumnOffset
+        public void SetColumnOffset(int[] offsets)
         {
-            set { TLN_SetLayerColumnOffset(index, value); }
+            bool ok = TLN_SetLayerColumnOffset(index, offsets);
+            Engine.ThrowException(ok);
         }
-		
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
 		/// <param name="x1"></param>
 		/// <param name="y1"></param>
 		/// <param name="x2"></param>
 		/// <param name="y2"></param>
-		public bool SetClip(int x1, int y1, int x2, int y2)
+		public void SetClip(int x1, int y1, int x2, int y2)
 		{
-			return TLN_SetLayerClip(index, x1, y1, x2, y2);
+            bool ok = TLN_SetLayerClip(index, x1, y1, x2, y2);
+            Engine.ThrowException(ok);
 		}
-		
+
 		/// <summary>
-		/// 
+		///
 		/// </summary>
-		/// <returns></returns>
-        public bool DisableClip()
+        public void DisableClip()
 		{
-			return TLN_DisableLayerClip(index);
+            bool ok = TLN_DisableLayerClip(index);
+            Engine.ThrowException(ok);
 		}
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="width"></param>
         /// <param name="height"></param>
-        /// <returns></returns>
-        public bool SetMosaic(int width, int height)
+        public void SetMosaic(int width, int height)
         {
-            return TLN_SetLayerMosaic(index, width, height);
+            bool ok = TLN_SetLayerMosaic(index, width, height);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <returns></returns>
-        public bool DisableMosaic()
+        public void DisableMosaic()
         {
-            return TLN_DisableLayerMosaic(index);
+            bool ok = TLN_DisableLayerMosaic(index);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <param name="info"></param>
-        /// <returns></returns>
-        public bool GetTileInfo(int x, int y, out TileInfo info)
+        public void GetTileInfo(int x, int y, out TileInfo info)
         {
-            return TLN_GetLayerTile(index, x, y, out info);
+            bool ok = TLN_GetLayerTile(index, x, y, out info);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public Palette Palette
         {
-            get { return new Palette(TLN_GetLayerPalette(index)); }
-            set { TLN_SetLayerPalette(index, value.ptr); }
+            get
+            {
+                IntPtr value = TLN_GetLayerPalette(index);
+                Engine.ThrowException(value != IntPtr.Zero);
+                return new Palette(value);
+            }
+            set
+            {
+                bool ok = TLN_SetLayerPalette(index, value.ptr);
+                Engine.ThrowException(ok);
+            }
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public int Width
         {
@@ -1054,7 +1128,7 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public int Height
         {
@@ -1062,12 +1136,12 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <returns></returns>
-        public bool Disable()
+        public void Disable()
         {
-            return TLN_DisableLayer(index);
+            bool ok = TLN_DisableLayer(index);
+            Engine.ThrowException(ok);
         }
     }
 
@@ -1077,7 +1151,7 @@ namespace Tilengine
     public struct Sprite
     {
 		internal int index;
-		
+
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
         private static extern bool TLN_ConfigSprite(int nsprite, IntPtr spriteset, TileFlags flags);
@@ -1133,108 +1207,144 @@ namespace Tilengine
         private static extern IntPtr TLN_GetSpritePalette(int nsprite);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="spriteset"></param>
         /// <param name="flags"></param>
-        /// <returns></returns>
-        public bool Setup(Spriteset spriteset, TileFlags flags)
+        public void Setup(Spriteset spriteset, TileFlags flags)
         {
-            return TLN_ConfigSprite(index, spriteset.ptr, flags);
+            bool ok = TLN_ConfigSprite(index, spriteset.ptr, flags);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public Spriteset Spriteset
         {
-            set { TLN_SetSpriteSet(index, value.ptr); }
+            set
+            {
+                bool ok = TLN_SetSpriteSet(index, value.ptr);
+                Engine.ThrowException(ok);
+            }
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public TileFlags Flags
         {
-            set { TLN_SetSpriteFlags(index, value); }
+            set
+            {
+                bool ok = TLN_SetSpriteFlags(index, value);
+                Engine.ThrowException(ok);
+            }
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public int Picture
         {
-            set { TLN_SetSpritePicture(index, value); }
-            get { return TLN_GetSpritePicture(index); }
+            set
+            {
+                bool ok = TLN_SetSpritePicture(index, value);
+                Engine.ThrowException(ok);
+            }
+            get
+            {
+                int value = TLN_GetSpritePicture(index);
+                Engine.ThrowException(value != -1);
+                return value;
+            }
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public Palette Palette
         {
-            set { TLN_SetSpritePalette(index, value.ptr); }
-            get { return new Palette(TLN_GetSpritePalette(index)); }
+            set
+            {
+                bool ok = TLN_SetSpritePalette(index, value.ptr);
+                Engine.ThrowException(ok);
+            }
+            get
+            {
+                IntPtr value = TLN_GetSpritePalette(index);
+                Engine.ThrowException(value != IntPtr.Zero);
+                return new Palette(value);
+            }
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        /// <returns></returns>
-        public bool SetPosition(int x, int y)
+        public void SetPosition(int x, int y)
         {
-            return TLN_SetSpritePosition(index, x, y);
+            bool ok = TLN_SetSpritePosition(index, x, y);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="sx"></param>
         /// <param name="sy"></param>
-        /// <returns></returns>
-        public bool SetScaling(float sx, float sy)
+        public void SetScaling(float sx, float sy)
         {
-            return TLN_SetSpriteScaling(index, sx, sy);
+            bool ok = TLN_SetSpriteScaling(index, sx, sy);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <returns></returns>
-        public bool Reset()
+        public void Reset()
         {
-            return TLN_ResetSpriteScaling(index);
+            bool ok = TLN_ResetSpriteScaling(index);
+            Engine.ThrowException(false);
         }
 
         /// <summary>
-        /// 
+        /// Sets blending mode
         /// </summary>
-        /// <param name="blend"></param>
-        /// <param name="factor"></param>
-        /// <returns></returns>
-        public bool SetBlendMode(Blend blend, byte factor)
+        public Blend BlendMode
         {
-            return TLN_SetSpriteBlendMode(index, blend, factor);
+            set
+            {
+                bool ok = TLN_SetSpriteBlendMode(index, value, 0);
+                Engine.ThrowException(ok);
+            }
         }
 
         /// <summary>
-        /// 
+        ///
+        /// </summary>
+        /// <param name="mode"></param>
+        public void EnableCollision(bool mode)
+        {
+            bool ok = TLN_EnableSpriteCollision(index, mode);
+            Engine.ThrowException(ok);
+        }
+
+        /// <summary>
+        ///
         /// </summary>
         public bool Collision
         {
-            set { TLN_EnableSpriteCollision(index, value); }
             get { return TLN_GetSpriteCollision(index); }
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <returns></returns>
-        public bool Disable()
+        public void Disable()
         {
-            return TLN_DisableSprite(index);
+            bool ok = TLN_DisableSprite(index);
+            Engine.ThrowException(ok);
         }
     }
 
@@ -1244,7 +1354,7 @@ namespace Tilengine
     public struct Animation
     {
 		internal int index;
-		
+
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
         private static extern bool TLN_SetPaletteAnimation(int index, IntPtr palette, IntPtr sequence, [MarshalAsAttribute(UnmanagedType.I1)] bool blend);
@@ -1281,63 +1391,63 @@ namespace Tilengine
         private static extern bool TLN_DisableAnimation(int index);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="palette"></param>
         /// <param name="sequence"></param>
         /// <param name="blend"></param>
-        /// <returns></returns>
-        public bool SetPaletteAnimation(Palette palette, Sequence sequence, bool blend)
+        public void SetPaletteAnimation(Palette palette, Sequence sequence, bool blend)
         {
-            return TLN_SetPaletteAnimation(index, palette.ptr, sequence.ptr, blend);
+            bool ok = TLN_SetPaletteAnimation(index, palette.ptr, sequence.ptr, blend);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="palette"></param>
-        /// <returns></returns>
-        public bool SetPaletteAnimationSource(Palette palette)
+        public void SetPaletteAnimationSource(Palette palette)
         {
-            return TLN_SetPaletteAnimationSource(index, palette.ptr);
+            bool ok = TLN_SetPaletteAnimationSource(index, palette.ptr);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="layerIndex"></param>
         /// <param name="sequence"></param>
-        /// <returns></returns>
-        public bool SetTilesetAnimation(int layerIndex, Sequence sequence)
+        public void SetTilesetAnimation(int layerIndex, Sequence sequence)
         {
-            return TLN_SetTilesetAnimation(index, layerIndex, sequence.ptr);
+            bool ok = TLN_SetTilesetAnimation(index, layerIndex, sequence.ptr);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="layerIndex"></param>
         /// <param name="sequence"></param>
-        /// <returns></returns>
-        public bool SetTilemapAnimation(int layerIndex, Sequence sequence)
+        public void SetTilemapAnimation(int layerIndex, Sequence sequence)
         {
-            return TLN_SetTilemapAnimation(index, layerIndex, sequence.ptr);
+            bool ok = TLN_SetTilemapAnimation(index, layerIndex, sequence.ptr);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="spriteIndex"></param>
         /// <param name="sequence"></param>
         /// <param name="loop"></param>
-        /// <returns></returns>
-        public bool SetSpriteAnimation(int spriteIndex, Sequence sequence, int loop)
+        public void SetSpriteAnimation(int spriteIndex, Sequence sequence, int loop)
         {
-            return TLN_SetSpriteAnimation(index, spriteIndex, sequence.ptr, loop);
+            bool ok = TLN_SetSpriteAnimation(index, spriteIndex, sequence.ptr, loop);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public bool Active
         {
@@ -1345,20 +1455,24 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public int Delay
         {
-            set { TLN_SetAnimationDelay(index, value); }
+            set
+            {
+                bool ok = TLN_SetAnimationDelay(index, value);
+                Engine.ThrowException(ok);
+            }
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <returns></returns>
-        public bool Disable()
+        public void Disable()
         {
-            return TLN_DisableAnimation(index);
+            bool ok = TLN_DisableAnimation(index);
+            Engine.ThrowException(ok);
         }
     }
 
@@ -1390,10 +1504,14 @@ namespace Tilengine
 
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
+        private static extern bool TLN_SetSpritesetData(IntPtr spriteset, int entry, SpriteData[] data, IntPtr pixels, int pitch);
+
+        [DllImport("Tilengine")]
+        [return: MarshalAsAttribute(UnmanagedType.I1)]
         private static extern bool TLN_DeleteSpriteset(IntPtr Spriteset);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="res"></param>
         internal Spriteset (IntPtr res)
@@ -1402,59 +1520,53 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="bitmap"></param>
         /// <param name="data"></param>
         public Spriteset (Bitmap bitmap, SpriteData[] data)
         {
             IntPtr retval = TLN_CreateSpriteset(bitmap.ptr, data, data.Length);
-            if (retval != IntPtr.Zero)
-                ptr = retval;
-            else
-                throw new CreationException ();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            ptr = retval;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="filename"></param>
         /// <returns></returns>
         public static Spriteset FromFile (string filename)
         {
             IntPtr retval = TLN_LoadSpriteset (filename);
-            if (retval != IntPtr.Zero)
-                return new Spriteset (retval);
-            else
-                throw new FileNotFoundException();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            return new Spriteset (retval);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public Spriteset Clone ()
         {
             IntPtr retval = TLN_CloneSpriteset(ptr);
-            if (retval != IntPtr.Zero)
-                return new Spriteset (retval);
-            else
-                throw new CreationException();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            return new Spriteset(retval);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="index"></param>
         /// <param name="info"></param>
-        /// <returns></returns>
-        public bool GetInfo (int index, out SpriteInfo info)
+        public void GetInfo (int index, out SpriteInfo info)
         {
-            return TLN_GetSpriteInfo (ptr, index, out info);
+            bool ok = TLN_GetSpriteInfo (ptr, index, out info);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public Palette Palette
         {
@@ -1462,22 +1574,39 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
         public int FindSprite(string name)
         {
-            return TLN_FindSpritesetSprite(ptr, name);
+            int index = TLN_FindSpritesetSprite(ptr, name);
+            Engine.ThrowException(index != -1);
+            return index;
+
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <returns></returns>
-        public bool Delete ()
+        /// <param name="entry"></param>
+        /// <param name="data"></param>
+        /// <param name="pixels"></param>
+        /// <param name="pitch"></param>
+        public void TLN_SetSpritesetData(int entry, SpriteData[] data, IntPtr pixels, int pitch)
         {
-            return TLN_DeleteSpriteset (ptr);
+            bool ok = TLN_SetSpritesetData(ptr, entry, data, pixels, pitch);
+            Engine.ThrowException(ok);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public void Delete ()
+        {
+            bool ok = TLN_DeleteSpriteset (ptr);
+            Engine.ThrowException(ok);
+            ptr = IntPtr.Zero;
         }
     }
 
@@ -1500,7 +1629,7 @@ namespace Tilengine
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
         private static extern bool TLN_CopyTile(IntPtr tileset, int src, int dst);
-        
+
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
         private static extern bool TLN_SetTilesetPixels(IntPtr tileset, int entry, byte[] srcdata, int srcpitch);
@@ -1522,7 +1651,7 @@ namespace Tilengine
         private static extern bool TLN_DeleteTileset(IntPtr tileset);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="res"></param>
         internal Tileset (IntPtr res)
@@ -1531,75 +1660,69 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="numTiles"></param>
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <param name="palette"></param>
-        /// <param name="palette"></param>
-        /// <param name="palette"></param>
+        /// <param name="sp"></param>
+        /// <param name="attributes"></param>
         public Tileset(int numTiles, int width, int height, Palette palette, SequencePack sp, TileAttributes[] attributes)
         {
             IntPtr retval = TLN_CreateTileset(numTiles, width, height, palette.ptr, sp.ptr, attributes);
-            if (retval != IntPtr.Zero)
-                ptr = retval;
-            else
-                throw new CreationException();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            ptr = retval;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="filename"></param>
         /// <returns></returns>
         public static Tileset FromFile(string filename)
         {
             IntPtr retval = TLN_LoadTileset(filename);
-            if (retval != IntPtr.Zero)
-                return new Tileset(retval);
-            else
-                throw new FileNotFoundException();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            return new Tileset(retval);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public Tileset Clone()
         {
             IntPtr retval = TLN_CloneTileset(ptr);
-            if (retval != IntPtr.Zero)
-                return new Tileset(retval);
-            else
-                throw new CreationException();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            return new Tileset(retval);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="entry"></param>
         /// <param name="pixels"></param>
         /// <param name="pitch"></param>
-        /// <returns></returns>
-        public bool SetPixels(int entry, byte[] pixels, int pitch)
+        public void SetPixels(int entry, byte[] pixels, int pitch)
         {
-            return TLN_SetTilesetPixels(ptr, entry, pixels, pitch);
+            bool ok = TLN_SetTilesetPixels(ptr, entry, pixels, pitch);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="src"></param>
         /// <param name="dst"></param>
-        /// <returns></returns>
-        public bool CopyTile(int src, int dst)
+        public void CopyTile(int src, int dst)
         {
-            return TLN_CopyTile(ptr, src, dst);
+            bool ok = TLN_CopyTile(ptr, src, dst);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public int Width
         {
@@ -1607,7 +1730,7 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public int Height
         {
@@ -1615,7 +1738,7 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public Palette Palette
         {
@@ -1623,7 +1746,7 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public SequencePack SequencePack
         {
@@ -1631,14 +1754,13 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <returns></returns>
-        public bool Delete()
+        public void Delete()
         {
-            IntPtr value = ptr;
+            bool ok = TLN_DeleteTileset(ptr);
+            Engine.ThrowException(ok);
             ptr = IntPtr.Zero;
-            return TLN_DeleteTileset(value);
         }
     }
 
@@ -1684,7 +1806,7 @@ namespace Tilengine
         private static extern bool TLN_DeleteTilemap(IntPtr tilemap);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="res"></param>
         internal Tilemap (IntPtr res)
@@ -1693,7 +1815,7 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="rows"></param>
         /// <param name="cols"></param>
@@ -1706,14 +1828,12 @@ namespace Tilengine
             color = 0xFF000000 + (bgcolor.R << 16) + (bgcolor.G << 8) + bgcolor.B;
 
             IntPtr retval = TLN_CreateTilemap(rows, cols, tiles, (uint)color, tileset);
-            if (retval != IntPtr.Zero)
-                ptr = retval;
-            else
-                throw new CreationException();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            ptr = retval;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="filename"></param>
         /// <param name="layername"></param>
@@ -1721,27 +1841,23 @@ namespace Tilengine
         public static Tilemap FromFile(string filename, string layername)
         {
             IntPtr retval = TLN_LoadTilemap(filename, layername);
-            if (retval != IntPtr.Zero)
-                return new Tilemap(retval);
-            else
-                throw new FileNotFoundException();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            return new Tilemap(retval);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public Tilemap Clone()
         {
             IntPtr retval = TLN_CloneTilemap(ptr);
-            if (retval != IntPtr.Zero)
-                return new Tilemap(retval);
-            else
-                throw new CreationException();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            return new Tilemap(retval);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public int Cols
         {
@@ -1749,7 +1865,7 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public int Rows
         {
@@ -1757,7 +1873,7 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public Tileset Tileset
         {
@@ -1765,31 +1881,31 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="row"></param>
         /// <param name="col"></param>
         /// <param name="tile"></param>
-        /// <returns></returns>
-        public bool SetTile(int row, int col, ref Tile tile)
+        public void SetTile(int row, int col, ref Tile tile)
         {
-            return TLN_SetTilemapTile(ptr, row, col, ref tile);
+            bool ok = TLN_SetTilemapTile(ptr, row, col, ref tile);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="row"></param>
         /// <param name="col"></param>
         /// <param name="tile"></param>
-        /// <returns></returns>
-        public bool GetTile(int row, int col, out Tile tile)
+        public void GetTile(int row, int col, out Tile tile)
         {
-            return TLN_GetTilemapTile(ptr, row, col, out tile);
+            bool ok = TLN_GetTilemapTile(ptr, row, col, out tile);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="srcRow"></param>
         /// <param name="srcCol"></param>
@@ -1798,21 +1914,20 @@ namespace Tilengine
         /// <param name="dst"></param>
         /// <param name="dstRow"></param>
         /// <param name="dstCol"></param>
-        /// <returns></returns>
-        public bool CopyTiles(int srcRow, int srcCol, int rows, int cols, Tilemap dst, int dstRow, int dstCol)
+        public void CopyTiles(int srcRow, int srcCol, int rows, int cols, Tilemap dst, int dstRow, int dstCol)
         {
-            return TLN_CopyTiles(ptr, srcRow, srcCol, rows, cols, dst.ptr, dstRow, dstCol);
+            bool ok = TLN_CopyTiles(ptr, srcRow, srcCol, rows, cols, dst.ptr, dstRow, dstCol);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <returns></returns>
-        public bool Delete()
+        public void Delete()
         {
-            IntPtr value = ptr;
+            bool ok = TLN_DeleteTilemap(ptr);
+            Engine.ThrowException(ok);
             ptr = IntPtr.Zero;
-            return TLN_DeleteTilemap(value);
         }
     }
 
@@ -1860,7 +1975,7 @@ namespace Tilengine
         private static extern bool TLN_DeletePalette(IntPtr palette);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="res"></param>
         internal Palette (IntPtr res)
@@ -1869,113 +1984,106 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="entries"></param>
         public Palette(int entries)
         {
             IntPtr retval = TLN_CreatePalette(entries);
-            if (retval != IntPtr.Zero)
-                ptr = retval;
-            else
-                throw new CreationException();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            ptr = retval;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="filename"></param>
         /// <returns></returns>
         public static Palette FromFile(string filename)
         {
             IntPtr retval = TLN_LoadPalette(filename);
-            if (retval != IntPtr.Zero)
-                return new Palette(retval);
-            else
-                throw new FileNotFoundException();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            return new Palette(retval);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public Palette Clone()
         {
             IntPtr retval = TLN_ClonePalette(ptr);
-            if (retval != IntPtr.Zero)
-                return new Palette(retval);
-            else
-                throw new CreationException();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            return new Palette(retval);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="index"></param>
         /// <param name="color"></param>
-        /// <returns></returns>
-        public bool SetColor(int index, Color color)
+        public void SetColor(int index, Color color)
         {
-            return TLN_SetPaletteColor(ptr, index, color.R, color.G, color.B);
+            bool ok = TLN_SetPaletteColor(ptr, index, color.R, color.G, color.B);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="src1"></param>
         /// <param name="src2"></param>
         /// <param name="factor"></param>
-        /// <returns></returns>
-        public bool Mix(Palette src1, Palette src2, byte factor)
+        public void Mix(Palette src1, Palette src2, byte factor)
         {
-            return TLN_MixPalettes(src1.ptr, src2.ptr, ptr, factor);
+            bool ok = TLN_MixPalettes(src1.ptr, src2.ptr, ptr, factor);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="color"></param>
         /// <param name="first"></param>
         /// <param name="count"></param>
-        /// <returns></returns>
-        public bool AddColor(Color color, byte first, byte count)
+        public void AddColor(Color color, byte first, byte count)
         {
-            return TLN_AddPaletteColor(ptr, color.R, color.G, color.B, first, count);
+            bool ok = TLN_AddPaletteColor(ptr, color.R, color.G, color.B, first, count);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="color"></param>
         /// <param name="first"></param>
         /// <param name="count"></param>
-        /// <returns></returns>
-        public bool SubColor(Color color, byte first, byte count)
+        public void SubColor(Color color, byte first, byte count)
         {
-            return TLN_SubPaletteColor(ptr, color.R, color.G, color.B, first, count);
+            bool ok = TLN_SubPaletteColor(ptr, color.R, color.G, color.B, first, count);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="color"></param>
         /// <param name="first"></param>
         /// <param name="count"></param>
-        /// <returns></returns>
-        public bool MulColor(Color color, byte first, byte count)
+        public void MulColor(Color color, byte first, byte count)
         {
-            return TLN_ModPaletteColor(ptr, color.R, color.G, color.B, first, count);
+            bool ok =  TLN_ModPaletteColor(ptr, color.R, color.G, color.B, first, count);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <returns></returns>
-        public bool Delete()
+        public void Delete()
         {
-            IntPtr value = ptr;
+            bool ok = TLN_DeletePalette(ptr);
+            Engine.ThrowException(ok);
             ptr = IntPtr.Zero;
-            return TLN_DeletePalette(value);
         }
     }
 
@@ -2022,7 +2130,7 @@ namespace Tilengine
         private static extern bool TLN_DeleteBitmap(IntPtr bitmap);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="res"></param>
         internal Bitmap(IntPtr res)
@@ -2031,7 +2139,7 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="width"></param>
         /// <param name="height"></param>
@@ -2039,37 +2147,31 @@ namespace Tilengine
         public Bitmap(int width, int height, int bpp)
         {
             IntPtr retval = TLN_CreateBitmap(width, height, bpp);
-            if (retval != IntPtr.Zero)
-                ptr = retval;
-            else
-                throw new CreationException();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            ptr = retval;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="filename"></param>
         /// <returns></returns>
         public static Bitmap FromFile(string filename)
         {
             IntPtr retval = TLN_LoadBitmap(filename);
-            if (retval != IntPtr.Zero)
-                return new Bitmap(retval);
-            else
-                throw new FileNotFoundException();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            return new Bitmap(retval);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public Bitmap Clone()
         {
             IntPtr retval = TLN_CloneBitmap(ptr);
-            if (retval != IntPtr.Zero)
-                return new Bitmap(retval);
-            else
-                throw new CreationException();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            return new Bitmap(retval);
         }
 
         /// <summary>
@@ -2094,7 +2196,7 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public int Width
         {
@@ -2102,7 +2204,7 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public int Height
         {
@@ -2110,7 +2212,7 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public int Depth
         {
@@ -2118,7 +2220,7 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public int Pitch
         {
@@ -2126,12 +2228,26 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public Palette Palette
         {
             get { return new Palette(TLN_GetBitmapPalette(ptr)); }
-            set { TLN_SetBitmapPalette(ptr, value.ptr); }
+            set
+            {
+                bool ok = TLN_SetBitmapPalette(ptr, value.ptr);
+                Engine.ThrowException(ok);
+            }
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public void Delete()
+        {
+            bool ok = TLN_DeleteBitmap(ptr);
+            Engine.ThrowException(ok);
+            ptr = IntPtr.Zero;
         }
     }
 
@@ -2149,14 +2265,18 @@ namespace Tilengine
         private static extern IntPtr TLN_CreateCycle(string name, int num_strips, ColorStrip[] strips);
 
         [DllImport("Tilengine")]
-        private static extern IntPtr TLN_CloneSequence(IntPtr src);
+        private static extern IntPtr TLN_CloneSequence(IntPtr sequence);
+
+        [DllImport("Tilengine")]
+        [return: MarshalAsAttribute(UnmanagedType.I1)]
+        private static extern bool TLN_GetSequenceInfo(IntPtr sequence, ref SequenceInfo info);
 
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
         private static extern bool TLN_DeleteSequence(IntPtr sequence);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="res"></param>
         internal Sequence (IntPtr res)
@@ -2165,60 +2285,62 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="delay"></param>
-        /// <param name="first"></param>
-        /// <param name="data"></param>
+        /// <param name="target"></param>
+        /// <param name="frames"></param>
         public Sequence(string name, int target, SequenceFrame[] frames)
         {
             IntPtr retval = TLN_CreateSequence(name, target, frames.Length, frames);
-            if (retval != IntPtr.Zero)
-                ptr = retval;
-            else
-                throw new CreationException();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            ptr = retval;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="name"></param>
         /// <param name="strips"></param>
         public Sequence(string name, ColorStrip[] strips)
         {
             IntPtr retval = TLN_CreateCycle(name, strips.Length, strips);
-            if (retval != IntPtr.Zero)
-                ptr = retval;
-            else
-                throw new CreationException();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            ptr = retval;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public Sequence Clone()
         {
             IntPtr retval = TLN_CloneSequence(ptr);
-            if (retval != IntPtr.Zero)
-                return new Sequence(retval);
-            else
-                throw new CreationException();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            return new Sequence(retval);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <returns></returns>
-        public bool Delete()
+        /// <param name="info"></param>
+        public void GetInfo(ref SequenceInfo info)
         {
-            IntPtr value = ptr;
+            bool ok = TLN_GetSequenceInfo(ptr, ref info);
+            Engine.ThrowException(ok);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public void Delete()
+        {
+            bool ok = TLN_DeleteSequence(ptr);
+            Engine.ThrowException(ok);
             ptr = IntPtr.Zero;
-            return TLN_DeleteSequence(value);
         }
     }
-     
+
     /// <summary>
     /// SequencePack resource
     /// </summary>
@@ -2250,7 +2372,7 @@ namespace Tilengine
         private static extern bool TLN_DeleteSequencePack(IntPtr sp);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="res"></param>
         internal SequencePack (IntPtr res)
@@ -2259,21 +2381,19 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="filename"></param>
         /// <returns></returns>
         public static SequencePack FromFile(string filename)
         {
             IntPtr retval = TLN_LoadSequencePack(filename);
-            if (retval != IntPtr.Zero)
-                return new SequencePack(retval);
-            else
-                throw new FileNotFoundException();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            return new SequencePack(retval);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public int NumSequences
         {
@@ -2281,52 +2401,47 @@ namespace Tilengine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
         public Sequence Find(string name)
         {
             IntPtr retval = TLN_FindSequence(ptr, name);
-            if (retval != IntPtr.Zero)
-                return new Sequence(retval);
-            else
-                throw new NotFoundException();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            return new Sequence(retval);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
         public Sequence Get(int index)
         {
             IntPtr retval = TLN_GetSequence(ptr, index);
-            if (retval != IntPtr.Zero)
-                return new Sequence(retval);
-            else
-                throw new NotFoundException();
+            Engine.ThrowException(retval != IntPtr.Zero);
+            return new Sequence(retval);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="sequence"></param>
-        /// <returns></returns>
-        public bool Add(Sequence sequence)
+        public void Add(Sequence sequence)
         {
-            return TLN_AddSequenceToPack(ptr, sequence.ptr);
+            bool ok = TLN_AddSequenceToPack(ptr, sequence.ptr);
+            Engine.ThrowException(ok);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <returns></returns>
-        public bool Delete()
+        public void Delete()
         {
-            IntPtr value = ptr;
+            bool ok = TLN_DeleteSequencePack(ptr);
+            Engine.ThrowException(ok);
             ptr = IntPtr.Zero;
-            return TLN_DeleteSequencePack(value);
         }
     }
 }
