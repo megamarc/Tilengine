@@ -410,7 +410,9 @@ char* getSimpleXmlParseErrorDescription (SimpleXmlParserState parser) {
  * > 0 if there was an error.
  */
 int parseSimpleXml (SimpleXmlParserState parser, SimpleXmlTagHandler handler) {
-	if (parser == NULL || handler == NULL) {
+	if (parser == NULL)
+		return FAIL;
+	if (handler == NULL) {
 		parser->nError= ILLEGAL_HANDLER;
 		return FAIL;
 	}
