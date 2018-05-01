@@ -1855,7 +1855,7 @@ class Sprite(object):
 
 		:param mode: One of the :class:`Blend` defined values
 		"""
-		ok = _tln.TLN_SetSpriteBlendMode(self, mode)
+		ok = _tln.TLN_SetSpriteBlendMode(self, mode, 0)
 		_raise_exception(ok)
 
 	def set_scaling(self, sx, sy):
