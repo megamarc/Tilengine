@@ -48,25 +48,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#else
 		#define TLNAPI __declspec(dllimport)
 	#endif
+
+	#if _MSC_VER >= 1600	/* Visual C++ 2010? */
+		#include <stdint.h>
+	#else
+		typedef char			int8_t;		/*!< signed 8-bit wide data */
+		typedef short			int16_t;	/*!< signed 16-bit wide data */
+		typedef int				int32_t;	/*!< signed 32-bit wide data */
+		typedef unsigned char	uint8_t;	/*!< unsigned 8-bit wide data */
+		typedef unsigned short	uint16_t;	/*!< unsigned 16-bit wide data */
+		typedef unsigned int	uint32_t;	/*!< unsigned 32-bit wide data */
+	#endif
 #else
 	#ifdef LIB_EXPORTS
 		#define TLNAPI __attribute__((visibility("default")))
 	#else
 		#define TLNAPI
 	#endif
+	#include <stdint.h>
 #endif	
 
 #include <stdio.h>
-#if defined _MSC_VER
-typedef char			int8_t;		/*!< signed 8-bit wide data */
-typedef short			int16_t;	/*!< signed 16-bit wide data */
-typedef int				int32_t;	/*!< signed 32-bit wide data */
-typedef unsigned char	uint8_t;	/*!< unsigned 8-bit wide data */
-typedef unsigned short	uint16_t;	/*!< unsigned 16-bit wide data */
-typedef unsigned int	uint32_t;	/*!< unsigned 32-bit wide data */
-#else
-#include <stdint.h>
-#endif
 
 /* bool C++ */
 #ifndef __cplusplus
