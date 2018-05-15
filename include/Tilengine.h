@@ -79,7 +79,7 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 
 /* version */
 #define TILENGINE_VER_MAJ	1
-#define TILENGINE_VER_MIN	19
+#define TILENGINE_VER_MIN	20
 #define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ<<16) | (TILENGINE_VER_MIN<<8) | TILENGINE_VER_REV)
 
@@ -483,6 +483,7 @@ TLNAPI bool TLN_DeleteBitmap (TLN_Bitmap bitmap);
  * Background layers management */
 /**@{*/
 TLNAPI bool TLN_SetLayer (int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap);
+TLNAPI bool TLN_SetLayerBitmap(int nlayer, TLN_Bitmap bitmap);
 TLNAPI bool TLN_SetLayerPalette (int nlayer, TLN_Palette palette);
 TLNAPI bool TLN_SetLayerPosition (int nlayer, int hstart, int vstart);
 TLNAPI bool TLN_SetLayerScaling (int nlayer, float xfactor, float yfactor);
@@ -518,6 +519,8 @@ TLNAPI bool TLN_SetSpritePalette (int nsprite, TLN_Palette palette);
 TLNAPI bool TLN_SetSpriteBlendMode (int nsprite, TLN_Blend mode, uint8_t factor);
 TLNAPI bool TLN_SetSpriteScaling (int nsprite, float sx, float sy);
 TLNAPI bool TLN_ResetSpriteScaling (int nsprite);
+//TLNAPI bool TLN_SetSpriteRotation (int nsprite, float angle);
+//TLNAPI bool TLN_ResetSpriteRotation (int nsprite);
 TLNAPI int  TLN_GetSpritePicture (int nsprite);
 TLNAPI int  TLN_GetAvailableSprite (void);
 TLNAPI bool TLN_EnableSpriteCollision (int nsprite, bool enable);

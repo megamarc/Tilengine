@@ -1,6 +1,6 @@
 """
 Python wrapper for Tilengine retro graphics engine
-Updated to library version 1.19.0
+Updated to library version 1.20.0
 http://www.tilengine.org
 """
 
@@ -350,7 +350,7 @@ class Engine(object):
 		self.cb_blend_func = None
 		self.library = _tln
 
-		version = [1,18,0]	# expected library version
+		version = [1,20,0]	# expected library version
 		req_version = (version[0] << 16) + (version[1] << 8) + version[2]
 		if self.version < req_version:
 			maj_version = self.version >> 16
@@ -1537,6 +1537,8 @@ _tln.TLN_SetLayerPixelMapping.argtypes = [c_int, POINTER(PixelMap)]
 _tln.TLN_SetLayerPixelMapping.restype = c_bool
 _tln.TLN_ResetLayerMode.argtypes = [c_int]
 _tln.TLN_ResetLayerMode.restype = c_bool
+_tln.TLN_SetLayerBitmap.argtypes = [c_int, c_void_p]
+_tln.TLN_SetLayerBitmap.restype = c_bool
 _tln.TLN_SetLayerBlendMode.argtypes = [c_int, c_int, c_ubyte]
 _tln.TLN_SetLayerBlendMode.restype = c_bool
 _tln.TLN_SetLayerColumnOffset.argtypes = [c_int, POINTER(c_int)]
@@ -1635,6 +1637,15 @@ class Layer(object):
 		ok = _tln.TLN_SetLayerTransform(self, angle, x, y, sx, sy)
 		_raise_exception(ok)
 
+	def set_bitmap(self, bitmap):
+		"""
+		Configures a background layer with the specified full bitmap instead of a tiled background
+		
+		:param bitmap: bitmap to assign
+		"""
+		ok = _tln.TLN_SetLayerBitmap(self, bitmap)
+		_raise_exception(ok)
+	
 	def set_pixel_mapping(self, pixel_map):
 		"""
 		Enables pixel mapping displacement table

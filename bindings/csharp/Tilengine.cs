@@ -27,7 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*
 *****************************************************************************
-* C# Tilengine wrapper - Up to date to library version 1.19
+* C# Tilengine wrapper - Up to date to library version 1.20
 * http://www.tilengine.org
 *****************************************************************************
 */
@@ -891,6 +891,10 @@ namespace Tilengine
 
         [DllImport("Tilengine")]
         [return: MarshalAsAttribute(UnmanagedType.I1)]
+        private static extern bool TLN_SetLayerBitmap(int nlayer, IntPtr bitmap);
+
+        [DllImport("Tilengine")]
+        [return: MarshalAsAttribute(UnmanagedType.I1)]
         private static extern bool TLN_SetLayerPosition(int nlayer, int hstart, int vstart);
 
         [DllImport("Tilengine")]
@@ -1115,6 +1119,18 @@ namespace Tilengine
             set
             {
                 bool ok = TLN_SetLayerPalette(index, value.ptr);
+                Engine.ThrowException(ok);
+            }
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public Bitmap Bitmap
+        {
+            set
+            {
+                bool ok = TLN_SetLayerBitmap(index, value.ptr);
                 Engine.ThrowException(ok);
             }
         }
