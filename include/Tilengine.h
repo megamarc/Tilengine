@@ -79,7 +79,7 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 
 /* version */
 #define TILENGINE_VER_MAJ	1
-#define TILENGINE_VER_MIN	20
+#define TILENGINE_VER_MIN	21
 #define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ<<16) | (TILENGINE_VER_MIN<<8) | TILENGINE_VER_REV)
 
@@ -238,6 +238,11 @@ typedef struct Sequence*	 TLN_Sequence;			/*!< Opaque sequence reference */
 typedef struct SequencePack* TLN_SequencePack;		/*!< Opaque sequence pack reference */
 typedef struct Bitmap*		 TLN_Bitmap;			/*!< Opaque bitmap reference */
 
+/* callbacks */
+typedef union SDL_Event SDL_Event;
+typedef void(*TLN_VideoCallback)(int scanline);
+typedef void(*TLN_SDLCallback)(SDL_Event*);
+
 /*! Player index for input assignment functions */
 typedef enum
 {
@@ -344,8 +349,8 @@ TLNAPI bool TLN_SetBGColorFromTilemap (TLN_Tilemap tilemap);
 TLNAPI void TLN_DisableBGColor (void);
 TLNAPI bool TLN_SetBGBitmap (TLN_Bitmap bitmap);
 TLNAPI bool TLN_SetBGPalette (TLN_Palette palette);
-TLNAPI void TLN_SetRasterCallback (void (*callback)(int));
-TLNAPI void TLN_SetFrameCallback (void (*callback)(int));
+TLNAPI void TLN_SetRasterCallback (TLN_VideoCallback);
+TLNAPI void TLN_SetFrameCallback (TLN_VideoCallback);
 TLNAPI void TLN_SetRenderTarget (uint8_t* data, int pitch);
 TLNAPI void TLN_UpdateFrame (int time);
 TLNAPI void TLN_BeginFrame (int time);
@@ -386,6 +391,7 @@ TLNAPI void TLN_DeleteWindow (void);
 TLNAPI void TLN_EnableBlur (bool mode);
 TLNAPI void TLN_EnableCRTEffect (TLN_Overlay overlay, uint8_t overlay_factor, uint8_t threshold, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, bool blur, uint8_t glow_factor);
 TLNAPI void TLN_DisableCRTEffect (void);
+TLNAPI void TLN_SetSDLCallback(TLN_SDLCallback);
 TLNAPI void TLN_Delay (uint32_t msecs);
 TLNAPI uint32_t TLN_GetTicks (void);
 TLNAPI void TLN_BeginWindowFrame (int time);

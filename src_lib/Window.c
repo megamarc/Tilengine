@@ -71,6 +71,7 @@ static uint8_t*		 rt_pixels;
 static int			 rt_pitch;
 
 static int			last_key;
+static TLN_SDLCallback sdl_callback = NULL;
 
 /* player input */
 typedef struct
@@ -145,8 +146,6 @@ static char pattern_scanlines[] =
 /* local prototypes */
 static bool CreateWindow (void);
 static void DeleteWindow (void);
-static SDL_Surface* CreateOverlaySurface (const char* filename, int dstw, int dsth);
-static SDL_Texture* LoadTexture (char* filename);
 static void hblur (uint8_t* scan, int width, int height, int pitch);
 static void Downsample2 (uint8_t* src, uint8_t* dst, int width, int height, int src_pitch, int dst_pitch);
 static void BuildFullOverlay (SDL_Texture* texture, SDL_Surface* pattern, uint8_t factor);
@@ -671,6 +670,10 @@ bool TLN_ProcessWindow (void)
 			}
 			break;
     	}
+
+		/* procesa eventos de usuario */
+		if (sdl_callback != NULL)
+			sdl_callback(&evt);
 	}
 
 	/* delete */
@@ -1041,6 +1044,16 @@ uint32_t TLN_GetTicks (void)
 void TLN_Delay (uint32_t time)
 {
 	SDL_Delay (time);
+}
+
+/*!
+* \brief
+* Registers a user-defined callback to capture internal SDL2 events
+* \param callback pointer to user funcion with signature void (SDL_Event*)
+*/
+void TLN_SetSDLCallback(TLN_SDLCallback callback)
+{
+	sdl_callback = callback;
 }
 
 #define blendfunc(t,a,b) *(t  + ((a)<<8) + (b))
