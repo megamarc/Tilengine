@@ -113,7 +113,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		else if (!strcasecmp(szName, "image"))
 		{
 			if (!strcasecmp(szAttribute, "source"))
-				strcpy (loader.source, szValue);
+				strncpy (loader.source, szValue, 64);
 		}
 
 		/* <tile id="314"> */
@@ -256,6 +256,9 @@ TLN_Tileset TLN_LoadTileset (const char* filename)
 	htiles = (TLN_GetBitmapWidth(bitmap) - loader.margin*2 + loader.spacing) / dx;
 	vtiles = (TLN_GetBitmapHeight(bitmap) - loader.margin*2 + loader.spacing) / dy;
 	tileset = TLN_CreateTileset (htiles*vtiles, loader.tilewidth, loader.tileheight, TLN_ClonePalette(TLN_GetBitmapPalette(bitmap)), loader.sp, loader.attributes);
+	if (tileset == NULL)
+		return NULL;
+
 	pitch = TLN_GetBitmapPitch (bitmap);
 
 	/* load tiles */

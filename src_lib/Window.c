@@ -69,6 +69,7 @@ static int			 wnd_height;
 static int			 instances = 0;
 static uint8_t*		 rt_pixels;
 static int			 rt_pitch;
+static char*		 window_title;
 
 static int			last_key;
 static TLN_SDLCallback sdl_callback = NULL;
@@ -91,7 +92,6 @@ static PlayerInput player_inputs[MAX_PLAYERS];
 /* CRT effect */
 struct
 {
-	bool enable;
 	bool gaussian;
 	bool table[256];
 	TLN_Overlay overlay_id;
@@ -103,13 +103,30 @@ struct
 }
 static crt;
 
+struct
+{
+	TLN_Overlay overlay;
+	uint8_t overlay_factor;
+	uint8_t threshold;
+	uint8_t v0;
+	uint8_t v1;
+	uint8_t v2;
+	uint8_t v3;
+	bool blur;
+	uint8_t glow_factor;
+}
+static crt_params = { TLN_OVERLAY_APERTURE, 128, 192, 0,64, 64,128, false, 255 };
+static bool crt_enable = true;
+
+#define MAX_PATH	260
+
 /* Window manager */
 typedef struct
 {
 	int width;
 	int height;
 	TLN_WindowFlags flags;
-	char file_overlay[128];
+	char file_overlay[MAX_PATH];
 	volatile int retval;
 }
 WndParams;
@@ -165,7 +182,7 @@ static bool CreateWindow (void)
 	void* pixels;
 	int pitch;
 
-	/* obtiene tamaño escritorio y tamaño máximo de ventana*/
+	/*  gets desktop size and maximum window size */
 	SDL_GetDesktopDisplayMode (0, &mode);
 	if (!(wnd_params.flags & CWF_FULLSCREEN))
 	{
@@ -204,15 +221,17 @@ static bool CreateWindow (void)
 		dstrect.h = wnd_height;
 	}
 
-	/* ventana */
-	window = SDL_CreateWindow ("Tilengine window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, wnd_width,wnd_height, rflags);
+	/* create window */
+	if (window_title == NULL)
+		window_title = strdup("Tilengine window");
+	window = SDL_CreateWindow (window_title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, wnd_width,wnd_height, rflags);
 	if (!window)
 	{
 		DeleteWindow ();
 		return false;
 	}
 
-	/* contexto de render */
+	/* create render context */
 	rflags = SDL_RENDERER_ACCELERATED;
 	if (wnd_params.flags & CWF_VSYNC)
 		rflags |= SDL_RENDERER_PRESENTVSYNC;
@@ -222,13 +241,15 @@ static bool CreateWindow (void)
 		DeleteWindow ();
 		return false;
 	}
+
+	/* sets upscale filtering */
 	if (wnd_params.flags & CWF_NEAREST)
 		quality[0] = '0';	/* nearest */
 	else
 		quality[0] = '1';	/* linear */
 	SDL_SetHint (SDL_HINT_RENDER_SCALE_QUALITY, quality);
 	
-	/* textura para recibir los pixeles de Tilengine */
+	/* create framebuffer texture */
 	format = SDL_PIXELFORMAT_ARGB8888;
 	backbuffer = SDL_CreateTexture (renderer, format, SDL_TEXTUREACCESS_STREAMING, wnd_params.width,wnd_params.height);
 	if (!backbuffer)
@@ -238,7 +259,7 @@ static bool CreateWindow (void)
 	}
 	SDL_SetTextureAlphaMod (backbuffer, 0);
 
-	/* texturas CRT effect */
+	/* CRT effect textures */
 	crt.overlay_id = TLN_OVERLAY_NONE;
 	crt.glow = SDL_CreateTexture (renderer, format, SDL_TEXTUREACCESS_STREAMING, wnd_params.width/2,wnd_params.height/2);
 	crt.blur = SDL_CreateRGBSurface (0, wnd_params.width/2,wnd_params.height/2,32, 0,0,0,0);
@@ -254,7 +275,20 @@ static bool CreateWindow (void)
 	if (wnd_params.file_overlay[0])
 		crt.overlays[TLN_OVERLAY_CUSTOM] = SDL_LoadBMP (wnd_params.file_overlay);
 
-	TLN_EnableCRTEffect (TLN_OVERLAY_APERTURE, 128, 192, 0,64, 64,128, false, 255);
+	/* enables CRT effect with last used parameters */
+	if (crt_enable)
+	{
+		TLN_EnableCRTEffect(crt_params.overlay,
+			crt_params.overlay_factor,
+			crt_params.threshold,
+			crt_params.v0,
+			crt_params.v1,
+			crt_params.v2,
+			crt_params.v3,
+			crt_params.blur,
+			crt_params.glow_factor
+		);
+	}
 
 	/* temporal downsample surface */
 	resize_half_width = SDL_CreateRGBSurface (0, wnd_params.width/2, wnd_params.height, 32, 0,0,0,0);
@@ -340,7 +374,15 @@ static void DeleteWindow (void)
  */
 void TLN_SetWindowTitle (const char* title)
 {
-	SDL_SetWindowTitle (window, title);
+	if (window != NULL)
+		SDL_SetWindowTitle (window, title);
+	if (window_title != NULL)
+	{
+		free(window_title);
+		window_title = NULL;
+	}
+	if (title != NULL)
+		window_title = strdup(title);
 }
 
 static int WindowThread (void* data)
@@ -415,7 +457,7 @@ bool TLN_CreateWindow (const char* overlay, TLN_WindowFlags flags)
 	wnd_params.height = TLN_GetHeight ();
 	wnd_params.flags = flags|CWF_VSYNC;
 	if (overlay)
-		strcpy (wnd_params.file_overlay, overlay);
+		strncpy (wnd_params.file_overlay, overlay, MAX_PATH);
 
 	ok = CreateWindow ();
 	if (ok)
@@ -468,7 +510,7 @@ bool TLN_CreateWindowThread (const char* overlay, TLN_WindowFlags flags)
 	wnd_params.height = TLN_GetHeight ();
 	wnd_params.flags = flags|CWF_VSYNC;
 	if (overlay)
-		strcpy (wnd_params.file_overlay, overlay);
+		strncpy (wnd_params.file_overlay, overlay, MAX_PATH);
 
 	lock = SDL_CreateMutex ();
 	cond = SDL_CreateCond ();
@@ -635,7 +677,7 @@ bool TLN_ProcessWindow (void)
 				if (keybevt->keysym.sym == SDLK_ESCAPE)
 					done = true;
 				else if (keybevt->keysym.sym == SDLK_BACKSPACE)
-					crt.enable = !crt.enable;
+					crt_enable = !crt_enable;
 				else if (keybevt->keysym.sym == SDLK_RETURN && keybevt->keysym.mod & KMOD_ALT)
 				{
 					DeleteWindow ();
@@ -774,7 +816,18 @@ void TLN_EnableCRTEffect (TLN_Overlay overlay, uint8_t overlay_factor, uint8_t t
 {
 	int c;
 
-	crt.enable = true;
+	/* cache parameters to persist between fullscreen toggles*/
+	crt_params.overlay = overlay;
+	crt_params.overlay_factor = overlay_factor;
+	crt_params.threshold = threshold;
+	crt_params.v0 = v0;
+	crt_params.v1 = v1;
+	crt_params.v2 = v2;
+	crt_params.v3 = v3;
+	crt_params.blur = blur;
+	crt_params.glow_factor = glow_factor;
+	
+	crt_enable = true;
 	crt.gaussian = blur;
 	crt.glow_factor = glow_factor;
 	SDL_SetTextureAlphaMod (crt.glow, glow_factor);
@@ -805,7 +858,7 @@ void TLN_EnableCRTEffect (TLN_Overlay overlay, uint8_t overlay_factor, uint8_t t
  */ 
 void TLN_DisableCRTEffect (void)
 {
-	crt.enable = false;
+	crt_enable = false;
 }
 
 /*!
@@ -950,7 +1003,7 @@ void TLN_BeginWindowFrame (int time)
 void TLN_EndWindowFrame (void)
 {
 	/* pixeles con threshold */
-	if (crt.enable && crt.glow_factor != 0)
+	if (crt_enable && crt.glow_factor != 0)
 	{
 		const int dst_width = wnd_params.width / 2;
 		const int dst_height = wnd_params.height / 2;
@@ -984,7 +1037,7 @@ void TLN_EndWindowFrame (void)
 	}
 
 	/* horizontal blur in-place */
-	if (crt.enable)
+	if (crt_enable)
 		hblur (rt_pixels, wnd_params.width, wnd_params.height, rt_pitch);
 
 	/* end frame and apply overlay */
@@ -993,7 +1046,7 @@ void TLN_EndWindowFrame (void)
 	SDL_RenderClear (renderer);
 	SDL_RenderCopy (renderer, backbuffer, NULL, &dstrect);
 
-	if (crt.enable)
+	if (crt_enable)
 	{
 		if (crt.overlay_id != TLN_OVERLAY_NONE)
 			SDL_RenderCopy (renderer, crt.overlay, NULL, &dstrect);

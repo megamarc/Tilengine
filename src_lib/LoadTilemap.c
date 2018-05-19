@@ -249,7 +249,7 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 	memset (&loader, 0, sizeof(loader));
 	loader.tilemap = NULL;
 	if (layername)
-		strcpy (loader.layer_name, layername);
+		strncpy (loader.layer_name, layername, 64);
 	parser = simpleXmlCreateParser (data, (long)size);
 	if (parser != NULL)
 	{

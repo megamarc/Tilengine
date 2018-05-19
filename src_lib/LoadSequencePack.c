@@ -83,7 +83,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		if (!strcasecmp(szName, "sequence"))
 		{
 			if (!strcasecmp(szAttribute, "name"))
-				strcpy (loader.name, szValue);
+				strncpy (loader.name, szValue, 16);
 			else if (!strcasecmp(szAttribute, "delay"))
 				loader.delay = atoi(szValue);
 			else if (!strcasecmp(szAttribute, "first") || !strcasecmp(szAttribute, "target"))
@@ -94,7 +94,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		else if (!strcasecmp(szName, "cycle"))
 		{
 			if (!strcasecmp(szAttribute, "name"))
-				strcpy (loader.name, szValue);
+				strncpy (loader.name, szValue, 16);
 		}
 		else if (!strcasecmp(szName, "strip"))
 		{

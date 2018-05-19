@@ -109,6 +109,7 @@ static TLN_Bitmap LoadPNG (const char* filename)
 	png_byte bit_depth;
 	png_bytep *row_pointers;
 	char header[8];
+	int channels;
 	int y;
 
 	fp = FileOpen (filename);
@@ -134,8 +135,12 @@ static TLN_Bitmap LoadPNG (const char* filename)
 	height     = png_get_image_height(png, info);
 	color_type = png_get_color_type(png, info);
 	bit_depth  = png_get_bit_depth(png, info);
+	channels   = png_get_channels(png, info);
     
     png_read_update_info(png, info);
+
+	/* adjust actual bit depth */
+	bit_depth *= channels;
 
 	setjmp(png_jmpbuf(png));
 	row_pointers = (png_bytep*) malloc(sizeof(png_bytep) * height);

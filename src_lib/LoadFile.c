@@ -46,8 +46,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define SLASH	  '/'
 #define BACKSLASH '\\'
+#define MAX_PATH	300
 
-static char localpath[255] = ".";
+static char localpath[MAX_PATH] = ".";
 
 /*!
  * \brief
@@ -61,9 +62,9 @@ void TLN_SetLoadPath (const char* path)
 	size_t trailing;
 
 	if (path)
-		strcpy (localpath, path);
+		strncpy (localpath, path, MAX_PATH);
 	else
-		strcpy (localpath, ".");
+		strncpy (localpath, ".", MAX_PATH);
 
 	/* cut trailing separator */
 	trailing = strlen (localpath) - 1;
