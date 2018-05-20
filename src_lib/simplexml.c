@@ -10,7 +10,9 @@
 #include <string.h>
 #include "simplexml.h"
 
-extern char* mystrdup (const char* s);
+#ifndef _MSC_VER
+extern char* strdup (const char* s);
+#endif
 
 /* ---- definitions */
 
@@ -465,7 +467,7 @@ int parseOneTag (SimpleXmlParserState parser, SimpleXmlTagHandler parentHandler)
 		return FAIL;
 	}
 
-	szTagName= mystrdup(getInternalSimpleXmlValueBufferContents(parser->vbNextToken));
+	szTagName= strdup(getInternalSimpleXmlValueBufferContents(parser->vbNextToken));
 	if (szTagName == NULL) {
 		parser->nError= OUT_OF_MEMORY;
 		return FAIL;

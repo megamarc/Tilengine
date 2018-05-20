@@ -170,6 +170,10 @@ static void BuildFullOverlay (SDL_Texture* texture, SDL_Surface* pattern, uint8_
 /* external prototypes */
 void GaussianBlur (uint8_t* src, uint8_t* dst, int width, int height, int pitch, int radius);
 
+#ifndef _MSC_VER
+extern char* strdup(const char* s);
+#endif
+
 /* create window delegate */
 static bool CreateWindow (void)
 {
