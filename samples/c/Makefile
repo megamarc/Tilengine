@@ -1,7 +1,7 @@
 CC       = gcc
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
-TARGETS  = barrel mode7 platformer racer scaling shadow shooter tutorial wobble colorcycle benchmark supermarioclone
+TARGETS  = barrel mode7 platformer racer scaling shadow shooter tutorial wobble colorcycle benchmark supermarioclone test_mouse
 
 ifeq ($(OS),Windows_NT)
 	RM = del /Q *.exe
@@ -68,6 +68,9 @@ benchmark: Benchmark.o
 	
 supermarioclone: SuperMarioClone.o
 	$(CC) SuperMarioClone.o -o supermarioclone $(LDFLAGS)
+	
+test_mouse: TestMouse.o
+	$(CC) TestMouse.o -o test_mouse $(LDFLAGS)
 	
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@
