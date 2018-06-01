@@ -213,6 +213,15 @@ Open a console window in the C# samples folder and type the following commands:
 > mcs test.cs Tilengine.cs
 > mono test.exe
 ```
+
+# Editing assets
+Tilengine doesn't come with an editor, but the files it loads are made with standard open-source tools. Samples come bundled with several ready-to-use assets, but these are the tools you'll need to edit or create new ones:
+* Source code: [VSCode](), [Notepad++]()...
+* Graphics: [GIMP](http://www.gimp.org), [Grafx2](http://pulkomandy.tk/projects/GrafX2), [Paint.NET](https://www.getpaint.net/), or any graphic editor with 8-bit (256 colors) png support
+* Backgrounds: [Tiled Map Editor](https://www.mapeditor.org/) is the official editor
+* Sprites: Online tool [Lesy SpriteSheet](https://www.leshylabs.com/blog/posts/2013-12-03-Leshy_SpriteSheet_Tool.html)
+* Sequences: Any standard XML editor
+
 # Contributors
 These people contributed to tilengine:
 
@@ -221,3 +230,4 @@ These people contributed to tilengine:
 @shayneoneill - help with the OS X port<br>
 @adtennant - provided cmake and pkg-config support<br>
 @tvasenin - improved C# binding<br>
+@tyoungjr - LUA/FFI binding<br>
