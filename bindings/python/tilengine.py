@@ -1,6 +1,6 @@
 """
 Python wrapper for Tilengine retro graphics engine
-Updated to library version 1.20.0
+Updated to library version 1.21.0
 http://www.tilengine.org
 """
 
@@ -350,7 +350,7 @@ class Engine(object):
 		self.cb_blend_func = None
 		self.library = _tln
 
-		version = [1,20,0]	# expected library version
+		version = [1,21,0]	# expected library version
 		req_version = (version[0] << 16) + (version[1] << 8) + version[2]
 		if self.version < req_version:
 			maj_version = self.version >> 16
@@ -581,6 +581,9 @@ class Window(object):
 
 	:ivar num_frame: current frame being drawn, starting from 0
 	"""
+	def __init__(self):
+		self.cb_sdl_func = None
+
 	@classmethod
 	def create(cls, overlay=None, flags=WindowFlags.VSYNC):
 		"""
@@ -725,6 +728,17 @@ class Window(object):
 		Disables the CRT post-processing effect enabled with :meth:`Window.enable_crt_effect`
 		"""
 		_tln.TLN_DisableCRTEffect()
+
+	def set_sdl_callback(self,sdl_callback):
+
+		if sdl_callback is None:
+			self.cb_sdl_func = None
+		else:
+			from sdl2 import SDL_Event
+			_sdl_callback_function = CFUNCTYPE(None, SDL_Event)
+			self.cb_sdl_func = _sdl_callback_function(sdl_callback)
+		_tln.TLN_SetSDLCallback(self.cb_sdl_func)
+
 
 	def get_ticks(self):
 		"""
@@ -1640,12 +1654,12 @@ class Layer(object):
 	def set_bitmap(self, bitmap):
 		"""
 		Configures a background layer with the specified full bitmap instead of a tiled background
-		
+
 		:param bitmap: bitmap to assign
 		"""
 		ok = _tln.TLN_SetLayerBitmap(self, bitmap)
 		_raise_exception(ok)
-	
+
 	def set_pixel_mapping(self, pixel_map):
 		"""
 		Enables pixel mapping displacement table
