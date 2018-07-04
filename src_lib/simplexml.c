@@ -10,10 +10,6 @@
 #include <string.h>
 #include "simplexml.h"
 
-#ifndef _MSC_VER
-extern char* strdup (const char* s);
-#endif
-
 /* ---- definitions */
 
 /* result code for various functions indicating a failure */

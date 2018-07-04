@@ -1,28 +1,20 @@
 /*
-Tilengine - 2D Graphics library with raster effects
-Copyright (c) 2015-2017 Marc Palacios Domenech (megamarc@hotmail.com)
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification 
-are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation 
-   and/or other materials provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* Tilengine - The 2D retro graphics engine with raster effects
+* Copyright (C) 2015-2018 Marc Palacios Domenech <mailto:megamarc@hotmail.com>
+* All rights reserved
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 2 of the License, or (at your option) any later version.
+*
+* This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Library General Public License for more details.
+*
+* You should have received a copy of the GNU Library General Public
+* License along with this library. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <string.h>
@@ -49,14 +41,15 @@ void GaussianBlur (uint8_t* src, uint8_t* dst, int width, int height, int pitch,
 	}
 }
 
+/* horizontal blur */
 static void hblur (uint8_t* src, uint8_t* dst, int width, int height, int pitch, int radius)
 {
 	int c, y;
 	const int half_radius = radius/2;
 	const int right = width - half_radius;
-	RGBQuad* pixel_sub;	/* left pixel (origen, resta) */
-	RGBQuad* pixel_add;	/* right pixel (origen, suma) */
-	RGBQuad* pixel_mid;	/* center pixel (destino) */
+	RGBQuad* pixel_sub;	/* left pixel (source, substract) */
+	RGBQuad* pixel_add;	/* right pixel (source, add) */
+	RGBQuad* pixel_mid;	/* center pixel (destination) */
 	radius++;
 
 	for (y=0; y<height; y++)
@@ -68,7 +61,7 @@ static void hblur (uint8_t* src, uint8_t* dst, int width, int height, int pitch,
 		pixel_add = pixel_sub = src_pixel;
 		pixel_mid = dst_pixel;
 
-		/* primera semi-suma */
+		/* firs half-add */
 		for (c=0; c<=half_radius; c++)
 		{
 			sum[0] += pixel_add->r;
@@ -77,7 +70,7 @@ static void hblur (uint8_t* src, uint8_t* dst, int width, int height, int pitch,
 			pixel_add++;
 		}
 
-		/* medio radio en la izquerda: sólo suma */
+		/* left half-radius: only adds */
 		for (c=0; c<half_radius; c++)
 		{
 			pixel_mid->r = sum[0] / radius;
@@ -90,7 +83,7 @@ static void hblur (uint8_t* src, uint8_t* dst, int width, int height, int pitch,
 			pixel_add++;
 		}
 
-		/* parte central: radio completo */
+		/* central part: full radius */
 		for (; c<right; c++)
 		{
 			pixel_mid->r = sum[0] / radius;
@@ -104,7 +97,7 @@ static void hblur (uint8_t* src, uint8_t* dst, int width, int height, int pitch,
 			pixel_sub++;
 		}
 
-		/* medio radio en la derecha: sólo resta */
+		/* right half-radius: only substracts */
 		for (; c<width; c++)
 		{
 			pixel_mid->r = sum[0] / radius;
@@ -119,6 +112,7 @@ static void hblur (uint8_t* src, uint8_t* dst, int width, int height, int pitch,
 	}
 }
 
+/* vertical blur */
 static void vblur (uint8_t* src, uint8_t* dst, int width, int height, int pitch, int radius)
 {
 	int c, x;
