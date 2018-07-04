@@ -1,8 +1,8 @@
 ![Tilengine logo](Tilengine.png)
 # Tilengine - The 2D retro graphics engine
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)
 
-Tilengine is a free, cross-platform 2D graphics engine for creating classic/retro games with tile maps, sprites and palettes. Its unique scanline-based rendering algorithm makes raster effects a core feature, a technique used by many games running on real 2D graphics chips.
+Tilengine is an open source, cross-platform 2D graphics engine for creating classic/retro games with tile maps, sprites and palettes. Its unique scanline-based rendering algorithm makes raster effects a core feature, a technique used by many games running on real 2D graphics chips.
 
 http://www.tilengine.org
 
@@ -29,7 +29,7 @@ http://www.tilengine.org
 
 # Features
 * Written in portable C (C99)
-* MIT-Licensed: free for any project, including commercial ones
+* LGPL v2.1 license: free for any project, including commercial ones
 * Cross platform: available builds for Windows (32/64), Linux PC(32/64), Mac OS X and Raspberry Pi
 * High performance: all samples run at 60 fps with CRT emulation enabled on a Raspberry Pi 3
 * Multiple language bindings: C/C++, C#, Python, Java, Pascal
