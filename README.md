@@ -8,6 +8,7 @@ http://www.tilengine.org
 
 # Contents
 - [Features](#features)
+- [Getting binaries](#getting-binaries)
 - [Installing](#installing)
     - [Windows](#windows)
     - [Unix-like](#unix-like)
@@ -45,8 +46,18 @@ http://www.tilengine.org
 * Pixel accurate sprite vs sprite and sprite vs layer collision detection
 * Special effects: per-column offset, mosaic, per-pixel displacement, CRT emulation...
 
+# Getting binaries
+
+## Download from itch.io
+The best way to get prebuilt binaries ready to run is grabbing them from official itch.io acount: https://megamarc.itch.io/tilengine. Just download the package for your platform.
+
+## Build from source
+You can also build the library from source. You'll need to provide libpng 1.6 and SDL2 development libraries (headers and binaries) into the suitable folders inside the `/src_lib` folder. They're not distributed with Tilengine source. See `readme.txt` files inside `/src_lib/libpng` and `/src_lib/sdl` for detailed instructions.
+* **Windows users**: open the /Tilengine.sln project, you'll need Visual Studio Community. x86 and x64 targets provided.
+* **Linux/OSX users**: run the suitable Makefile_xxx for your platform. You'll need GNU Make and GCC toolchain installed.
+
 # Installing
-Open a console window in Tilengine root directory  and type the suitable command depending on your platform:
+After building from source, open a console window in Tilengine root directory and type the suitable command depending on your platform:
 
 ## Windows
 ```
