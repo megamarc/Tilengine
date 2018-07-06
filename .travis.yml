@@ -1,5 +1,6 @@
 language: c
 compiler: gcc
+dist: trusty
 
 before_install:
 - sudo apt-get update -qq
@@ -8,6 +9,4 @@ before_install:
 
 script:
 - cd src_lib
-- make
-- cd ../samples/c
 - make
