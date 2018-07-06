@@ -53,9 +53,20 @@ http://www.tilengine.org
 The best way to get prebuilt binaries ready to run is grabbing them from official itch.io acount: https://megamarc.itch.io/tilengine. Just download the package for your platform.
 
 ## Build from source
-You can also build the library from source. You'll need to provide libpng 1.6 and SDL2 development libraries (headers and binaries) into the suitable folders inside the `/src_lib` folder. They're not distributed with Tilengine source. See `readme.txt` files inside `/src_lib/libpng` and `/src_lib/sdl` for detailed instructions.
-* **Windows users**: open the /Tilengine.sln project, you'll need Visual Studio Community. x86 and x64 targets provided.
-* **Linux/OSX users**: run the suitable Makefile_xxx for your platform. You'll need GNU Make and GCC toolchain installed.
+You can also build the library from source. 
+### Windows
+First you'll need to provide libpng and SDL2 development libraries (headers and binaries) into the suitable folders inside the `/src_lib` folder. They're not distributed with Tilengine source. See `readme.txt` files inside `/src_lib/libpng` and `/src_lib/sdl` for detailed instructions.<br>
+Open the `/Tilengine.sln` project, you'll need Visual Studio Community. x86 and x64 targets provided.
+### Linux/OSX
+**Prerequisites**: you'll need GNU Make and GCC toolchain, and development libraries for png and SDL2. To install required packages, open a terminal window and run the following command:
+```
+> sudo apt-get install build-essential libpng-dev libsdl2-dev
+```
+To build the library itself, open a terminal window in `/src_lib` and run the following command:
+```
+> make
+```
+After build, `libTilengine.so` file will be placed in `/Tilengine/lib` folder.
 
 # Installing
 After building from source, open a console window in Tilengine root directory and type the suitable command depending on your platform:

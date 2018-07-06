@@ -1,4 +1,4 @@
-libSDL2 integration
+Windows libSDL2 integration
 ===============================================================================
 
 Tilengine requires libSDL2 to build. Put here the following files:
