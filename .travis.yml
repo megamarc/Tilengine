@@ -1,3 +1,5 @@
+dist: precise
+sudo: false
 language: c
 compiler: gcc
 script:
