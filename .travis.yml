@@ -10,3 +10,5 @@ before_install:
 script:
 - cd src_lib
 - make
+- make Test
+- Test

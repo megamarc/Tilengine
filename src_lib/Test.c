@@ -4,8 +4,6 @@
 #define WIDTH	400
 #define HEIGHT	240
 
-static int frame;
-static TLN_Tileset tileset;
 static TLN_Tilemap tilemap;
 static uint8_t framebuffer[WIDTH * HEIGHT * 4];
 
@@ -13,31 +11,21 @@ static uint8_t framebuffer[WIDTH * HEIGHT * 4];
 int main (int argc, char* argv[])
 {
 	/* setup engine */
-	TLN_Init (WIDTH, HEIGHT, 1,0,0);
+	TLN_Init (WIDTH, HEIGHT, 1,1,0);
+	printf ("Tilengine version %06X\n", TLN_GetVersion());
 	TLN_SetBGColor (0,128,238);
 	TLN_SetRenderTarget (framebuffer, WIDTH * 4);
+	TLN_SetLoadPath ("../assets/sonic");
 
-	/* load layer (tileset + tilemap) */
-	tileset = TLN_LoadTileset ("Sonic_md_bg1.tsx");
-	tilemap = TLN_LoadTilemap ("Sonic_md_bg1.tmx", "Layer 1");
-	
-	/* setup the layer */
-	if (tileset && tilemap)
-		TLN_SetLayer (0, tileset, tilemap);
 
-	/* main loop */
-	while (1)
-	{
-		/* scroll the layer, one pixel per frame */
-		TLN_SetLayerPosition (0, frame, 0);
+	tilemap = TLN_LoadTilemap ("Sonic_md_bg1.tmx", NULL);
+	TLN_SetLayer (0, NULL, tilemap);
+	TLN_SetLayerPosition (0, 100, 0);
 		
-		/* render to the window */
-		TLN_UpdateFrame (frame);
-		frame++;
-	}
+	/* render one frame */
+	TLN_UpdateFrame (0);
 
 	/* release resources */
-	TLN_DeleteTileset (tileset);
 	TLN_DeleteTilemap (tilemap);
 	TLN_Deinit ();
 

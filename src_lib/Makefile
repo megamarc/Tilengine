@@ -6,7 +6,7 @@ OBJECTS  = $(SOURCES:.c=.o)
 ifeq ($(OS),Windows_NT)
 $(error This Makefile si not intended for Windows! Please use Visual Studio instead)
 else
-	RM = rm
+	RM = rm -f
 	name := $(shell uname -s)
 	arch := $(shell uname -m)
 	
@@ -39,12 +39,16 @@ CFLAGS += -I"../include" -std=c99 -O2 -fpic -DLIB_EXPORTS
 all: all-before $(BIN) all-after
 
 clean: clean-custom
-	${RM} $(OBJECTS) $(BIN)
+	${RM} $(OBJECTS) $(BIN) Test
 
 $(BIN): $(OBJECTS)
 	$(CC) -shared $(OBJECTS) -o $(BIN) $(LIBS) -s -fvisibility=hidden
 	mkdir ../lib -p
 	cp $(BIN) ../lib
+
+Test: Test.c
+	$(RM) Test.o Test
+	$(CC) Test.c -o Test -I"../include" -L"../lib" -lTilengine -Wl,-rpath,"../lib"
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@
