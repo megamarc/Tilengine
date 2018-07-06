@@ -1,7 +1,9 @@
-dist: precise
-sudo: false
 language: c
 compiler: gcc
+
+install:
+- sudo apt-get install libsdl2-dev libpng-dev
+
 script:
 - cd src_lib
 - make
