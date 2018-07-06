@@ -11,4 +11,4 @@ script:
 - cd src_lib
 - make
 - make Test
-- Test
+- ./Test
