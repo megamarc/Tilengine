@@ -1,0 +1,7 @@
+language: c
+compiler: gcc
+script:
+- cd src_lib
+- make
+- cd ../samples/c
+- make
