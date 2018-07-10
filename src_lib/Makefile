@@ -1,6 +1,8 @@
 CC       = gcc
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
+INCPATH  = ../include
+LIBPATH  = ../lib
 
 # Windows specific flags
 ifeq ($(OS),Windows_NT)
@@ -32,7 +34,7 @@ else
 endif
 
 # common flags
-CFLAGS += -I"../include" -std=c99 -O2 -fpic -DLIB_EXPORTS
+CFLAGS += -I$(INCPATH) -std=c99 -O2 -fpic -DLIB_EXPORTS
 
 .PHONY: all all-before all-after clean clean-custom
 
@@ -43,12 +45,12 @@ clean: clean-custom
 
 $(BIN): $(OBJECTS)
 	$(CC) -shared $(OBJECTS) -o $(BIN) $(LIBS) -s -fvisibility=hidden
-	mkdir ../lib -p
-	cp $(BIN) ../lib
+	mkdir $(LIBPATH) -p
+	cp $(BIN) $(LIBPATH)
 
 Test: Test.c
 	$(RM) Test.o Test
-	$(CC) Test.c -o Test -I"../include" -L"../lib" -lTilengine -Wl,-rpath,"../lib"
+	$(CC) Test.c -o Test -I$(INCPATH) -L$(LIBPATH) -lTilengine -Wl,-rpath,$(LIBPATH)
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@
