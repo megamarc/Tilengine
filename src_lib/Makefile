@@ -2,7 +2,6 @@ CC       = gcc
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
 INCPATH  = ../include
-LIBPATH  = ../lib
 
 # Windows specific flags
 ifeq ($(OS),Windows_NT)
@@ -19,14 +18,14 @@ else
 		LDFLAGS = -shared
 		ifeq ($(arch),i686)
 			CFLAGS = -m32 -msse2
-			LIBPATH += /linux_i686
+			LIBPATH = ../lib/linux_i686
 		endif
 		ifeq ($(arch),x86_64)
 			CFLAGS = -m64 -msse2
-			LIBPATH += /linux_x86_64
+			LIBPATH = ../lib/linux_x86_64
 		endif
 		ifeq ($(arch),armv7l)
-			LIBPATH += /linux_arm
+			LIBPATH = ../lib/linux_arm
 		endif
 	endif
 	
@@ -35,7 +34,7 @@ else
 		LIBS = -lpng -framework SDL2 -lc
 		BIN  = Tilengine.dylib
 		LDFLAGS = -dynamiclib
-		LIBPATH += /darwin_x86_64
+		LIBPATH = ../lib/darwin_x86_64
 	endif
 endif
 
