@@ -15,7 +15,7 @@ else
 	ifeq ($(name),Linux)
 		LIBS = -lSDL2 -lc -lz -lpng
 		BIN  = libTilengine.so
-		LDFLAGS = -shared
+		LDFLAGS = -shared -s
 		ifeq ($(arch),i686)
 			CFLAGS = -m32 -msse2
 			LIBPATH = ../lib/linux_i686
@@ -31,7 +31,7 @@ else
 	
 	# OSX specific flags
 	ifeq ($(name),Darwin)
-		LIBS = -lpng -framework SDL2 -lc
+		LIBS = -lpng -lz -framework SDL2 -lc
 		BIN  = Tilengine.dylib
 		LDFLAGS = -dynamiclib
 		LIBPATH = ../lib/darwin_x86_64
@@ -49,7 +49,7 @@ clean: clean-custom
 	${RM} $(OBJECTS) $(BIN) Test
 
 $(BIN): $(OBJECTS)
-	$(CC) -shared $(OBJECTS) -o $(BIN) $(LIBS) -s -fvisibility=hidden
+	$(CC) -shared $(OBJECTS) -o $(BIN) $(LIBS) -fvisibility=hidden
 	mkdir -p $(LIBPATH)
 	cp $(BIN) $(LIBPATH)
 
