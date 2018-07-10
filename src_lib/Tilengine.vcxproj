@@ -70,11 +70,13 @@
     <OutDir>$(ProjectDir)$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(OutDir)</IntDir>
     <LinkIncremental>true</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(ProjectDir)$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(OutDir)</IntDir>
     <LinkIncremental>true</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)$(Platform)_$(Configuration)\</OutDir>
@@ -111,6 +113,7 @@
     </Link>
     <PostBuildEvent>
       <Command>copy $(TargetPath) $(SolutionDir)samples\c
+copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -142,6 +145,7 @@
     </Link>
     <PostBuildEvent>
       <Command>copy $(TargetPath) $(SolutionDir)samples\c
+copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

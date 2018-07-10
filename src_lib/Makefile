@@ -19,9 +19,14 @@ else
 		LDFLAGS = -shared
 		ifeq ($(arch),i686)
 			CFLAGS = -m32 -msse2
+			LIBPATH += /linux_i686
 		endif
 		ifeq ($(arch),x86_64)
 			CFLAGS = -m64 -msse2
+			LIBPATH += /linux_x86_64
+		endif
+		ifeq ($(arch),armv7l)
+			LIBPATH += /linux_arm
 		endif
 	endif
 	
@@ -30,6 +35,7 @@ else
 		LIBS = -lpng -framework SDL2 -lc
 		BIN  = Tilengine.dylib
 		LDFLAGS = -dynamiclib
+		LIBPATH += /darwin_x86_64
 	endif
 endif
 
@@ -45,7 +51,7 @@ clean: clean-custom
 
 $(BIN): $(OBJECTS)
 	$(CC) -shared $(OBJECTS) -o $(BIN) $(LIBS) -s -fvisibility=hidden
-	mkdir $(LIBPATH) -p
+	mkdir -p $(LIBPATH)
 	cp $(BIN) $(LIBPATH)
 
 Test: Test.c

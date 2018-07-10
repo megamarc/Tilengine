@@ -103,7 +103,7 @@ uint8_t* LoadFile (const char* filename, size_t* out_size)
 	fseek (pf, 0, SEEK_END);
 	size = ftell (pf);
 	fseek (pf, 0, SEEK_SET);
-	data = malloc (size);
+	data = malloc (size + 1);
 	if (data)
 	{
 		fread (data, size, 1, pf);
