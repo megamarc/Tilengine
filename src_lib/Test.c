@@ -4,30 +4,46 @@
 #define WIDTH	400
 #define HEIGHT	240
 
-static TLN_Tilemap tilemap;
 static uint8_t framebuffer[WIDTH * HEIGHT * 4];
 
-/* entry point */
 int main (int argc, char* argv[])
 {
-	/* setup engine */
-	TLN_Init (WIDTH, HEIGHT, 1,1,0);
-	printf ("Tilengine version %06X\n", TLN_GetVersion());
+	int c;
+	TLN_Tilemap tilemap = NULL;
+	TLN_Spriteset spriteset = NULL;
+
+	/* basic setup */
+	TLN_Init(WIDTH, HEIGHT, 1, 1, 1);
 	TLN_SetBGColor (0,128,238);
-	TLN_SetRenderTarget (framebuffer, WIDTH * 4);
-	TLN_SetLoadPath ("../assets/sonic");
+	TLN_SetRenderTarget(framebuffer, WIDTH * 4);
+	TLN_SetLoadPath("../assets/sonic");
+	TLN_SetLogLevel(TLN_LOG_VERBOSE);
+	printf("Tilengine version %06X\n", TLN_GetVersion());
+	
+	/* test layer */
+	for (c = 0; c < 2; c++)
+	{
+		TLN_SetLayer(0, NULL, tilemap);
+		if (tilemap == NULL)
+			tilemap = TLN_LoadTilemap("Sonic_md_bg1.tmx", NULL);
+	}
+	TLN_SetLayerPosition(1, 0, 0);
+	TLN_SetLayerPosition(0, 0, 0);
 
+	/* test sprite */
+	for (c = 0; c < 2; c++)
+	{
+		TLN_ConfigSprite(0, spriteset, 0);
+		if (spriteset == NULL)
+			spriteset = TLN_LoadSpriteset("smw_sprite");
+	}
+	TLN_SetSpritePosition(1, 10, 10);
+	TLN_SetSpritePosition(0, 10, 10);
 
-	tilemap = TLN_LoadTilemap ("Sonic_md_bg1.tmx", NULL);
-	TLN_SetLayer (0, NULL, tilemap);
-	TLN_SetLayerPosition (0, 100, 0);
-		
-	/* render one frame */
-	TLN_UpdateFrame (0);
+	TLN_UpdateFrame(0);
 
-	/* release resources */
-	TLN_DeleteTilemap (tilemap);
+	TLN_DeleteSpriteset(spriteset);
+	TLN_DeleteTilemap(tilemap);
 	TLN_Deinit ();
-
 	return 0;
 }

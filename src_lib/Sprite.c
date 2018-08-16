@@ -85,10 +85,7 @@ bool TLN_SetSpriteSet (int nsprite, TLN_Spriteset spriteset)
 		return false;
 	}
 	if (!CheckBaseObject (spriteset, OT_SPRITESET))
-	{
-		TLN_SetLastError (TLN_ERR_REF_SPRITESET);
 		return false;
-	}
 	
 	sprite = &engine->sprites[nsprite];
 	sprite->spriteset = spriteset;
@@ -192,10 +189,7 @@ bool TLN_SetSpritePicture (int nsprite, int entry)
 	
 	sprite = &engine->sprites[nsprite];
 	if (!CheckBaseObject (sprite->spriteset, OT_SPRITESET))
-	{
-		TLN_SetLastError (TLN_ERR_REF_SPRITESET);
 		return false;
-	}
 
 	sprite->index = entry;
 	sprite->info = &sprite->spriteset->data[entry];
@@ -232,10 +226,7 @@ bool TLN_SetSpritePalette (int nsprite, TLN_Palette palette)
 		return false;
 	}
 	if (!CheckBaseObject (palette, OT_PALETTE))
-	{
-		TLN_SetLastError (TLN_ERR_REF_PALETTE);
 		return false;
-	}
 
 	sprite = &engine->sprites[nsprite];
 	sprite->palette = palette;
@@ -595,7 +586,7 @@ int TLN_GetAvailableSprite (void)
  * \see
  * TLN_GetSpriteCollision()
  */
-TLNAPI bool TLN_EnableSpriteCollision (int nsprite, bool enable)
+bool TLN_EnableSpriteCollision (int nsprite, bool enable)
 {
 	if (nsprite >= engine->numsprites)
 	{
@@ -623,7 +614,7 @@ TLNAPI bool TLN_EnableSpriteCollision (int nsprite, bool enable)
  * \see
  * TLN_EnableSpriteCollision()
  */
-TLNAPI bool TLN_GetSpriteCollision (int nsprite)
+bool TLN_GetSpriteCollision (int nsprite)
 {
 	if (nsprite >= engine->numsprites)
 	{

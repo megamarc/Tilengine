@@ -42,6 +42,7 @@ typedef struct Engine
 	Animation*	animations;
 	bool		dopriority;
 	TLN_Error	error;		/* ultimo error */
+	TLN_LogLevel log_level;	/* logging level */
 
 	uint32_t	bgcolor;	/* color de fondo */
 	TLN_Bitmap	bgbitmap;	/* bitmap de fondo */
@@ -64,6 +65,8 @@ typedef struct Engine
 Engine;
 
 extern Engine* engine;
+
+extern void tln_trace(TLN_LogLevel log_level, const char* format, ...);
 
 #define GetFramebufferLine(line) \
 	(engine->framebuffer.data + (line*engine->framebuffer.pitch))

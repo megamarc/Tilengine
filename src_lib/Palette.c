@@ -52,10 +52,7 @@ TLN_Palette TLN_CreatePalette (int entries)
 		return palette;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 		return NULL;
-	}
 }
 
 /*!
@@ -76,10 +73,7 @@ TLN_Palette TLN_ClonePalette (TLN_Palette src)
 	TLN_Palette palette;
 
 	if (!CheckBaseObject (src, OT_PALETTE))
-	{
-		TLN_SetLastError (TLN_ERR_REF_PALETTE);
 		return NULL;
-	}
 
 	palette = CloneBaseObject (src);
 	if (palette)
@@ -88,10 +82,7 @@ TLN_Palette TLN_ClonePalette (TLN_Palette src)
 		return palette;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 		return NULL;
-	}
 }
 
 /*!
@@ -113,10 +104,7 @@ bool TLN_DeletePalette (TLN_Palette palette)
 		return true;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_PALETTE);
 		return false;
-	}
 }
 
 /*!
@@ -148,10 +136,7 @@ bool TLN_SetPaletteColor (TLN_Palette palette, int index, uint8_t r, uint8_t g, 
 		return true;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_PALETTE);
 		return false;
-	}
 }
 
 /*!
@@ -170,10 +155,7 @@ bool TLN_SetPaletteColor (TLN_Palette palette, int index, uint8_t r, uint8_t g, 
 uint8_t* TLN_GetPaletteData (TLN_Palette palette, int index)
 {
 	if (!CheckBaseObject (palette, OT_PALETTE))
-	{
-		TLN_SetLastError (TLN_ERR_REF_PALETTE);
 		return NULL;
-	}
 	else if (index >= palette->entries)
 	{
 		TLN_SetLastError (TLN_ERR_IDX_PICTURE);
@@ -212,21 +194,8 @@ bool TLN_MixPalettes (TLN_Palette src1, TLN_Palette src2, TLN_Palette dst, uint8
 	uint8_t* dstptr;
 	int count;
 
-	if (!CheckBaseObject (src1, OT_PALETTE))
-	{
-		TLN_SetLastError (TLN_ERR_REF_PALETTE);
+	if (!CheckBaseObject (src1, OT_PALETTE) || !CheckBaseObject (src2, OT_PALETTE) || !CheckBaseObject (dst, OT_PALETTE))
 		return false;
-	}
-	if (!CheckBaseObject (src2, OT_PALETTE))
-	{
-		TLN_SetLastError (TLN_ERR_REF_PALETTE);
-		return false;
-	}
-	if (!CheckBaseObject (dst, OT_PALETTE))
-	{
-		TLN_SetLastError (TLN_ERR_REF_PALETTE);
-		return false;
-	}
 
 	src1ptr = TLN_GetPaletteData (src1, 0);
 	src2ptr = TLN_GetPaletteData (src2, 0);
@@ -260,10 +229,7 @@ static bool EditPaletteColor (TLN_Palette palette, uint8_t* blend_table, uint8_t
 	uint8_t* color_ptr;
 
 	if (!CheckBaseObject (palette, OT_PALETTE))
-	{
-		TLN_SetLastError (TLN_ERR_REF_PALETTE);
 		return false;
-	}
 
 	if (start >= palette->entries)
 	{

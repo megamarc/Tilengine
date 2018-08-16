@@ -185,16 +185,8 @@ bool TLN_SetPaletteAnimation (int index, TLN_Palette palette, TLN_Sequence seque
 		return true;
 
 	/* validate type */
-	if (!CheckBaseObject (palette, OT_PALETTE))
-	{
-		TLN_SetLastError (TLN_ERR_REF_PALETTE);
+	if (!CheckBaseObject (palette, OT_PALETTE) || !CheckBaseObject (sequence, OT_SEQUENCE))
 		return false;
-	}		
-	if (!CheckBaseObject (sequence, OT_SEQUENCE))
-	{
-		TLN_SetLastError (TLN_ERR_REF_SEQUENCE);
-		return false;
-	}
 
 	SetAnimation (animation, sequence, TYPE_PALETTE);
 	animation->palette = palette;
@@ -241,10 +233,7 @@ bool TLN_SetPaletteAnimationSource (int index, TLN_Palette palette)
 	}
 
 	if (!CheckBaseObject (palette, OT_PALETTE))
-	{
-		TLN_SetLastError (TLN_ERR_REF_PALETTE);
 		return false;
-	}
 
 	animation = &engine->animations[index];
 	CopyBaseObject (animation->srcpalette, palette);
@@ -287,10 +276,7 @@ bool TLN_SetTilesetAnimation (int index, int nlayer, TLN_Sequence sequence)
 
 	/* validate type */
 	if (!CheckBaseObject (sequence, OT_SEQUENCE))
-	{
-		TLN_SetLastError (TLN_ERR_REF_SEQUENCE);
 		return false;
-	}
 	
 	animation = &engine->animations[index];
 	SetAnimation (animation, sequence, TYPE_TILESET);
@@ -333,10 +319,7 @@ bool TLN_SetTilemapAnimation (int index, int nlayer, TLN_Sequence sequence)
 
 	/* validate type */
 	if (!CheckBaseObject (sequence, OT_SEQUENCE))
-	{
-		TLN_SetLastError (TLN_ERR_REF_SEQUENCE);
 		return false;
-	}
 	
 	animation = &engine->animations[index];
 	SetAnimation (animation, sequence, TYPE_TILEMAP);
@@ -382,10 +365,7 @@ bool TLN_SetSpriteAnimation (int index, int nsprite, TLN_Sequence sequence, int 
 
 	/* validate type */
 	if (!CheckBaseObject (sequence, OT_SEQUENCE))
-	{
-		TLN_SetLastError (TLN_ERR_REF_SEQUENCE);
 		return false;
-	}
 	
 	animation = &engine->animations[index];
 	SetAnimation (animation, sequence, TYPE_SPRITE);

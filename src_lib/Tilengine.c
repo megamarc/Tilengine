@@ -25,6 +25,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdarg.h>
 #include "Tilengine.h"
 #include "Tilemap.h"
 #include "Tileset.h"
@@ -40,8 +41,7 @@
 /* magic number to recognize context object */
 #define ID_CONTEXT	0x7E5D0AB1
 
-TLN_Engine engine;
-static int instances = 0;
+TLN_Engine engine;	/* current context */
 
 static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int numsprites, int numanimations);
 
@@ -217,7 +217,10 @@ void TLN_Deinit(void)
 
  /*!
  * \brief
- * Delete explicit context
+ * Deletes explicit context
+ *
+ * \param context
+ * context reference to delete
  */
 bool TLN_DeleteContext(TLN_Engine context)
 {
@@ -254,6 +257,19 @@ bool TLN_DeleteContext(TLN_Engine context)
 
 	TLN_SetLastError (TLN_ERR_OK);
 	return true;
+}
+
+/*!
+ * \brief
+ * Sets logging level for current instance
+ *
+ * \param log_level
+ * value to set, member of the TLN_LogLevel enumeration
+ */
+void TLN_SetLogLevel(TLN_LogLevel log_level)
+{
+	if (engine != NULL)
+		engine->log_level = log_level;
 }
 
 /*!
@@ -512,10 +528,7 @@ bool TLN_SetBGColorFromTilemap (TLN_Tilemap tilemap)
 		return true;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_TILEMAP);
 		return false;
-	}
 }
 
 /*!
@@ -548,10 +561,7 @@ bool TLN_SetBGBitmap (TLN_Bitmap bitmap)
 	if (bitmap)
 	{
 		if (!CheckBaseObject (bitmap, OT_BITMAP))
-		{
-			TLN_SetLastError (TLN_ERR_REF_BITMAP);
 			return false;
-		}
 		engine->bgpalette = bitmap->palette;
 	}
 	engine->bgbitmap = bitmap;
@@ -572,10 +582,8 @@ bool TLN_SetBGBitmap (TLN_Bitmap bitmap)
 bool TLN_SetBGPalette (TLN_Palette palette)
 {
 	if (!CheckBaseObject (palette, OT_PALETTE))
-	{
-		TLN_SetLastError (TLN_ERR_REF_PALETTE);
 		return false;
-	}
+
 	engine->bgpalette = palette;
 	TLN_SetLastError (TLN_ERR_OK);
 	return true;
@@ -640,6 +648,28 @@ uint32_t TLN_GetUsedMemory (void)
 	return GetNumBytes ();
 }
 
+const char* const errornames[] =
+{
+	"No error",
+	"Not enough memory",
+	"Layer index out of range",
+	"Sprite index out of range",
+	"Animation index out of range",
+	"Picture or tile index out of range",
+	"Invalid Tileset reference",
+	"Invalid Tilemap reference",
+	"Invalid Spriteset reference",
+	"Invalid Palette reference",
+	"Invalid SequencePack reference",
+	"Invalid Sequence reference",
+	"Invalid Bitmap reference",
+	"Null pointer as required argument",
+	"Resource file not found",
+	"Resource file has invalid format",
+	"A width or height parameter is invalid",
+	"Unsupported function",
+};
+
 /*!
  * \brief
  * Sets the global error code of tilengine. Useful for custom loaders that need to set the error state.
@@ -653,7 +683,11 @@ uint32_t TLN_GetUsedMemory (void)
 void TLN_SetLastError (TLN_Error error)
 {
 	if (check_context(engine))
+	{
 		engine->error = error;
+		if (error != TLN_ERR_OK)
+			tln_trace(TLN_LOG_ERRORS, errornames[error]);
+	}
 }
 
 /*!
@@ -671,28 +705,6 @@ TLN_Error TLN_GetLastError (void)
 		return TLN_ERR_NULL_POINTER;
 }
 
-const char* const errornames[] =
-{
-	"No error",
-	"Not enough memory",
-	"Layer index out of range",
-	"Sprite index out of range",
-	"Animation index out of range",
-	"Picture or tile index out of range",
-	"Invalid Tileset reference",
-	"Invalid Tilemap reference",
-	"Invalid Spriteset reference",
-	"Invalid Palette reference",
-	"Invalid SequencePack reference",
-	"Invalid Sequence reference",
-	"Invalid Bitmap reference",
-	"Null pointer as required argument", 
-	"Resource file not found",
-	"Resource file has invalid format",
-	"A width or height parameter is invalid",
-	"Unsupported function",
-};
-
 /*!
  * \brief
  * Returns the string description of the specified error code
@@ -709,4 +721,20 @@ const char *TLN_GetErrorString (TLN_Error error)
 		return errornames[error];
 	else
 		return "Invalid error code";
+}
+
+/* outputs trace message */
+void tln_trace(TLN_LogLevel log_level, const char* format, ...)
+{
+	if (engine != NULL && engine->log_level >= log_level)
+	{
+		char line[255];
+		va_list ap;
+
+		va_start(ap, format);
+		vsprintf(line, format, ap);
+		va_end(ap);
+
+		printf("Tilengine: %s\n", line);
+	}
 }

@@ -67,10 +67,7 @@ TLN_Sequence TLN_CreateSequence (const char* name, int target, int count, TLN_Se
 	size = count*sizeof(TLN_SequenceFrame);
 	sequence = CreateBaseObject (OT_SEQUENCE, sizeof(struct Sequence) + size);
 	if (!sequence)
-	{
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 		return NULL;
-	}
 
 	if (name)
 	{
@@ -119,10 +116,7 @@ TLN_Sequence TLN_CreateCycle (const char* name, int count, TLN_ColorStrip* strip
 	size = count*sizeof(struct Strip);
 	sequence = CreateBaseObject (OT_SEQUENCE, sizeof(struct Sequence) + size);
 	if (!sequence)
-	{
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 		return NULL;
-	}
 
 	if (name)
 	{
@@ -165,10 +159,7 @@ TLN_Sequence TLN_CloneSequence (TLN_Sequence src)
 	TLN_Sequence sequence;
 
 	if (!CheckBaseObject (src, OT_SEQUENCE))
-	{
-		TLN_SetLastError (TLN_ERR_REF_SEQUENCE);
 		return NULL;
-	}
 
 	sequence = CloneBaseObject (src);
 	if (sequence)
@@ -177,10 +168,7 @@ TLN_Sequence TLN_CloneSequence (TLN_Sequence src)
 		return sequence;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 		return NULL;
-	}
 }
 
 /*!
@@ -227,8 +215,5 @@ bool TLN_DeleteSequence (TLN_Sequence sequence)
 		return true;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_SEQUENCE);
 		return false;
-	}		
 }

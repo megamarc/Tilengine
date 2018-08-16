@@ -39,16 +39,9 @@ TLN_SequencePack TLN_CreateSequencePack (void)
 	int size = sizeof(struct SequencePack);
 
 	sp = CreateBaseObject (OT_SEQPACK, size);
-	if (!sp)
-	{
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
-		return NULL;
-	}
-	else
-	{
+	if (sp != NULL)
 		TLN_SetLastError (TLN_ERR_OK);
-		return sp;
-	}
+	return sp;
 }
 
 /*!
@@ -69,16 +62,8 @@ TLN_SequencePack TLN_CreateSequencePack (void)
  */
 bool TLN_AddSequenceToPack (TLN_SequencePack sp, TLN_Sequence sequence)
 {
-	if (!CheckBaseObject (sp, OT_SEQPACK))
-	{
-		TLN_SetLastError (TLN_ERR_REF_SEQPACK);
+	if (!CheckBaseObject (sp, OT_SEQPACK) || !CheckBaseObject (sequence, OT_SEQUENCE))
 		return false;
-	}
-	if (!CheckBaseObject (sequence, OT_SEQUENCE))
-	{
-		TLN_SetLastError (TLN_ERR_REF_SEQUENCE);
-		return false;
-	}
 
 	/* añade a lista enlazada */
 	if (sp->sequences == NULL)
@@ -103,10 +88,7 @@ bool TLN_AddSequenceToPack (TLN_SequencePack sp, TLN_Sequence sequence)
 int TLN_GetSequencePackCount (TLN_SequencePack sp)
 {
 	if (!CheckBaseObject (sp, OT_SEQPACK))
-	{
-		TLN_SetLastError (TLN_ERR_REF_SEQPACK);
 		return 0;
-	}
 
 	TLN_SetLastError (TLN_ERR_OK);
 	return sp->num_sequences;
@@ -131,10 +113,7 @@ TLN_Sequence TLN_GetSequence (TLN_SequencePack sp, int index)
 	int c;
 
 	if (!CheckBaseObject (sp, OT_SEQPACK))
-	{
-		TLN_SetLastError (TLN_ERR_REF_SEQPACK);
 		return NULL;
-	}
 
 	if (index >= sp->num_sequences)
 	{
@@ -172,10 +151,8 @@ TLN_Sequence TLN_FindSequence (TLN_SequencePack sp, const char* name)
 	hash_t find;
 
 	if (!CheckBaseObject (sp, OT_SEQPACK))
-	{
-		TLN_SetLastError (TLN_ERR_REF_SEQPACK);
 		return NULL;
-	}
+
 	if (!name)
 	{
 		TLN_SetLastError (TLN_ERR_NULL_POINTER);
@@ -217,10 +194,7 @@ TLN_Sequence TLN_FindSequence (TLN_SequencePack sp, const char* name)
 bool TLN_DeleteSequencePack (TLN_SequencePack sp)
 {
 	if (!CheckBaseObject (sp, OT_SEQPACK))
-	{
-		TLN_SetLastError (TLN_ERR_REF_SEQPACK);
 		return false;
-	}
 
 	if (ObjectOwner (sp))
 	{

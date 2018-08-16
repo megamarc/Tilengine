@@ -58,7 +58,7 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 
 /* version */
 #define TILENGINE_VER_MAJ	2
-#define TILENGINE_VER_MIN	0
+#define TILENGINE_VER_MIN	1
 #define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ<<16) | (TILENGINE_VER_MIN<<8) | TILENGINE_VER_REV)
 
@@ -304,6 +304,15 @@ typedef enum
 }
 TLN_Error;
 
+/*! Debug level */
+typedef enum
+{
+	TLN_LOG_NONE,		/*!< Don't print anything (default) */
+	TLN_LOG_ERRORS,		/*!< Print only runtime errors */
+	TLN_LOG_VERBOSE,	/*!< Print everything */
+}
+TLN_LogLevel;
+
 #ifdef __cplusplus
 extern "C"{
 #endif
@@ -339,6 +348,7 @@ TLNAPI void TLN_BeginFrame (int time);
 TLNAPI bool TLN_DrawNextScanline (void);
 TLNAPI void TLN_SetLoadPath (const char* path);
 TLNAPI void TLN_SetCustomBlendFunction (uint8_t (*blend_function)(uint8_t src, uint8_t dst));
+TLNAPI void TLN_SetLogLevel(TLN_LogLevel log_level);
 
 /**@}*/
 

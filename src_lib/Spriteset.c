@@ -70,10 +70,7 @@ TLN_Spriteset TLN_CreateSpriteset (TLN_Bitmap bitmap, TLN_SpriteData* data, int 
 	/* crea */
 	spriteset = CreateBaseObject (OT_SPRITESET, size);
 	if (!spriteset)
-	{
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 		return NULL;
-	}
 
 	/* copia datos */
 	spriteset->bitmap = bitmap;
@@ -117,10 +114,7 @@ TLN_Spriteset TLN_CreateSpriteset (TLN_Bitmap bitmap, TLN_SpriteData* data, int 
 bool TLN_SetSpritesetData (TLN_Spriteset spriteset, int entry, TLN_SpriteData* data, void* pixels, int pitch)
 {
 	if (!CheckBaseObject (spriteset, OT_SPRITESET))
-	{
-		TLN_SetLastError (TLN_ERR_REF_SPRITESET);
 		return false;
-	}
 
 	if (entry >= spriteset->entries)
 	{
@@ -162,10 +156,7 @@ TLN_Spriteset TLN_CloneSpriteset (TLN_Spriteset src)
 	TLN_Spriteset spriteset;
 
 	if (!CheckBaseObject (src, OT_SPRITESET))
-	{
-		TLN_SetLastError (TLN_ERR_REF_SPRITESET);
 		return NULL;
-	}
 
 	spriteset = CloneBaseObject (src);
 	if (spriteset)
@@ -174,10 +165,7 @@ TLN_Spriteset TLN_CloneSpriteset (TLN_Spriteset src)
 		return spriteset;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 		return NULL;
-	}
 }
 
 /*!
@@ -204,10 +192,7 @@ bool TLN_DeleteSpriteset (TLN_Spriteset spriteset)
 		return true;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_SPRITESET);
 		return false;
-	}
 }
 
 /*!
@@ -237,10 +222,7 @@ bool TLN_GetSpriteInfo (TLN_Spriteset spriteset, int entry, TLN_SpriteInfo* info
 		return true;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_SPRITESET);
 		return false;
-	}
 }
 
 /*!
@@ -266,10 +248,7 @@ TLN_Palette TLN_GetSpritesetPalette (TLN_Spriteset spriteset)
 		return spriteset->palette;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_SPRITESET);
 		return NULL;
-	}
 }
 
 /*!
@@ -292,10 +271,8 @@ int TLN_FindSpritesetSprite (TLN_Spriteset spriteset, char* name)
 	int c = 0;
 
 	if (!CheckBaseObject (spriteset, OT_SPRITESET))
-	{
-		TLN_SetLastError (TLN_ERR_REF_SPRITESET);
 		return false;
-	}
+
 	if (name == NULL)
 		return false;
 

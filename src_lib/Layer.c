@@ -63,23 +63,16 @@ bool TLN_SetLayer (int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap)
 	}
 
 	layer = &engine->layers[nlayer];
+	layer->ok = false;
 	if (!CheckBaseObject (tilemap, OT_TILEMAP))
-	{
-		layer->ok = false;
-		TLN_SetLastError (TLN_ERR_REF_TILEMAP);
 		return false;
-	}
 	
 	/* seleccionar tileset del tilemap */
 	if (tileset == NULL)
 		tileset = tilemap->tileset;
 	
 	if (!CheckBaseObject (tileset, OT_TILESET))
-	{
-		layer->ok = false;
-		TLN_SetLastError (TLN_ERR_REF_TILESET);
 		return false;
-	}
 	
 	if (tilemap->maxindex <= tileset->numtiles)
 	{
@@ -173,12 +166,9 @@ bool TLN_SetLayerBitmap(int nlayer, TLN_Bitmap bitmap)
 	}
 
 	layer = &engine->layers[nlayer];
+	layer->ok = false;
 	if (!CheckBaseObject(bitmap, OT_BITMAP))
-	{
-		layer->ok = false;
-		TLN_SetLastError(TLN_ERR_REF_BITMAP);
 		return false;
-	}
 
 	layer->tileset = NULL;
 	layer->tilemap = NULL;
@@ -302,7 +292,6 @@ bool TLN_SetLayerPalette (int nlayer, TLN_Palette palette)
 	if (!CheckBaseObject (palette, OT_PALETTE))
 	{
 		layer->ok = false;
-		TLN_SetLastError (TLN_ERR_REF_PALETTE);
 		return false;
 	}
 
@@ -441,16 +430,8 @@ bool TLN_GetLayerTile (int nlayer, int x, int y, TLN_TileInfo* info)
 	}
 
 	layer = &engine->layers[nlayer];
-	if (!CheckBaseObject (layer->tileset, OT_TILESET))
-	{
-		TLN_SetLastError (TLN_ERR_REF_TILESET);
+	if (!CheckBaseObject (layer->tileset, OT_TILESET) || !CheckBaseObject (layer->tilemap, OT_TILEMAP))
 		return false;
-	}
-	if (!CheckBaseObject (layer->tilemap, OT_TILEMAP))
-	{
-		TLN_SetLastError (TLN_ERR_REF_TILEMAP);
-		return false;
-	}
 
 	tileset = layer->tileset;
 	tilemap = layer->tilemap;

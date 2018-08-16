@@ -239,7 +239,8 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 		{
 			printf("parse error on line %li:\n%s\n", 
 				simpleXmlGetLineNumber(parser), simpleXmlGetErrorDescription(parser));
-			free (data);
+			simpleXmlDestroyParser(parser);
+			free(data);
 			TLN_SetLastError (TLN_ERR_WRONG_FORMAT);
 			return NULL;
 		}
@@ -249,6 +250,7 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 	else
 		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 
+	simpleXmlDestroyParser(parser);
 	free (data);
 	return loader.tilemap;
 }

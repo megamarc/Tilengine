@@ -72,10 +72,7 @@ TLN_Tilemap TLN_CreateTilemap (int rows, int cols, TLN_Tile tiles, uint32_t bgco
 
 	tilemap = CreateBaseObject (OT_TILEMAP, size);
 	if (!tilemap)
-	{
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 		return NULL;
-	}
 
 	tilemap->rows = rows;
 	tilemap->cols = cols;
@@ -107,10 +104,7 @@ TLN_Tilemap TLN_CloneTilemap (TLN_Tilemap src)
 	TLN_Tilemap tilemap;
 
 	if (!CheckBaseObject (src, OT_TILEMAP))
-	{
-		TLN_SetLastError (TLN_ERR_REF_TILEMAP);
 		return NULL;
-	}
 
 	tilemap = CloneBaseObject (src);
 	if (tilemap)
@@ -119,10 +113,7 @@ TLN_Tilemap TLN_CloneTilemap (TLN_Tilemap src)
 		return tilemap;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 		return NULL;
-	}
 }
 
 /*!
@@ -143,10 +134,7 @@ int TLN_GetTilemapRows (TLN_Tilemap tilemap)
 		return tilemap->rows;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_TILEMAP);
 		return 0;
-	}
 }
 
 /*!
@@ -167,10 +155,7 @@ int TLN_GetTilemapCols (TLN_Tilemap tilemap)
 		return tilemap->cols;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_TILEMAP);
 		return 0;
-	}
 }
 
 /*!
@@ -191,10 +176,7 @@ TLN_Tileset TLN_GetTilemapTileset (TLN_Tilemap tilemap)
 		return tilemap->tileset;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_TILEMAP);
 		return NULL;
-	}
 }
 
 static TLN_Tile GetTilemapPtr (TLN_Tilemap tilemap, int row, int col)
@@ -240,10 +222,7 @@ bool TLN_GetTilemapTile (TLN_Tilemap tilemap, int row, int col, TLN_Tile tile)
 		}
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_TILEMAP);
 		return false;
-	}
 }
 
 /*!
@@ -287,10 +266,7 @@ bool TLN_SetTilemapTile (TLN_Tilemap tilemap, int row, int col, TLN_Tile tile)
 		}
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_TILEMAP);
 		return false;
-	}
 }
 
 /*!
@@ -317,10 +293,7 @@ bool TLN_DeleteTilemap (TLN_Tilemap tilemap)
 		return true;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_TILEMAP);
 		return false;
-	}
 }
 
 static void ClipRect (Rect* src, Rect* dst)
@@ -366,16 +339,8 @@ bool TLN_CopyTiles (TLN_Tilemap src, int srcrow, int srccol, int rows, int cols,
 {
 	int y, size;
 
-	if (!CheckBaseObject (src, OT_TILEMAP))
-	{
-		TLN_SetLastError (TLN_ERR_REF_TILEMAP);
+	if (!CheckBaseObject (src, OT_TILEMAP) || !CheckBaseObject (dst, OT_TILEMAP))
 		return false;
-	}
-	if (!CheckBaseObject (dst, OT_TILEMAP))
-	{
-		TLN_SetLastError (TLN_ERR_REF_TILEMAP);
-		return false;
-	}
 
 	/* setup rects */
 	{

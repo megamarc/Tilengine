@@ -5,7 +5,7 @@ INCPATH  = ../include
 
 # Windows specific flags
 ifeq ($(OS),Windows_NT)
-$(error This Makefile si not intended for Windows! Please use Visual Studio instead)
+$(error This Makefile is not intended for Windows! Please use Visual Studio instead)
 else
 	RM = rm -f
 	name := $(shell uname -s)

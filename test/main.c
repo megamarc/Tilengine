@@ -1,65 +1,50 @@
 #include "Tilengine.h"
-#include "sdl2\SDL_events.h"
 
 #define WIDTH	400
 #define HEIGHT	240
 
-/* layers */
-enum
-{
-	LAYER_FOREGROUND,
-	LAYER_BACKGROUND,
-	MAX_LAYER
-};
-
-static void sdl_callback(SDL_Event* evt)
-{
-	if (evt->type == SDL_MOUSEBUTTONDOWN)
-	{
-		printf("ratonnnn\n");
-	}
-}
-
-/* helper for loading a related tileset + tilemap and configure the appropiate layer */
-static void LoadLayer (int index, char* filename)
-{
-	TLN_Tilemap tilemap = TLN_LoadTilemap (filename, NULL);
-	TLN_SetLayer (index, NULL, tilemap);
-	TLN_SetBGColorFromTilemap (tilemap);
-}
+static uint8_t framebuffer[WIDTH * HEIGHT * 4];
 
 int main (int argc, char* argv[])
 {
-	int frame = 0;
-	int c = 0;
-	TLN_Spriteset spriteset;
-	TLN_Tileset tileset;
-	TLN_Bitmap bitmap;
+	int c;
+	TLN_Tilemap tilemap = NULL;
+	TLN_Spriteset spriteset = NULL;
 
-	TLN_Init (WIDTH,HEIGHT, 2,1,5);
-	TLN_SetLoadPath("D:/Tilengine/samples/assets/smw");
-
-	tileset = TLN_LoadTileset("smw_background.tsx");
-	if (tileset == NULL)
-		printf(TLN_GetErrorString(TLN_GetLastError()));
-	spriteset = TLN_LoadSpriteset ("smw_sprite");
-	TLN_SetSpriteSet (0, spriteset);
-	bitmap = TLN_LoadBitmap("dancougar.png");
-	TLN_SetSpritePosition (0,100,100);
-	TLN_SetLayerBitmap(0, bitmap);
-	TLN_SetLayerPosition(0, 640, 480);
-
-	TLN_SetWindowTitle("Ventana de carapapas");
-	TLN_CreateWindow (NULL, CWF_VSYNC);
-	TLN_SetSDLCallback(sdl_callback);
-	TLN_EnableCRTEffect(TLN_OVERLAY_APERTURE, 128, 128, 128, 128, 128, 128, false, 128);
-	while (TLN_ProcessWindow())
+	/* basic setup */
+	TLN_Init(WIDTH, HEIGHT, 1, 1, 1);
+	TLN_SetBGColor (0,128,238);
+	TLN_SetRenderTarget(framebuffer, WIDTH * 4);
+	TLN_SetLoadPath("../assets/sonic");
+	TLN_SetLogLevel(TLN_LOG_VERBOSE);
+	printf("Tilengine version %06X\n", TLN_GetVersion());
+	
+	/* test layer */
+	tilemap = TLN_LoadTilemap("dummy", NULL);
+	for (c = 0; c < 2; c++)
 	{
-		//TLN_SetSpriteRotation(0, frame);
-		TLN_DrawFrame(frame++);
-		TLN_SetLayerTransform(0, frame/2.0, WIDTH/2, HEIGHT/2, 0.5, 0.5);
+		TLN_SetLayer(0, NULL, tilemap);
+		if (tilemap == NULL)
+			tilemap = TLN_LoadTilemap("Sonic_md_bg1.tmx", NULL);
 	}
+	TLN_SetLayerPosition(1, 0, 0);
+	TLN_SetLayerPosition(0, 0, 0);
 
+	/* test sprite */
+	spriteset = TLN_LoadSpriteset("dummy");
+	for (c = 0; c < 2; c++)
+	{
+		TLN_ConfigSprite(0, spriteset, 0);
+		if (spriteset == NULL)
+			spriteset = TLN_LoadSpriteset("smw_sprite");
+	}
+	TLN_SetSpritePosition(1, 10, 10);
+	TLN_SetSpritePosition(0, 10, 10);
+
+	TLN_UpdateFrame(0);
+
+	TLN_DeleteSpriteset(spriteset);
+	TLN_DeleteTilemap(tilemap);
 	TLN_Deinit ();
 	return 0;
 }

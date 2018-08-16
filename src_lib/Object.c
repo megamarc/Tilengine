@@ -20,9 +20,34 @@
 #include <stdlib.h>
 #include <string.h>
 #include "Object.h"
+#include "Engine.h"
 
 static uint32_t numobjects = 0;
 static uint32_t numbytes = 0;
+
+static const char* object_types[] = 
+{
+	"none",
+	"palette",
+	"tilemap",
+	"tileset",
+	"spriteset",
+	"bitmap",
+	"sequence",
+	"sequence pack"
+};
+
+static const TLN_Error object_errors[] =
+{
+	TLN_ERR_OK,
+	TLN_ERR_REF_PALETTE,
+	TLN_ERR_REF_TILEMAP,
+	TLN_ERR_REF_TILESET,
+	TLN_ERR_REF_SPRITESET,
+	TLN_ERR_REF_BITMAP,
+	TLN_ERR_REF_SEQUENCE,
+	TLN_ERR_REF_SEQPACK,
+};
 
 /* crea objecto */
 void* CreateBaseObject (ObjectType type, int size)
@@ -37,6 +62,12 @@ void* CreateBaseObject (ObjectType type, int size)
 		object->guid = numobjects;
 		object->size = size;
 		object->owner = true;
+		tln_trace(TLN_LOG_VERBOSE, "%s created at %p, %d size", object_types[type], object, size);
+	}
+	else
+	{
+		TLN_SetLastError(TLN_ERR_OUT_OF_MEMORY);
+		tln_trace(TLN_LOG_ERRORS, "failed to create %s!", object_types[type]);
 	}
 	return object;
 }
@@ -59,6 +90,7 @@ void DeleteBaseObject (void* object)
 	{
 		numobjects--;
 		numbytes -= ObjectSize(object);
+		tln_trace(TLN_LOG_VERBOSE, "%s %p deleted", object_types[ObjectType(object)], object);
 		free (object);
 	}
 }
@@ -66,10 +98,12 @@ void DeleteBaseObject (void* object)
 /* comprueba tipo de objeto */
 bool CheckBaseObject (void* object, ObjectType type)
 {
-	if (object != NULL)
-		return ObjectType(object) == type;
-	else
-		return false;
+	if (object != NULL && ObjectType(object) == type)
+		return true;
+
+	TLN_SetLastError(object_errors[type]);
+	tln_trace(TLN_LOG_ERRORS, "Invalid object address is %p", object);
+	return false;
 }
 
 unsigned int GetNumObjects (void)

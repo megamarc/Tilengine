@@ -197,6 +197,7 @@ TLN_SequencePack TLN_LoadSequencePack (const char* filename)
 		{
 			printf("parse error on line %li:\n%s\n", 
 				simpleXmlGetLineNumber(parser), simpleXmlGetErrorDescription(parser));
+			simpleXmlDestroyParser(parser);
 			free (data);
 			TLN_SetLastError (TLN_ERR_WRONG_FORMAT);
 			return NULL;
@@ -207,6 +208,7 @@ TLN_SequencePack TLN_LoadSequencePack (const char* filename)
 	else
 		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 
+	simpleXmlDestroyParser(parser); 
 	free (data);
 	return loader.sp;
 }

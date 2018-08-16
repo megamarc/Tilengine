@@ -64,7 +64,7 @@ static bool HasTransparentPixels (uint8_t* src, int width);
  * \see
  * TLN_SetTilesetPixels()
  */
-TLNAPI TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette palette, TLN_SequencePack sp, TLN_TileAttributes* attributes)
+TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette palette, TLN_SequencePack sp, TLN_TileAttributes* attributes)
 {
 	TLN_Tileset tileset;
 	int hshift = 0;
@@ -96,10 +96,7 @@ TLNAPI TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_P
 	size = sizeof(struct Tileset) + size_tiles + size_color + size_attributes;
 	tileset = CreateBaseObject (OT_TILESET, size);
 	if (!tileset)
-	{
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 		return NULL;
-	}
 
 	tileset->width = width;
 	tileset->height = height;
@@ -152,10 +149,7 @@ bool TLN_SetTilesetPixels (TLN_Tileset tileset, int entry, uint8_t* srcdata, int
 	uint8_t* dstdata;
 
 	if (!CheckBaseObject (tileset, OT_TILESET))
-	{
-		TLN_SetLastError (TLN_ERR_REF_TILESET);
 		return false;
-	}
 
 	if (entry<1 || entry>tileset->numtiles)
 	{
@@ -195,10 +189,7 @@ TLN_Tileset TLN_CloneTileset (TLN_Tileset src)
 	TLN_Tileset tileset;
 
 	if (!CheckBaseObject (src, OT_TILESET))
-	{
-		TLN_SetLastError (TLN_ERR_REF_TILESET);
 		return NULL;
-	}
 
 	tileset = CloneBaseObject (src);
 	if (tileset)
@@ -209,10 +200,7 @@ TLN_Tileset TLN_CloneTileset (TLN_Tileset src)
 		return tileset;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 		return NULL;
-	}
 }
 
 /*!
@@ -242,10 +230,7 @@ bool TLN_DeleteTileset (TLN_Tileset tileset)
 		return true;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_TILESET);
 		return false;
-	}
 }
 
 /*!
@@ -266,10 +251,7 @@ int TLN_GetTileWidth (TLN_Tileset tileset)
 		return tileset->width;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_TILESET);
 		return 0;
-	}
 }
 
 /*!
@@ -290,10 +272,7 @@ int TLN_GetTileHeight (TLN_Tileset tileset)
 		return tileset->height;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_TILESET);
 		return 0;
-	}
 }
 
 /*!
@@ -319,10 +298,7 @@ TLN_Palette TLN_GetTilesetPalette (TLN_Tileset tileset)
 		return tileset->palette;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_TILESET);
 		return NULL;
-	}
 }
 
 /*!
@@ -343,10 +319,7 @@ TLN_SequencePack TLN_GetTilesetSequencePack (TLN_Tileset tileset)
 		return tileset->sp;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_TILESET);
 		return NULL;
-	}
 }
 
 /*!
@@ -370,10 +343,7 @@ bool TLN_CopyTile (TLN_Tileset tileset, int src, int dst)
 	int tilesize;
 
 	if (!CheckBaseObject (tileset, OT_TILESET))
-	{
-		TLN_SetLastError (TLN_ERR_REF_TILESET);
 		return false;
-	}
 
 	if (src>=tileset->numtiles)
 	{

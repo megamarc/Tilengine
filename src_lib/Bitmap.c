@@ -69,10 +69,7 @@ TLN_Bitmap TLN_CreateBitmap (int width, int height, int bpp)
 		return bitmap;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 		return NULL;
-	}
 }
 
 /*!
@@ -93,10 +90,7 @@ TLN_Bitmap TLN_CloneBitmap (TLN_Bitmap src)
 	TLN_Bitmap bitmap;
 
 	if (!CheckBaseObject (src, OT_BITMAP))
-	{
-		TLN_SetLastError (TLN_ERR_REF_BITMAP);
 		return NULL;
-	}
 
 	bitmap = CloneBaseObject (src);
 	if (bitmap)
@@ -105,10 +99,7 @@ TLN_Bitmap TLN_CloneBitmap (TLN_Bitmap src)
 		return bitmap;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 		return NULL;
-	}
 }
 
 /*!
@@ -132,10 +123,7 @@ bool TLN_DeleteBitmap (TLN_Bitmap bitmap)
 		return true;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_BITMAP);
 		return false;
-	}
 }
 
 /*!
@@ -162,10 +150,7 @@ uint8_t* TLN_GetBitmapPtr (TLN_Bitmap bitmap, int x, int y)
 	uint8_t *srcptr;
 
 	if (!CheckBaseObject (bitmap, OT_BITMAP))
-	{
-		TLN_SetLastError (TLN_ERR_REF_BITMAP);
 		return NULL;
-	}
 
 	if (x>=bitmap->width || y>=bitmap->height)
 	{
@@ -199,10 +184,7 @@ TLN_Palette TLN_GetBitmapPalette (TLN_Bitmap bitmap)
 		return bitmap->palette;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_BITMAP);
 		return NULL;
-	}
 }
 
 /*!
@@ -220,16 +202,8 @@ TLN_Palette TLN_GetBitmapPalette (TLN_Bitmap bitmap)
  */
 bool TLN_SetBitmapPalette (TLN_Bitmap bitmap, TLN_Palette palette)
 {
-	if (!CheckBaseObject (bitmap, OT_BITMAP))
-	{
-		TLN_SetLastError (TLN_ERR_REF_BITMAP);
+	if (!CheckBaseObject (bitmap, OT_BITMAP) || !CheckBaseObject (palette, OT_PALETTE))
 		return false;
-	}
-	if (!CheckBaseObject (palette, OT_PALETTE))
-	{
-		TLN_SetLastError (TLN_ERR_REF_PALETTE);
-		return false;
-	}
 
 	bitmap->palette = palette;
 	TLN_SetLastError (TLN_ERR_OK);
@@ -251,10 +225,7 @@ int TLN_GetBitmapWidth (TLN_Bitmap bitmap)
 		return bitmap->width;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_BITMAP);
 		return 0;
-	}
 }
 
 /*!
@@ -272,10 +243,7 @@ int TLN_GetBitmapHeight (TLN_Bitmap bitmap)
 		return bitmap->height;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_BITMAP);
 		return 0;
-	}
 }
 
 /*!
@@ -285,7 +253,7 @@ int TLN_GetBitmapHeight (TLN_Bitmap bitmap)
  * \param bitmap
  * Reference to the bitmap
  */
-TLNAPI int TLN_GetBitmapDepth (TLN_Bitmap bitmap)
+int TLN_GetBitmapDepth (TLN_Bitmap bitmap)
 {
 	if (CheckBaseObject (bitmap, OT_BITMAP))
 	{
@@ -293,10 +261,7 @@ TLNAPI int TLN_GetBitmapDepth (TLN_Bitmap bitmap)
 		return bitmap->bpp;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_BITMAP);
 		return 0;
-	}
 }
 
 /*!
@@ -314,8 +279,5 @@ int TLN_GetBitmapPitch (TLN_Bitmap bitmap)
 		return bitmap->pitch;
 	}
 	else
-	{
-		TLN_SetLastError (TLN_ERR_REF_BITMAP);
 		return 0;
-	}
 }

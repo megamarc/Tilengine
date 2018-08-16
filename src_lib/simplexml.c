@@ -81,6 +81,26 @@
 /* the carriage return constant */
 #define CR '\xd'
 
+/*
+static char* mystrdup(const char* src)
+{
+	if (src != NULL)
+	{
+		char* dst = malloc(strlen(src) + 1);
+		strcpy(dst, src);
+		return dst;
+	}
+	else
+		return NULL;
+}
+*/
+
+#if defined _MSC_VER
+#define mystrdup _strdup
+#else
+#define mystrdup strdup
+#endif
+
 /* ---- types */
 
 /**
@@ -463,7 +483,7 @@ int parseOneTag (SimpleXmlParserState parser, SimpleXmlTagHandler parentHandler)
 		return FAIL;
 	}
 
-	szTagName= strdup(getInternalSimpleXmlValueBufferContents(parser->vbNextToken));
+	szTagName= mystrdup(getInternalSimpleXmlValueBufferContents(parser->vbNextToken));
 	if (szTagName == NULL) {
 		parser->nError= OUT_OF_MEMORY;
 		return FAIL;
