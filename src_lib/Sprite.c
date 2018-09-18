@@ -384,7 +384,7 @@ static void Vector2DSet(Vector2D* vector, Point2D* src, Point2D* dst, int len)
 	vector->dy = int2fix(dsth) / len;
 }
 
-static void __inline Vector2DAdvance(Vector2D* vector)
+static inline void Vector2DAdvance(Vector2D* vector)
 {
 	vector->x += vector->dx;
 	vector->y += vector->dy;

@@ -81,7 +81,6 @@
 /* the carriage return constant */
 #define CR '\xd'
 
-/*
 static char* mystrdup(const char* src)
 {
 	if (src != NULL)
@@ -93,13 +92,6 @@ static char* mystrdup(const char* src)
 	else
 		return NULL;
 }
-*/
-
-#if defined _MSC_VER
-#define mystrdup _strdup
-#else
-#define mystrdup strdup
-#endif
 
 /* ---- types */
 
