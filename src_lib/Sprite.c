@@ -32,6 +32,10 @@
 #include "Tables.h"
 #include "Hash.h"
 
+#ifdef _MSC_VER
+#define inline __inline
+#endif
+
 static void SelectBlitter (Sprite* sprite);
 static void UpdateSprite (Sprite* sprite);
 

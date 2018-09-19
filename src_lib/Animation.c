@@ -21,6 +21,10 @@
  * \file animation.c
  * Animation control
  */
+ 
+#ifdef _MSC_VER
+#define inline __inline
+#endif
 
 #include <string.h>
 #include "Tilengine.h"
