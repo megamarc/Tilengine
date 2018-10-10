@@ -38,6 +38,7 @@ FILE* __cdecl __iob_func(void)
 {
 	return NULL;
 }
+#pragma comment(lib, "legacy_stdio_definitions.lib")
 #endif
 
 /*!
