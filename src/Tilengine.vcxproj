@@ -170,8 +170,10 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <PostBuildEvent>
       <Command>upx -9 $(TargetPath)
 
-copy $(TargetPath) $(SolutionDir)samples
-
+if not exist $(SolutionDir)lib\$(Platform) (
+  mkdir $(SolutionDir)lib
+  mkdir $(SolutionDir)lib\$(Platform)
+)
 copy $(TargetPath) $(SolutionDir)lib\$(Platform)
 
 copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
@@ -186,7 +188,6 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
       <AdditionalIncludeDirectories>libpng;sdl;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;LIB_EXPORTS;ZLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat />
@@ -206,8 +207,10 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <PostBuildEvent>
       <Command>upx -9 $(TargetPath)
 
-copy $(TargetPath) $(SolutionDir)samples
-
+if not exist $(SolutionDir)lib\$(Platform) (
+  mkdir $(SolutionDir)lib
+  mkdir $(SolutionDir)lib\$(Platform)
+)
 copy $(TargetPath) $(SolutionDir)lib\$(Platform)
 
 copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
