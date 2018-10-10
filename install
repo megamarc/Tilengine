@@ -2,20 +2,22 @@
 name=$(uname -s)
 arch=$(uname -m)
 
+# replace it with your specific distro
+tgtpath="/usr"
+#tgtpath="/usr/local"
+
 echo "Installing $name $arch"
 include="Tilengine.h"
 if [ $name == "Linux" ]; then
 	library="libTilengine.so"
-	incpath="/usr/include"
+	incpath="$tgtpath/include"
+	libpath="$tgtpath/lib"
 	if [ $arch == "i686" ]; then
 		srcpath="linux_i686"
-		libpath="/usr/lib/i386-linux-gnu"
 	elif [ $arch == "x86_64" ]; then
 		srcpath="linux_x86_64"
-		libpath="/usr/lib/x86_64-linux-gnu"
 	elif [ $arch == "armv7l" ]; then
 		srcpath="linux_arm"
-		libpath="/usr/lib/arm-linux-gnueabihf"
 	fi
 elif [ $name == "Darwin" ]; then
 	library="Tilengine.dylib"

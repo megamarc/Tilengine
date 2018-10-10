@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2043
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tilengine", "src_lib\Tilengine.vcxproj", "{9F321D8F-F164-4CAC-A45A-29A583C4F69D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tilengine", "src\Tilengine.vcxproj", "{9F321D8F-F164-4CAC-A45A-29A583C4F69D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test\test.vcxproj", "{CE31C686-C6BF-4262-8982-D858830BE967}"
 EndProject

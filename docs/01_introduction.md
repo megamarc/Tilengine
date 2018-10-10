@@ -8,7 +8,6 @@ Tilengine is a free, cross-platform 2D graphics engine for creating classic/retr
 * MIT-Licensed: free for any project, including commercial ones
 * Cross platform: available builds for Windows (32/64), Linux PC(32/64), Mac OS X and Raspberry Pi
 * High performance: all samples run at 60 fps with CRT emulation enabled on a Raspberry Pi 3
-* Multiple language bindings: C/C++, C#, Python, Java, Pascal
 * Streamlined, easy to learn API that requires very little lines of code
 * Built-in SDL-based windowing for quick tests
 * Integrate inside any existing framework as a slave renderer

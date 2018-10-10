@@ -6,9 +6,7 @@
 [2. Installing](\ref page_install)
 * [Windows](\ref install_windows)
 * [Unix-like](\ref install_unix)
-* [Running the C/C++ samples](\ref install_samples_c)
-* [Running the python samples](\ref install_samples_python)
-* [Running the C# samples](\ref install_samples_csharp)
+* [Running the samples](\ref install_samples)
 
 [3. First steps](\ref page_first_steps)
 * [Initialize](\ref first_steps_initialize)
