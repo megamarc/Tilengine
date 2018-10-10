@@ -8,7 +8,7 @@ before_install:
 - sudo apt-get install libsdl2-dev libpng-dev
 
 script:
-- cd lib
+- cd src
 - make
 - make Test
 - ./Test
