@@ -53,7 +53,7 @@ void Point2DSet (Point2D*, math2d_t,math2d_t);
 void Point2DAdd (Point2D*, Point2D*);
 void Point2DMultiply (Point2D*, Matrix3*);
 
-#ifdef _MSC_VER
+#if _MSC_VER < 1900
 int roundf(float fvalue);
 #endif
 

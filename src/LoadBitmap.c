@@ -32,10 +32,13 @@
 static TLN_Bitmap LoadPNG (const char* filename);
 static TLN_Bitmap LoadBMP (const char* filename);
 
-extern FILE * __cdecl __iob_func(void)
+/* fix old libpng referencing removed symbols from the CRT */
+#if _MSC_VER >= 1900
+FILE* __cdecl __iob_func(void)
 {
 	return NULL;
 }
+#endif
 
 /*!
  * \brief
