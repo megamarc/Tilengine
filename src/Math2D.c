@@ -155,7 +155,7 @@ void Point2DMultiply (Point2D *point, Matrix3 *matrix)
 }
 
 // roundf()
-#if _MSC_VER < 1900
+#if defined _MSC_VER && _MSC_VER < 1900
 int roundf(float fvalue)
 {
 	int value = (int)fvalue;
