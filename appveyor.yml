@@ -1,0 +1,9 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+configuration: Release
+platform:
+- x86
+- x64
+build:
+  project: src/Tilengine.vcxproj
+  verbosity: minimal
