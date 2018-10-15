@@ -3,6 +3,7 @@
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)
 [![Build Status](https://travis-ci.org/megamarc/Tilengine.svg?branch=master)](https://travis-ci.org/megamarc/Tilengine)
 [![Build status](https://ci.appveyor.com/api/projects/status/yvx7koa32qyjm1b0?svg=true)](https://ci.appveyor.com/project/megamarc/tilengine)
+[![Coverity Scan](https://scan.coverity.com/projects/16964/badge.svg)](https://scan.coverity.com/projects/megamarc-tilengine)
 
 Tilengine is an open source, cross-platform 2D graphics engine for creating classic/retro games with tile maps, sprites and palettes. Its unique scanline-based rendering algorithm makes raster effects a core feature, a technique used by many games running on real 2D graphics chips.
 
