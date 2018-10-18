@@ -14,7 +14,10 @@
 * [Setting the assets path](\ref first_steps_path)
 * [Error handling](\ref first_steps_errors)
 * [Getting runtime info](\ref first_steps_info)
+* [Debugging](\ref first_steps_debugging)
 * [Cleanup](\ref first_steps_cleanup)
+* [Multiple contexts](\ref first_steps_contexts)
+* [Summary](\ref first_steps_summary)
 
 [4. Windowing](\ref page_window)
 * [Features](\ref window_features)
@@ -23,6 +26,7 @@
 * [User input](\ref window_input)
 * [Timing & delay](\ref window_timing)
 * [The CRT effect](\ref window_crt)
+* [Summary](\ref window_steps_summary)
 
 [5. External rendering](\ref page_render)
 * [Setting the target surface](\ref render_target)

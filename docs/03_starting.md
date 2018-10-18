@@ -67,8 +67,80 @@ Tilengine keeps track about the memory being used, the number of assets, the fra
 * \ref TLN_GetUsedMemory : returns the total amount of memory used by tilengine and loaded assets
 * \ref TLN_GetNumObjects : returns the combined number of loaded assets
 
+## Debugging {#first_steps_debugging}
+Tilengine does sanity check on each parameter and silently ignores a function call when there are some mistakes on the parameters (indexes out of range, wrong object types, etc). Each function that can fail returns a `false` boolean (check \ref first_steps_errors), that can be further examinated with \ref TLN_GetLastError and \ref TLN_GetErrorString. However this approach requires much work and manual test when something isn't working as expected. To ease the debugging of your program, Tilengine supports writing messages to the standard output. This behavior is selected with \ref TLN_SetLogLevel, with three possible values:
+
+Value           | Effect
+----------------|---------------------------------------------------------------
+TLN_LOG_NONE    |Doesn't output anything (default value)
+TLN_LOG_ERRORS  |Print only wrong function calls
+TLN_LOG_VERBOSE |Print wrong function calls and every asset creation/destruction
+
+```c
+/* enable basic logging, just errors: */
+TLN_SetLogLevel (TLN_LOG_ERRORS);
+
+/* force an error: "Tilengine: Invalid object address is (nil)" */
+TLN_SetLayer (0, NULL, NULL);
+```
+
 ## Cleanup {#first_steps_cleanup}
 Once done, you should explicitly close tilengine to release memory and resources:
 ```c
 TLN_Deinit ();
 ```
+
+## Multiple contexts {#first_steps_contexts}
+Since release 2.0.0, Tilengine supports multiple instances using a *global context* mechanism. The \ref TLN_Init function returns a handler to a newly created context (a \ref TLN_Engine object), that is selected as active by default. To change the active context use the \ref TLN_SetContext function, passing the handler of the desired context. To delete a context, use \ref TLN_DeleteContext.
+
+```c
+TLN_Engine instance1 = TLN_Init(480, 240, 2,8, 0);    /* instance 1 */
+TLN_Engine instance2 = TLN_Init(360, 160, 1,8, 0);    /* instance 2 */
+
+/* do stuff on instance 1: */
+TLN_SetContext(instance1);
+/* ... do your stuff with regular TLN_xxx functions */
+
+/* do stuff on instance 2: */
+TLN_SetContext(instance2);
+/* ... do your stuff with regular TLN_xxx functions */
+
+/* release */
+TLN_DeleteContext(instance1);
+TLN_DeleteContext(instance2);
+```
+
+## Summary {#first_steps_summary}
+This is a quick reference of related functions in this chapter:
+
+Function                       | Quick description
+-------------------------------|-------------------------------------
+\ref TLN_GetVersion            |Returns library version
+\ref TLN_Init                  |Creates a Tilengine rendering context
+\ref TLN_Deinit                |Destroys the current rendering context
+\ref TLN_SetContext            |Selects the active context
+\ref TLN_GetContext            |Returns the active context
+\ref TLN_DeleteContext         |Destroys the specified context
+\ref TLN_SetLoadPath           |Sets defautl load path for asset loading
+\ref TLN_GetWidth              |Returns the width of the created framebuffer
+\ref TLN_GetHeight             |Returns the height of the created framebuffer
+\ref TLN_GetNumObjects         |Returns the number of runtime assets
+\ref TLN_GetUsedMemory         |Returns the amount of memory used by runtime assets
+\ref TLN_GetNumLayers          |Returns the number of requested layers
+\ref TLN_GetNumSprites         |Returns the number of requested sprites
+\ref TLN_SetBGColor            |Sets the default background color
+\ref TLN_SetBGColorFromTilemap |Sets the background color as defined in a given tilemap
+\ref TLN_DisableBGColor        |Disables use of background color
+\ref TLN_SetBGBitmap           |Sets a static background bitmap
+\ref TLN_SetBGPalette          |Sets the palette of the static background bitmap
+\ref TLN_SetLogLevel           |Sets the verbosity of debug messages
+\ref TLN_GetLastError          |Returns the code of last error
+\ref TLN_GetErrorString        |Returns the string value of a given error code
+
+Function                       | Quick description
+-------------------------------|-------------------------------------
+\ref TLN_SetRenderTarget       |Defines the target surface for rendering
+\ref TLN_SetRasterCallback     |Sets the function to call for every scanline (H-Blank)
+\ref TLN_SetFrameCallback      |Sets the function to call for every frame (V-Blank)
+\ref TLN_UpdateFrame           |Renders a frame
+\ref TLN_SetCustomBlendFunction|Sets function to call for BLEND_CUSTOM blend mode
