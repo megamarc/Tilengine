@@ -6,15 +6,11 @@ echo Unsupported architecture
 goto end
 
 :win32
-copy lib\win32\*.dll samples\c
-copy lib\win32\*.dll samples\python
-copy lib\win32\*.dll samples\csharp
+copy lib\win32\*.dll samples
 goto end
 
 :x64:
-copy lib\x64\*.dll samples\c
-copy lib\x64\*.dll samples\python
-copy lib\x64\*.dll samples\csharp
+copy lib\x64\*.dll samples
 goto end
 
 :end

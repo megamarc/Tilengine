@@ -25,6 +25,7 @@ http://www.tilengine.org
     - [Apple OS X](#apple-os-x)
 - [Documentation](#documentation)
 - [Editing assets](#editing-assets)
+- [Bindings](#bindings)
 - [Contributors](#contributors)
 
 # Features
@@ -47,12 +48,11 @@ http://www.tilengine.org
 # Getting binaries
 
 ## Download from itch.io
-The best way to get prebuilt binaries ready to run is grabbing them from official itch.io acount: https://megamarc.itch.io/tilengine. Just download the package for your platform.
+The best way to get prebuilt binaries ready to run is grabbing them from official itch.io acount: https://megamarc.itch.io/tilengine. Just download the package for your platform. You can also find prebuilt binaries and their dependencies inside the `/lib` directory
 
 ## Build from source
-You can also build the library from source. 
+You can also build the library from source. It's very easy:
 ### Windows
-First you'll need to provide libpng and SDL2 development libraries (headers and binaries) into the suitable folders inside the `/src` folder. They're not distributed with Tilengine source. See `readme.txt` files inside `/src/libpng` and `/src/sdl` for detailed instructions.<br>
 Open the `/Tilengine.sln` project, you'll need Visual Studio Community. x86 and x64 targets provided.
 ### Linux/OSX
 **Prerequisites**: you'll need GNU Make and GCC toolchain, and development libraries for png and SDL2. To install required packages, open a terminal window and run the following command:
@@ -171,6 +171,16 @@ Tilengine is just a programming library that doesn't come with any editor, but t
 * Backgrounds: [Tiled Map Editor](https://www.mapeditor.org/) is the official editor
 * Sprites: Online tool [Lesy SpriteSheet](https://www.leshylabs.com/blog/posts/2013-12-03-Leshy_SpriteSheet_Tool.html)
 * Sequences: Any standard XML editor
+
+# Bindings
+There are bindings to use Tilengine from several programming languages:
+
+Language|Binding
+--------|------------
+C/C++   | Native support, no binding required
+Python  | [PyTilengine](https://github.com/megamarc/PyTilengine)
+C#      | [CsTilengine](https://github.com/megamarc/CsTilengine)
+Pascal  | [PascalTileEngine](https://github.com/turric4n/PascalTileEngine)
 
 # Contributors
 These people contributed to tilengine:
