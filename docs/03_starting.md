@@ -140,7 +140,7 @@ Function                       | Quick description
 Function                       | Quick description
 -------------------------------|-------------------------------------
 \ref TLN_SetRenderTarget       |Defines the target surface for rendering
-\ref TLN_SetRasterCallback     |Sets the function to call for every scanline (H-Blank)
-\ref TLN_SetFrameCallback      |Sets the function to call for every frame (V-Blank)
+\ref TLN_SetRasterCallback     |Sets function to call for every scanline (H-Blank)
+\ref TLN_SetFrameCallback      |Sets function to call for every frame (V-Blank)
 \ref TLN_UpdateFrame           |Renders a frame
 \ref TLN_SetCustomBlendFunction|Sets function to call for BLEND_CUSTOM blend mode

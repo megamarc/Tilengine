@@ -1,7 +1,7 @@
 # Chapter 07. Sprites {#page_sprites}
 [TOC]
 # Sprites {#sprites}
-A sprite is any moving object in a videogame that is not a background: a character, enemy, bullet,player, ball, special effect... 
+A sprite is any moving object in a videogame that is not a background: a character, enemy, bullet,player, ball, special effect...
 
 ## Basic setup {#sprites_setup}
 A sprite needs at least a [spriteset](\ref page_spriteset), and optionally a set of [flags](\ref TLN_TileFlags) and a [palette](\ref TLN_Palette). Usually you want to pack together all the animation frames of a single character inside the same spriteset, so to change the displayed graphic it's only needed to change the image index.
@@ -27,7 +27,7 @@ There are some special modifiers that control sprite flipping and priority. Spri
 ```c
 TLN_SetSpriteFlags (0, FLAG_FLIPY)
 ```
-Flipping modes: a) None, b) FlipX, c) FlipY, d) FlipX + FlipY  
+Flipping modes: a) None, b) FlipX, c) FlipY, d) FlipX + FlipY
 ![Flipping modes](img/sprite_flags.png)
 
 ## Setting the palette {#sprites_palette}
@@ -56,7 +56,7 @@ Sprites can be drawn upscaled or downscaled with an arbitrary factor. To enable 
 ```c
 TLN_SetSpriteScaling (0, 0.5f, 1.5f);
 ```
-Different sprite scaling examples:  
+Different sprite scaling examples:
 ![Different sprite scaling examples](img/sprite_scaling.png)
 
 To disable scaling, call \ref TLN_ResetSpriteScaling passing the sprite index. For example to disable scaling in sprite 0:
@@ -86,3 +86,24 @@ To disable a sprite so it is not rendered, just call \ref TLN_DisableSprite pass
 ```c
 TLN_DisableSprite (0);
 ```
+
+## Summary {#sprites_summary}
+This is a quick reference of related functions in this chapter:
+
+Function                        | Quick description
+--------------------------------|-------------------------------------
+\ref TLN_ConfigSprite           |Configures a sprite, setting spriteset and flags at once
+\ref TLN_SetSpriteSet           |Assigns the spriteset and its palette to a given sprite
+\ref TLN_SetSpriteFlags         |Sets flags for a given sprite
+\ref TLN_SetSpritePosition      |Sets the sprite position inside the viewport
+\ref TLN_SetSpritePicture       |Sets the actual graphic to the sprite
+\ref TLN_SetSpritePalette       |Assigns a palette to a sprite
+\ref TLN_SetSpriteBlendMode     |Sets the blending mode (transparency effect)
+\ref TLN_SetSpriteScaling       |Sets the scaling factor of the sprite
+\ref TLN_ResetSpriteScaling     |Disables scaling for a given sprite
+\ref TLN_GetSpritePicture       |Returns the index of the assigned picture from the spriteset
+\ref TLN_GetAvailableSprite     |Returns the first available (unused) sprite
+\ref TLN_EnableSpriteCollision  |Enable sprite collision checking at pixel level
+\ref TLN_GetSpriteCollision     |Gets the collision status of a given sprite
+\ref TLN_DisableSprite          |Disables the sprite so it is not drawn
+\ref TLN_GetSpritePalette       |Returns the current palette of a sprite

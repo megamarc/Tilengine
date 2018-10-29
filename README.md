@@ -20,8 +20,8 @@ http://www.tilengine.org
     - [Unix-like](#unix-like-1)
 - [The tilengine window](#the-tilengine-window)
 - [Creating your first program](#creating-your-first-program)
-    - [Windows 32-bit](#windows-32-bit)
-    - [Linux (32-bit, 64-bit or Raspberry Pi)](#linux-32-bit-64-bit-or-raspberry-pi)
+    - [Windows](#windows)
+    - [Linux](#linux)
     - [Apple OS X](#apple-os-x)
 - [Documentation](#documentation)
 - [Editing assets](#editing-assets)
@@ -142,13 +142,13 @@ void main(void) {
 ```
 Now the program must be built to produce an executable. Open a console window in the C samples folder and type the suitable command for your platform:
 
-## Windows 32-bit
+## Windows
 ```
-> mingw32-gcc test.c -o test.exe -I"../include" ../lib/win32/Tilengine.lib
+> gcc test.c -o test.exe -I"../include" ../lib/Win32/Tilengine.dll
 > test.exe
 ```
 
-## Linux (32-bit, 64-bit or Raspberry Pi)
+## Linux
 ```
 > gcc test.c -o test -lTilengine -lm
 > ./test
