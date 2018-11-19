@@ -175,12 +175,14 @@ Tilengine is just a programming library that doesn't come with any editor, but t
 # Bindings
 There are bindings to use Tilengine from several programming languages:
 
-Language|Binding
---------|------------
-C/C++   | Native support, no binding required
-Python  | [PyTilengine](https://github.com/megamarc/PyTilengine)
-C#      | [CsTilengine](https://github.com/megamarc/CsTilengine)
-Pascal  | [PascalTileEngine](https://github.com/turric4n/PascalTileEngine)
+Language  |Binding
+----------|-----------------------------------------
+C/C++     | Native support, no binding required
+Python    | [PyTilengine](https://github.com/megamarc/PyTilengine)
+C#        | [CsTilengine](https://github.com/megamarc/CsTilengine)
+Pascal    | [PascalTileEngine](https://github.com/turric4n/PascalTileEngine)
+FreeBasic | [FBTilengine](https://github.com/megamarc/FBTilengine)
+Java	  | [JTilengine](https://github.com/megamarc/JTilengine)
 
 # Contributors
 These people contributed to tilengine:

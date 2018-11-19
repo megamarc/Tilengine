@@ -221,6 +221,7 @@ typedef struct Bitmap*		 TLN_Bitmap;			/*!< Opaque bitmap reference */
 /* callbacks */
 typedef union SDL_Event SDL_Event;
 typedef void(*TLN_VideoCallback)(int scanline);
+typedef uint8_t(*TLN_BlendFunction)(uint8_t src, uint8_t dst);
 typedef void(*TLN_SDLCallback)(SDL_Event*);
 
 /*! Player index for input assignment functions */
@@ -347,7 +348,7 @@ TLNAPI void TLN_UpdateFrame (int time);
 TLNAPI void TLN_BeginFrame (int time);
 TLNAPI bool TLN_DrawNextScanline (void);
 TLNAPI void TLN_SetLoadPath (const char* path);
-TLNAPI void TLN_SetCustomBlendFunction (uint8_t (*blend_function)(uint8_t src, uint8_t dst));
+TLNAPI void TLN_SetCustomBlendFunction (TLN_BlendFunction);
 TLNAPI void TLN_SetLogLevel(TLN_LogLevel log_level);
 
 /**@}*/
