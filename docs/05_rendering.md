@@ -7,7 +7,7 @@ The framebuffer can be any 32 bpp RGBA bitmap, with the dimensions specified dur
 ```c
 const int hres = 400;
 const int vres = 240;
-const int pitch = hres*sizeof(int);
+const int pitch = hres*sizeof(uint32_t);
 void* framebuffer = malloc (pitch * vres);
 TLN_SetRenderTarget (framebuffer, pitch);
 ```
@@ -17,6 +17,7 @@ Once the framebuffer is set, to update the frame use the \ref TLN_UpdateFrame fu
 ```c
 TLN_UpdateFrame (0);
 ```
+Now the previously created `framebuffer`surface holds the rendered frame.
 
 ## Basic example {#render_sample}
 This example creates a 400x240 framebuffer in memory, initializes the engine, does the main loop and exits:
@@ -29,27 +30,35 @@ int main (int argc, char* argv[])
 {
     const int hres = 400;
     const int vres = 240;
-    const int pitch = hres * sizeof(int);
+    const int pitch = hres * sizeof(uint32_t);
     int frame = 0;
     void* framebuffer;
-    
+
     /* init and set framebuffer */
     TLN_Init (hres, vres, 2, 80, 0);
     framebuffer = malloc (pitch * vres);
     TLN_SetRenderTarget (framebuffer, pitch);
-    
+
     /* main loop */
     while (1)
     {
         /* your game stuff goes here */
-        
+
         TLN_UpdateFrame (frame);
         frame += 1;
     }
-    
+
     /* deallocate */
     free (framebuffer);
     TLN_Deinit ();
     return 0;
 }
 ```
+
+## Summary {#render_summary}
+This is a quick reference of related functions in this chapter:
+
+Function                       | Quick description
+-------------------------------|-------------------------------------
+\ref TLN_SetRenderTarget       |Defines a 32 bpp RGBA surface to hold the framebuffer
+\ref TLN_UpdateFrame           |Draws a frame to the framebuffer

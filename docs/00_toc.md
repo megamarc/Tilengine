@@ -26,12 +26,13 @@
 * [User input](\ref window_input)
 * [Timing & delay](\ref window_timing)
 * [The CRT effect](\ref window_crt)
-* [Summary](\ref window_steps_summary)
+* [Summary](\ref window_summary)
 
 [5. External rendering](\ref page_render)
 * [Setting the target surface](\ref render_target)
 * [Drawing frames](\ref render_drawing)
 * [Basic example](\ref render_sample)
+* [Summary](\ref render_summary)
 
 [6. Background layers](\ref page_layers)
 * [Basic setup](\ref layers_setup)
@@ -46,6 +47,7 @@
 * [Mosaic effect](\ref layers_mosaic)
 * [Getting tile data](\ref layers_info)
 * [Disabling](\ref layers_disable)
+* [Summary](\ref layers_summary)
 
 [7. Sprites](\ref page_sprites)
 * [Basic setup](\ref sprites_setup)
@@ -57,6 +59,7 @@
 * [Getting info](\ref sprites_info)
 * [Collision detection](\ref sprites_collision)
 * [Disabling](\ref sprites_disable)
+* [Summary](\ref sprites_summary)
 
 [8. Animations](\ref page_animations)
 * [Tileset animation](\ref animations_tileset)

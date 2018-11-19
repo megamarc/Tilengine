@@ -136,10 +136,10 @@ Tilengine window provides some basic timing functions. \ref TLN_GetTicks returns
 ## The CRT effect {#window_crt}
 All low resolution, pixel art games were played on CRT displays that provided its unique texture and feel. Trying to watch this type of games in crystal-clear, big square pixels, is just wrong. The CRT effect simulates more or less faithfully the characteristics of a CRT display: visible RGB strips, horizontal blur, bright pixel bloom...
 
-Plain output without CRT:
+Plain output without CRT:<br>
 ![CRT disabled](img/crt_off.jpg)
 
-The same output but with default CRT enabled:
+The same output but with default CRT enabled:<br>
 ![CRT enabled](img/crt_on.jpg)
 
 By default the CRT effect is enabled when the window is created, but it can be disabled with the \ref TLN_DisableCRTEffect function. It can be toggled pressing the <kbd>Escape</kbd> key, too.
@@ -149,7 +149,7 @@ The effect is highly configurable with the \ref TLN_EnableCRTEffect function. It
 TLN_EnableCRTEffect (TLN_OVERLAY_APERTURE, 128, 192, 0,64, 64,128, false, 255);
 ```
 
-## Summary {#window_steps_summary}
+## Summary {#window_summary}
 This is a quick reference of related functions in this chapter:
 
 Function                       | Quick description

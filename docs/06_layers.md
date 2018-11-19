@@ -13,7 +13,7 @@ We have to load the tilemap first with \ref TLN_LoadTilemap (read more about [ti
 TLN_Tilemap tilemap = TLN_LoadTilemap ("ruff_n_tumble.tmx");
 TLN_SetupLayer (0, NULL, tilemap);
 ```
-Layer with tilemap loaded:  
+Layer with tilemap loaded:
 ![Layer with tilemap loaded](img/layer_base.png)
 
 We can just pass a NULL to use the internal tileset referenced by the tilemap. But we can explicitly load and attach a tileset too with \ref TLN_LoadTileset :
@@ -28,7 +28,7 @@ Scrolling is the common term for moving the display area inside a bigger map. By
 ```c
 TLN_SetLayerPosition (0,120,16);
 ```
-Layer moved to 120,16:  
+Layer moved to 120,16:
 ![Layer moved to 120,16](img/layer_scroll.png)
 
 ### Smooth scroll
@@ -63,7 +63,7 @@ By default, any layer uses the palette that came with the attached tileset, but 
 TLN_Palette palette = TLN_LoadPalette ("palette.act");
 TLN_SetLayerPalette (0, palette);
 ```
-Alternative palette:  
+Alternative palette:
 ![Alternative palette](img/layer_palette.png)
 
 ## Blending {#layers_blend}
@@ -87,7 +87,7 @@ To enable the clipping rectangle, call \ref TLN_SetLayerClip passing the index o
 ```c
 TLN_SetLayerClip (0, 32,20, 360,240);
 ```
-Clipping rectangle 32,20 - 360,240:  
+Clipping rectangle 32,20 - 360,240:
 ![Clipping rectangle](img/layer_clip.png)
 
 To disable the clipping rectangle, call \ref TLN_DisableLayerClip passing the layer index to disable:
@@ -114,7 +114,7 @@ for (c=0; c<size; c++)
     offsets[c] = c;
 TLN_DrawFrame (0);
 ```
-Column offset: each column is displaced 1 pixel incrementally:  
+Column offset: each column is displaced 1 pixel incrementally:
 ![Column offset](img/layer_column.png)
 
 To disable the effect, just call the function with a NULL pointer instead of a valid array:
@@ -130,7 +130,7 @@ Layers can be drawn upscaled or downscaled with an arbitrary factor. The scaling
 TLN_SetLayerScaling (0, 0.5f, 1.5f);
 ```
 
-Layer scaling x0.5 horizontal, x1.5 vertical:  
+Layer scaling x0.5 horizontal, x1.5 vertical:
 ![Column offset](img/layer_scaling.png)
 
 ## Affine trasform {#layers_transform}
@@ -141,7 +141,7 @@ Affine transform allows to rotate, translate and scale any layer (much like SNES
 TLN_SetLayerTransform (0, 30.0f, 240.0f,160.0f, 1.5f,1.5f);
 ```
 
-30º degree rotation around 240,160 (screen center), x1.5 upscaling:  
+30º degree rotation around 240,160 (screen center), x1.5 upscaling:
 ![Affine transform](img/layer_affine.png)
 
 **TIP**: affine transform is an intensive operation. If you just want to implement scaling but not rotation, use \ref TLN_SetLayerScaling instead because it's much more lightweight.
@@ -190,7 +190,7 @@ The mosaic effect pixelates the layer, making some pixels bigger and skipping ot
 ```c
 TLN_SetLayerMosaic (0, 8,6);
 ```
-Mosaic effect with 8 horizontal and 6 vertical pixel size factor:  
+Mosaic effect with 8 horizontal and 6 vertical pixel size factor:
 ![Affine transform](img/layer_mosaic.png)
 
 To disable the mosaic effect, just call \ref TLN_DisableLayerMosaic passing the layer index:
@@ -214,3 +214,28 @@ To disable a layer so it is not rendered, just call \ref TLN_DisableLayer passin
 ```c
 TLN_DisableLayer (0);
 ```
+
+## Summary {#layers_summary}
+This is a quick reference of related functions in this chapter:
+
+Function                        | Quick description
+--------------------------------|-------------------------------------
+\ref TLN_SetLayer               |Configures a tiled background layer
+\ref TLN_SetLayerBitmap         |Configures a full-bitmap background layer
+\ref TLN_SetLayerPalette        |Sets the color palette to the layer
+\ref TLN_SetLayerPosition       |Moves the viewport inside the layer
+\ref TLN_SetLayerScaling        |Enables layer scaling
+\ref TLN_SetLayerTransform      |Sets affine transform matrix to enable rotating and scaling
+\ref TLN_SetLayerPixelMapping   |Sets the table for pixel mapping render mode
+\ref TLN_ResetLayerMode         |Disables scaling or affine transform for the layer
+\ref TLN_SetLayerBlendMode      |Sets the blending mode (transparency effect)
+\ref TLN_SetLayerColumnOffset   |Enables column offset mode for this layer
+\ref TLN_SetLayerClip           |Enables clipping rectangle
+\ref TLN_DisableLayerClip       |Disables clipping rectangle
+\ref TLN_SetLayerMosaic         |Enables mosaic effect (pixelation)
+\ref TLN_DisableLayerMosaic     |Disables mosaic effect
+\ref TLN_DisableLayer           |Disables the specified layer so it is not drawn
+\ref TLN_GetLayerPalette        |Returns the current palette of a layer
+\ref TLN_GetLayerTile           |Gets info about the tile located in tilemap space
+\ref TLN_GetLayerWidth          |Returns the layer width in pixels
+\ref TLN_GetLayerHeight         |Returns the layer height in pixels
