@@ -20,6 +20,11 @@
 #ifndef _TILENGINE_H
 #define _TILENGINE_H
 
+/**
+ * \defgroup types
+ * \brief Common data types */
+/**@{*/
+
 /* Tilengine shared */
 #if defined _MSC_VER
 	#ifdef LIB_EXPORTS
@@ -45,7 +50,7 @@
 		#define TLNAPI
 	#endif
 	#include <stdint.h>
-#endif	
+#endif
 
 #include <stdio.h>
 
@@ -83,7 +88,7 @@ typedef int fix_t;
 #define fix2int(f)		((int)(f) >> FIXED_BITS)
 #define fix2float(f)	(float)(f)/(1 << FIXED_BITS)
 
-/*! 
+/*!
  * layer blend modes. Must be one of these and are mutually exclusive:
  */
 typedef enum
@@ -101,7 +106,7 @@ typedef enum
 }
 TLN_Blend;
 
-/*! Affine transformation parameters */ 
+/*! Affine transformation parameters */
 typedef struct
 {
 	float angle;	/*!< rotation in degrees */
@@ -254,15 +259,15 @@ typedef enum
 	INPUT_P2 = (PLAYER2 << 4),	/*!< request player 2 input */
 	INPUT_P3 = (PLAYER3 << 4),	/*!< request player 3 input */
 	INPUT_P4 = (PLAYER4 << 4),	/*!< request player 4 input */
-	
-	/* compatibility symbols for pre-1.18 input model */ 
+
+	/* compatibility symbols for pre-1.18 input model */
 	INPUT_A = INPUT_BUTTON1,
 	INPUT_B = INPUT_BUTTON2,
 	INPUT_C = INPUT_BUTTON3,
 	INPUT_D = INPUT_BUTTON4,
 	INPUT_E = INPUT_BUTTON5,
 	INPUT_F = INPUT_BUTTON6,
-	
+
 }
 TLN_Input;
 
@@ -296,7 +301,7 @@ typedef enum
 	TLN_ERR_REF_SEQUENCE,	/*!< Invalid TLN_Sequence reference */
 	TLN_ERR_REF_SEQPACK,	/*!< Invalid TLN_SequencePack reference */
 	TLN_ERR_REF_BITMAP,		/*!< Invalid TLN_Bitmap reference */
-	TLN_ERR_NULL_POINTER,	/*!< Null pointer as argument */ 
+	TLN_ERR_NULL_POINTER,	/*!< Null pointer as argument */
 	TLN_ERR_FILE_NOT_FOUND,	/*!< Resource file not found */
 	TLN_ERR_WRONG_FORMAT,	/*!< Resource file has invalid format */
 	TLN_ERR_WRONG_SIZE,		/*!< A width or height parameter is invalid */
@@ -314,14 +319,15 @@ typedef enum
 }
 TLN_LogLevel;
 
+/**@}*/
+
 #ifdef __cplusplus
 extern "C"{
 #endif
 
-/** 
- * \anchor group_setup
- * \name Setup
- * Basic setup and management */
+/**
+ * \defgroup setup
+ * \brief Basic setup and management */
 /**@{*/
 TLNAPI TLN_Engine TLN_Init (int hres, int vres, int numlayers, int numsprites, int numanimations);
 TLNAPI void TLN_Deinit (void);
@@ -353,20 +359,18 @@ TLNAPI void TLN_SetLogLevel(TLN_LogLevel log_level);
 
 /**@}*/
 
-/** 
- * \anchor group_errors
- * \name Errors
- * Error handling */
+/**
+ * \defgroup errors
+ * \brief Error handling */
 /**@{*/
 TLNAPI void TLN_SetLastError (TLN_Error error);
 TLNAPI TLN_Error TLN_GetLastError (void);
 TLNAPI const char *TLN_GetErrorString (TLN_Error error);
 /**@}*/
 
-/** 
- * \anchor group_windowing
- * \name Windowing
- * Built-in window and input management */
+/**
+ * \defgroup windowing
+ * \brief Built-in window and input management */
 /**@{*/
 TLNAPI bool TLN_CreateWindow (const char* overlay, TLN_WindowFlags flags);
 TLNAPI bool TLN_CreateWindowThread (const char* overlay, TLN_WindowFlags flags);
@@ -392,10 +396,9 @@ TLNAPI void TLN_EndWindowFrame (void);
 
 /**@}*/
 
-/** 
- * \anchor group_spriteset
- * \name Spritesets
- * Spriteset resources management for sprites */
+/**
+ * \defgroup spriteset
+ * \brief Spriteset resources management for sprites */
 /**@{*/
 TLNAPI TLN_Spriteset TLN_CreateSpriteset (TLN_Bitmap bitmap, TLN_SpriteData* data, int num_entries);
 TLNAPI TLN_Spriteset TLN_LoadSpriteset (const char* name);
@@ -407,10 +410,9 @@ TLNAPI bool TLN_SetSpritesetData (TLN_Spriteset spriteset, int entry, TLN_Sprite
 TLNAPI bool TLN_DeleteSpriteset (TLN_Spriteset Spriteset);
 /**@}*/
 
-/** 
- * \anchor group_tileset
- * \name Tilesets
- * Tileset resources management for background layers */
+/**
+ * \defgroup tileset
+ * \brief Tileset resources management for background layers */
 /**@{*/
 TLNAPI TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette palette, TLN_SequencePack sp, TLN_TileAttributes* attributes);
 TLNAPI TLN_Tileset TLN_LoadTileset (const char* filename);
@@ -424,10 +426,9 @@ TLNAPI TLN_SequencePack TLN_GetTilesetSequencePack (TLN_Tileset tileset);
 TLNAPI bool TLN_DeleteTileset (TLN_Tileset tileset);
 /**@}*/
 
-/** 
- * \anchor group_tilemap
- * \name Tilemaps 
- * Tilemap resources management for background layers */
+/**
+ * \defgroup tilemap
+ * \brief Tilemap resources management for background layers */
 /**@{*/
 TLNAPI TLN_Tilemap TLN_CreateTilemap (int rows, int cols, TLN_Tile tiles, uint32_t bgcolor, TLN_Tileset tileset);
 TLNAPI TLN_Tilemap TLN_LoadTilemap (const char* filename, const char* layername);
@@ -441,10 +442,9 @@ TLNAPI bool TLN_CopyTiles (TLN_Tilemap src, int srcrow, int srccol, int rows, in
 TLNAPI bool TLN_DeleteTilemap (TLN_Tilemap tilemap);
 /**@}*/
 
-/** 
- * \anchor group_palette
- * \name Palettes
- * Color palette resources management for sprites and background layers */
+/**
+ * \defgroup palette
+ * \brief Color palette resources management for sprites and background layers */
 /**@{*/
 TLNAPI TLN_Palette TLN_CreatePalette (int entries);
 TLNAPI TLN_Palette TLN_LoadPalette (const char* filename);
@@ -458,10 +458,9 @@ TLNAPI uint8_t* TLN_GetPaletteData (TLN_Palette palette, int index);
 TLNAPI bool TLN_DeletePalette (TLN_Palette palette);
 /**@}*/
 
-/** 
- * \anchor group_bitmap
- * \name Bitmaps 
- * Bitmap management */
+/**
+ * \defgroup bitmap
+ * \brief Bitmap management */
 /**@{*/
 TLNAPI TLN_Bitmap TLN_CreateBitmap (int width, int height, int bpp);
 TLNAPI TLN_Bitmap TLN_LoadBitmap (const char* filename);
@@ -476,10 +475,9 @@ TLNAPI bool TLN_SetBitmapPalette (TLN_Bitmap bitmap, TLN_Palette palette);
 TLNAPI bool TLN_DeleteBitmap (TLN_Bitmap bitmap);
 /**@}*/
 
-/** 
- * \anchor group_layer
- * \name Layers
- * Background layers management */
+/**
+ * \defgroup layer
+ * \brief Background layers management */
 /**@{*/
 TLNAPI bool TLN_SetLayer (int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap);
 TLNAPI bool TLN_SetLayerBitmap(int nlayer, TLN_Bitmap bitmap);
@@ -504,10 +502,9 @@ TLNAPI int  TLN_GetLayerHeight (int nlayer);
 
 /**@}*/
 
-/** 
- * \anchor group_sprite
- * \name Sprites 
- * Sprites management */
+/**
+ * \defgroup sprite
+ * \brief Sprites management */
 /**@{*/
 TLNAPI bool TLN_ConfigSprite (int nsprite, TLN_Spriteset spriteset, TLN_TileFlags flags);
 TLNAPI bool TLN_SetSpriteSet (int nsprite, TLN_Spriteset spriteset);
@@ -528,10 +525,9 @@ TLNAPI bool TLN_DisableSprite (int nsprite);
 TLNAPI TLN_Palette TLN_GetSpritePalette (int nsprite);
 /**@}*/
 
-/** 
- * \anchor group_sequence
- * \name Sequences
- * Sequence resources management for layer, sprite and palette animations */
+/**
+ * \defgroup sequence
+ * \brief Sequence resources management for layer, sprite and palette animations */
 /**@{*/
 TLNAPI TLN_Sequence TLN_CreateSequence (const char* name, int target, int num_frames, TLN_SequenceFrame* frames);
 TLNAPI TLN_Sequence TLN_CreateCycle (const char* name, int num_strips, TLN_ColorStrip* strips);
@@ -540,10 +536,9 @@ TLNAPI bool TLN_GetSequenceInfo (TLN_Sequence sequence, TLN_SequenceInfo* info);
 TLNAPI bool TLN_DeleteSequence (TLN_Sequence sequence);
 /**@}*/
 
-/** 
- * \anchor group_sequencepack
- * \name Sequence packs
- * Sequence pack manager for grouping and finding sequences */
+/**
+ * \defgroup sequencepack
+ * \brief Sequence pack manager for grouping and finding sequences */
 /**@{*/
 TLNAPI TLN_SequencePack TLN_CreateSequencePack (void);
 TLNAPI TLN_SequencePack TLN_LoadSequencePack (const char* filename);
@@ -555,10 +550,9 @@ TLNAPI bool TLN_AddSequenceToPack (TLN_SequencePack sp, TLN_Sequence sequence);
 TLNAPI bool TLN_DeleteSequencePack (TLN_SequencePack sp);
 /**@}*/
 
-/** 
- * \anchor group_animation
- * \name Animations 
- * Animation engine manager */
+/**
+ * \defgroup animation
+ * \brief Animation engine manager */
 /**@{*/
 TLNAPI bool TLN_SetPaletteAnimation (int index, TLN_Palette palette, TLN_Sequence sequence, bool blend);
 TLNAPI bool TLN_SetPaletteAnimationSource (int index, TLN_Palette);

@@ -17,10 +17,6 @@
 * License along with this library. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*!
- * \file sequence.c
- * Sequence manager
- */
 #ifdef __STRICT_ANSI__
 #undef __STRICT_ANSI__
 #endif

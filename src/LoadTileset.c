@@ -17,12 +17,6 @@
 * License along with this library. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*!
- * \file
- * \brief Tileset file loader (.tsx / .png) created with Tiled editor
- * http://www.mapeditor.org
- */
-
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>

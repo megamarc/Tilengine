@@ -1,8 +1,9 @@
-# Chapter 05. External rendering {#page_render}
-[TOC]
-# Rendering {#render}
+\page page_render External rendering
 
-## Setting the target surface {#render_target}
+[TOC]
+
+# External rendering
+## Setting the target surface
 The framebuffer can be any 32 bpp RGBA bitmap, with the dimensions specified during initialization with \ref TLN_Init where tilengine performs the rendering. This surface is user-allocated and can be of any origin: a locked OpenGL texture, an SDL video surface, a Java canvas... whatever you choose. The \ref TLN_SetRenderTarget function takes two parameters: a pointer to the start of pixel data in the surface, and the number of bytes per scanline, the so-called *pitch*. This value is usually the horizontal resolution multipliead by four (the number of bytes required by each pixel) rounded to the next multiple of four. The following example allocates an in-memory framebuffer and sets it:
 ```c
 const int hres = 400;
@@ -12,14 +13,14 @@ void* framebuffer = malloc (pitch * vres);
 TLN_SetRenderTarget (framebuffer, pitch);
 ```
 
-## Drawing frames {#render_drawing}
+## Drawing frames
 Once the framebuffer is set, to update the frame use the \ref TLN_UpdateFrame function. It takes an optional time parameter that's used by animation engine to keep track of frames. For now you can set it to 0 or as an increasing counter:
 ```c
 TLN_UpdateFrame (0);
 ```
 Now the previously created `framebuffer`surface holds the rendered frame.
 
-## Basic example {#render_sample}
+## Basic example
 This example creates a 400x240 framebuffer in memory, initializes the engine, does the main loop and exits:
 ```c
 #include <stdio.h>
@@ -55,10 +56,10 @@ int main (int argc, char* argv[])
 }
 ```
 
-## Summary {#render_summary}
+## Summary
 This is a quick reference of related functions in this chapter:
 
-Function                       | Quick description
--------------------------------|-------------------------------------
-\ref TLN_SetRenderTarget       |Defines a 32 bpp RGBA surface to hold the framebuffer
-\ref TLN_UpdateFrame           |Draws a frame to the framebuffer
+|Function                       | Quick description
+|-------------------------------|-------------------------------------
+|\ref TLN_SetRenderTarget       |Defines a 32 bpp RGBA surface to hold the framebuffer
+|\ref TLN_UpdateFrame           |Draws a frame to the framebuffer

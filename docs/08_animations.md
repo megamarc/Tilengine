@@ -1,13 +1,30 @@
-# Chapter 08. Animations {#page_animations}
+\page page_animations Animations
+
 [TOC]
-# Animations {#animations}
 
-## Tileset animation {#animations_tileset}
+# Animations
 
-## Sprite animation {#animations_sprite}
+## Tileset animation
 
-## Color cycle (palette animation) {#animations_color}
+## Sprite animation
 
-## Getting animation state {#animations_state}
+## Color cycle (palette animation)
 
-## Disabling {#animations_disable}
+## Getting animation state
+
+## Disabling
+
+## Summary
+
+This is a quick reference of related functions in this chapter:
+
+|Function                            | Quick description
+|------------------------------------|-------------------------------------
+|\ref TLN_SetTilesetAnimation        | Starts a tileset animation
+|\ref TLN_SetSpriteAnimation         | Starts a sprite animation
+|\ref TLN_SetPaletteAnimation        | Starts a palette animation (color cycle)
+|\ref TLN_SetPaletteAnimationSource  | Sets the source palette of a color cycle animation
+|\ref TLN_GetAnimationState          | Checks the state of the specified animation
+|\ref TLN_SetAnimationDelay          | Sets the playback speed of a given animation
+|\ref TLN_GetAvailableAnimation      | Finds an available (unused) animation
+|\ref TLN_DisableAnimation           | Disables the animation

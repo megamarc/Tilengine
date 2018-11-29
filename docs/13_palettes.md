@@ -1,15 +1,20 @@
-# Chapter 13. Color palettes {#page_palettes}
+\page page_palettes Color palettes
+
 [TOC]
-# Color palettes {#palettes}
 
-## Load from file {#palettes_load}
+# Color palettes
 
-## Create at runtime {#palettes_create}
+## Load from file
 
-## Setting colors {#palettes_set}
+## Create at runtime
 
-## Mixing palettes {#palettes_mix}
+## Setting colors
 
-## Batch color editing {#palettes_edit}
+## Mixing palettes
 
-## Delete {#palettes_delete}
+## Batch color editing
+
+## Delete
+
+## Summary
+This is a quick reference of related functions in this chapter:

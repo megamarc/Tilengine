@@ -17,11 +17,6 @@
 * License along with this library. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*!
- * \file tilengine.c
- * Main module
- */
-
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>

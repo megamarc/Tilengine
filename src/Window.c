@@ -17,12 +17,6 @@
 * License along with this library. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*!
- * \file
- * \brief Built-in window and user input using libSDL2
- * https://www.libsdl.org/
- */
-
 #ifndef TLN_EXCLUDE_WINDOW
 #define MAX_PLAYERS	4		/* number of unique players */
 #define MAX_INPUTS	16		/* number of inputs per player */

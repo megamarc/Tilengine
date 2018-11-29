@@ -17,11 +17,6 @@
 * License along with this library. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*!
- * \file animation.c
- * Animation control
- */
- 
 #ifdef _MSC_VER
 #define inline __inline
 #endif

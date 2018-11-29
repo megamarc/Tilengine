@@ -16,11 +16,6 @@
 * License along with this library. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*!
- * \file sprite.c
- * Sprite control
- */
-
 #include <string.h>
 #include <math.h>
 #include "Tilengine.h"

@@ -17,11 +17,6 @@
 * License along with this library. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*!
- * \file tilemap.c
- * Tilemap manager
- */
-
 #ifdef __STRICT_ANSI__
 #undef __STRICT_ANSI__
 #endif

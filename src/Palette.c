@@ -17,11 +17,6 @@
 * License along with this library. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*!
- * \file palette.c
- * Palette manager
- */
-
 #include <stdio.h>
 #include <string.h>
 #include "Engine.h"

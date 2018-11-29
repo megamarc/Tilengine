@@ -1,11 +1,17 @@
-# Chapter 10. Tilesets {#page_tilesets}
+\page page_tilesets Tilesets
+
 [TOC]
-# Tilesets {#tilesets}
 
-## Load from file {#tilesets_load}
+# Tilesets
 
-## Create at runtime {#tilesets_create}
+## Load from file
 
-## Setting pixel data {#tilesets_modify}
+## Create at runtime
 
-## Delete {#tilesets_delete}
+## Setting pixel data
+
+## Delete
+
+## Summary
+This is a quick reference of related functions in this chapter:
+

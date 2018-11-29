@@ -1,11 +1,16 @@
-# Chapter 12. Spritesets {#page_spritesets}
+\page page_spritesets Spritesets
+
 [TOC]
-# Spritesets {#spritesets}
 
-## Load from file {#spritesets_load}
+# Spritesets
 
-## Create at runtime {#spritesets_create}
+## Load from file
 
-## Getting sprite info {#spritesets_info}
+## Create at runtime
 
-## Delete {#spritesets_delete}
+## Getting sprite info
+
+## Delete
+
+## Summary
+This is a quick reference of related functions in this chapter:

@@ -17,11 +17,6 @@
 * License along with this library. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*!
- * \file
- * \brief Bitmap loading support
- */
-
 #include <stdlib.h>
 #include <string.h>
 #include "Tilengine.h"

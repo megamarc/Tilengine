@@ -17,12 +17,6 @@
 * License along with this library. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*!
- * \file
- * \brief Tilemap file loader (.tmx) created with Tiled editor
- * http://www.mapeditor.org
- */
-
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
