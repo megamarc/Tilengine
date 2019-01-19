@@ -53,11 +53,11 @@ void TLN_SetLoadPath (const char* path)
 FILE* FileOpen (const char* filename)
 {
 	FILE* pf;
-	char path[255];
+	char path[MAX_PATH + 1];
 	char oldchar, newchar;
 	char* p;
 	
-	sprintf (path, "%s/%s", localpath, filename);
+	snprintf (path, sizeof(path), "%s/%s", localpath, filename);
 
 	/* replace correct path separator */
 	p = path;
