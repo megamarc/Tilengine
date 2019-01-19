@@ -185,7 +185,7 @@ TLN_SequencePack TLN_LoadSequencePack (const char* filename)
 	}
 
 	/* parse */
-	parser = simpleXmlCreateParser (data, (long)size);
+	parser = simpleXmlCreateParser ((char*)data, (long)size);
 	if (parser != NULL)
 	{
 		if (simpleXmlParse(parser, handler) != 0)
