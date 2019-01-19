@@ -107,6 +107,12 @@ void UpdateAnimations (int time)
 		case TYPE_TILESET:
 			TLN_CopyTile (engine->layers[animation->idx].tileset, frames[animation->pos].index, sequence->target);
 			break;
+
+		/* Fall through									*/
+		/* Stop warning GNU C compiler	*/
+		case TYPE_NONE:
+		case TYPE_PALETTE:
+			break;
 		}
 
 		/* next frame */
