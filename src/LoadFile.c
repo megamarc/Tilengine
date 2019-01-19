@@ -44,6 +44,8 @@ void TLN_SetLoadPath (const char* path)
 	else
 		strncpy (localpath, ".", MAX_PATH);
 
+	localpath[MAX_PATH - 1] = '\0';
+
 	/* cut trailing separator */
 	trailing = strlen (localpath) - 1;
 	if (trailing > 0 && (localpath[trailing] == SLASH || localpath[trailing] == BACKSLASH))
