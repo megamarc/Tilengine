@@ -117,7 +117,8 @@ TLN_Sequence TLN_CreateCycle (const char* name, int count, TLN_ColorStrip* strip
 	if (name)
 	{
 		sequence->hash = hash(0, name, strlen(name));
-		strncpy (sequence->name, name, 32);
+		strncpy (sequence->name, name, sizeof(sequence->name));
+		sequence->name[sizeof(sequence->name) - 1] = '\0';
 	}
 	
 	sequence->count = count;
@@ -184,7 +185,8 @@ bool TLN_GetSequenceInfo (TLN_Sequence sequence, TLN_SequenceInfo* info)
 {
 	if (CheckBaseObject (sequence, OT_SEQUENCE) && info != NULL)
 	{
-		strncpy (info->name, sequence->name, 32);
+		strncpy (info->name, sequence->name, sizeof(info->name));
+		info->name[sizeof(info->name) - 1] = '\0';
 		info->num_frames = sequence->count;
 		return true;
 	}
