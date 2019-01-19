@@ -30,7 +30,7 @@
 #include <strings.h>
 #endif
 
-uint8_t* LoadFile (const char* filename, size_t* out_size);
+uint8_t* LoadFile (const char* filename, ssize_t* out_size);
 FILE* FileOpen (const char* filename);
 bool CheckFile (const char* filename);
 

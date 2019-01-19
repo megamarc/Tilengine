@@ -82,7 +82,7 @@ FILE* FileOpen (const char* filename)
 }
 
 /* generic load file into RAM buffer */
-uint8_t* LoadFile (const char* filename, size_t* out_size)
+uint8_t* LoadFile (const char* filename, ssize_t* out_size)
 {
 	size_t size;
 	FILE* pf;

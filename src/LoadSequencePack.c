@@ -162,7 +162,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 TLN_SequencePack TLN_LoadSequencePack (const char* filename)
 {
 	SimpleXmlParser parser;
-	size_t size;
+	ssize_t size;
 	uint8_t *data;
 
 	/* load file */
