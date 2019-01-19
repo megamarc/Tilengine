@@ -95,7 +95,7 @@ static TLN_Bitmap LoadPNG (const char* filename)
 	png_byte color_type;
 	png_byte bit_depth;
 	png_bytep *row_pointers;
-	char header[8];
+	png_byte header[8];
 	int channels;
 	int y;
 
