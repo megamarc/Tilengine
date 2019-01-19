@@ -207,7 +207,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 {
 	SimpleXmlParser parser;
-	size_t size;
+	ssize_t size;
 	uint8_t *data;
 	
 	/* load file */
