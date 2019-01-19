@@ -311,8 +311,8 @@ static void DeleteWindow (void)
 {
 	int c;
 
-    if (SDL_JoystickGetAttached(joy))
-        SDL_JoystickClose(joy);
+	if (SDL_JoystickGetAttached(joy))
+		SDL_JoystickClose(joy);
 
 	/* CRT effect resources */
 	SDL_DestroyTexture (crt.glow);
