@@ -175,7 +175,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 TLN_Tileset TLN_LoadTileset (const char* filename)
 {
 	SimpleXmlParser parser;
-	size_t size;
+	ssize_t size;
 	uint8_t *data;
 	TLN_Tileset tileset;
 	TLN_Bitmap bitmap;
