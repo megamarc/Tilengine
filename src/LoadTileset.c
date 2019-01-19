@@ -197,7 +197,7 @@ TLN_Tileset TLN_LoadTileset (const char* filename)
 
 	/* parse */
 	memset (&loader, 0, sizeof(loader));
-	parser = simpleXmlCreateParser (data, (long)size);
+	parser = simpleXmlCreateParser ((char*)data, (long)size);
 	if (parser != NULL)
 	{
 		if (simpleXmlParse(parser, handler) != 0)
