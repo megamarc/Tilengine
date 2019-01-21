@@ -68,7 +68,8 @@ TLN_Sequence TLN_CreateSequence (const char* name, int target, int count, TLN_Se
 	if (name)
 	{
 		sequence->hash = hash(0, name, strlen(name));
-		strncpy (sequence->name, name, 32);
+		strncpy (sequence->name, name, sizeof(sequence->name));
+		sequence->name[sizeof(sequence->name) - 1] = '\0';
 	}
 	sequence->target = target;
 	sequence->count = count;
