@@ -59,7 +59,11 @@ FILE* FileOpen (const char* filename)
 	char oldchar, newchar;
 	char* p;
 	
+#if (_MSC_VER) && (_MSC_VER < 1900)
+	sprintf (path, "%s/%s", localpath, filename);
+#else
 	snprintf (path, sizeof(path), "%s/%s", localpath, filename);
+#endif
 
 	/* replace correct path separator */
 	p = path;
