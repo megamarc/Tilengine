@@ -89,7 +89,10 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		else if (!strcasecmp(szName, "image"))
 		{
 			if (!strcasecmp(szAttribute, "source"))
-				strncpy (loader.source, szValue, 64);
+			{
+				strncpy (loader.source, szValue, sizeof(loader.source));
+				loader.source[sizeof(loader.source) - 1] = '\0';
+			}
 		}
 
 		/* <tile id="314"> */
@@ -175,7 +178,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 TLN_Tileset TLN_LoadTileset (const char* filename)
 {
 	SimpleXmlParser parser;
-	size_t size;
+	ssize_t size;
 	uint8_t *data;
 	TLN_Tileset tileset;
 	TLN_Bitmap bitmap;
@@ -197,7 +200,7 @@ TLN_Tileset TLN_LoadTileset (const char* filename)
 
 	/* parse */
 	memset (&loader, 0, sizeof(loader));
-	parser = simpleXmlCreateParser (data, (long)size);
+	parser = simpleXmlCreateParser ((char*)data, (long)size);
 	if (parser != NULL)
 	{
 		if (simpleXmlParse(parser, handler) != 0)

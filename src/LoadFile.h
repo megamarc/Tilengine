@@ -25,12 +25,17 @@
 
 /* win32 replacement for unix strcasecmp() */
 #if defined (_MSC_VER)
+#include <BaseTsd.h>
 #define strcasecmp _stricmp
+typedef SSIZE_T ssize_t;
 #else
 #include <strings.h>
+#ifdef __linux__
+#include <sys/types.h> // ssize_t
+#endif
 #endif
 
-uint8_t* LoadFile (const char* filename, size_t* out_size);
+uint8_t* LoadFile (const char* filename, ssize_t* out_size);
 FILE* FileOpen (const char* filename);
 bool CheckFile (const char* filename);
 

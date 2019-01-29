@@ -207,7 +207,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 {
 	SimpleXmlParser parser;
-	size_t size;
+	ssize_t size;
 	uint8_t *data;
 	
 	/* load file */
@@ -225,8 +225,11 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 	memset (&loader, 0, sizeof(loader));
 	loader.tilemap = NULL;
 	if (layername)
-		strncpy (loader.layer_name, layername, 64);
-	parser = simpleXmlCreateParser (data, (long)size);
+	{
+		strncpy (loader.layer_name, layername, sizeof(loader.layer_name));
+		loader.layer_name[sizeof(loader.layer_name) - 1] = '\0';
+	}
+	parser = simpleXmlCreateParser ((char*)data, (long)size);
 	if (parser != NULL)
 	{
 		if (simpleXmlParse(parser, handler) != 0)

@@ -311,8 +311,8 @@ static void DeleteWindow (void)
 {
 	int c;
 
-    if (SDL_JoystickGetAttached(joy))
-        SDL_JoystickClose(joy);
+	if (SDL_JoystickGetAttached(joy))
+		SDL_JoystickClose(joy);
 
 	/* CRT effect resources */
 	SDL_DestroyTexture (crt.glow);
@@ -437,7 +437,10 @@ bool TLN_CreateWindow (const char* overlay, TLN_WindowFlags flags)
 	wnd_params.height = TLN_GetHeight ();
 	wnd_params.flags = flags|CWF_VSYNC;
 	if (overlay)
+	{
 		strncpy (wnd_params.file_overlay, overlay, MAX_PATH);
+		wnd_params.file_overlay[MAX_PATH - 1] = '\0';
+	}
 
 	ok = CreateWindow ();
 	if (ok)
@@ -490,7 +493,10 @@ bool TLN_CreateWindowThread (const char* overlay, TLN_WindowFlags flags)
 	wnd_params.height = TLN_GetHeight ();
 	wnd_params.flags = flags|CWF_VSYNC;
 	if (overlay)
+	{
 		strncpy (wnd_params.file_overlay, overlay, MAX_PATH);
+		wnd_params.file_overlay[MAX_PATH - 1] = '\0';
+	}
 
 	lock = SDL_CreateMutex ();
 	cond = SDL_CreateCond ();

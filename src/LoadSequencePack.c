@@ -61,7 +61,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		if (!strcasecmp(szName, "sequence"))
 		{
 			if (!strcasecmp(szAttribute, "name"))
-				strncpy (loader.name, szValue, 16);
+				strncpy (loader.name, szValue, sizeof(loader.name));
 			else if (!strcasecmp(szAttribute, "delay"))
 				loader.delay = atoi(szValue);
 			else if (!strcasecmp(szAttribute, "first") || !strcasecmp(szAttribute, "target"))
@@ -72,7 +72,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		else if (!strcasecmp(szName, "cycle"))
 		{
 			if (!strcasecmp(szAttribute, "name"))
-				strncpy (loader.name, szValue, 16);
+				strncpy (loader.name, szValue, sizeof(loader.name));
 		}
 		else if (!strcasecmp(szName, "strip"))
 		{
@@ -85,6 +85,9 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 			else if (!strcasecmp(szAttribute, "dir"))
 				loader.strips[loader.count].dir = (uint8_t)atoi(szValue);
 		}
+
+		loader.name[sizeof(loader.name) - 1] = '\0';
+
 		break;
 
 	case FINISH_ATTRIBUTES:
@@ -162,7 +165,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 TLN_SequencePack TLN_LoadSequencePack (const char* filename)
 {
 	SimpleXmlParser parser;
-	size_t size;
+	ssize_t size;
 	uint8_t *data;
 
 	/* load file */
@@ -185,7 +188,7 @@ TLN_SequencePack TLN_LoadSequencePack (const char* filename)
 	}
 
 	/* parse */
-	parser = simpleXmlCreateParser (data, (long)size);
+	parser = simpleXmlCreateParser ((char*)data, (long)size);
 	if (parser != NULL)
 	{
 		if (simpleXmlParse(parser, handler) != 0)

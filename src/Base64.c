@@ -17,9 +17,9 @@ static const unsigned char d[] =
 	66,66,66,66,66,66
 };
 
-int base64decode (const char* in, int inLen, unsigned char *out, int *outLen)
+int base64decode (const unsigned char* in, int inLen, unsigned char *out, int *outLen)
 {
-	const char* end = in + inLen;
+	const unsigned char* end = in + inLen;
 	int buf = 1, len = 0;
 
 	while (*in < 'A')

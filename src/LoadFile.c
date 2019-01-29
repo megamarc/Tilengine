@@ -44,6 +44,8 @@ void TLN_SetLoadPath (const char* path)
 	else
 		strncpy (localpath, ".", MAX_PATH);
 
+	localpath[MAX_PATH - 1] = '\0';
+
 	/* cut trailing separator */
 	trailing = strlen (localpath) - 1;
 	if (trailing > 0 && (localpath[trailing] == SLASH || localpath[trailing] == BACKSLASH))
@@ -53,11 +55,15 @@ void TLN_SetLoadPath (const char* path)
 FILE* FileOpen (const char* filename)
 {
 	FILE* pf;
-	char path[255];
+	char path[MAX_PATH + 1];
 	char oldchar, newchar;
 	char* p;
 	
+#if (_MSC_VER) && (_MSC_VER < 1900)
 	sprintf (path, "%s/%s", localpath, filename);
+#else
+	snprintf (path, sizeof(path), "%s/%s", localpath, filename);
+#endif
 
 	/* replace correct path separator */
 	p = path;
@@ -80,7 +86,7 @@ FILE* FileOpen (const char* filename)
 }
 
 /* generic load file into RAM buffer */
-uint8_t* LoadFile (const char* filename, size_t* out_size)
+uint8_t* LoadFile (const char* filename, ssize_t* out_size)
 {
 	size_t size;
 	FILE* pf;
