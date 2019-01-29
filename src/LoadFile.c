@@ -102,13 +102,13 @@ uint8_t* LoadFile (const char* filename, size_t* out_size)
 	if (data)
 	{
 		fread (data, size, 1, pf);
+		data[size] = 0;
 		*out_size = size;
 	}
 	else
 		*out_size = -1;
 
 	fclose (pf);
-	data[size] = 0;
 	return data;
 }
 

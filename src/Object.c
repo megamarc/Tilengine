@@ -78,8 +78,10 @@ void* CloneBaseObject (void* object)
 	object_t *src = (object_t*)object;
 	object_t *dst = CreateBaseObject (src->type, src->size);
 	if (dst)
+  {
 		memcpy (dst->data, src->data, src->size - sizeof(object_t));
-	dst->owner = false;
+		dst->owner = false;
+  }
 	return dst;
 }
 
