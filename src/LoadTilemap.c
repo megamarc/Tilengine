@@ -80,12 +80,12 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 			if (!strcasecmp(szAttribute, "backgroundcolor"))
 				loader.bgcolor = ParseHTMLColor (szValue);
 		}
-		else if (!strcasecmp(szName, "tileset") && loader.tileset == NULL)
+		else if (loader.tileset == NULL && !strcasecmp(szName, "tileset"))
 		{
 			if (!strcasecmp(szAttribute, "source"))
 				loader.tileset = TLN_LoadTileset (szValue);
 		}
-		else if (!strcasecmp(szName, "layer") && loader.done == false)
+		else if (loader.done == false && !strcasecmp(szName, "layer"))
 		{
 			if (!strcasecmp(szAttribute, "name"))
 			{
@@ -104,7 +104,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 			else if (!strcasecmp(szAttribute, "height"))
 				loader.rows = atoi(szValue);
 		}
-		else if (!strcasecmp(szName, "data") && loader.load)
+		else if (loader.load && !strcasecmp(szName, "data"))
 		{
 			if (!strcasecmp(szAttribute, "encoding"))
 			{
@@ -129,7 +129,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		break;
 
 	case FINISH_ATTRIBUTES:
-		if (!strcasecmp(szName, "data") && loader.load)
+		if (loader.load && !strcasecmp(szName, "data"))
 		{
 			loader.tilemap = TLN_CreateTilemap (loader.rows, loader.cols, NULL, loader.bgcolor, loader.tileset);
 			loader.done = true;
@@ -137,7 +137,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		break;
 
 	case ADD_CONTENT:
-		if (!strcasecmp(szName, "data") && loader.load)
+		if (loader.load && !strcasecmp(szName, "data"))
 		{
 			int numtiles = loader.cols * loader.rows;
 			int size = numtiles * sizeof(uint32_t);
