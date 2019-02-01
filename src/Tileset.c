@@ -367,12 +367,10 @@ bool TLN_CopyTile (TLN_Tileset tileset, int src, int dst)
 /* devuelve si la línea usa color key */
 static bool HasTransparentPixels (uint8_t* src, int width)
 {
-	int c;
-	for (c=0; c<width; c++)
-	{
-		if (*src == 0)
-			return true;
-		src++;
-	}
+	register uint8_t* end = src + width;
+	do {
+		if (*src++ == 0) return true;
+	} while (src < end);
+
 	return false;
 }
