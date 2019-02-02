@@ -19,7 +19,8 @@
 
 #ifndef TLN_EXCLUDE_WINDOW
 #define MAX_PLAYERS	4		/* number of unique players */
-#define MAX_INPUTS	16		/* number of inputs per player */
+#define MAX_INPUTS	32		/* number of inputs per player */
+#define INPUT_MASK	(MAX_INPUTS - 1)
 
 #include <string.h>
 #include "SDL2/SDL.h"
@@ -39,6 +40,7 @@ static SDL_cond*	 cond;
 static SDL_Joystick* joy;
 static SDL_Rect		 dstrect;
 
+static bool			 init;
 static bool			 done;
 static int			 wnd_width;
 static int			 wnd_height;
@@ -58,7 +60,7 @@ typedef struct
 	SDL_Joystick* joy;
 	SDL_Keycode keycodes[MAX_INPUTS];
 	uint8_t joybuttons[MAX_INPUTS];
-	uint16_t inputs;
+	uint32_t inputs;
 }
 PlayerInput;
 
@@ -151,19 +153,19 @@ extern char* strdup(const char* s);
 #endif
 
 /* create window delegate */
-static bool CreateWindow (void)
+static bool CreateWindow(void)
 {
 	SDL_DisplayMode mode;
 	SDL_Surface* surface = NULL;
 	int factor;
 	int rflags;
-	char quality[2] = {0};
+	char quality[2] = { 0 };
 	Uint32 format = 0;
 	void* pixels;
 	int pitch;
 
 	/*  gets desktop size and maximum window size */
-	SDL_GetDesktopDisplayMode (0, &mode);
+	SDL_GetDesktopDisplayMode(0, &mode);
 	if (!(wnd_params.flags & CWF_FULLSCREEN))
 	{
 		rflags = 0;
@@ -174,7 +176,7 @@ static bool CreateWindow (void)
 			while (wnd_params.width*(factor + 1) < mode.w && wnd_params.height*(factor + 1) < mode.h && factor < 3)
 				factor++;
 		}
-		
+
 		wnd_width = wnd_params.width*factor;
 		wnd_height = wnd_params.height*factor;
 
@@ -187,11 +189,11 @@ static bool CreateWindow (void)
 	{
 		rflags = CWF_FULLSCREEN;
 		wnd_width = mode.w;
-		wnd_height = wnd_width*wnd_params.height/wnd_params.width;
+		wnd_height = wnd_width * wnd_params.height / wnd_params.width;
 		if (wnd_height > mode.h)
 		{
 			wnd_height = mode.h;
-			wnd_width = wnd_height*wnd_params.width/wnd_params.height;
+			wnd_width = wnd_height * wnd_params.width / wnd_params.height;
 		}
 		factor = wnd_height / wnd_params.height;
 
@@ -204,10 +206,10 @@ static bool CreateWindow (void)
 	/* create window */
 	if (window_title == NULL)
 		window_title = strdup("Tilengine window");
-	window = SDL_CreateWindow (window_title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, wnd_width,wnd_height, rflags);
+	window = SDL_CreateWindow(window_title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, wnd_width, wnd_height, rflags);
 	if (!window)
 	{
-		DeleteWindow ();
+		DeleteWindow();
 		return false;
 	}
 
@@ -215,10 +217,10 @@ static bool CreateWindow (void)
 	rflags = SDL_RENDERER_ACCELERATED;
 	if (wnd_params.flags & CWF_VSYNC)
 		rflags |= SDL_RENDERER_PRESENTVSYNC;
-	renderer = SDL_CreateRenderer (window, -1, rflags);
+	renderer = SDL_CreateRenderer(window, -1, rflags);
 	if (!renderer)
 	{
-		DeleteWindow ();
+		DeleteWindow();
 		return false;
 	}
 
@@ -227,33 +229,33 @@ static bool CreateWindow (void)
 		quality[0] = '0';	/* nearest */
 	else
 		quality[0] = '1';	/* linear */
-	SDL_SetHint (SDL_HINT_RENDER_SCALE_QUALITY, quality);
-	
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, quality);
+
 	/* create framebuffer texture */
 	format = SDL_PIXELFORMAT_ARGB8888;
-	backbuffer = SDL_CreateTexture (renderer, format, SDL_TEXTUREACCESS_STREAMING, wnd_params.width,wnd_params.height);
+	backbuffer = SDL_CreateTexture(renderer, format, SDL_TEXTUREACCESS_STREAMING, wnd_params.width, wnd_params.height);
 	if (!backbuffer)
 	{
-		DeleteWindow ();
+		DeleteWindow();
 		return false;
 	}
-	SDL_SetTextureAlphaMod (backbuffer, 0);
+	SDL_SetTextureAlphaMod(backbuffer, 0);
 
 	/* CRT effect textures */
 	crt.overlay_id = TLN_OVERLAY_NONE;
-	crt.glow = SDL_CreateTexture (renderer, format, SDL_TEXTUREACCESS_STREAMING, wnd_params.width/2,wnd_params.height/2);
-	crt.blur = SDL_CreateRGBSurface (0, wnd_params.width/2,wnd_params.height/2,32, 0,0,0,0);
-	SDL_SetTextureBlendMode (crt.glow, SDL_BLENDMODE_ADD);
-	SDL_LockTexture (crt.glow, NULL, &pixels, &pitch);
-	memset (pixels, 0, pitch*wnd_params.height/2);
-	SDL_UnlockTexture (crt.glow);
-	crt.overlay = SDL_CreateTexture (renderer, format, SDL_TEXTUREACCESS_STREAMING, wnd_width, wnd_height);
-	SDL_SetTextureBlendMode (crt.overlay, SDL_BLENDMODE_MOD);
-	crt.overlays[TLN_OVERLAY_APERTURE  ] = SDL_CreateRGBSurfaceFrom (pattern_aperture, 6,4,32,24, 0,0,0,0);
-	crt.overlays[TLN_OVERLAY_SHADOWMASK] = SDL_CreateRGBSurfaceFrom (pattern_shadowmask, 6,2,32,24, 0,0,0,0);
-	crt.overlays[TLN_OVERLAY_SCANLINES ] = SDL_CreateRGBSurfaceFrom (pattern_scanlines, 3,4,32,12, 0,0,0,0);
+	crt.glow = SDL_CreateTexture(renderer, format, SDL_TEXTUREACCESS_STREAMING, wnd_params.width / 2, wnd_params.height / 2);
+	crt.blur = SDL_CreateRGBSurface(0, wnd_params.width / 2, wnd_params.height / 2, 32, 0, 0, 0, 0);
+	SDL_SetTextureBlendMode(crt.glow, SDL_BLENDMODE_ADD);
+	SDL_LockTexture(crt.glow, NULL, &pixels, &pitch);
+	memset(pixels, 0, pitch*wnd_params.height / 2);
+	SDL_UnlockTexture(crt.glow);
+	crt.overlay = SDL_CreateTexture(renderer, format, SDL_TEXTUREACCESS_STREAMING, wnd_width, wnd_height);
+	SDL_SetTextureBlendMode(crt.overlay, SDL_BLENDMODE_MOD);
+	crt.overlays[TLN_OVERLAY_APERTURE] = SDL_CreateRGBSurfaceFrom(pattern_aperture, 6, 4, 32, 24, 0, 0, 0, 0);
+	crt.overlays[TLN_OVERLAY_SHADOWMASK] = SDL_CreateRGBSurfaceFrom(pattern_shadowmask, 6, 2, 32, 24, 0, 0, 0, 0);
+	crt.overlays[TLN_OVERLAY_SCANLINES] = SDL_CreateRGBSurfaceFrom(pattern_scanlines, 3, 4, 32, 12, 0, 0, 0, 0);
 	if (wnd_params.file_overlay[0])
-		crt.overlays[TLN_OVERLAY_CUSTOM] = SDL_LoadBMP (wnd_params.file_overlay);
+		crt.overlays[TLN_OVERLAY_CUSTOM] = SDL_LoadBMP(wnd_params.file_overlay);
 
 	/* enables CRT effect with last used parameters */
 	if (crt_enable)
@@ -271,38 +273,44 @@ static bool CreateWindow (void)
 	}
 
 	/* temporal downsample surface */
-	resize_half_width = SDL_CreateRGBSurface (0, wnd_params.width/2, wnd_params.height, 32, 0,0,0,0);
-	memset (resize_half_width->pixels, 255, resize_half_width->pitch * resize_half_width->h);
-	
+	resize_half_width = SDL_CreateRGBSurface(0, wnd_params.width / 2, wnd_params.height, 32, 0, 0, 0, 0);
+	memset(resize_half_width->pixels, 255, resize_half_width->pitch * resize_half_width->h);
+
 	if (wnd_params.flags & CWF_FULLSCREEN)
-		SDL_ShowCursor (SDL_DISABLE);
+		SDL_ShowCursor(SDL_DISABLE);
 
-	done = false;
-
-	/* Default input PLAYER 1 */
-	TLN_EnableInput (PLAYER1, true);
-	TLN_DefineInputKey (PLAYER1, INPUT_UP,      SDLK_UP);
-	TLN_DefineInputKey (PLAYER1, INPUT_DOWN,    SDLK_DOWN);
-	TLN_DefineInputKey (PLAYER1, INPUT_LEFT,    SDLK_LEFT);
-	TLN_DefineInputKey (PLAYER1, INPUT_RIGHT,   SDLK_RIGHT);
-	TLN_DefineInputKey (PLAYER1, INPUT_BUTTON1, SDLK_z);
-	TLN_DefineInputKey (PLAYER1, INPUT_BUTTON2, SDLK_x);
-	TLN_DefineInputKey (PLAYER1, INPUT_BUTTON3, SDLK_c);
-	TLN_DefineInputKey (PLAYER1, INPUT_BUTTON4, SDLK_v);
-	TLN_DefineInputKey (PLAYER1, INPUT_START,   SDLK_RETURN);
-
-	/* joystick */
-	if (SDL_NumJoysticks () > 0)
+	/* one time init, avoid being forgotten in Alt+TAB */
+	if (init == false)
 	{
-		SDL_JoystickEventState (SDL_ENABLE);
-		TLN_AssignInputJoystick (PLAYER1, 0);
-		TLN_DefineInputButton (PLAYER1, INPUT_BUTTON1, 1);
-		TLN_DefineInputButton (PLAYER1, INPUT_BUTTON2, 0);
-		TLN_DefineInputButton (PLAYER1, INPUT_BUTTON3, 2);
-		TLN_DefineInputButton (PLAYER1, INPUT_BUTTON4, 3);
-		TLN_DefineInputButton (PLAYER1, INPUT_START,   5);
+		/* Default input PLAYER 1 */
+		TLN_EnableInput(PLAYER1, true);
+		TLN_DefineInputKey(PLAYER1, INPUT_UP, SDLK_UP);
+		TLN_DefineInputKey(PLAYER1, INPUT_DOWN, SDLK_DOWN);
+		TLN_DefineInputKey(PLAYER1, INPUT_LEFT, SDLK_LEFT);
+		TLN_DefineInputKey(PLAYER1, INPUT_RIGHT, SDLK_RIGHT);
+		TLN_DefineInputKey(PLAYER1, INPUT_BUTTON1, SDLK_z);
+		TLN_DefineInputKey(PLAYER1, INPUT_BUTTON2, SDLK_x);
+		TLN_DefineInputKey(PLAYER1, INPUT_BUTTON3, SDLK_c);
+		TLN_DefineInputKey(PLAYER1, INPUT_BUTTON4, SDLK_v);
+		TLN_DefineInputKey(PLAYER1, INPUT_START, SDLK_RETURN);
+		TLN_DefineInputKey(PLAYER1, INPUT_QUIT, SDLK_ESCAPE);
+		TLN_DefineInputKey(PLAYER1, INPUT_CRT, SDLK_BACKSPACE);
+
+		/* joystick */
+		if (SDL_NumJoysticks() > 0)
+		{
+			SDL_JoystickEventState(SDL_ENABLE);
+			TLN_AssignInputJoystick(PLAYER1, 0);
+			TLN_DefineInputButton(PLAYER1, INPUT_BUTTON1, 1);
+			TLN_DefineInputButton(PLAYER1, INPUT_BUTTON2, 0);
+			TLN_DefineInputButton(PLAYER1, INPUT_BUTTON3, 2);
+			TLN_DefineInputButton(PLAYER1, INPUT_BUTTON4, 3);
+			TLN_DefineInputButton(PLAYER1, INPUT_START, 5);
+		}
+		init = true;
 	}
 
+	done = false;
 	return true;
 }
 
@@ -660,9 +668,9 @@ bool TLN_ProcessWindow (void)
 			keybevt = (SDL_KeyboardEvent*)&evt;
 			if (keybevt->state == SDL_PRESSED)
 			{
-				if (keybevt->keysym.sym == SDLK_ESCAPE)
+				if (keybevt->keysym.sym == player_inputs[PLAYER1].keycodes[INPUT_QUIT])
 					done = true;
-				else if (keybevt->keysym.sym == SDLK_BACKSPACE)
+				else if (keybevt->keysym.sym == player_inputs[PLAYER1].keycodes[INPUT_CRT])
 					crt_enable = !crt_enable;
 				else if (keybevt->keysym.sym == SDLK_RETURN && keybevt->keysym.mod & KMOD_ALT)
 				{
@@ -875,8 +883,8 @@ void TLN_DisableCRTEffect (void)
  */
 bool TLN_GetInput (TLN_Input input)
 {
-	const TLN_Player player = input >> 4;
-	return (player_inputs[player].inputs & (1 << (input & 0xF))) != 0;
+	const TLN_Player player = input >> 5;
+	return (player_inputs[player].inputs & (1 << (input & INPUT_MASK))) != 0;
 }
 
 /*!
@@ -934,7 +942,7 @@ void TLN_AssignInputJoystick (TLN_Player player, int index)
  */
 void TLN_DefineInputKey (TLN_Player player, TLN_Input input, uint32_t keycode)
 {
-	player_inputs[player].keycodes[input & 0xF] = keycode;
+	player_inputs[player].keycodes[input & INPUT_MASK] = keycode;
 }
 
 /*!
@@ -952,7 +960,7 @@ void TLN_DefineInputKey (TLN_Player player, TLN_Input input, uint32_t keycode)
  */
 void TLN_DefineInputButton (TLN_Player player, TLN_Input input, uint8_t joybutton)
 {
-	player_inputs[player].joybuttons[input & 0xF] = joybutton;
+	player_inputs[player].joybuttons[input & INPUT_MASK] = joybutton;
 }
 
 /*!
@@ -995,7 +1003,6 @@ void TLN_EndWindowFrame (void)
 		const int dst_height = wnd_params.height / 2;
 		uint8_t* pixels_glow;
 		int pitch_glow;
-		int x,y;
 
 		/* downscale backbuffer */
 		SDL_LockTexture (crt.glow, NULL, (void*)&pixels_glow, &pitch_glow);

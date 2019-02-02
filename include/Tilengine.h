@@ -64,7 +64,7 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 /* version */
 #define TILENGINE_VER_MAJ	2
 #define TILENGINE_VER_MIN	1
-#define TILENGINE_VER_REV	1
+#define TILENGINE_VER_REV	2
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ<<16) | (TILENGINE_VER_MIN<<8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -254,11 +254,15 @@ typedef enum
 	INPUT_BUTTON5,	/*!< 5th action button */
 	INPUT_BUTTON6,	/*!< 6th action button */
 	INPUT_START,	/*!< Start button */
+	INPUT_QUIT,		/*!< Window close (only Player 1 keyboard) */
+	INPUT_CRT,		/*!< CRT toggle (only Player 1 keyboard) */
 
-	INPUT_P1 = (PLAYER1 << 4), 	/*!< request player 1 input (default) */
-	INPUT_P2 = (PLAYER2 << 4),	/*!< request player 2 input */
-	INPUT_P3 = (PLAYER3 << 4),	/*!< request player 3 input */
-	INPUT_P4 = (PLAYER4 << 4),	/*!< request player 4 input */
+	/* ... up to 32 unique inputs */
+
+	INPUT_P1 = (PLAYER1 << 5), 	/*!< request player 1 input (default) */
+	INPUT_P2 = (PLAYER2 << 5),	/*!< request player 2 input */
+	INPUT_P3 = (PLAYER3 << 5),	/*!< request player 3 input */
+	INPUT_P4 = (PLAYER4 << 5),	/*!< request player 4 input */
 
 	/* compatibility symbols for pre-1.18 input model */
 	INPUT_A = INPUT_BUTTON1,
@@ -542,7 +546,6 @@ TLNAPI bool TLN_DeleteSequence (TLN_Sequence sequence);
 /**@{*/
 TLNAPI TLN_SequencePack TLN_CreateSequencePack (void);
 TLNAPI TLN_SequencePack TLN_LoadSequencePack (const char* filename);
-TLNAPI TLN_SequencePack TLN_CloneSequencePack (TLN_SequencePack src);
 TLNAPI TLN_Sequence TLN_GetSequence (TLN_SequencePack sp, int index);
 TLNAPI TLN_Sequence TLN_FindSequence (TLN_SequencePack sp, const char* name);
 TLNAPI int TLN_GetSequencePackCount (TLN_SequencePack sp);
