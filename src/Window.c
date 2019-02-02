@@ -1001,20 +1001,6 @@ void TLN_EndWindowFrame (void)
 		SDL_LockTexture (crt.glow, NULL, (void*)&pixels_glow, &pitch_glow);
 		Downsample2 (rt_pixels, pixels_glow, wnd_params.width,wnd_params.height, rt_pitch, pitch_glow);
 
-		/* replace color vales with LUT mapped */
-		for (y=0; y<dst_height; y++)
-		{
-			uint8_t* pixel = pixels_glow + y*pitch_glow;
-			for (x=0; x<dst_width; x++)
-			{
-				pixel[0] = *(crt.table + pixel[0]);
-				pixel[1] = *(crt.table + pixel[1]);
-				pixel[2] = *(crt.table + pixel[2]);
-				pixel[3] = 255;
-				pixel += sizeof(uint32_t);
-			}
-		}
-
 		/* apply gaussian blur (opitional) */
 		if (crt.gaussian)
 			GaussianBlur (pixels_glow, crt.blur->pixels, dst_width,dst_height,pitch_glow, 2);
@@ -1207,6 +1193,13 @@ static void Downsample2 (uint8_t* src, uint8_t* dst, int width, int height, int 
 			dst_pixel[0] = (src_pixel[0] + src_pixel[index0]) >> 1;
 			dst_pixel[1] = (src_pixel[1] + src_pixel[index1]) >> 1;
 			dst_pixel[2] = (src_pixel[2] + src_pixel[index2]) >> 1;
+
+			/* replace color vales with LUT mapped */
+			dst_pixel[0] = *(crt.table + dst_pixel[0]);
+			dst_pixel[1] = *(crt.table + dst_pixel[1]);
+			dst_pixel[2] = *(crt.table + dst_pixel[2]);
+			dst_pixel[3] = 255;
+
 			src_pixel += sizeof(uint32_t);
 			dst_pixel += sizeof(uint32_t);
 		}
