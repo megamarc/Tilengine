@@ -1,5 +1,5 @@
 CC       = gcc
-SOURCES  = $(wildcard *.c)
+SOURCES  = $(filter-out Test.c,$(wildcard *.c))
 OBJECTS  = $(SOURCES:.c=.o)
 INCPATH  = ../include
 
