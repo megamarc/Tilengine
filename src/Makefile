@@ -1,4 +1,4 @@
-CC       = gcc
+CC       ?= gcc
 SOURCES  = $(filter-out Test.c,$(wildcard *.c))
 OBJECTS  = $(SOURCES:.c=.o)
 INCPATH  = ../include

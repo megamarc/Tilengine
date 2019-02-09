@@ -1,8 +1,8 @@
-CC       = gcc
+CC       ?= gcc
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
 TARGETS  = barrel mode7 platformer racer scaling shadow shooter tutorial wobble colorcycle benchmark supermarioclone test_mouse
-LIBPATH  = $(HOME)/Tilengine/lib
+LIBPATH  ?= $(HOME)/Tilengine/lib
 
 # Windows specific flags
 ifeq ($(OS),Windows_NT)
