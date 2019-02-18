@@ -1,6 +1,6 @@
 ![Tilengine logo](Tilengine.png)
 # Tilengine - The 2D retro graphics engine
-[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)
+[![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 [![Build Status](https://travis-ci.org/megamarc/Tilengine.svg?branch=master)](https://travis-ci.org/megamarc/Tilengine)
 [![Build status](https://ci.appveyor.com/api/projects/status/yvx7koa32qyjm1b0?svg=true)](https://ci.appveyor.com/project/megamarc/tilengine)
 [![Coverity Scan](https://scan.coverity.com/projects/16964/badge.svg)](https://scan.coverity.com/projects/megamarc-tilengine)
@@ -30,7 +30,7 @@ http://www.tilengine.org
 
 # Features
 * Written in portable C (C99)
-* LGPL v2.1 license: free for any project, including commercial ones
+* MPL 2.0 license: free for any project, including commercial ones, allows console development
 * Cross platform: available builds for Windows (32/64), Linux PC(32/64), Mac OS X and Raspberry Pi
 * High performance: all samples run at 60 fps with CRT emulation enabled on a Raspberry Pi 3
 * Streamlined, easy to learn API that requires very little lines of code
