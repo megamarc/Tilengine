@@ -25,11 +25,12 @@ To move the sprite to a different location, call the \ref TLN_SetSpritePosition,
 TLN_SetSpritePosition (3, 160,120);
 ```
 ## Setting attributes
-There are some special modifiers that control sprite flipping and priority. Sprite flipping allows you to draw a sprite upside down and/or horizontally mirrored. For example in a platformer game you just need to draw sprites facing to the right, when you want to draw them facing let, just set the horizontal flipping flag. *Priority* determines the final composition (which elements are drawn in front of others). To set attributes, call \ref TLN_SetSpriteFlags passing the sprite index and a combination of \ref TLN_TileFlags. For example to draw sprite 0 upside down:
+There are some special modifiers that control sprite flipping and priority. Sprite flipping allows you to draw a sprite upside down and/or horizontally mirrored. For example in a platformer game you just need to draw sprites facing to the right, when you want to draw them facing left, just set the horizontal flipping flag. *Priority* determines the final composition (which elements are drawn in front of others). To set attributes, call \ref TLN_SetSpriteFlags passing the sprite index and a combination of \ref TLN_TileFlags. For example to draw sprite 0 upside down:
 ```c
 TLN_SetSpriteFlags (0, FLAG_FLIPY)
 ```
-Flipping modes: a) 0, b) FLAG_FLIPX, c) FLAG_FLIPY, d) FLAG_FLIPX + FLAG_FLIPY
+Flipping modes: a) 0, b) FLAG_FLIPX, c) FLAG_FLIPY, d) FLAG_FLIPX + FLAG_FLIPY:
+
 ![Flipping modes](img/sprite_flags.png)
 
 ## Setting the palette
@@ -59,6 +60,7 @@ Sprites can be drawn upscaled or downscaled with an arbitrary factor. To enable 
 TLN_SetSpriteScaling (0, 0.5f, 1.5f);
 ```
 Different sprite scaling examples:
+
 ![Different sprite scaling examples](img/sprite_scaling.png)
 
 To disable scaling, call \ref TLN_ResetSpriteScaling passing the sprite index. For example to disable scaling in sprite 0:

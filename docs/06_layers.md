@@ -16,6 +16,7 @@ TLN_Tilemap tilemap = TLN_LoadTilemap ("ruff_n_tumble.tmx");
 TLN_SetupLayer (0, NULL, tilemap);
 ```
 Layer with tilemap loaded:
+
 ![Layer with tilemap loaded](img/layer_base.png)
 
 We can just pass a NULL to use the internal tileset referenced by the tilemap. But we can explicitly load and attach a tileset too with \ref TLN_LoadTileset :
@@ -31,6 +32,7 @@ Scrolling is the common term for moving the display area inside a bigger map. By
 TLN_SetLayerPosition (0,120,16);
 ```
 Layer moved to 120,16:
+
 ![Layer moved to 120,16](img/layer_scroll.png)
 
 ### Smooth scroll
@@ -66,6 +68,7 @@ TLN_Palette palette = TLN_LoadPalette ("palette.act");
 TLN_SetLayerPalette (0, palette);
 ```
 Alternative palette:
+
 ![Alternative palette](img/layer_palette.png)
 
 ## Blending
@@ -90,6 +93,7 @@ To enable the clipping rectangle, call \ref TLN_SetLayerClip passing the index o
 TLN_SetLayerClip (0, 32,20, 360,240);
 ```
 Clipping rectangle 32,20 - 360,240:
+
 ![Clipping rectangle](img/layer_clip.png)
 
 To disable the clipping rectangle, call \ref TLN_DisableLayerClip passing the layer index to disable:
@@ -133,6 +137,7 @@ TLN_SetLayerScaling (0, 0.5f, 1.5f);
 ```
 
 Layer scaling x0.5 horizontal, x1.5 vertical:
+
 ![Column offset](img/layer_scaling.png)
 
 ## Affine trasform
@@ -164,7 +169,8 @@ TLN_PixelMap pixel_map[num_pixels];
 TLN_SetLayerPixelMapping (0, pixel_map);
 ```
 
-Pixel mapping applying some trigonometric displacements to the \ref TLN_PixelMap array
+Pixel mapping applying some trigonometric displacements to the \ref TLN_PixelMap array:
+
 ![Affine transform](img/layer_mapping.png)
 
 ### Setting the pixel mapping table
