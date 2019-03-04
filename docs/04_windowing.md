@@ -18,6 +18,7 @@ TLN_CreateWindow (NULL, 0);
 ```
 
 Supported creation flags are as follows:
+
 |Flag value    |Effect
 |--------------|----------------------------
 |CWF_FULLSCREEN|create a fullscreen window
@@ -26,6 +27,7 @@ Supported creation flags are as follows:
 |CWF_NEAREST   |sharp upscaling without bilinear filter
 
 The following key combinations are used to control the window:
+
 |Key                   |Effect
 |----------------------|-------------------------------------
 |<kbd>Alt + Enter</kbd>|Toggle windowed/fullscreen mode
@@ -113,7 +115,7 @@ if (TLN_GetInput(INPUT_P2 + INPUT_START))
 ```
 
 ### Enhanced input with SDL2
-If the built-in input layout of tilengine is not enough, because your game needs mouse input, analog sticks, more keys, etc, Tilengine can catch the events delivered by the underlying SDL2 library and pass them to your own input handling. This is done bya user callback, that can be registered with \ref TLN_SetSDLCallback function. The user callback must have the format `void sdl_callback(SDL_Event*);`. For example, to check mouse click:
+If the built-in input layout of tilengine is not enough, because your game needs mouse input, analog sticks, more keys, etc, Tilengine can catch the events delivered by the underlying SDL2 library and pass them to your own input handling. This is done by a user callback, that can be registered with \ref TLN_SetSDLCallback function. The user callback must have the format `void sdl_callback(SDL_Event*);`. For example, to check mouse click:
 ```c
 #include <SDL2/SDL.h>
 ...
