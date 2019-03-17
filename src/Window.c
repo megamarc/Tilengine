@@ -135,6 +135,7 @@ static void DeleteWindow (void);
 static void hblur (uint8_t* scan, int width, int height, int pitch);
 static void Downsample2 (uint8_t* src, uint8_t* dst, int width, int height, int src_pitch, int dst_pitch);
 static void BuildFullOverlay (SDL_Texture* texture, SDL_Surface* pattern, uint8_t factor);
+static void EnableCRTEffect (void);
 
 /* external prototypes */
 void GaussianBlur (uint8_t* src, uint8_t* dst, int width, int height, int pitch, int radius);
@@ -249,19 +250,7 @@ static bool CreateWindow(void)
 		crt.overlays[TLN_OVERLAY_CUSTOM] = SDL_LoadBMP(wnd_params.file_overlay);
 
 	/* enables CRT effect with last used parameters */
-	if (crt_enable)
-	{
-		TLN_EnableCRTEffect(crt_params.overlay,
-			crt_params.overlay_factor,
-			crt_params.threshold,
-			crt_params.v0,
-			crt_params.v1,
-			crt_params.v2,
-			crt_params.v3,
-			crt_params.blur,
-			crt_params.glow_factor
-		);
-	}
+	EnableCRTEffect();
 
 	/* temporal downsample surface */
 	resize_half_width = SDL_CreateRGBSurface(0, wnd_params.width / 2, wnd_params.height, 32, 0, 0, 0, 0);
@@ -662,7 +651,10 @@ bool TLN_ProcessWindow (void)
 				if (keybevt->keysym.sym == player_inputs[PLAYER1].keycodes[INPUT_QUIT])
 					done = true;
 				else if (keybevt->keysym.sym == player_inputs[PLAYER1].keycodes[INPUT_CRT])
+				{
 					crt_enable = !crt_enable;
+					EnableCRTEffect();
+				}
 				else if (keybevt->keysym.sym == SDLK_RETURN && keybevt->keysym.mod & KMOD_ALT)
 				{
 					DeleteWindow ();
@@ -846,6 +838,24 @@ void TLN_DisableCRTEffect (void)
 	crt_enable = false;
 }
 
+
+/* enables CRT effect with last used parameters */
+static void EnableCRTEffect (void)
+{
+	if (crt_enable)
+	{
+		TLN_EnableCRTEffect(crt_params.overlay,
+			crt_params.overlay_factor,
+			crt_params.threshold,
+			crt_params.v0,
+			crt_params.v1,
+			crt_params.v2,
+			crt_params.v3,
+			crt_params.blur,
+			crt_params.glow_factor
+		);
+	}
+}
 /*!
  * \brief
  * Returns the state of a given input
