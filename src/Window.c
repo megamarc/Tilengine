@@ -1080,6 +1080,24 @@ void TLN_Delay (uint32_t time)
 }
 
 /*!
+ * \brief
+ * Returns horizontal dimension of window after scaling
+ */
+int TLN_GetWindowWidth(void)
+{
+	return wnd_width;
+}
+
+/*!
+ * \brief
+ * Returns vertical dimension of window after scaling
+ */
+int TLN_GetWindowHeight(void)
+{
+	return wnd_height;
+}
+
+/*!
 * \brief
 * Registers a user-defined callback to capture internal SDL2 events
 * \param callback pointer to user funcion with signature void (SDL_Event*)

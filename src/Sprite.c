@@ -544,12 +544,12 @@ int TLN_GetSpritePicture (int nsprite)
  * \returns
  * Index of the first unused sprite (starting from 0) or -1 if none found
  */
-int TLN_GetAvailableSprite (void)
+int TLN_GetAvailableSprite(void)
 {
 	int c;
 
-	TLN_SetLastError (TLN_ERR_OK);
-	for (c=0; c<engine->numsprites; c++)
+	TLN_SetLastError(TLN_ERR_OK);
+	for (c = 0; c < engine->numsprites; c++)
 	{
 		if (!engine->sprites[c].ok)
 			return c;
@@ -560,28 +560,28 @@ int TLN_GetAvailableSprite (void)
 /*!
  * \brief
  * Enable sprite collision checking at pixel level
- * 
+ *
  * \param nsprite
  * Id of the sprite [0, num_sprites - 1]
- * 
+ *
  * \param enable
  * Set true to enable o false to disable (default value)
- * 
+ *
  * \remarks
  * Only sprites that have collision enabled are checked between them,
  * so to detect a collision between two sprites, both of them must
  * have collision detection enabled. Processing collision detection
  * sprites take more a bit more CPU time compared to non-colliding sprites, so
  * by default it is disabled on all sprites.
- * 
+ *
  * \see
  * TLN_GetSpriteCollision()
  */
-bool TLN_EnableSpriteCollision (int nsprite, bool enable)
+bool TLN_EnableSpriteCollision(int nsprite, bool enable)
 {
 	if (nsprite >= engine->numsprites)
 	{
-		TLN_SetLastError (TLN_ERR_IDX_SPRITE);
+		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
 		return false;
 	}
 
@@ -592,24 +592,24 @@ bool TLN_EnableSpriteCollision (int nsprite, bool enable)
 /*!
  * \brief
  * Gets the collision status of a given sprite
- * 
+ *
  * \param nsprite
  * Id of the sprite [0, num_sprites - 1]
- * 
+ *
  * \returns
  * Tue if this sprite is involved in a collision with another sprite
- * 
+ *
  * \remarks
  * Collision detection must be enabled for the sprite to get checked
- * 
+ *
  * \see
  * TLN_EnableSpriteCollision()
  */
-bool TLN_GetSpriteCollision (int nsprite)
+bool TLN_GetSpriteCollision(int nsprite)
 {
 	if (nsprite >= engine->numsprites)
 	{
-		TLN_SetLastError (TLN_ERR_IDX_SPRITE);
+		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
 		return false;
 	}
 
@@ -619,7 +619,7 @@ bool TLN_GetSpriteCollision (int nsprite)
 /*!
  * \brief
  * Disables the sprite so it is not drawn
- * 
+ *
  * \param nsprite
  * Id of the sprite [0, num_sprites - 1]
  *
@@ -627,16 +627,68 @@ bool TLN_GetSpriteCollision (int nsprite)
  * A sprite is also automatically disabled when assigned with an invalid spriteste or palette. Disabled
  * sprites are returned by the function TLN_GetAvailableSprite as available
  */
-bool TLN_DisableSprite (int nsprite)
+bool TLN_DisableSprite(int nsprite)
 {
 	if (nsprite >= engine->numsprites)
 	{
-		TLN_SetLastError (TLN_ERR_IDX_SPRITE);
+		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
 		return false;
-	}	
+	}
 
 	engine->sprites[nsprite].ok = false;
-	TLN_SetLastError (TLN_ERR_OK);
+	TLN_SetLastError(TLN_ERR_OK);
+	return true;
+}
+
+/*!
+ * \brief
+ * Returns runtime info about a given sprite
+ * 
+ * \param nsprite
+ * Id of the sprite [0, num_sprites - 1]
+ * 
+ * \param state
+ * Pointer to a user-allocated TLN_SpriteState structure to fill with requested data
+ * 
+ * \remarks
+ * Info may not be accurate if SpriteState.enabled member is returned as false
+ */
+TLNAPI bool TLN_GetSpriteState(int nsprite, TLN_SpriteState* state)
+{
+	Sprite* sprite;
+	if (nsprite >= engine->numsprites)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
+		return false;
+	}
+
+	if (state == NULL)
+	{
+		TLN_SetLastError(TLN_ERR_NULL_POINTER);
+		return false;
+	}
+
+	sprite = &engine->sprites[nsprite];
+	state->x = sprite->x;
+	state->y = sprite->y;
+	if (sprite->info != NULL)
+	{
+		state->w = sprite->info->w;
+		state->h = sprite->info->h;
+		if (sprite->mode == MODE_SCALING)
+		{
+			state->w = (int)(state->w * sprite->sx);
+			state->h = (int)(state->h * sprite->sy);
+		}
+	}
+	state->collision = sprite->do_collision;
+	state->flags = sprite->flags;
+	state->index = sprite->index;
+	state->enabled = sprite->ok;
+	state->palette = sprite->palette;
+	state->spriteset = sprite->spriteset;
+	
+	TLN_SetLastError(TLN_ERR_OK);
 	return true;
 }
 

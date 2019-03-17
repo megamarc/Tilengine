@@ -55,7 +55,7 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 /* version */
 #define TILENGINE_VER_MAJ	2
 #define TILENGINE_VER_MIN	2
-#define TILENGINE_VER_REV	0
+#define TILENGINE_VER_REV	1
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -213,6 +213,22 @@ typedef struct Spriteset*	 TLN_Spriteset;			/*!< Opaque sspriteset reference */
 typedef struct Sequence*	 TLN_Sequence;			/*!< Opaque sequence reference */
 typedef struct SequencePack* TLN_SequencePack;		/*!< Opaque sequence pack reference */
 typedef struct Bitmap*		 TLN_Bitmap;			/*!< Opaque bitmap reference */
+
+/*! Sprite state */
+typedef struct
+{
+	int x;			/*!< Screen position x */
+	int y;			/*!< Screen position y */
+	int w;			/*!< Actual width in screen (after scaling) */
+	int h;			/*!< Actual height in screen (after scaling) */
+	TLN_TileFlags flags;		/*!< flags */
+	TLN_Palette palette;		/*!< assigned palette */	 
+	TLN_Spriteset spriteset;	/*!< assigned spriteset */	
+	int index;		/*!< graphic index inside spriteset */
+	bool enabled;	/*!< enabled or not */
+	bool collision; /*!< per-pixel collision detection enabled or not */
+}
+TLN_SpriteState;
 
 /* callbacks */
 typedef union SDL_Event SDL_Event;
@@ -388,6 +404,8 @@ TLNAPI void TLN_Delay (uint32_t msecs);
 TLNAPI uint32_t TLN_GetTicks (void);
 TLNAPI void TLN_BeginWindowFrame (int time);
 TLNAPI void TLN_EndWindowFrame (void);
+TLNAPI int TLN_GetWindowWidth(void);
+TLNAPI int TLN_GetWindowHeight(void);
 
 /**@}*/
 
@@ -516,6 +534,7 @@ TLNAPI int  TLN_GetSpritePicture (int nsprite);
 TLNAPI int  TLN_GetAvailableSprite (void);
 TLNAPI bool TLN_EnableSpriteCollision (int nsprite, bool enable);
 TLNAPI bool TLN_GetSpriteCollision (int nsprite);
+TLNAPI bool TLN_GetSpriteState(int nsprite, TLN_SpriteState* state);
 TLNAPI bool TLN_DisableSprite (int nsprite);
 TLNAPI TLN_Palette TLN_GetSpritePalette (int nsprite);
 /**@}*/
