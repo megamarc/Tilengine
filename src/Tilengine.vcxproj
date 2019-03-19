@@ -108,7 +108,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) $(SolutionDir)samples\c
+      <Command>copy $(TargetPath) $(SolutionDir)samples
 copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
 </Command>
     </PostBuildEvent>
@@ -140,7 +140,8 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) $(SolutionDir)samples\c
+      <Command>copy $(TargetPath) $(SolutionDir)samples
+
 copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
 </Command>
     </PostBuildEvent>
@@ -218,6 +219,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="aes.c" />
     <ClCompile Include="Animation.c" />
     <ClCompile Include="Base64.c" />
     <ClCompile Include="Bitmap.c" />
@@ -236,6 +238,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <ClCompile Include="Math2D.c" />
     <ClCompile Include="Object.c" />
     <ClCompile Include="Palette.c" />
+    <ClCompile Include="ResourcePacker.c" />
     <ClCompile Include="Sequence.c" />
     <ClCompile Include="SequencePack.c" />
     <ClCompile Include="simplexml.c" />
@@ -249,6 +252,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Tilengine.h" />
+    <ClInclude Include="aes.h" />
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Bitmap.h" />
     <ClInclude Include="Blitters.h" />
@@ -261,6 +265,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <ClInclude Include="Math2D.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Palette.h" />
+    <ClInclude Include="ResPack.h" />
     <ClInclude Include="Sequence.h" />
     <ClInclude Include="SequencePack.h" />
     <ClInclude Include="simplexml.h" />

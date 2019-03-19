@@ -67,7 +67,7 @@ TLN_Spriteset TLN_LoadSpriteset (const char* name)
 	{
 		TLN_DeleteBitmap (bitmap);
 		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
-		fclose (pf);
+		FileClose (pf);
 		return NULL;
 	}
 
@@ -105,7 +105,7 @@ TLN_Spriteset TLN_LoadSpriteset (const char* name)
 			continue;
 		}
 	}
-	fclose (pf);
+	FileClose (pf);
 
 	/* create */
 	spriteset = TLN_CreateSpriteset (bitmap, sprite_data, entries);

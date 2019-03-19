@@ -97,7 +97,7 @@ static TLN_Bitmap LoadPNG (const char* filename)
 	fread (header, 8, 1, fp);
 	if (png_sig_cmp(header, 0, 8))
 	{
-		fclose (fp);
+		FileClose (fp);
 		return NULL;
 	}
 
@@ -147,7 +147,7 @@ static TLN_Bitmap LoadPNG (const char* filename)
 		TLN_SetBitmapPalette (bitmap, palette);
 	}
 
-	fclose(fp);
+	FileClose(fp);
 	png_destroy_read_struct (&png, &info, NULL);
 	return bitmap;
 }
@@ -172,7 +172,7 @@ static TLN_Bitmap LoadBMP (const char* filename)
 	fread (&bfh, sizeof(bfh), 1, pf);
 	if (bfh.Type != 0x4D42)
 	{
-		fclose (pf);
+		FileClose (pf);
 		return NULL;
 	}
 
@@ -186,7 +186,7 @@ static TLN_Bitmap LoadBMP (const char* filename)
 	bitmap = TLN_CreateBitmap (bv5.bV5Width, bv5.bV5Height, bv5.bV5BitCount);
 	if (!bitmap)
 	{
-		fclose (pf);
+		FileClose (pf);
 		return NULL;
 	}
 
@@ -219,6 +219,6 @@ static TLN_Bitmap LoadBMP (const char* filename)
 		TLN_SetBitmapPalette (bitmap, palette);
 	}
 
-	fclose (pf);
+	FileClose (pf);
 	return bitmap;
 }

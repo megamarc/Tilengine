@@ -26,7 +26,8 @@ typedef SSIZE_T ssize_t;
 #endif
 #endif
 
-uint8_t* LoadFile (const char* filename, ssize_t* out_size);
+void* LoadFile (const char* filename, ssize_t* out_size);
+void FileClose(FILE* pf);
 FILE* FileOpen (const char* filename);
 bool CheckFile (const char* filename);
 

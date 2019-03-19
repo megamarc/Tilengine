@@ -95,6 +95,12 @@
     <ClCompile Include="Window.c">
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
+    <ClCompile Include="aes.c">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourcePacker.c">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h">
@@ -158,6 +164,12 @@
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Tilengine.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="aes.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="ResPack.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>

@@ -83,7 +83,7 @@ TLN_Palette TLN_LoadPalette (const char* filename)
 		TLN_SetPaletteColor (palette, c, src[0], src[1], src[2]);
 	}
 
-	fclose (pf);
+	FileClose (pf);
 	TLN_SetLastError (TLN_ERR_OK);
 	return palette;
 }

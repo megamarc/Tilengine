@@ -54,8 +54,8 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 
 /* version */
 #define TILENGINE_VER_MAJ	2
-#define TILENGINE_VER_MIN	2
-#define TILENGINE_VER_REV	1
+#define TILENGINE_VER_MIN	3
+#define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -367,6 +367,8 @@ TLNAPI bool TLN_DrawNextScanline (void);
 TLNAPI void TLN_SetLoadPath (const char* path);
 TLNAPI void TLN_SetCustomBlendFunction (TLN_BlendFunction);
 TLNAPI void TLN_SetLogLevel(TLN_LogLevel log_level);
+TLNAPI bool TLN_OpenResourcePack(const char* filename, const char* key);
+TLNAPI void TLN_CloseResourcePack(void);
 
 /**@}*/
 
