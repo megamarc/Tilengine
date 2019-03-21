@@ -25,6 +25,7 @@ http://www.tilengine.org
     - [Apple OS X](#apple-os-x)
 - [Documentation](#documentation)
 - [Editing assets](#editing-assets)
+- [Creating packages](#creating-packages)
 - [Bindings](#bindings)
 - [Contributors](#contributors)
 
@@ -44,6 +45,7 @@ http://www.tilengine.org
 * Several blending modes for layers and sprites
 * Pixel accurate sprite vs sprite and sprite vs layer collision detection
 * Special effects: per-column offset, mosaic, per-pixel displacement, CRT emulation...
+* Supports packaged assets with optional AES-128 encryption
 
 # Getting binaries
 
@@ -171,6 +173,9 @@ Tilengine is just a programming library that doesn't come with any editor, but t
 * Backgrounds: [Tiled Map Editor](https://www.mapeditor.org/) is the official editor
 * Sprites: Online tool [Lesy SpriteSheet](https://www.leshylabs.com/blog/posts/2013-12-03-Leshy_SpriteSheet_Tool.html)
 * Sequences: Any standard XML editor
+
+# Creating packages
+To create a package with all the assets, the open-source tool [ResourcePacker](https://github.com/megamarc/ResourcePacker) must be used. It's a corss-platform, easy to use command line tool that creates packages with files keeping the same directory structure. Tilengine has built-in support for loading assets from these packages just as if they still were stand-alone files.
 
 # Bindings
 There are bindings to use Tilengine from several programming languages:
