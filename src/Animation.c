@@ -534,7 +534,7 @@ static void ReplaceTiles (TLN_Tilemap tilemap, int srctile, int dsttile)
 	int c;
 	int size = tilemap->rows * tilemap->cols;
 
-	for (c=0; c<tilemap->size; c++)
+	for (c=0; c<size; c++)
 	{
 		if (tilemap->tiles[c].index == srctile)
 			tilemap->tiles[c].index = dsttile;
