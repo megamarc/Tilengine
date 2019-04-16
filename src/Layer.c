@@ -16,6 +16,7 @@
 #include "Tileset.h"
 #include "Tilemap.h"
 #include "Tables.h"
+#include "ObjectList.h"
 
 static void SelectBlitter (Layer* layer);
 
@@ -70,6 +71,7 @@ bool TLN_SetLayer (int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap)
 			TLN_SetLayerPalette (nlayer, tileset->palette);
 	}
 	layer->bitmap = NULL;
+	layer->spriteset = NULL;
 	layer->ok = true;
 	layer->draw = GetLayerDraw (layer);
 
@@ -159,10 +161,41 @@ bool TLN_SetLayerBitmap(int nlayer, TLN_Bitmap bitmap)
 	layer->tileset = NULL;
 	layer->tilemap = NULL;
 	layer->bitmap = bitmap;
+	layer->spriteset = NULL;
 	layer->width = bitmap->width;
 	layer->height = bitmap->height;
 	if (bitmap->palette)
 		TLN_SetLayerPalette(nlayer, bitmap->palette);
+
+	layer->ok = true;
+	layer->draw = GetLayerDraw(layer);
+	SelectBlitter(layer);
+	TLN_SetLastError(TLN_ERR_OK);
+	return true;
+}
+
+bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Spriteset spriteset)
+{
+	Layer *layer;
+	if (nlayer >= engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_LAYER);
+		return false;
+	}
+
+	layer = &engine->layers[nlayer];
+	layer->ok = false;
+	if (!CheckBaseObject(spriteset, OT_SPRITESET))
+		return false;
+
+	layer->tileset = NULL;
+	layer->tilemap = NULL;
+	layer->bitmap = NULL;
+	layer->spriteset = spriteset;
+	layer->width = objects->width;
+	layer->height = objects->height;
+	if (spriteset->palette)
+		TLN_SetLayerPalette(nlayer, spriteset->palette);
 
 	layer->ok = true;
 	layer->draw = GetLayerDraw(layer);

@@ -23,6 +23,8 @@ typedef struct
 }
 rect_t;
 
+extern void MakeRect(rect_t* rect, int x, int y, int w, int h);
+
 /* sprite */
 typedef struct Sprite
 {

@@ -17,6 +17,8 @@
 #include "zlib.h"
 #include "LoadFile.h"
 
+#define MAX_TILESETS	8
+
 extern int base64decode (const char* in, int inLen, unsigned char *out, int *outLen);
 static int csvdecode (const char* in, int numtiles, uint32_t* data);
 static int decompress (unsigned char* in, int in_size, unsigned char* out, int out_size);
@@ -253,10 +255,7 @@ static int csvdecode (const char* in, int numtiles, uint32_t *data)
 	do
 	{
 		if (token[0] != 0x0D)
-		{
-			sscanf (token, "%u", &data[c]);
-			c++;
-		}
+			sscanf (token, "%u", &data[c++]);
 		token = strtok (NULL, ",\n");
 	}
 	while (c < numtiles);

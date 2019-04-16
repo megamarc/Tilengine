@@ -24,6 +24,7 @@ typedef enum
 	OT_BITMAP,
 	OT_SEQUENCE,
 	OT_SEQPACK,
+	OT_OBJECTLIST,
 }
 ObjectType;
 

@@ -54,7 +54,7 @@ typedef unsigned char bool;		/*!< C++ bool type for C language */
 
 /* version */
 #define TILENGINE_VER_MAJ	2
-#define TILENGINE_VER_MIN	3
+#define TILENGINE_VER_MIN	4
 #define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
@@ -184,6 +184,18 @@ typedef struct
 }
 TLN_TileAttributes;
 
+/*! ObjectList item for TLN_CreateObjectList() */
+typedef struct
+{
+	int id;		/* unique identifier */
+	int gid;	/* graphic identifier */
+	int x;
+	int y;
+	int width;
+	int height;
+}
+TLN_Object;
+
 /*! overlays for CRT effect */
 typedef enum
 {
@@ -213,6 +225,7 @@ typedef struct Spriteset*	 TLN_Spriteset;			/*!< Opaque sspriteset reference */
 typedef struct Sequence*	 TLN_Sequence;			/*!< Opaque sequence reference */
 typedef struct SequencePack* TLN_SequencePack;		/*!< Opaque sequence pack reference */
 typedef struct Bitmap*		 TLN_Bitmap;			/*!< Opaque bitmap reference */
+typedef struct ObjectList*	 TLN_ObjectList;		/*!< Opaque object list reference */
 
 /*! Sprite state */
 typedef struct
@@ -491,6 +504,19 @@ TLNAPI bool TLN_DeleteBitmap (TLN_Bitmap bitmap);
 /**@}*/
 
 /**
+ * \defgroup objects
+ * \brief ObjectList resources management */
+ /**@{*/
+TLNAPI TLN_ObjectList TLN_CreateObjectList(int width, int height);
+TLNAPI bool TLN_AddObjectToList(TLN_ObjectList list, TLN_Object* object);
+TLNAPI TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername, int firstgid);
+TLNAPI TLN_ObjectList TLN_CloneObjectList(TLN_ObjectList src);
+TLNAPI int TLN_GetObjectsInReigion(TLN_ObjectList list, int x, int y, int width, int height, int array_size, TLN_Object* objects);
+TLNAPI bool TLN_GetObjectInfo(TLN_ObjectList list, int id, TLN_Object* info);
+TLNAPI bool TLN_DeleteObjectList(TLN_ObjectList list);
+/**@}*/
+
+/**
  * \defgroup layer
  * \brief Background layers management */
 /**@{*/
@@ -509,6 +535,7 @@ TLNAPI bool TLN_DisableLayerClip (int nlayer);
 TLNAPI bool TLN_SetLayerMosaic (int nlayer, int width, int height);
 TLNAPI bool TLN_DisableLayerMosaic (int nlayer);
 TLNAPI bool TLN_ResetLayerMode (int nlayer);
+TLNAPI bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Spriteset spriteset);
 TLNAPI bool TLN_DisableLayer (int nlayer);
 TLNAPI TLN_Palette TLN_GetLayerPalette (int nlayer);
 TLNAPI bool TLN_GetLayerTile (int nlayer, int x, int y, TLN_TileInfo* info);

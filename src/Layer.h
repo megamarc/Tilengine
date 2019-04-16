@@ -16,41 +16,34 @@
 #include "Blitters.h"
 #include "Math2D.h"
 
-/* tipo de capa */
-typedef enum
-{
-	LAYER_NORMAL,
-	LAYER_AFFINE,
-}
-layer_t;
-
 /* capa */
 typedef struct Layer
 {
 	/* configuración */
-	layer_t		type;		/* tipo de capa */
-	TLN_Tileset	tileset;	/* puntero al tileset */
-	TLN_Tilemap	tilemap;	/* puntero al array de memoria con el mapa de tiles */
-	TLN_Palette	palette;	/* puntero a la paleta */
-	TLN_Bitmap  bitmap;		/* puntero al bitmap (modo bitmap) */
-	int			width;		/* anchura total en píxeles */
-	int			height;		/* altura total en píxeles */
-	bool		ok;
-	bool		affine;
-	ScanDrawPtr draw;
-	ScanBlitPtr blitters[2];
-	Matrix3		transform;
-	int*		column;		/* offset de columna (opcional) */
-	fix_t		xfactor;
-	fix_t		dx;
-	fix_t		dy;
-	uint8_t*	blend;		/* puntero a tabla de transparencia (NULL = no hay) */
-	TLN_PixelMap* pixel_map;	/* puntero a tabla de pixel map (NULL = no hay) */
-	draw_t		mode;
+	TLN_Tileset		tileset;	/* puntero al tileset */
+	TLN_Tilemap		tilemap;	/* puntero al array de memoria con el mapa de tiles */
+	TLN_Palette		palette;	/* puntero a la paleta */
+	TLN_Bitmap		bitmap;		/* puntero al bitmap (modo bitmap) */
+	TLN_Spriteset	spriteset;	/* puntero al spriteset (modo object) */
+	int				width;		/* anchura total en píxeles */
+	int				height;		/* altura total en píxeles */
+	bool			ok;
+	bool			affine;
+	ScanDrawPtr		draw;
+	ScanBlitPtr		blitters[2];
+	Matrix3			transform;
+	int*			column;		/* offset de columna (opcional) */
+	fix_t			xfactor;
+	fix_t			dx;
+	fix_t			dy;
+	uint8_t*		blend;		/* puntero a tabla de transparencia (NULL = no hay) */
+	TLN_PixelMap*	pixel_map;	/* puntero a tabla de pixel map (NULL = no hay) */
+	draw_t			mode;
+	int				parent;		/* optional link layer */
 	
 	/* */
-	int			hstart;		/* offset de inicio horizontal */
-	int			vstart;		/* offset de inicio vertical */
+	int				hstart;		/* offset de inicio horizontal */
+	int				vstart;		/* offset de inicio vertical */
 
 	/* clip */
 	struct

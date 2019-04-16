@@ -704,10 +704,7 @@ static void UpdateSprite (Sprite* sprite)
 		w = 0;
 
 	/* rectangulo origen (sprite) */
-	sprite->srcrect.x1 = 0;
-	sprite->srcrect.y1 = 0;
-	sprite->srcrect.x2 = sprite->info->w;
-	sprite->srcrect.y2 = sprite->info->h;
+	MakeRect(&sprite->srcrect, 0, 0, sprite->info->w, sprite->info->h);
 
 	/* clipping normal */
 	if (sprite->mode == MODE_NORMAL)
@@ -716,10 +713,7 @@ static void UpdateSprite (Sprite* sprite)
 		h = sprite->info->h;
 
 		/* rectangulo destino (pantalla) */
-		sprite->dstrect.x1 = sprite->x;
-		sprite->dstrect.y1 = sprite->y;
-		sprite->dstrect.x2 = sprite->dstrect.x1 + w;
-		sprite->dstrect.y2 = sprite->dstrect.y1 + h;
+		MakeRect(&sprite->dstrect, sprite->x, sprite->y, w, h);
 
 		/* clipping vertical */
 		if (sprite->dstrect.y1 < 0)
@@ -817,3 +811,10 @@ static void SelectBlitter (Sprite* sprite)
 	sprite->blitter = GetBlitter (32, true, scaling, blend);
 }
 
+void MakeRect(rect_t* rect, int x, int y, int w, int h)
+{
+	rect->x1 = x;
+	rect->y1 = y;
+	rect->x2 = x + w;
+	rect->y2 = y + h;
+}

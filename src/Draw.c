@@ -1130,25 +1130,46 @@ draw_end:
 	return false;
 }
 
-/* table of function pointers to draw procedures */
-static const ScanDrawPtr drawers[3][MAX_DRAW_MODE] =
+/* draws regular object layer scanline */
+bool DrawObjectScanline(int nlayer, int nscan)
 {
-	{ DrawLayerScanline, DrawLayerScanlineScaling,	DrawLayerScanlineAffine, DrawLayerScanlinePixelMapping },
+	return false;
+}
+
+/* draw modes */
+enum
+{
+	DRAW_SPRITE,
+	DRAW_TILED_LAYER,
+	DRAW_BITMAP_LAYER,
+	DRAW_OBJECT_LAYER,
+	MAX_DRAW_TYPE,
+};
+
+/* table of function pointers to draw procedures */
+static const ScanDrawPtr drawers[MAX_DRAW_TYPE][MAX_DRAW_MODE] =
+{
 	{ DrawSpriteScanline, DrawScalingSpriteScanline, DrawSpriteScanlineRotation, NULL},
+	{ DrawLayerScanline, DrawLayerScanlineScaling,	DrawLayerScanlineAffine, DrawLayerScanlinePixelMapping },
 	{ DrawBitmapScanline, DrawBitmapScanlineScaling, DrawBitmapScanlineAffine, DrawBitmapScanlinePixelMapping },
+	{ DrawObjectScanline, NULL, NULL, NULL },
 };
 
 /* returns suitable draw procedure based on layer configuration */
-ScanDrawPtr GetLayerDraw (Layer* layer)
+ScanDrawPtr GetLayerDraw(Layer* layer)
 {
-	if (layer->tilemap!=NULL)
-		return drawers[0][layer->mode];
+	if (layer->tilemap != NULL)
+		return drawers[DRAW_TILED_LAYER][layer->mode];
+	else if (layer->bitmap != NULL)
+		return drawers[DRAW_BITMAP_LAYER][layer->mode];
+	else if (layer->spriteset != NULL)
+		return drawers[DRAW_OBJECT_LAYER][layer->mode];
 	else
-		return drawers[2][layer->mode];
+		return NULL;
 }
 
 /* returns suitable draw procedure based on sprite configuration */
 ScanDrawPtr GetSpriteDraw (draw_t mode)
 {
-	return drawers[1][mode];
+	return drawers[DRAW_SPRITE][mode];
 }
