@@ -30,7 +30,7 @@ static void DrawSpriteCollisionScaling (int nsprite, uint8_t *srcpixel, uint16_t
 bool TLN_DrawNextScanline (void)
 {
 	int line = engine->line;
-	uint8_t* scan = engine->framebuffer.data + line*engine->framebuffer.pitch;
+	uint8_t* scan = GetFramebufferLine(line);
 	int size = engine->framebuffer.width;
 	int c;
 	bool background_priority = false;
@@ -620,7 +620,7 @@ static bool DrawSpriteScanline (int nsprite, int nscan)
 	if (sprite->dstrect.x2 < 0 || sprite->srcrect.x2 < 0)
 		return false;
 
-	dstscan = engine->framebuffer.data + nscan*engine->framebuffer.pitch;
+	dstscan = GetFramebufferLine(nscan);
 		
 	srcx = sprite->srcrect.x1;
 	srcy = sprite->srcrect.y1 + (nscan - sprite->dstrect.y1);
@@ -668,7 +668,7 @@ static bool DrawScalingSpriteScanline (int nsprite, int nscan)
 	if (sprite->dstrect.x2 < 0 || sprite->srcrect.x2 < 0)
 		return false;
 
-	dstscan = engine->framebuffer.data + nscan*engine->framebuffer.pitch;
+	dstscan = GetFramebufferLine(nscan);
 	srcx = sprite->srcrect.x1;
 	srcy = sprite->srcrect.y1 + (nscan - sprite->dstrect.y1)*sprite->dy;
 	dstw = sprite->dstrect.x2 - sprite->dstrect.x1;
@@ -724,7 +724,7 @@ static bool DrawSpriteScanlineRotation(int nsprite, int nscan)
 
 	if (nscan < sprite->y || nscan > sprite->y + sprite->rotation_bitmap->height)
 		return false;
-	dstscan = engine->framebuffer.data + nscan * engine->framebuffer.pitch;
+	dstscan = GetFramebufferLine(nscan);
 
 /*
 	srcx = sprite->srcrect.x1;
@@ -1139,7 +1139,7 @@ static bool DrawLayerObjectScanline(int nlayer, int nscan)
 	int x1 = layer->hstart + layer->clip.x1;
 	int x2 = layer->hstart + layer->clip.x2;
 	int y = layer->vstart + nscan;
-	uint8_t* dstscan = engine->framebuffer.data + nscan * engine->framebuffer.pitch;
+	uint8_t* dstscan = GetFramebufferLine(nscan);
 	uint8_t* pixels = layer->spriteset->bitmap->data;
 	uint32_t pitch = layer->spriteset->bitmap->pitch;
 
@@ -1169,7 +1169,7 @@ static bool DrawLayerObjectScanline(int nlayer, int nscan)
 			}
 			w = dstx2 - dstx1;
 
-			srcpixel = pixels + (srcy*pitch) + srcx;
+			srcpixel = pixels + object->sprite->offset + (srcy*pitch) + srcx;
 			dstpixel = (uint32_t*)(dstscan + (dstx1 << 2));
 			layer->blitters[1] (srcpixel, layer->palette, dstpixel, w, 1, 0, layer->blend);
 		}

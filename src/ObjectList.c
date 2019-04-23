@@ -293,7 +293,7 @@ bool IsObjectInLine(struct _Object* object, int x1, int x2, int y)
 	rect_t rect;
 	TLN_Object* data = &object->data;
 	MakeRect(&rect, data->x, data->y, data->width, data->height);
-	if (y >= rect.y1 && y <= rect.y2 && !(x1 > rect.x2 || x2 < rect.x1))
+	if (y >= rect.y1 && y < rect.y2 && !(x1 > rect.x2 || x2 < rect.x1))
 		return true;
 	else
 		return false;
