@@ -54,7 +54,7 @@ Rect;
 TLN_Tilemap TLN_CreateTilemap (int rows, int cols, TLN_Tile tiles, uint32_t bgcolor, TLN_Tileset tileset)
 {
 	TLN_Tilemap tilemap = NULL;
-	int size = sizeof(struct Tilemap) + (rows * cols * sizeof(struct Tile));
+	int size = sizeof(struct Tilemap) + (rows * cols * sizeof(Tile));
 
 	tilemap = CreateBaseObject (OT_TILEMAP, size);
 	if (!tilemap)

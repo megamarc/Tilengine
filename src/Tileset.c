@@ -263,6 +263,24 @@ int TLN_GetTileHeight (TLN_Tileset tileset)
 
 /*!
  * \brief
+ * Returns the number of different tiles in tileset
+ *
+ * \param tileset
+ * Reference to the tileset to get info from
+ */
+int TLN_GetTilesetNumTiles(TLN_Tileset tileset)
+{
+	if (CheckBaseObject(tileset, OT_TILESET))
+	{
+		TLN_SetLastError(TLN_ERR_OK);
+		return tileset->numtiles;
+	}
+	else
+		return 0;
+}
+
+/*!
+ * \brief
  * Returns a reference to the palette associated to the specified tileset
  * 
  * \param tileset

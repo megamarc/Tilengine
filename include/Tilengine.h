@@ -109,10 +109,14 @@ typedef struct
 TLN_Affine;
 
 /*! Tile item for Tilemap access methods */
-typedef struct Tile
+typedef union Tile
 {
-	uint16_t index;		/*!< tile index */
-	uint16_t flags;		/*!< attributes (FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY) */
+	uint32_t value;
+	struct
+	{
+		uint16_t index;		/*!< tile index */
+		uint16_t flags;		/*!< attributes (FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY) */
+	};
 }
 Tile;
 
@@ -217,7 +221,7 @@ typedef struct
 TLN_PixelMap;
 
 typedef struct Engine*		 TLN_Engine;			/*!< Engine context */
-typedef struct Tile*		 TLN_Tile;				/*!< Tile reference */
+typedef union  Tile*		 TLN_Tile;				/*!< Tile reference */
 typedef struct Tileset*		 TLN_Tileset;			/*!< Opaque tileset reference */
 typedef struct Tilemap*		 TLN_Tilemap;			/*!< Opaque tilemap reference */
 typedef struct Palette*		 TLN_Palette;			/*!< Opaque palette reference */
@@ -449,6 +453,7 @@ TLNAPI bool TLN_SetTilesetPixels (TLN_Tileset tileset, int entry, uint8_t* srcda
 TLNAPI bool TLN_CopyTile (TLN_Tileset tileset, int src, int dst);
 TLNAPI int TLN_GetTileWidth (TLN_Tileset tileset);
 TLNAPI int TLN_GetTileHeight (TLN_Tileset tileset);
+TLNAPI int TLN_GetTilesetNumTiles(TLN_Tileset tileset);
 TLNAPI TLN_Palette TLN_GetTilesetPalette (TLN_Tileset tileset);
 TLNAPI TLN_SequencePack TLN_GetTilesetSequencePack (TLN_Tileset tileset);
 TLNAPI bool TLN_DeleteTileset (TLN_Tileset tileset);
