@@ -15,6 +15,7 @@
 #include "Engine.h"
 #include "Tileset.h"
 #include "Tilemap.h"
+#include "ObjectList.h"
 
 /* private prototypes */
 static void DrawSpriteCollision (int nsprite, uint8_t *srcpixel, uint16_t *dstpixel, int width, int dx);
@@ -801,7 +802,7 @@ static void DrawSpriteCollisionScaling (int nsprite, uint8_t *srcpixel, uint16_t
 }
 
 /* draws regular bitmap scanline for bitmap-based layer */
-bool DrawBitmapScanline(int nlayer, int nscan)
+static bool DrawBitmapScanline(int nlayer, int nscan)
 {
 	const Layer *layer = &engine->layers[nlayer];
 	TLN_Bitmap bitmap = layer->bitmap;
@@ -874,7 +875,7 @@ draw_end:
 }
 
 /* draws regular bitmap scanline for bitmap-based layer with scaling */
-bool DrawBitmapScanlineScaling(int nlayer, int nscan)
+static bool DrawBitmapScanlineScaling(int nlayer, int nscan)
 {
 	const Layer *layer = &engine->layers[nlayer];
 	int shift;
@@ -969,7 +970,7 @@ draw_end:
 }
 
 /* draws regular bitmap scanline for bitmap-based layer with affine transform */
-bool DrawBitmapScanlineAffine(int nlayer, int nscan)
+static bool DrawBitmapScanlineAffine(int nlayer, int nscan)
 {
 	Layer *layer = &engine->layers[nlayer];
 	const TLN_Palette palette = layer->palette;
@@ -1058,7 +1059,7 @@ draw_end:
 }
 
 /* draws regular bitmap scanline for bitmap-based layer with per-pixel mapping */
-bool DrawBitmapScanlinePixelMapping(int nlayer, int nscan)
+static bool DrawBitmapScanlinePixelMapping(int nlayer, int nscan)
 {
 	Layer *layer = &engine->layers[nlayer];
 	const TLN_Bitmap bitmap = layer->bitmap;
@@ -1131,9 +1132,51 @@ draw_end:
 }
 
 /* draws regular object layer scanline */
-bool DrawObjectScanline(int nlayer, int nscan)
+static bool DrawLayerObjectScanline(int nlayer, int nscan)
 {
-	return false;
+	const Layer* layer = &engine->layers[nlayer];
+	struct _Object* object = layer->objects->list;
+	int x1 = layer->hstart + layer->clip.x1;
+	int x2 = layer->hstart + layer->clip.x2;
+	int y = layer->vstart + nscan;
+	uint8_t* dstscan = engine->framebuffer.data + nscan * engine->framebuffer.pitch;
+	uint8_t* pixels = layer->spriteset->bitmap->data;
+	uint32_t pitch = layer->spriteset->bitmap->pitch;
+
+	while (object != NULL)
+	{
+		if (IsObjectInLine(object, x1, x2, y))
+		{
+			int w;
+			uint8_t *srcpixel;
+			uint32_t *dstpixel;
+			int srcx, srcy;
+			int dstx1, dstx2;
+
+			srcx = 0;
+			srcy = y - object->data.y;
+			dstx1 = object->data.x - x1;
+			dstx2 = dstx1 + object->data.width;
+			if (dstx1 < layer->clip.x1)
+			{
+				int w = layer->clip.x1 - dstx1;
+				srcx = w;
+				dstx1 = 0;
+			}
+			if (dstx2 > layer->clip.x2)
+			{
+				dstx2 = layer->clip.x2;
+			}
+			w = dstx2 - dstx1;
+
+			srcpixel = pixels + (srcy*pitch) + srcx;
+			dstpixel = (uint32_t*)(dstscan + (dstx1 << 2));
+			layer->blitters[1] (srcpixel, layer->palette, dstpixel, w, 1, 0, layer->blend);
+		}
+		object = object->next;
+	}
+
+	return true;
 }
 
 /* draw modes */
@@ -1149,10 +1192,10 @@ enum
 /* table of function pointers to draw procedures */
 static const ScanDrawPtr drawers[MAX_DRAW_TYPE][MAX_DRAW_MODE] =
 {
-	{ DrawSpriteScanline, DrawScalingSpriteScanline, DrawSpriteScanlineRotation, NULL},
+	{ DrawSpriteScanline, DrawScalingSpriteScanline, NULL, NULL},
 	{ DrawLayerScanline, DrawLayerScanlineScaling,	DrawLayerScanlineAffine, DrawLayerScanlinePixelMapping },
 	{ DrawBitmapScanline, DrawBitmapScanlineScaling, DrawBitmapScanlineAffine, DrawBitmapScanlinePixelMapping },
-	{ DrawObjectScanline, NULL, NULL, NULL },
+	{ DrawLayerObjectScanline, NULL, NULL, NULL },
 };
 
 /* returns suitable draw procedure based on layer configuration */

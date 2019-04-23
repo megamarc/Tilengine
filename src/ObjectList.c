@@ -145,6 +145,17 @@ TLN_ObjectList TLN_CreateObjectList(int width, int height)
 	return list;
 }
 
+/* adds entry to linked list */
+static void add_to_list(TLN_ObjectList list, struct _Object* object)
+{
+	if (list->list == NULL)
+		list->list = object;
+	else
+		list->last->next = object;
+	list->last = object;
+	list->num_items += 1;
+}
+
 TLNAPI bool TLN_AddObjectToList(TLN_ObjectList list, TLN_Object* data)
 {
 	struct _Object* object;
@@ -154,12 +165,31 @@ TLNAPI bool TLN_AddObjectToList(TLN_ObjectList list, TLN_Object* data)
 
 	object = calloc(1, sizeof(struct _Object));
 	memcpy(&object->data, data, sizeof(TLN_Object));
-	if (list->list == NULL)
-		list->list = object;
-	else
-		list->last->next = object;
-	list->last = object;
-	list->num_items += 1;
+	add_to_list(list, object);
+	return true;
+}
+
+TLNAPI bool TLN_AddSpriteToList(TLN_ObjectList list, TLN_Spriteset spriteset, const char* name, int id, int x, int y)
+{
+	struct _Object* object;
+	int index;
+
+	if (!CheckBaseObject(list, OT_OBJECTLIST) || !CheckBaseObject(spriteset, OT_SPRITESET))
+		return false;
+
+	index = TLN_FindSpritesetSprite(spriteset, name);
+	if (index == -1)
+		return false;
+
+	object = calloc(1, sizeof(struct _Object));
+	object->sprite = &spriteset->data[index];
+	object->data.x = x;
+	object->data.y = y;
+	object->data.width = object->sprite->w;
+	object->data.height = object->sprite->h;
+	object->data.gid = index;
+	object->data.id = id;
+	add_to_list(list, object);
 	return true;
 }
 
@@ -258,31 +288,15 @@ int TLN_GetObjectsInReigion(TLN_ObjectList list, int x, int y, int width, int he
 	return current;
 }
 
-int TLN_GetObjectsInLine(TLN_ObjectList list, int x, int y, int width, int array_size, TLN_Object* objects)
+bool IsObjectInLine(struct _Object* object, int x1, int x2, int y)
 {
-	struct _Object* object;
-	int current = 0;
-	int x1, x2;
-	if (!CheckBaseObject(list, OT_OBJECTLIST))
+	rect_t rect;
+	TLN_Object* data = &object->data;
+	MakeRect(&rect, data->x, data->y, data->width, data->height);
+	if (y >= rect.y1 && y <= rect.y2 && !(x1 > rect.x2 || x2 < rect.x1))
+		return true;
+	else
 		return false;
-
-	x1 = x;
-	x2 = x + width;
-	object = list->list;
-	while (object != NULL)
-	{
-		rect_t rect2;
-		TLN_Object* data = &object->data;
-		MakeRect(&rect2, data->x, data->y, data->width, data->height);
-		if (y >= rect2.y1 && y <= rect2.y2 && !(x1 > rect2.x2 || x2 < rect2.x1))
-		{
-			if (current < array_size)
-				memcpy(&objects[current], data, sizeof(TLN_Object));
-			current += 1;
-		}
-		object = object->next;
-	}
-	return current;
 }
 
 bool TLN_DeleteObjectList(TLN_ObjectList list)

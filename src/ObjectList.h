@@ -14,10 +14,12 @@
 #include "Tilengine.h"
 #include "Object.h"
 #include "Hash.h"
+#include "Spriteset.h"
 
 struct _Object
 {
 	TLN_Object data;
+	SpriteEntry* sprite;
 	struct _Object* next;
 };
 
@@ -30,5 +32,7 @@ struct ObjectList
 	struct _Object* list;
 	struct _Object* last;
 };
+
+extern bool IsObjectInLine(struct _Object* object, int x1, int x2, int y);
 
 #endif

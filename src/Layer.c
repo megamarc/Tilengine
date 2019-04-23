@@ -192,6 +192,7 @@ bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Spriteset sprit
 	layer->tilemap = NULL;
 	layer->bitmap = NULL;
 	layer->spriteset = spriteset;
+	layer->objects = objects;
 	layer->width = objects->width;
 	layer->height = objects->height;
 	if (spriteset->palette)

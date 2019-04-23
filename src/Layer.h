@@ -25,6 +25,7 @@ typedef struct Layer
 	TLN_Palette		palette;	/* puntero a la paleta */
 	TLN_Bitmap		bitmap;		/* puntero al bitmap (modo bitmap) */
 	TLN_Spriteset	spriteset;	/* puntero al spriteset (modo object) */
+	TLN_ObjectList	objects;	/* pointer to object list (objects mode) */
 	int				width;		/* anchura total en píxeles */
 	int				height;		/* altura total en píxeles */
 	bool			ok;

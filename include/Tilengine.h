@@ -514,6 +514,7 @@ TLNAPI bool TLN_DeleteBitmap (TLN_Bitmap bitmap);
  /**@{*/
 TLNAPI TLN_ObjectList TLN_CreateObjectList(int width, int height);
 TLNAPI bool TLN_AddObjectToList(TLN_ObjectList list, TLN_Object* object);
+TLNAPI bool TLN_AddSpriteToList(TLN_ObjectList list, TLN_Spriteset spriteset, const char* name, int id, int x, int y);
 TLNAPI TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername, int firstgid);
 TLNAPI TLN_ObjectList TLN_CloneObjectList(TLN_ObjectList src);
 TLNAPI int TLN_GetObjectsInReigion(TLN_ObjectList list, int x, int y, int width, int height, int array_size, TLN_Object* objects);
