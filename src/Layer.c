@@ -205,6 +205,50 @@ bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Spriteset sprit
 	return true;
 }
 
+bool TLN_SetLayerPriority(int nlayer, bool enable)
+{
+	Layer *layer;
+	if (nlayer >= engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_LAYER);
+		return false;
+	}
+
+	layer = &engine->layers[nlayer];
+	layer->priority = enable;
+	return true;
+}
+
+bool TLN_SetLayerParent(int nlayer, int parent)
+{
+	Layer *layer;
+	if (nlayer >= engine->numlayers || parent >= engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_LAYER);
+		return false;
+	}
+
+	layer = &engine->layers[nlayer];
+	layer->parent = &engine->layers[parent];
+	TLN_SetLastError(TLN_ERR_OK);
+	return true;
+}
+
+bool TLN_DisableLayerParent(int nlayer)
+{
+	Layer *layer;
+	if (nlayer >= engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_LAYER);
+		return false;
+	}
+
+	layer = &engine->layers[nlayer];
+	layer->parent = NULL;
+	TLN_SetLastError(TLN_ERR_OK);
+	return true;
+}
+
 /*!
  * \brief
  * Returns the layer width in pixels

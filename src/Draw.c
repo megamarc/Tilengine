@@ -27,7 +27,7 @@ static void DrawSpriteCollisionScaling (int nsprite, uint8_t *srcpixel, uint16_t
  * TLN_BeginWindoFrame() and TLN_EndWindowFrame() (built-in window) for active rendering without callbacks.
  * \returns true if there are still scanlines to draw or false when the frame is complete
  */
-bool TLN_DrawNextScanline (void)
+bool TLN_DrawNextScanline(void)
 {
 	int line = engine->line;
 	uint8_t* scan = GetFramebufferLine(line);
@@ -38,7 +38,7 @@ bool TLN_DrawNextScanline (void)
 
 	/* call raster effect callback */
 	if (engine->raster)
-		engine->raster (line);
+		engine->raster(line);
 
 	/* background is bitmap */
 	if (engine->bgbitmap && engine->bgpalette)
@@ -46,39 +46,55 @@ bool TLN_DrawNextScanline (void)
 		if (size > engine->bgbitmap->width)
 			size = engine->bgbitmap->width;
 		if (line < engine->bgbitmap->height)
-			engine->blit_fast (TLN_GetBitmapPtr (engine->bgbitmap, 0,line), engine->bgpalette, scan, size, 1, 0, NULL);
+			engine->blit_fast(TLN_GetBitmapPtr(engine->bgbitmap, 0, line), engine->bgpalette, scan, size, 1, 0, NULL);
 	}
-	
+
 	/* background is solid color */
 	else if (engine->bgcolor)
-		BlitColor (scan, engine->bgcolor, size);
+		BlitColor(scan, engine->bgcolor, size);
 
 	background_priority = false;
-	memset (engine->priority, 0, engine->framebuffer.pitch);
-	memset (engine->collision, -1, engine->framebuffer.width * sizeof(uint16_t));
+	memset(engine->priority, 0, engine->framebuffer.pitch);
+	memset(engine->collision, -1, engine->framebuffer.width * sizeof(uint16_t));
 
 	/* draw background layers */
-	for (c=engine->numlayers-1; c>=0; c--)
+	for (c = engine->numlayers - 1; c >= 0; c--)
 	{
-		const Layer* layer = &engine->layers[c];
-		if (layer->ok && line >= layer->clip.y1 && line <= layer->clip.y2)
+		Layer* layer = &engine->layers[c];
+
+		/* link layer */
+		if (layer->parent != NULL)
 		{
-			if (layer->draw (c,line) == true)
+			layer->hstart = layer->parent->hstart;
+			layer->vstart = layer->parent->vstart;
+		}
+
+		if (layer->ok && !layer->priority && line >= layer->clip.y1 && line <= layer->clip.y2)
+		{
+			if (layer->draw(c, line) == true)
 				background_priority = true;
 		}
 	}
 
 	/* draw regular sprites */
-	for (c=0; c<engine->numsprites; c++)
+	for (c = 0; c < engine->numsprites; c++)
 	{
 		Sprite* sprite = &engine->sprites[c];
 		if (sprite->ok)
 		{
 			if (!(sprite->flags & FLAG_PRIORITY))
-				engine->sprites[c].draw (c,line);
+				engine->sprites[c].draw(c, line);
 			else
 				sprite_priority = true;
 		}
+	}
+
+	/* draw background layers with priority */
+	for (c = engine->numlayers - 1; c >= 0; c--)
+	{
+		const Layer* layer = &engine->layers[c];
+		if (layer->ok && layer->priority && line >= layer->clip.y1 && line <= layer->clip.y2)
+			layer->draw(c, line);
 	}
 
 	/* overlay background tiles with priority */
@@ -86,7 +102,7 @@ bool TLN_DrawNextScanline (void)
 	{
 		uint32_t* src = (uint32_t*)engine->priority;
 		uint32_t* dst = (uint32_t*)scan;
-		for (c=0; c<engine->framebuffer.width; c++)
+		for (c = 0; c < engine->framebuffer.width; c++)
 		{
 			if (*src)
 				*dst = *src;
@@ -98,11 +114,11 @@ bool TLN_DrawNextScanline (void)
 	/* draw sprites with priority */
 	if (sprite_priority == true)
 	{
-		for (c=0; c<engine->numsprites; c++)
+		for (c = 0; c < engine->numsprites; c++)
 		{
 			Sprite* sprite = &engine->sprites[c];
 			if (sprite->ok && (sprite->flags & FLAG_PRIORITY))
-				engine->sprites[c].draw (c,line);
+				engine->sprites[c].draw(c, line);
 		}
 	}
 

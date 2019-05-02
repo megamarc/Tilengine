@@ -40,7 +40,8 @@ typedef struct Layer
 	uint8_t*		blend;		/* puntero a tabla de transparencia (NULL = no hay) */
 	TLN_PixelMap*	pixel_map;	/* puntero a tabla de pixel map (NULL = no hay) */
 	draw_t			mode;
-	int				parent;		/* optional link layer */
+	struct Layer*	parent;		/* optional link layer */
+	bool			priority;	/* whole layer in front of regular sprites */
 	
 	/* */
 	int				hstart;		/* offset de inicio horizontal */
