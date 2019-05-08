@@ -156,7 +156,7 @@ static void add_to_list(TLN_ObjectList list, struct _Object* object)
 	list->num_items += 1;
 }
 
-TLNAPI bool TLN_AddObjectToList(TLN_ObjectList list, TLN_Object* data)
+bool TLN_AddObjectToList(TLN_ObjectList list, TLN_Object* data)
 {
 	struct _Object* object;
 
@@ -169,7 +169,7 @@ TLNAPI bool TLN_AddObjectToList(TLN_ObjectList list, TLN_Object* data)
 	return true;
 }
 
-TLNAPI bool TLN_AddSpriteToList(TLN_ObjectList list, TLN_Spriteset spriteset, const char* name, int id, int x, int y)
+bool TLN_AddSpriteToList(TLN_ObjectList list, TLN_Spriteset spriteset, const char* name, int id, int x, int y)
 {
 	struct _Object* object;
 	int index;
@@ -257,12 +257,7 @@ TLN_ObjectList TLN_CloneObjectList(TLN_ObjectList src)
 	return list;
 }
 
-bool TLN_GetObjectInfo(TLN_ObjectList list, int entry, TLN_Object* info)
-{
-	return false;
-}
-
-int TLN_GetObjectsInReigion(TLN_ObjectList list, int x, int y, int width, int height, int array_size, TLN_Object* objects)
+int TLN_GetObjectsInReigion(TLN_ObjectList list, int x, int y, int width, int height, int array_size, TLN_Object* objects[])
 {
 	struct _Object* object;
 	int current = 0;
@@ -280,7 +275,7 @@ int TLN_GetObjectsInReigion(TLN_ObjectList list, int x, int y, int width, int he
 		if (intersetcs(&rect1, &rect2))
 		{
 			if (current < array_size)
-				memcpy(&objects[current], data, sizeof(TLN_Object));
+				objects[current] = data;
 			current += 1;
 		}
 		object = object->next;

@@ -130,6 +130,57 @@ TLN_Sequence TLN_CreateCycle (const char* name, int count, TLN_ColorStrip* strip
 	return sequence;
 }
 
+TLN_Sequence TLN_CreateSpriteSequence(const char* name, TLN_Spriteset spriteset, char* basename, int count, int delay)
+{
+	int size;
+	TLN_Sequence sequence;
+	TLN_SequenceFrame* frame;
+	int c, old;
+
+	if (!CheckBaseObject(spriteset, OT_SPRITESET))
+	{
+		TLN_SetLastError(TLN_ERR_REF_SPRITESET);
+		return NULL;
+	}
+
+	size = count * sizeof(TLN_SequenceFrame);
+	sequence = CreateBaseObject(OT_SEQUENCE, sizeof(struct Sequence) + size);
+	if (!sequence)
+		return NULL;
+
+	if (name)
+	{
+		sequence->hash = hash(0, name, strlen(name));
+		strncpy(sequence->name, name, sizeof(sequence->name));
+		sequence->name[sizeof(sequence->name) - 1] = '\0';
+	}
+	sequence->count = count;
+
+	/* build frames from sprite name */
+	frame = (TLN_SequenceFrame*)&sequence->data;
+	old = 0;
+	for (c = 0; c < count; c++)
+	{
+		int index;
+		char num[5];
+		char framename[64];
+
+		snprintf(num, sizeof(num), "%d", c + 1);
+		snprintf(framename, sizeof(framename), "%s%s", basename, num);
+		index = TLN_FindSpritesetSprite(spriteset, framename);
+		if (index != -1)
+			frame->index = index;
+		else
+			frame->index = old;
+		old = frame->index;
+		frame->delay = delay;
+		frame += 1;
+	}
+
+	TLN_SetLastError(TLN_ERR_OK);
+	return sequence;
+}
+
 /*!
  * \brief
  * Creates a duplicate of the specified sequence

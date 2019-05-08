@@ -34,6 +34,15 @@
 		typedef unsigned short	uint16_t;	/*!< unsigned 16-bit wide data */
 		typedef unsigned int	uint32_t;	/*!< unsigned 32-bit wide data */
 	#endif
+
+	#if _MSC_VER >= 1800	/* Visual C++ 2013? */
+		#include <stdbool.h>
+	#else
+		typedef unsigned char bool;		/*!< C++ bool type for C language */
+		#define false	0
+		#define true	1
+	#endif
+
 #else
 	#ifdef LIB_EXPORTS
 		#define TLNAPI __attribute__((visibility("default")))
@@ -41,16 +50,10 @@
 		#define TLNAPI
 	#endif
 	#include <stdint.h>
+	#include <stdbool.h>
 #endif
 
 #include <stdio.h>
-
-/* bool C++ */
-#ifndef __cplusplus
-typedef unsigned char bool;		/*!< C++ bool type for C language */
-#define false	0
-#define true	1
-#endif
 
 /* version */
 #define TILENGINE_VER_MAJ	2
@@ -124,7 +127,7 @@ Tile;
 typedef struct
 {
 	int index;		/*!< tile/sprite index */
-	int delay;		/*!< time delay between frames */
+	int delay;		/*!< time delay for next frame */
 }
 TLN_SequenceFrame;
 
@@ -513,12 +516,11 @@ TLNAPI bool TLN_DeleteBitmap (TLN_Bitmap bitmap);
  * \brief ObjectList resources management */
  /**@{*/
 TLNAPI TLN_ObjectList TLN_CreateObjectList(int width, int height);
-TLNAPI bool TLN_AddObjectToList(TLN_ObjectList list, TLN_Object* object);
+TLNAPI bool TLN_AddObjectToList(TLN_ObjectList list, TLN_Object* data);
 TLNAPI bool TLN_AddSpriteToList(TLN_ObjectList list, TLN_Spriteset spriteset, const char* name, int id, int x, int y);
 TLNAPI TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername, int firstgid);
 TLNAPI TLN_ObjectList TLN_CloneObjectList(TLN_ObjectList src);
-TLNAPI int TLN_GetObjectsInReigion(TLN_ObjectList list, int x, int y, int width, int height, int array_size, TLN_Object* objects);
-TLNAPI bool TLN_GetObjectInfo(TLN_ObjectList list, int id, TLN_Object* info);
+TLNAPI int TLN_GetObjectsInReigion(TLN_ObjectList list, int x, int y, int width, int height, int array_size, TLN_Object* objects[]);
 TLNAPI bool TLN_DeleteObjectList(TLN_ObjectList list);
 /**@}*/
 
@@ -583,6 +585,7 @@ TLNAPI TLN_Palette TLN_GetSpritePalette (int nsprite);
 /**@{*/
 TLNAPI TLN_Sequence TLN_CreateSequence (const char* name, int target, int num_frames, TLN_SequenceFrame* frames);
 TLNAPI TLN_Sequence TLN_CreateCycle (const char* name, int num_strips, TLN_ColorStrip* strips);
+TLNAPI TLN_Sequence TLN_CreateSpriteSequence(const char* name, TLN_Spriteset spriteset, char* basename, int count, int delay);
 TLNAPI TLN_Sequence TLN_CloneSequence (TLN_Sequence src);
 TLNAPI bool TLN_GetSequenceInfo (TLN_Sequence sequence, TLN_SequenceInfo* info);
 TLNAPI bool TLN_DeleteSequence (TLN_Sequence sequence);

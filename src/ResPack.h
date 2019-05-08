@@ -13,12 +13,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
-
-#ifndef __cplusplus
-typedef uint8_t bool;
-#define false 0
-#define true  1
-#endif
+#include <stdbool.h>
 
 typedef struct _ResPack* ResPack;
 typedef struct _ResAsset* ResAsset;
