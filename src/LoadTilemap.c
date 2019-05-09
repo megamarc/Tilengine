@@ -272,8 +272,8 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 		/* find suitable tileset */
 		for (c = 0; c < loader.num_tileset && tileset == NULL; c++)
 		{
-			int tilefirst = loader.tilesets[c].firstgid;
-			int tilelast = tilefirst + TLN_GetTilesetNumTiles(loader.tilesets[c].tileset);
+			uint32_t tilefirst = loader.tilesets[c].firstgid;
+			uint32_t tilelast = tilefirst + TLN_GetTilesetNumTiles(loader.tilesets[c].tileset);
 			if (firstgid >= tilefirst && lastgid <= tilelast)
 			{
 				tileset = loader.tilesets[c].tileset;

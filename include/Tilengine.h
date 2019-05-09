@@ -194,8 +194,8 @@ TLN_TileAttributes;
 /*! ObjectList item for TLN_CreateObjectList() */
 typedef struct
 {
-	int id;		/* unique identifier */
-	int gid;	/* graphic identifier */
+	int id;		/*!< object unique identifier */
+	int gid;	/*!< graphic identifier (tile index in Tiled) */
 	int x;
 	int y;
 	int width;
@@ -237,16 +237,16 @@ typedef struct ObjectList*	 TLN_ObjectList;		/*!< Opaque object list reference *
 /*! Sprite state */
 typedef struct
 {
-	int x;			/*!< Screen position x */
-	int y;			/*!< Screen position y */
-	int w;			/*!< Actual width in screen (after scaling) */
-	int h;			/*!< Actual height in screen (after scaling) */
+	int x;						/*!< Screen position x */
+	int y;						/*!< Screen position y */
+	int w;						/*!< Actual width in screen (after scaling) */
+	int h;						/*!< Actual height in screen (after scaling) */
 	TLN_TileFlags flags;		/*!< flags */
 	TLN_Palette palette;		/*!< assigned palette */	 
 	TLN_Spriteset spriteset;	/*!< assigned spriteset */	
-	int index;		/*!< graphic index inside spriteset */
-	bool enabled;	/*!< enabled or not */
-	bool collision; /*!< per-pixel collision detection enabled or not */
+	int index;					/*!< graphic index inside spriteset */
+	bool enabled;				/*!< enabled or not */
+	bool collision;				/*!< per-pixel collision detection enabled or not */
 }
 TLN_SpriteState;
 
@@ -298,7 +298,6 @@ typedef enum
 	INPUT_D = INPUT_BUTTON4,
 	INPUT_E = INPUT_BUTTON5,
 	INPUT_F = INPUT_BUTTON6,
-
 }
 TLN_Input;
 
@@ -440,7 +439,7 @@ TLNAPI TLN_Spriteset TLN_LoadSpriteset (const char* name);
 TLNAPI TLN_Spriteset TLN_CloneSpriteset (TLN_Spriteset src);
 TLNAPI bool TLN_GetSpriteInfo (TLN_Spriteset spriteset, int entry, TLN_SpriteInfo* info);
 TLNAPI TLN_Palette TLN_GetSpritesetPalette (TLN_Spriteset spriteset);
-TLNAPI int TLN_FindSpritesetSprite (TLN_Spriteset spriteset, char* name);
+TLNAPI int TLN_FindSpritesetSprite (TLN_Spriteset spriteset, const char* name);
 TLNAPI bool TLN_SetSpritesetData (TLN_Spriteset spriteset, int entry, TLN_SpriteData* data, void* pixels, int pitch);
 TLNAPI bool TLN_DeleteSpriteset (TLN_Spriteset Spriteset);
 /**@}*/

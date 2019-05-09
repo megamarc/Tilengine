@@ -250,7 +250,7 @@ TLN_Palette TLN_GetSpritesetPalette (TLN_Spriteset spriteset)
  * \returns
  * sprite index (0 -> num_sprites - 1) if found, or -1 if not found
  */
-int TLN_FindSpritesetSprite (TLN_Spriteset spriteset, char* name)
+int TLN_FindSpritesetSprite (TLN_Spriteset spriteset, const char* name)
 {
 	hash_t find;
 	int entry = -1;

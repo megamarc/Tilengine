@@ -441,14 +441,10 @@ bool TLN_SetSpriteRotation(int nsprite, float angle)
 	for (c = 1; c < 4; c++)
 	{
 		Point2D* point = &corners[c];
-		if (rect->x1 > point->x)
-			rect->x1 = point->x;
-		if (rect->x2 < point->x)
-			rect->x2 = point->x;
-		if (rect->y1 > point->y)
-			rect->y1 = point->y;
-		if (rect->y2 < point->y)
-			rect->y2 = point->y;
+		if (rect->x1 > point->x) rect->x1 = (int)point->x;
+		if (rect->x2 < point->x) rect->x2 = (int)point->x;
+		if (rect->y1 > point->y) rect->y1 = (int)point->y;
+		if (rect->y2 < point->y) rect->y2 = (int)point->y;
 	}
 
 	/* ajusta array de puntos a origen (0,0) para obtener tamaño */
