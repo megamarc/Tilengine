@@ -127,9 +127,10 @@ static bool intersetcs(rect_t* rect1, rect_t* rect2)
 }
 
 /*!
- * 
- * 
- * \return 
+ * \brief Creates a TLN_ObjectList
+ * The list is created empty, it must be populated with TLN_AddSpriteToList()
+ * and assigned to a layer with TLN_SetLayerObjects()
+ * \return Reference to new object or NULL if error
  */
 TLN_ObjectList TLN_CreateObjectList(void)
 {
@@ -156,6 +157,12 @@ static void add_to_list(TLN_ObjectList list, struct _Object* object)
 	list->num_items += 1;
 }
 
+/*!
+ * \brief Adds a TLN_Object item to a given TLN_ObjectList
+ * \param list Reference to the list
+ * \param data Pointer to a user-provided TLN_Object. This object is internally copied to the list, so it's safe to discard the user-provided one after addition.
+ * \return true if success or false if error
+ */
 bool TLN_AddObjectToList(TLN_ObjectList list, TLN_Object* data)
 {
 	struct _Object* object;
@@ -169,6 +176,17 @@ bool TLN_AddObjectToList(TLN_ObjectList list, TLN_Object* data)
 	return true;
 }
 
+/*!
+ * \brief Adds a named sprite from a TLN_Spriteset object to a given TLN_ObjectList
+ * 
+ * \param list Reference to TLN_ObjectList
+ * \param spriteset Reference to the TLN_Spriteset that contains the sprite to add
+ * \param name Name of the sprite inside the spriteset to add to the list
+ * \param id User-provided unique identifier to identify the object later when querying the list
+ * \param x Layer-space horizontal coordinate of the top-left corner
+ * \param y Layer-space bertical coordinate of the top-left corner
+ * \return true if success or false if error
+ */
 bool TLN_AddSpriteToList(TLN_ObjectList list, TLN_Spriteset spriteset, const char* name, int id, int x, int y)
 {
 	struct _Object* object;
@@ -193,6 +211,14 @@ bool TLN_AddSpriteToList(TLN_ObjectList list, TLN_Spriteset spriteset, const cha
 	return true;
 }
 
+/*!
+ * \brief Loads an object list from a Tiled object layer
+ * 
+ * \param filename Name of the .tmx file containing the list
+ * \param layername Name of the layer to load
+ * \param firstgid First graphic id (gid) of the tileset used by layer, must match Tiled value!
+ * \return Reference to the loaded object or NULL if error
+ */
 TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername, int firstgid)
 {
 	SimpleXmlParser parser;
@@ -239,6 +265,11 @@ TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername, i
 	return loader.objects;
 }
 
+/*!
+ * \brief Creates a duplicate of a given TLN_ObjectList object
+  * \param src Reference to the source object to clone
+ * \return A reference to the newly cloned object list, or NULL if error
+ */
 TLN_ObjectList TLN_CloneObjectList(TLN_ObjectList src)
 {
 	TLN_ObjectList list;
@@ -257,6 +288,18 @@ TLN_ObjectList TLN_CloneObjectList(TLN_ObjectList src)
 	return list;
 }
 
+/*!
+ * \brief Returns a list of the objects contained inside the given rectangle
+ * 
+ * \param list Reference to the TLN_ObjectList to query
+ * \param x Horizontal position of top-left corner
+ * \param y Vertical position of top-left corner
+ * \param width Rectangle width
+ * \param height Rectangle
+ * \param array_size Size of user-provided pointer array to receive objects
+ * \param objects User-provided array of TLN_Object pointers
+ * \return Number of objects found. It can be greater of array_size
+ */
 int TLN_GetObjectsInReigion(TLN_ObjectList list, int x, int y, int width, int height, int array_size, TLN_Object* objects[])
 {
 	struct _Object* object;
@@ -294,6 +337,12 @@ bool IsObjectInLine(struct _Object* object, int x1, int x2, int y)
 		return false;
 }
 
+/*!
+ * \brief Deletes object list
+ * 
+ * \param list Reference to list to delete
+* \return true if success or false if error
+ */
 bool TLN_DeleteObjectList(TLN_ObjectList list)
 {
 	struct _Object* object;

@@ -1,7 +1,7 @@
 CC       = gcc
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
-TARGETS  = barrel mode7 platformer racer scaling shadow shooter tutorial wobble colorcycle benchmark supermarioclone test_mouse
+TARGETS  = barrel mode7 platformer racer scaling shadow shooter tutorial wobble colorcycle benchmark supermarioclone test_mouse forest
 LIBPATH  = $(HOME)/Tilengine/lib
 
 # Windows specific flags
@@ -76,6 +76,9 @@ supermarioclone: SuperMarioClone.o
 	
 test_mouse: TestMouse.o
 	$(CC) TestMouse.o -o test_mouse $(LDFLAGS)
+	
+forest: Forest.o
+	$(CC) Forest.o -o forest $(LDFLAGS)
 	
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@

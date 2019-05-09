@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="53" height="30" tilewidth="8" tileheight="8" nextobjectid="1">
- <tileset firstgid="1" source="clouds.tsx"/>
- <layer name="Capa de Patrones 1" width="53" height="30">
-  <data encoding="base64" compression="zlib">
-   eJzN2PePVFUYh/FBsbuiggULoIg0C9hRQRALiIVuh12xJyjWBOtXE8RKgqCICYqK/p18Nu6YjUyuO++dSXyT58e5Z87kPPfJmbFOp/MCduFFvISX8QpexWt4vTO4mYbTcDqm4wycibNwNs7BuTgP5xfX2I038Cb24C28jXfwLt7D++UdnDojuAAzcCEuwsWYiVm4BJfiMlxeXGMvPsCH+Agf4xN8iuAzfF7dQI+ZjStwJa7C1ZiDuZiHa3At5uO64hr78AX240t8ha/xDb7FdzhQ3UCPWYDrsRCLsBhLsBQ34EbchJuxrLjGQXyPQziMH/AjjuAnHMXPncF5sBy34FbchttxB+7EXViBu3EP7i3u6Rh+wa84jt/wO/7ACfyJvzqD82AlVuE+rMYa3I+1eAAP4iE8jHUTn+n+nk1Tea8MyoP1eAQb8Cgew+N4AhuxCZuxBVsnPjMyxe/Y73tlUB5sw3Y8iafwNJ7Bs3gOz2MHdmJ04jPd3/O/pt/3StWDsU7//XN+4hzFeQpPw9fwNvwNj8Pn8DrOY6b9/Xr+Z/p5r1Q8GJ9K/5yfOEfhZ3gavoa34W94HD6H1+F3Rv61p36m4sH4VPrn/MQ5Cj/D08wDb8Pf8Dh8Dq/jPGZ2iz1VPBifSv+cn/Ay/AxPw9fwNvwNj8Pn8Dr8zoIee2pzdqcyU+3f5OFjeBl+hqfha3gb/obH4XN4HX5neY/vNOyzO9X+TR4+hpfhZ3gavoa34W94nNXgdfidlT2+U/XsTn6fDXr4GF6Gn+Fp+Brehr/hcfgcXoffWd9jT23P7jBm1Dq8DD/D0/A1vA1/w+PwObwOv7Otx3eqnt1Kd7ozbIerZ7fNvWvYDlfPbpt717D7M1o8u23uXf9Hh8en0p3utO3PsKbSne607U9lhv3fTtv+VGbY/+2MFhzWhehDdCJ6Ed2IfkRHoifRlYw17L96p227btPoQvQhOhG9iG5EP6Ij0ZPoSnY3PLt6p227btPoQvQhPhy9iG5EP6Ij0ZPoSvY2PLt6p227btPoQvQhOhG9iG5EP6Ij0ZPoSvY1PLt6p227btPoQvQhOhG9iG5EP6Ij0ZPoSg42PLt6p227btPoQvQhOhG9iG5EP3IcehJdybGGZ1fvtG3XHdScBDTO1Xo=
-  </data>
- </layer>
-</map>

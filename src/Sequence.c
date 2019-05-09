@@ -130,6 +130,16 @@ TLN_Sequence TLN_CreateCycle (const char* name, int count, TLN_ColorStrip* strip
 	return sequence;
 }
 
+/*!
+ * \see Creates a name based sprite sequence
+ * 
+ * \param name Optional name used to retrieve it when adding to a TLN_SequencePack, can be NULL
+ * \param spriteset Reference to the spriteset with frames to animate
+ * \param basename Base of the sprite name for the numbered sequence
+ * \param count Number of frames in the animation
+ * \param delay Number of ticks to delay between frame
+ * \return Reference to the created TLN_Sequence object or NULL if error
+  */
 TLN_Sequence TLN_CreateSpriteSequence(const char* name, TLN_Spriteset spriteset, char* basename, int count, int delay)
 {
 	int size;

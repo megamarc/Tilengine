@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0.0" orientation="orthogonal" renderorder="right-down" width="45" height="16" tilewidth="8" tileheight="8" nextobjectid="1">
- <tileset firstgid="1" source="sky.tsx"/>
- <layer name="Layer 1" width="45" height="16">
-  <data encoding="base64" compression="zlib">
-   eJzVzus3VFEYx/GRkWGOGbdCqEg3kYgolUjpTsklKYQzM+H/f+u713rOWr/1rKPUu/Pis87ez+W3T10ul6vLmAuiHnk7513P1xpsPtlLdhtS9pJeXnZ8lt85S9i/mEGNGVRAE5qNPxdMUXrJveBmi6bZfXWvIHNF2S9KZpNk+txwj0wLSiibktX0Htk5kn7JZWhP98syF8lcye2VU/IieSfUWjOoLYPa0YFOXMJldKEbPbiCXvShH1ftG3rX7HsdAxjEDeuH7xBu4hZuW73fsu/gLoZxz3JGMGr/cR9j9l6v7YQ3HmAcE3iISUzhEaYxg8d4glk8xTM8xxxeYB4LeIlFvMJrLOEN3uId3uMDPuITlrGCz/iCVXzFGtaxgU18wxa+Yxs/8FPsYNfV0uycY0alZfra7h/y/exeBv3KoH0c4NCEc/yP9wPL2ZdzLL1YerH0tK57sZs9tF7yZgVVUTPh/Fv6Wq+m7FVcvyr3mmVpvSK1pF+THK3pG6F25By77/86Sbn72t8cn5F1CkGliH0=
-  </data>
- </layer>
-</map>

@@ -174,6 +174,15 @@ bool TLN_SetLayerBitmap(int nlayer, TLN_Bitmap bitmap)
 	return true;
 }
 
+/*!
+ * \brief Configures a background layer with a object list
+ * 
+ * \param nlayer Layer index [0, num_layers - 1]
+ * \param objects Reference to the TLN_ObjectList to attach
+ * \param spriteset Reference to the TLN_Spriteset with the graphics
+ * \param width Layer width
+ * \param height Layer height
+ */
 bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Spriteset spriteset, int width, int height)
 {
 	Layer *layer;
@@ -205,6 +214,12 @@ bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Spriteset sprit
 	return true;
 }
 
+/*!
+ * \brief Sets full layer priority, appearing in front of sprites
+ * 
+ * \param nlayer Layer index [0, num_layers - 1]
+ * \param enable Enable (true) or dsiable (false) full priority
+ */
 bool TLN_SetLayerPriority(int nlayer, bool enable)
 {
 	Layer *layer;
@@ -219,6 +234,13 @@ bool TLN_SetLayerPriority(int nlayer, bool enable)
 	return true;
 }
 
+/*!
+ * \brief Sets parent layer index to scroll in sync
+ * 
+ * \param nlayer Layer index [0, num_layers - 1]
+ * \param parent Index of layer to attach to
+ * \remarks A layer with a parent gets scroll position from its parent, so they scroll together
+ */
 bool TLN_SetLayerParent(int nlayer, int parent)
 {
 	Layer *layer;
@@ -234,6 +256,12 @@ bool TLN_SetLayerParent(int nlayer, int parent)
 	return true;
 }
 
+/*!
+ * \brief Disables layer parent
+ * 
+ * \param nlayer Layer index [0, num_layers - 1]
+ * \see TLN_SetLayerParent()
+ */
 bool TLN_DisableLayerParent(int nlayer)
 {
 	Layer *layer;

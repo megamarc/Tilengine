@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="8" tileheight="8" nextobjectid="1">
- <tileset firstgid="1" source="dkc_bg3.tsx"/>
- <layer name="Layer 1" width="32" height="32">
-  <data encoding="base64" compression="zlib">
-   eJztx7kRgEAMwEDz/xzQf7EopQEcnHZGgSIk1aqhljrqE36gkSaaE36hlTbaE/5I7qRCF90J/8TX3y9JklSbF83tBpE=
-  </data>
- </layer>
-</map>

@@ -39,14 +39,14 @@ void aes_decrypt(const uint8_t in[],             // 16 bytes of ciphertext
 // AES - CBC
 ///////////////////
 int aes_encrypt_cbc(const uint8_t in[],          // Plaintext
-                    size_t in_len,            // Must be a multiple of AES_BLOCK_SIZE
+                    uint32_t in_len,            // Must be a multiple of AES_BLOCK_SIZE
                     uint8_t out[],               // Ciphertext, same length as plaintext
                     const uint32_t key[],         // From the key setup
                     int keysize,              // Bit length of the key, 128, 192, or 256
                     const uint8_t iv[]);         // IV, must be AES_BLOCK_SIZE bytes long
 
 int aes_decrypt_cbc(const uint8_t in[],		  // Cyphertext
-					size_t in_len,			  // Must be a multiple of AES_BLOCK_SIZE
+					uint32_t in_len,			  // Must be a multiple of AES_BLOCK_SIZE
 					uint8_t out[],				  // Plaintext, same length as cyphertext
 					const uint32_t key[],		  // From the key setup
 					int keysize,			  // Bit length of the key, 128, 192, or 256
@@ -54,7 +54,7 @@ int aes_decrypt_cbc(const uint8_t in[],		  // Cyphertext
 
 // Only output the CBC-MAC of the input.
 int aes_encrypt_cbc_mac(const uint8_t in[],      // plaintext
-                        size_t in_len,        // Must be a multiple of AES_BLOCK_SIZE
+                        uint32_t in_len,        // Must be a multiple of AES_BLOCK_SIZE
                         uint8_t out[],           // Output MAC
                         const uint32_t key[],     // From the key setup
                         int keysize,          // Bit length of the key, 128, 192, or 256
@@ -67,14 +67,14 @@ void increment_iv(uint8_t iv[],                  // Must be a multiple of AES_BL
                   int counter_size);          // Bytes of the IV used for counting (low end)
 
 void aes_encrypt_ctr(const uint8_t in[],         // Plaintext
-                     size_t in_len,           // Any byte length
+                     uint32_t in_len,           // Any byte length
                      uint8_t out[],              // Ciphertext, same length as plaintext
                      const uint32_t key[],        // From the key setup
                      int keysize,             // Bit length of the key, 128, 192, or 256
                      const uint8_t iv[]);        // IV, must be AES_BLOCK_SIZE bytes long
 
 void aes_decrypt_ctr(const uint8_t in[],         // Ciphertext
-                     size_t in_len,           // Any byte length
+                     uint32_t in_len,           // Any byte length
                      uint8_t out[],              // Plaintext, same length as ciphertext
                      const uint32_t key[],        // From the key setup
                      int keysize,             // Bit length of the key, 128, 192, or 256

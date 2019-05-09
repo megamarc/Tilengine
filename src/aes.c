@@ -220,9 +220,9 @@ static const uint8_t gf_mul[256][6] = {
 
 /*********************** FUNCTION DEFINITIONS ***********************/
 // XORs the in and out buffers, storing the result in out. Length is in bytes.
-void xor_buf(const uint8_t in[], uint8_t out[], size_t len)
+void xor_buf(const uint8_t in[], uint8_t out[], uint32_t len)
 {
-	size_t idx;
+	uint32_t idx;
 
 	for (idx = 0; idx < len; idx++)
 		out[idx] ^= in[idx];
@@ -231,7 +231,7 @@ void xor_buf(const uint8_t in[], uint8_t out[], size_t len)
 /*******************
 * AES - CBC
 *******************/
-int aes_encrypt_cbc(const uint8_t in[], size_t in_len, uint8_t out[], const uint32_t key[], int keysize, const uint8_t iv[])
+int aes_encrypt_cbc(const uint8_t in[], uint32_t in_len, uint8_t out[], const uint32_t key[], int keysize, const uint8_t iv[])
 {
 	uint8_t buf_in[AES_BLOCK_SIZE], buf_out[AES_BLOCK_SIZE], iv_buf[AES_BLOCK_SIZE];
 	int blocks, idx;
@@ -254,7 +254,7 @@ int aes_encrypt_cbc(const uint8_t in[], size_t in_len, uint8_t out[], const uint
 	return(TRUE);
 }
 
-int aes_encrypt_cbc_mac(const uint8_t in[], size_t in_len, uint8_t out[], const uint32_t key[], int keysize, const uint8_t iv[])
+int aes_encrypt_cbc_mac(const uint8_t in[], uint32_t in_len, uint8_t out[], const uint32_t key[], int keysize, const uint8_t iv[])
 {
 	uint8_t buf_in[AES_BLOCK_SIZE], buf_out[AES_BLOCK_SIZE], iv_buf[AES_BLOCK_SIZE];
 	int blocks, idx;
@@ -279,7 +279,7 @@ int aes_encrypt_cbc_mac(const uint8_t in[], size_t in_len, uint8_t out[], const 
 	return(TRUE);
 }
 
-int aes_decrypt_cbc(const uint8_t in[], size_t in_len, uint8_t out[], const uint32_t key[], int keysize, const uint8_t iv[])
+int aes_decrypt_cbc(const uint8_t in[], uint32_t in_len, uint8_t out[], const uint32_t key[], int keysize, const uint8_t iv[])
 {
 	uint8_t buf_in[AES_BLOCK_SIZE], buf_out[AES_BLOCK_SIZE], iv_buf[AES_BLOCK_SIZE];
 	int blocks, idx;
@@ -319,9 +319,9 @@ void increment_iv(uint8_t iv[], int counter_size)
 
 // Performs the encryption in-place, the input and output buffers may be the same.
 // Input may be an arbitrary length (in bytes).
-void aes_encrypt_ctr(const uint8_t in[], size_t in_len, uint8_t out[], const uint32_t key[], int keysize, const uint8_t iv[])
+void aes_encrypt_ctr(const uint8_t in[], uint32_t in_len, uint8_t out[], const uint32_t key[], int keysize, const uint8_t iv[])
 {
-	size_t idx = 0, last_block_length;
+	uint32_t idx = 0, last_block_length;
 	uint8_t iv_buf[AES_BLOCK_SIZE], out_buf[AES_BLOCK_SIZE];
 
 	if (in != out)
@@ -342,7 +342,7 @@ void aes_encrypt_ctr(const uint8_t in[], size_t in_len, uint8_t out[], const uin
 	xor_buf(out_buf, &out[idx], in_len - idx);   // Use the Most Significant bytes.
 }
 
-void aes_decrypt_ctr(const uint8_t in[], size_t in_len, uint8_t out[], const uint32_t key[], int keysize, const uint8_t iv[])
+void aes_decrypt_ctr(const uint8_t in[], uint32_t in_len, uint8_t out[], const uint32_t key[], int keysize, const uint8_t iv[])
 {
 	// CTR encryption is its own inverse function.
 	aes_encrypt_ctr(in, in_len, out, key, keysize, iv);
