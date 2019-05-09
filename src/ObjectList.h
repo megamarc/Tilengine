@@ -26,8 +26,6 @@ struct _Object
 struct ObjectList
 {
 	DEFINE_OBJECT;
-	int width;
-	int height;
 	int num_items;
 	struct _Object* list;
 	struct _Object* last;

@@ -514,7 +514,7 @@ TLNAPI bool TLN_DeleteBitmap (TLN_Bitmap bitmap);
  * \defgroup objects
  * \brief ObjectList resources management */
  /**@{*/
-TLNAPI TLN_ObjectList TLN_CreateObjectList(int width, int height);
+TLNAPI TLN_ObjectList TLN_CreateObjectList(void);
 TLNAPI bool TLN_AddObjectToList(TLN_ObjectList list, TLN_Object* data);
 TLNAPI bool TLN_AddSpriteToList(TLN_ObjectList list, TLN_Spriteset spriteset, const char* name, int id, int x, int y);
 TLNAPI TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername, int firstgid);
@@ -542,7 +542,7 @@ TLNAPI bool TLN_DisableLayerClip (int nlayer);
 TLNAPI bool TLN_SetLayerMosaic (int nlayer, int width, int height);
 TLNAPI bool TLN_DisableLayerMosaic (int nlayer);
 TLNAPI bool TLN_ResetLayerMode (int nlayer);
-TLNAPI bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Spriteset spriteset);
+TLNAPI bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Spriteset spriteset, int width, int height);
 TLNAPI bool TLN_SetLayerPriority(int nlayer, bool enable);
 TLNAPI bool TLN_SetLayerParent(int nlayer, int parent);
 TLNAPI bool TLN_DisableLayerParent(int nlayer);

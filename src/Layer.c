@@ -174,7 +174,7 @@ bool TLN_SetLayerBitmap(int nlayer, TLN_Bitmap bitmap)
 	return true;
 }
 
-bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Spriteset spriteset)
+bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Spriteset spriteset, int width, int height)
 {
 	Layer *layer;
 	if (nlayer >= engine->numlayers)
@@ -193,8 +193,8 @@ bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Spriteset sprit
 	layer->bitmap = NULL;
 	layer->spriteset = spriteset;
 	layer->objects = objects;
-	layer->width = objects->width;
-	layer->height = objects->height;
+	layer->width = width;
+	layer->height = height;
 	if (spriteset->palette)
 		TLN_SetLayerPalette(nlayer, spriteset->palette);
 

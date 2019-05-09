@@ -104,7 +104,7 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 			/* create */
 			loader.width *= loader.tilewidth;
 			loader.height *= loader.tileheight;
-			loader.objects = TLN_CreateObjectList(loader.width, loader.height);
+			loader.objects = TLN_CreateObjectList();
 		}
 		else if (!strcasecmp(szName, "object"))
 			TLN_AddObjectToList(loader.objects, &loader.object);
@@ -123,11 +123,15 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 
 static bool intersetcs(rect_t* rect1, rect_t* rect2)
 {
-	// TODO
-	return false;
+	return !(rect1->x2 < rect2->x1 || rect1->x1 > rect2->x2 || rect1->y2 < rect2->y1 || rect1->y1 > rect2->y2);
 }
 
-TLN_ObjectList TLN_CreateObjectList(int width, int height)
+/*!
+ * 
+ * 
+ * \return 
+ */
+TLN_ObjectList TLN_CreateObjectList(void)
 {
 	TLN_ObjectList list = NULL;
 	const int size = sizeof(struct ObjectList);
@@ -136,10 +140,6 @@ TLN_ObjectList TLN_CreateObjectList(int width, int height)
 	list = CreateBaseObject(OT_OBJECTLIST, size);
 	if (!list)
 		return NULL;
-
-	/* copy data */
-	list->width = width;
-	list->height = height;
 
 	TLN_SetLastError(TLN_ERR_OK);
 	return list;
