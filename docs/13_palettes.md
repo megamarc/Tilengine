@@ -1,8 +1,6 @@
-\page page_palettes Color palettes
+# Color palettes
 
 [TOC]
-
-# Color palettes
 
 ## Load from file
 

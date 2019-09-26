@@ -1,8 +1,7 @@
-\page page_window Windowing
+# Windowing
 
 [TOC]
 
-# Windowing
 The built-in window in tilengine provides a basic, easy to setup environment for quick test and evaluation. It's a very simple environment to ease prototyping but is not intended to be used in production environment.
 
 ## Features

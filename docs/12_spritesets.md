@@ -1,8 +1,6 @@
-\page page_spritesets Spritesets
+# Spritesets
 
 [TOC]
-
-# Spritesets
 
 ## Load from file
 

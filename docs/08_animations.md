@@ -1,8 +1,6 @@
-\page page_animations Animations
+# Animations
 
 [TOC]
-
-# Animations
 
 ## Tileset animation
 

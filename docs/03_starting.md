@@ -1,8 +1,6 @@
-\page page_first_steps First steps
+# First steps
 
 [TOC]
-
-# First steps
 
 ## Initialize
 First of all, you have to include the header at the top of the file:
@@ -24,19 +22,19 @@ To set a solid color there is the function \ref TLN_SetBGColor that takes the th
 TLN_SetBGColor (0,32,96);
 ```
 
-It is also possible to set the background color defined inside a tilemap object with the \ref TLN_SetBGColorFromTilemap function. Tilemaps may specify a default background color that can be used here. To see how to load and manipulate tilemaps, please refer to [chapter 10](10_tilemaps.md). For now, to load a tilemap called "tilemap.tmx" and use its default background color, you have to do the following:
+It is also possible to set the background color defined inside a tilemap object with the \ref TLN_SetBGColorFromTilemap function. Tilemaps may specify a default background color that can be used here. To see how to load and manipulate tilemaps, please refer to [chapter 10](11_tilemaps.md). For now, to load a tilemap called "tilemap.tmx" and use its default background color, you have to do the following:
 ```c
 TLN_Tilemap tilemap = TLN_LoadTilemap ("tilemap.tmx");
 TLN_SetBGColorFromTilemap (tilemap);
 ```
 
 ### Bitmap background
-To set a bitmap, there is the function \ref TLN_SetBGBitmap that takes the \ref TLN_Bitmap reference of a loaded bitmap. To see how to load an manipulate bitmaps, please refer to [chapter 14](14_bitmaps.md). For now, to load a bitmap called "Background.png" and set it as the background, you have to do the following:
+To set a bitmap, there is the function \ref TLN_SetBGBitmap that takes the \ref TLN_Bitmap reference of a loaded bitmap. To see how to load an manipulate bitmaps, please refer to [chapter 14](15_bitmaps.md). For now, to load a bitmap called "Background.png" and set it as the background, you have to do the following:
 ```c
 TLN_Bitmap background = TLN_LoadBitmap ("Background.png");
 TLN_SetBGBitmap (background);
 ```
-It's possible to change the default palette provided by the bitmap. To do so, use the \ref TLN_SetBGPalette function that takes a \ref TLN_Palette object. To see how to load and manipulate palettes, please refer to [chapter 12](12_palettes.md). Assuming you have an alternative palette file called "Background.act", do the following to set it:
+It's possible to change the default palette provided by the bitmap. To do so, use the \ref TLN_SetBGPalette function that takes a \ref TLN_Palette object. To see how to load and manipulate palettes, please refer to [chapter 12](13_palettes.md). Assuming you have an alternative palette file called "Background.act", do the following to set it:
 ```c
 TLN_Palette palette = TLN_LoadPalette ("Background.act");
 TLN_SetBGPalette (palette);
@@ -71,7 +69,7 @@ Tilengine keeps track about the memory being used, the number of assets, the fra
 * \ref TLN_GetNumObjects : returns the combined number of loaded assets
 
 ## Debugging
-Tilengine does sanity check on each parameter and silently ignores a function call when there are some mistakes on the parameters (indexes out of range, wrong object types, etc). Each function that can fail returns a `false` boolean (check \ref first_steps_errors), that can be further examinated with \ref TLN_GetLastError and \ref TLN_GetErrorString. However this approach requires much work and manual test when something isn't working as expected. To ease the debugging of your program, Tilengine supports writing messages to the standard output. This behavior is selected with \ref TLN_SetLogLevel, with three possible values:
+Tilengine does sanity check on each parameter and silently ignores a function call when there are some mistakes on the parameters (indexes out of range, wrong object types, etc). Each function that can fail returns a `false` boolean that can be further examinated with \ref TLN_GetLastError and \ref TLN_GetErrorString. However this approach requires much work and manual test when something isn't working as expected. To ease the debugging of your program, Tilengine supports writing messages to the standard output. This behavior is selected with \ref TLN_SetLogLevel, with three possible values:
 
 |Value           | Effect
 |----------------|---------------------------------------------------------------

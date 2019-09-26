@@ -1,8 +1,7 @@
-\page page_render External rendering
+# External rendering
 
 [TOC]
 
-# External rendering
 ## Setting the target surface
 The framebuffer can be any 32 bpp RGBA bitmap, with the dimensions specified during initialization with \ref TLN_Init where tilengine performs the rendering. This surface is user-allocated and can be of any origin: a locked OpenGL texture, an SDL video surface, a Java canvas... whatever you choose. The \ref TLN_SetRenderTarget function takes two parameters: a pointer to the start of pixel data in the surface, and the number of bytes per scanline, the so-called *pitch*. This value is usually the horizontal resolution multipliead by four (the number of bytes required by each pixel) rounded to the next multiple of four. The following example allocates an in-memory framebuffer and sets it:
 ```c

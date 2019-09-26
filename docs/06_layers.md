@@ -1,8 +1,7 @@
-\page page_layers Background layers
+# Background layers
 
 [TOC]
 
-# Background layers
 Background layers are one of the two main graphics entities in tilengine, the other are sprites. Background layers are a two dimensional arrangement of tiles, called tilemap, where each tile is a small square bitmap extracted from a bigger palette of tiles, called tileset, plus some flags that modify its appearance. Background layers can have transparent areas, where the underlying layer(s) or background color is seen.
 
 Layers are referenced by an index, starting at 0 for the topmost, increasing up to number of layers minus 1 for the bottom-most.
@@ -10,7 +9,7 @@ Layers are referenced by an index, starting at 0 for the topmost, increasing up 
 ## Basic setup
 In order to get displayed, a layer needs to have attached three items: a tilemap, a tileset and a palette. Usually a tilemap has an internal reference to its associated tileset, and a tileset has a palette embedded, we only have to explicitly set the tilemap and the other items are loaded automatically. This is accomplished with the \ref TLN_SetLayer function.
 
-We have to load the tilemap first with \ref TLN_LoadTilemap (read more about [tilemaps](\ref page_tilemaps). Then we call \ref TLN_SetLayer to attach it to the layer, passing the index layer, an optional tileset, and the tilemap to attach:
+We have to load the tilemap first with \ref TLN_LoadTilemap (read more about [tilemaps](11_tilemaps.md). Then we call \ref TLN_SetLayer to attach it to the layer, passing the index layer, an optional tileset, and the tilemap to attach:
 ```c
 TLN_Tilemap tilemap = TLN_LoadTilemap ("ruff_n_tumble.tmx");
 TLN_SetupLayer (0, NULL, tilemap);
@@ -72,7 +71,7 @@ Alternative palette:
 ![Alternative palette](img/layer_palette.png)
 
 ## Blending
-Blending is supported in layers, with different modes and effects. To get extended information about the modes and their effects, please refer to [Chapter 09 - Blending](\ref blending).
+Blending is supported in layers, with different modes and effects. To get extended information about the modes and their effects, please refer to [Chapter 09 - Blending](09_blending.md).
 
 To enable blending, call \ref TLN_SetLayerBlendMode passing the layer index and the blending mode. For example, to set 50%/50% blending in layer 0:
 ```c
@@ -121,6 +120,7 @@ for (c=0; c<size; c++)
 TLN_DrawFrame (0);
 ```
 Column offset: each column is displaced 1 pixel incrementally:
+
 ![Column offset](img/layer_column.png)
 
 To disable the effect, just call the function with a NULL pointer instead of a valid array:
@@ -149,6 +149,7 @@ TLN_SetLayerTransform (0, 30.0f, 240.0f,160.0f, 1.5f,1.5f);
 ```
 
 30º degree rotation around 240,160 (screen center), x1.5 upscaling:
+
 ![Affine transform](img/layer_affine.png)
 
 **TIP**: affine transform is an intensive operation. If you just want to implement scaling but not rotation, use \ref TLN_SetLayerScaling instead because it's much more lightweight.
@@ -156,7 +157,7 @@ TLN_SetLayerTransform (0, 30.0f, 240.0f,160.0f, 1.5f,1.5f);
 ## Per-pixel mapping
 Per-pixel mapping is the last of the three transformation modes supported by layers, in addition to scaling and affine transform. Only one mode can be active at a given moment.
 
-Per-pixel mapping is a similar operation to [column offset](\ref layers_column), but applied to every screen pixel instead of just every column.
+Per-pixel mapping is a similar operation to *column offset*, but applied to every screen pixel instead of just every column.
 
 To setup the effect, it needs an array of \ref TLN_PixelMap items with as positions as pixels in the framebuffer. For example, for a 480x320 setup, int needs to have 480x320 = 153,600 items. Each item contains a pair of integer values with the coordinates of that pixel relative to the to left corner of the screen at 0,0. Call \ref TLN_SetLayerPixelMapping passing the layer index and a pointer to the array of \ref TLN_PixelMap items:
 
@@ -199,6 +200,7 @@ The mosaic effect pixelates the layer, making some pixels bigger and skipping ot
 TLN_SetLayerMosaic (0, 8,6);
 ```
 Mosaic effect with 8 horizontal and 6 vertical pixel size factor:
+
 ![Affine transform](img/layer_mosaic.png)
 
 To disable the mosaic effect, just call \ref TLN_DisableLayerMosaic passing the layer index:

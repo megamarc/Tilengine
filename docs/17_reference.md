@@ -1,8 +1,7 @@
-\page page_overview API reference overview
+# API reference overview
 
 [TOC]
 
-# API reference overview
 Tilengine uses eight types of elements, arranged in two groups:
 * **Static items** are reserved at startup and cannot be modified at runtime. These elements are layers (the backgrounds), sprites(the objects) and the animations. They are referenced by an index, starting at 0 for the first element up to num_elements - 1. They represent the "hardware" capabilities of Tilengine. Each one of these elements can be enabled or disabled as they are needed, but cannot be created or destroyed.
 * **Dynamic assets** can be freely loaded, cloned and deleted at runtime. They are referenced by a pointer, and represent the "assets" that are assigned to the static elements

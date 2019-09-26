@@ -1,8 +1,6 @@
-\page page_blending Blending
+# Blending
 
 [TOC]
-
-# Blending
 
 ## Types of blending
 

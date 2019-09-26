@@ -1,7 +1,7 @@
-\page page_install Installation
+# Installation
+
 [TOC]
 
-# Installation
 1. Download tilengine from [GitHub](https://github.com/megamarc/Tilengine/archive/master.zip) or [itch.io](https://megamarc.itch.io/tilengine)
 2. Open a console window in Tilengine root directory and type the suitable command depending on your platform:
 

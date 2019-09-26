@@ -1,8 +1,6 @@
-\page page_bitmaps Bitmaps
+# Bitmaps
 
 [TOC]
-
-# Bitmaps
 
 ## Load from file
 

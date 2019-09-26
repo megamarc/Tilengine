@@ -1,8 +1,6 @@
-\page page_tilemaps Tilemaps
+# Tilemaps
 
 [TOC]
-
-# Tilemaps
 
 ## Load from file
 

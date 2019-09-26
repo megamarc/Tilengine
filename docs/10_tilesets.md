@@ -1,8 +1,6 @@
-\page page_tilesets Tilesets
+# Tilesets
 
 [TOC]
-
-# Tilesets
 
 ## Load from file
 

@@ -1,8 +1,6 @@
-\page page_sequences Sequences & sequence
+# Sequences & sequence packs
 
 [TOC]
-
-# Sequences & sequence packs
 
 ## The sqx file format
 
