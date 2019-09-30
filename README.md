@@ -130,7 +130,7 @@ void main(void) {
 
     TLN_Init (400,240,1,0,20);
     TLN_SetLoadPath ("assets/sonic");
-    foreground = TLN_LoadTilemap ("sonic_md_fg1.tmx", NULL);
+    foreground = TLN_LoadTilemap ("Sonic_md_fg1.tmx", NULL);
     TLN_SetLayer (0, NULL, foreground);
 
     TLN_CreateWindow (NULL, 0);
