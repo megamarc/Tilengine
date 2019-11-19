@@ -11,9 +11,17 @@
 #ifndef _TABLES_H
 #define _TABLES_H
 
-bool CreateBlendTables (void);
-void DeleteBlendTables (void);
-uint8_t* SelectBlendTable (TLN_Blend mode);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+	bool CreateBlendTables(void);
+	void DeleteBlendTables(void);
+	uint8_t* SelectBlendTable(TLN_Blend mode);
+
+#ifdef __cplusplus
+}
+#endif
 
 #define blendfunc(t,a,b) *(t  + ((a)<<8) + (b))
 

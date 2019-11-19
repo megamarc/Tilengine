@@ -10,6 +10,7 @@
 
 #include <stdlib.h>
 #include "Tilengine.h"
+#include "Tables.h"
 
 #define BLEND_SIZE	(1 << 16)
 
@@ -18,8 +19,7 @@ static int instances = 0;
 
 bool CreateBlendTables (void)
 {
-	int a,b;
-	TLN_Blend c;
+	int a,b,c;
 
 	/* increase reference count */
 	instances += 1;
@@ -29,7 +29,7 @@ bool CreateBlendTables (void)
 	/* get memory */
 	for (c=BLEND_MIX25; c<MAX_BLEND; c++)
 	{
-		_blend_tables[c] = malloc (BLEND_SIZE);
+		_blend_tables[c] = (uint8_t*)malloc (BLEND_SIZE);
 		if (_blend_tables[c] == NULL)
 			return false;
 	}
@@ -54,7 +54,7 @@ bool CreateBlendTables (void)
 
 void DeleteBlendTables (void)
 {
-	TLN_Blend c;
+	int c;
 
 	/* decrease reference count */
 	if (instances > 0)

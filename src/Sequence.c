@@ -52,7 +52,7 @@ TLN_Sequence TLN_CreateSequence (const char* name, int target, int count, TLN_Se
 	TLN_SequenceFrame* frame;
 	
 	size = count*sizeof(TLN_SequenceFrame);
-	sequence = CreateBaseObject (OT_SEQUENCE, sizeof(struct Sequence) + size);
+	sequence = (TLN_Sequence)CreateBaseObject (OT_SEQUENCE, sizeof(struct Sequence) + size);
 	if (!sequence)
 		return NULL;
 
@@ -102,7 +102,7 @@ TLN_Sequence TLN_CreateCycle (const char* name, int count, TLN_ColorStrip* strip
 	struct Strip* dststrip;
 	
 	size = count*sizeof(struct Strip);
-	sequence = CreateBaseObject (OT_SEQUENCE, sizeof(struct Sequence) + size);
+	sequence = (TLN_Sequence)CreateBaseObject (OT_SEQUENCE, sizeof(struct Sequence) + size);
 	if (!sequence)
 		return NULL;
 
@@ -154,7 +154,7 @@ TLN_Sequence TLN_CreateSpriteSequence(const char* name, TLN_Spriteset spriteset,
 	}
 
 	size = count * sizeof(TLN_SequenceFrame);
-	sequence = CreateBaseObject(OT_SEQUENCE, sizeof(struct Sequence) + size);
+	sequence = (TLN_Sequence)CreateBaseObject(OT_SEQUENCE, sizeof(struct Sequence) + size);
 	if (!sequence)
 		return NULL;
 
@@ -211,7 +211,7 @@ TLN_Sequence TLN_CloneSequence (TLN_Sequence src)
 	if (!CheckBaseObject (src, OT_SEQUENCE))
 		return NULL;
 
-	sequence = CloneBaseObject (src);
+	sequence = (TLN_Sequence)CloneBaseObject (src);
 	if (sequence)
 	{
 		TLN_SetLastError (TLN_ERR_OK);

@@ -255,6 +255,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <ClInclude Include="..\include\Tilengine.h" />
     <ClInclude Include="aes.h" />
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="Base64.h" />
     <ClInclude Include="Bitmap.h" />
     <ClInclude Include="Blitters.h" />
     <ClInclude Include="DIB.h" />

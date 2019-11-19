@@ -62,7 +62,7 @@ TLN_Spriteset TLN_LoadSpriteset (const char* name)
 	while (fgets (line, 64, pf))
 		entries++;
 
-	sprite_data = malloc (sizeof(TLN_SpriteData)*entries);
+	sprite_data = (TLN_SpriteData*)malloc (sizeof(TLN_SpriteData)*entries);
 	if (!sprite_data)
 	{
 		TLN_DeleteBitmap (bitmap);

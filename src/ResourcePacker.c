@@ -8,6 +8,8 @@
 * file, You can obtain one at http://mozilla.org/MPL/2.0/.
 * */
 
+#pragma warning(disable : 4200)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -114,8 +116,8 @@ static void* load_asset(ResPack rp, ResEntry* entry)
 	fseek(rp->pf, entry->offset, SEEK_SET);
 	if (rp->encrypted == true)
 	{
-		void* cypher = malloc(entry->pack_size);
-		void* content = malloc(entry->pack_size);
+		uint8_t* cypher = (uint8_t*)malloc(entry->pack_size);
+		uint8_t* content = (uint8_t*)malloc(entry->pack_size);
 		fread(cypher, entry->pack_size, 1, rp->pf);
 		aes_decrypt_cbc(cypher, entry->pack_size, content, rp->key, KEY_SIZE, iv);
 		memcpy(buffer, content, entry->data_size);
@@ -159,16 +161,16 @@ ResPack ResPack_Open(const char* filename, const char* key)
 
 	/* create object */
 	size = sizeof(struct _ResPack) + sizeof(ResEntry)*res_header.num_regs;
-	rp = calloc(size, 1);
+	rp = (ResPack)calloc(size, 1);
 	rp->num_entries = res_header.num_regs;
 	rp->pf = pf;
 	
 	/* prepare AES-128 key*/
 	if (key != NULL)
 	{
-		uint8_t padded_key[16] = { 0 };
+		char padded_key[16] = { 0 };
 		strncpy(padded_key, key, sizeof(padded_key));
-		aes_key_setup(padded_key, rp->key, KEY_SIZE);
+		aes_key_setup((uint8_t*)padded_key, rp->key, KEY_SIZE);
 		rp->encrypted = true;
 	}
 
@@ -223,7 +225,7 @@ ResAsset ResPack_OpenAsset(ResPack rp, const char* filename)
 	if (content == NULL)
 		return NULL;
 
-	asset = malloc(sizeof(struct _ResAsset));
+	asset = (ResAsset)malloc(sizeof(struct _ResAsset));
 	sprintf(asset->filename, "_tmp%d", entry->id);
 	asset->pf = fopen(asset->filename, "wb");
 	fwrite(content, entry->data_size, 1, asset->pf);

@@ -30,7 +30,7 @@ TLN_Palette TLN_CreatePalette (int entries)
 	TLN_Palette palette;
 	int size = sizeof(struct Palette) + (4*entries);
 	
-	palette = CreateBaseObject(OT_PALETTE, size);
+	palette = (TLN_Palette)CreateBaseObject(OT_PALETTE, size);
 	if (palette)
 	{
 		palette->entries = entries;
@@ -61,7 +61,7 @@ TLN_Palette TLN_ClonePalette (TLN_Palette src)
 	if (!CheckBaseObject (src, OT_PALETTE))
 		return NULL;
 
-	palette = CloneBaseObject (src);
+	palette = (TLN_Palette)CloneBaseObject (src);
 	if (palette)
 	{
 		TLN_SetLastError (TLN_ERR_OK);

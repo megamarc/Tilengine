@@ -43,7 +43,7 @@ static const TLN_Error object_errors[] =
 /* crea objecto */
 void* CreateBaseObject (ObjectType type, int size)
 {
-	object_t* object = malloc (size);
+	object_t* object = (object_t*)malloc (size);
 	if (object)
 	{
 		numobjects++;
@@ -64,15 +64,15 @@ void* CreateBaseObject (ObjectType type, int size)
 }
 
 /* crea copia de objecto */
-void* CloneBaseObject (void* object)
+void* CloneBaseObject(void* object)
 {
 	object_t *src = (object_t*)object;
-	object_t *dst = CreateBaseObject (src->type, src->size);
+	object_t *dst = (object_t*)CreateBaseObject(src->type, src->size);
 	if (dst)
-  {
-		memcpy (dst->data, src->data, src->size - sizeof(object_t));
+	{
+		memcpy(dst->data, src->data, src->size - sizeof(object_t));
 		dst->owner = false;
-  }
+	}
 	return dst;
 }
 

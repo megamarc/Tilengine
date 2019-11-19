@@ -16,6 +16,7 @@
 #include <string.h>
 #include "SDL2/SDL.h"
 #include "Tilengine.h"
+#include "Tables.h"
 
 /* linear interploation */
 #define lerp(x, x0,x1, fx0,fx1) \
@@ -94,7 +95,7 @@ typedef struct
 {
 	int width;
 	int height;
-	TLN_WindowFlags flags;
+	int flags;
 	char file_overlay[MAX_PATH];
 	volatile int retval;
 }
@@ -107,7 +108,7 @@ static WndParams wnd_params;
 #define BLUE	0x00,0x00,0xFF,0xFF
 #define BLACK	0x00,0x00,0x00,0xFF
 
-static char pattern_aperture[] =
+static uint8_t pattern_aperture[] =
 {
 	RED,   GREEN, BLUE,  RED,   GREEN, BLUE,
 	RED,   GREEN, BLUE,  BLACK, BLACK, BLACK,
@@ -115,13 +116,13 @@ static char pattern_aperture[] =
 	BLACK, BLACK, BLACK, RED,   GREEN, BLUE
 };
 
-static char pattern_shadowmask[] =
+static uint8_t pattern_shadowmask[] =
 {
 	RED, RED, GREEN, GREEN, BLUE, BLUE,
 	GREEN, BLUE, BLUE, RED, RED, GREEN
 };
 
-static char pattern_scanlines[] =
+static uint8_t pattern_scanlines[] =
 {
 	RED, GREEN, BLUE,
 	RED, GREEN, BLUE,
@@ -884,7 +885,8 @@ static void EnableCRTEffect (void)
  */
 bool TLN_GetInput (TLN_Input input)
 {
-	const TLN_Player player = input >> 5;
+	const int value = (int)input;
+	const TLN_Player player = (TLN_Player)(value >> 5);
 	return (player_inputs[player].inputs & (1 << (input & INPUT_MASK))) != 0;
 }
 
@@ -986,7 +988,7 @@ int TLN_GetLastInput (void)
  */
 void TLN_BeginWindowFrame (int time)
 {
-	SDL_LockTexture (backbuffer, NULL, (void*)&rt_pixels, &rt_pitch);
+	SDL_LockTexture (backbuffer, NULL, (void**)&rt_pixels, &rt_pitch);
 	TLN_SetRenderTarget (rt_pixels, rt_pitch);
 	TLN_BeginFrame (time);
 }
@@ -1006,12 +1008,12 @@ void TLN_EndWindowFrame (void)
 		int pitch_glow;
 
 		/* downscale backbuffer */
-		SDL_LockTexture (crt.glow, NULL, (void*)&pixels_glow, &pitch_glow);
+		SDL_LockTexture (crt.glow, NULL, (void**)&pixels_glow, &pitch_glow);
 		Downsample2 (rt_pixels, pixels_glow, wnd_params.width,wnd_params.height, rt_pitch, pitch_glow);
 
 		/* apply gaussian blur (opitional) */
 		if (crt.gaussian)
-			GaussianBlur (pixels_glow, crt.blur->pixels, dst_width,dst_height,pitch_glow, 2);
+			GaussianBlur (pixels_glow, (uint8_t*)crt.blur->pixels, dst_width,dst_height,pitch_glow, 2);
 
 		SDL_UnlockTexture (crt.glow);
 	}
@@ -1107,9 +1109,6 @@ void TLN_SetSDLCallback(TLN_SDLCallback callback)
 	sdl_callback = callback;
 }
 
-#define blendfunc(t,a,b) *(t  + ((a)<<8) + (b))
-extern uint8_t* SelectBlendTable (TLN_Blend mode, uint8_t factor);
-
 /* fills full-frame overlay texture with repeated pattern */
 static void BuildFullOverlay (SDL_Texture* texture, SDL_Surface* pattern, uint8_t factor)
 {
@@ -1117,7 +1116,7 @@ static void BuildFullOverlay (SDL_Texture* texture, SDL_Surface* pattern, uint8_
 	SDL_Surface* dst_surface;
 	SDL_Rect rect;
 	uint8_t* pixels = NULL;
-	uint8_t* add_table = SelectBlendTable (BLEND_ADD, 255);
+	uint8_t* add_table = SelectBlendTable (BLEND_ADD);
 	int pitch = 0;
 	int x,y;
 
@@ -1151,7 +1150,7 @@ static void BuildFullOverlay (SDL_Texture* texture, SDL_Surface* pattern, uint8_
 	}
 
 	/* copy pixels into final texture */
-	SDL_LockTexture (texture, NULL, (void*)&pixels, &pitch);
+	SDL_LockTexture (texture, NULL, (void**)&pixels, &pitch);
 	memcpy (pixels, dst_surface->pixels, pitch*dst_surface->h);
 	SDL_UnlockTexture (texture);
 	

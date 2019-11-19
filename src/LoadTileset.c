@@ -71,7 +71,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 			{
 				const int tilecount = atoi(szValue);
 				const int size_attribs = tilecount * sizeof(TLN_TileAttributes);
-				loader.attributes = malloc(size_attribs);
+				loader.attributes = (TLN_TileAttributes*)malloc(size_attribs);
 				memset (loader.attributes, 0, size_attribs);
 			}
 		}
@@ -179,7 +179,7 @@ TLN_Tileset TLN_LoadTileset (const char* filename)
 	int pitch;
 	
 	/* load file */
-	data = LoadFile (filename, &size);
+	data = (uint8_t*)LoadFile (filename, &size);
 	if (!data)
 	{
 		if (size == 0)

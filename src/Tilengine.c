@@ -75,12 +75,12 @@ static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int
 	bpp = 32;
 
 	/* create framebuffer */
-	context = calloc(sizeof(Engine), 1);
+	context = (TLN_Engine)calloc(sizeof(Engine), 1);
 	context->header = ID_CONTEXT;
 	context->framebuffer.width = hres;
 	context->framebuffer.height = vres;
 	context->framebuffer.pitch = (((hres * bpp)>>3) + 3) & ~0x03;
-	context->priority = malloc(context->framebuffer.pitch);
+	context->priority = (uint8_t*)malloc(context->framebuffer.pitch);
 	if (!context->priority)
 	{
 		TLN_DeleteContext (context);
@@ -89,12 +89,12 @@ static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int
 	}
 
 	/* sprite collision buffer */
-	context->collision = calloc(hres*sizeof(uint16_t), 1);
-	context->tmpindex = calloc(hres, 1);
+	context->collision = (uint16_t*)calloc(hres*sizeof(uint16_t), 1);
+	context->tmpindex = (uint8_t*)calloc(hres, 1);
 
 	/* create static items */
 	context->numlayers = numlayers;
-	context->layers = calloc (numlayers, sizeof(Layer));
+	context->layers = (Layer*)calloc (numlayers, sizeof(Layer));
 	if (!context->layers)
 	{
 		TLN_DeleteContext(context);
@@ -102,10 +102,10 @@ static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int
 		return NULL;
 	}
 	for (c=0; c<context->numlayers; c++)
-		context->layers[c].mosaic.buffer = malloc (hres);
+		context->layers[c].mosaic.buffer = (uint8_t*)malloc (hres);
 
 	context->numsprites = numsprites;
-	context->sprites = calloc (numsprites, sizeof(Sprite));
+	context->sprites = (Sprite*)calloc (numsprites, sizeof(Sprite));
 	if (!context->sprites)
 	{
 		TLN_DeleteContext(context);
@@ -120,7 +120,7 @@ static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int
 	}
 
 	context->numanimations = numanimations;
-	context->animations = calloc (numanimations, sizeof(Animation));
+	context->animations = (Animation*)calloc (numanimations, sizeof(Animation));
 	if (!context->animations)
 	{
 		TLN_DeleteContext(context);
@@ -199,7 +199,10 @@ TLN_Engine TLN_GetContext(void)
 void TLN_Deinit(void)
 {
 	if (engine != NULL)
+	{
 		TLN_DeleteContext(engine);
+		engine = NULL;
+	}
 }
 
  /*!
@@ -219,30 +222,30 @@ bool TLN_DeleteContext(TLN_Engine context)
 		return false;
 	}
 
-	DeleteBlendTables ();
+	DeleteBlendTables();
 
-	for (c=0; c<engine->numlayers; c++)
-		free (engine->layers[c].mosaic.buffer);
+	for (c = 0; c < context->numlayers; c++)
+		free(context->layers[c].mosaic.buffer);
 
-	if (engine->sprites)
-		free (engine->sprites);
+	if (context->sprites)
+		free(context->sprites);
 
-	if (engine->layers)
-		free (engine->layers);
+	if (context->layers)
+		free(context->layers);
 
-	if (engine->priority)
-		free (engine->priority);
+	if (context->priority)
+		free(context->priority);
 
-	if (engine->animations)
-		free (engine->animations);
+	if (context->animations)
+		free(context->animations);
 
-	if (engine->collision)
-		free (engine->collision);
+	if (context->collision)
+		free(context->collision);
 
-	if (engine->tmpindex)
-		free (engine->tmpindex);
+	if (context->tmpindex)
+		free(context->tmpindex);
 
-	TLN_SetLastError (TLN_ERR_OK);
+	free(context);
 	return true;
 }
 

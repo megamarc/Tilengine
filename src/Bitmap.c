@@ -44,7 +44,7 @@ TLN_Bitmap TLN_CreateBitmap (int width, int height, int bpp)
 
 	pitch = (((width * bpp)>>3) + 3) & ~0x03;
 	size = sizeof(struct Bitmap) + (pitch * height);
-	bitmap = CreateBaseObject (OT_BITMAP, size);
+	bitmap = (TLN_Bitmap)CreateBaseObject (OT_BITMAP, size);
 	if (bitmap)
 	{
 		bitmap->width = width;
@@ -78,7 +78,7 @@ TLN_Bitmap TLN_CloneBitmap (TLN_Bitmap src)
 	if (!CheckBaseObject (src, OT_BITMAP))
 		return NULL;
 
-	bitmap = CloneBaseObject (src);
+	bitmap = (TLN_Bitmap)CloneBaseObject (src);
 	if (bitmap)
 	{
 		TLN_SetLastError (TLN_ERR_OK);
@@ -103,7 +103,7 @@ bool TLN_DeleteBitmap (TLN_Bitmap bitmap)
 	if (CheckBaseObject (bitmap, OT_BITMAP))
 	{
 		if (ObjectOwner (bitmap))
-			DeleteBaseObject (bitmap->palette);
+			TLN_DeletePalette (bitmap->palette);
 		DeleteBaseObject (bitmap);
 		TLN_SetLastError (TLN_ERR_OK);
 		return true;

@@ -167,11 +167,21 @@ bool TLN_SetLayerBitmap(int nlayer, TLN_Bitmap bitmap)
 	if (bitmap->palette)
 		TLN_SetLayerPalette(nlayer, bitmap->palette);
 
-	layer->ok = true;
-	layer->draw = GetLayerDraw(layer);
-	SelectBlitter(layer);
-	TLN_SetLastError(TLN_ERR_OK);
-	return true;
+	/* require palette */
+	if (layer->palette)
+	{
+		layer->ok = true;
+		layer->draw = GetLayerDraw(layer);
+		SelectBlitter(layer);
+		TLN_SetLastError(TLN_ERR_OK);
+		return true;
+	}
+	else
+	{
+		layer->ok = false;
+		TLN_SetLastError(TLN_ERR_REF_PALETTE);
+		return false;
+	}
 }
 
 /*!

@@ -185,7 +185,7 @@ void* LoadFile (const char* filename, ssize_t* out_size)
 	fseek (pf, 0, SEEK_END);
 	size = ftell (pf);
 	fseek (pf, 0, SEEK_SET);
-	data = malloc (size + 1);
+	data = (uint8_t*)malloc (size + 1);
 	if (data)
 	{
 		fread (data, size, 1, pf);

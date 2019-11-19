@@ -160,7 +160,7 @@ TLN_SequencePack TLN_LoadSequencePack (const char* filename)
 	uint8_t *data;
 
 	/* load file */
-	data = LoadFile (filename, &size);
+	data = (uint8_t*)LoadFile (filename, &size);
 	if (!data)
 	{
 		if (size == 0)

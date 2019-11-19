@@ -23,6 +23,8 @@
 	#else
 		#define TLNAPI __declspec(dllimport)
 	#endif
+	
+	#pragma warning(disable : 4200)
 
 	#if _MSC_VER >= 1600	/* Visual C++ 2010? */
 		#include <stdint.h>
@@ -58,7 +60,7 @@
 /* version */
 #define TILENGINE_VER_MAJ	2
 #define TILENGINE_VER_MIN	4
-#define TILENGINE_VER_REV	0
+#define TILENGINE_VER_REV	1
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))

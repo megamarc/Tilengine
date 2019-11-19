@@ -29,7 +29,7 @@ TLN_SequencePack TLN_CreateSequencePack (void)
 	TLN_SequencePack sp;
 	int size = sizeof(struct SequencePack);
 
-	sp = CreateBaseObject (OT_SEQPACK, size);
+	sp = (TLN_SequencePack)CreateBaseObject (OT_SEQPACK, size);
 	if (sp != NULL)
 		TLN_SetLastError (TLN_ERR_OK);
 	return sp;

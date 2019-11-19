@@ -54,7 +54,7 @@ TLN_Spriteset TLN_CreateSpriteset (TLN_Bitmap bitmap, TLN_SpriteData* data, int 
 	int c;
 
 	/* crea */
-	spriteset = CreateBaseObject (OT_SPRITESET, size);
+	spriteset = (TLN_Spriteset)CreateBaseObject (OT_SPRITESET, size);
 	if (!spriteset)
 		return NULL;
 
@@ -111,7 +111,7 @@ bool TLN_SetSpritesetData (TLN_Spriteset spriteset, int entry, TLN_SpriteData* d
 	set_sprite_entry (spriteset, entry, data);
 	if (pixels != NULL && pitch != 0)
 	{
-		uint8_t* src = pixels;
+		uint8_t* src = (uint8_t*)pixels;
 		uint8_t* dst = TLN_GetBitmapPtr (spriteset->bitmap, data->x, data->y);
 		int c;
 		for (c=0; c<data->h; c++)
@@ -144,7 +144,7 @@ TLN_Spriteset TLN_CloneSpriteset (TLN_Spriteset src)
 	if (!CheckBaseObject (src, OT_SPRITESET))
 		return NULL;
 
-	spriteset = CloneBaseObject (src);
+	spriteset = (TLN_Spriteset)CloneBaseObject (src);
 	if (spriteset)
 	{
 		TLN_SetLastError (TLN_ERR_OK);
@@ -172,7 +172,7 @@ bool TLN_DeleteSpriteset (TLN_Spriteset spriteset)
 	if (CheckBaseObject (spriteset, OT_SPRITESET))
 	{
 		if (ObjectOwner (spriteset))
-			DeleteBaseObject (spriteset->bitmap);
+			TLN_DeleteBitmap (spriteset->bitmap);
 		DeleteBaseObject (spriteset);
 		TLN_SetLastError (TLN_ERR_OK);
 		return true;

@@ -85,7 +85,7 @@ static char* mystrdup(const char* src)
 {
 	if (src != NULL)
 	{
-		char* dst = malloc(strlen(src) + 1);
+		char* dst = (char*)malloc(strlen(src) + 1);
 		strcpy(dst, src);
 		return dst;
 	}
@@ -225,7 +225,7 @@ int simpleXmlPushUserData (SimpleXmlParser parser, void* pData) {
 	if (parser == NULL || pData == NULL) {
 		return 0;
 	}
-	newUserData= malloc(sizeof(TSimpleXmlUserData));
+	newUserData = (SimpleXmlUserData)malloc(sizeof(TSimpleXmlUserData));
 	if (newUserData == NULL) {
 		return 0;
 	}
@@ -298,7 +298,7 @@ void* simpleXmlNopHandler (SimpleXmlParser parser, SimpleXmlEvent event,
  */
 SimpleXmlParserState createSimpleXmlParser (const char *sData, long nDataSize) {
 	if (sData != NULL && nDataSize > 0) {
-		SimpleXmlParserState parser= malloc(sizeof(TSimpleXmlParserState));
+		SimpleXmlParserState parser = (SimpleXmlParserState)malloc(sizeof(TSimpleXmlParserState));
 		if (parser == NULL) {
 			return NULL;
 		}
@@ -329,7 +329,7 @@ SimpleXmlParserState createSimpleXmlParser (const char *sData, long nDataSize) {
 void destroySimpleXmlParser (SimpleXmlParserState parser) {
 	if (parser != NULL) {
 		if (parser->vbNextToken != NULL) {
-			free(parser->vbNextToken);
+			destroySimpleXmlValueBuffer(parser->vbNextToken);
 		}
 		if (parser->szAttribute != NULL) {
 			free(parser->szAttribute);
@@ -482,7 +482,7 @@ int parseOneTag (SimpleXmlParserState parser, SimpleXmlTagHandler parentHandler)
 	}
 	clearSimpleXmlValueBuffer(parser->vbNextToken);
 	
-	handler= parentHandler((SimpleXmlParser) parser, ADD_SUBTAG, szTagName, NULL, NULL);
+	handler = (SimpleXmlTagHandler)parentHandler((SimpleXmlParser) parser, ADD_SUBTAG, szTagName, NULL, NULL);
 	if (parser->nError != NO_ERROR) {
 		return FAIL;
 	}
@@ -665,7 +665,7 @@ int readNextTagToken (SimpleXmlParserState parser) {
 				free(parser->szAttribute);
 			}
 			parser->nAttributeBufferSize= getSimpleXmlValueBufferContentLength(parser->vbNextToken);
-			parser->szAttribute= malloc(parser->nAttributeBufferSize);
+			parser->szAttribute = (char*)malloc(parser->nAttributeBufferSize);
 		}
 		if (parser->szAttribute == NULL) {
 			parser->nError= OUT_OF_MEMORY;
@@ -1148,11 +1148,11 @@ int addNextTokenStringValue (SimpleXmlParserState parser, char *szInput) {
  * @see #destroySimpleXmlValueBuffer
  */
 SimpleXmlValueBuffer createSimpleXmlValueBuffer (long nInitialSize) {
-	SimpleXmlValueBuffer vb= malloc(sizeof(TSimpleXmlValueBuffer));
+	SimpleXmlValueBuffer vb = (SimpleXmlValueBuffer)malloc(sizeof(TSimpleXmlValueBuffer));
 	if (vb == NULL) {
 		return NULL;
 	}
-	vb->sBuffer= malloc(nInitialSize);
+	vb->sBuffer = (char*)malloc(nInitialSize);
 	if (vb->sBuffer == NULL) {
 		free(vb);
 		return NULL;
@@ -1184,8 +1184,8 @@ void destroySimpleXmlValueBuffer (SimpleXmlValueBuffer vb) {
  * @return SUCCESS or FAIL (if there is not enough memory).
  */
 int growSimpleXmlValueBuffer (SimpleXmlValueBuffer vb) {
-	char* sOldBuffer= vb->sBuffer;
-	char* sNewBuffer= malloc(vb->nSize * 2);
+	char* sOldBuffer = vb->sBuffer;
+	char* sNewBuffer = (char*)malloc(vb->nSize * 2);
 	if (sNewBuffer == NULL) {
 		return FAIL;
 	}

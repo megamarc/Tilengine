@@ -80,7 +80,7 @@ TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette 
 	size_color = height * numtiles;
 	size_attributes = sizeof(TLN_TileAttributes) * numtiles;
 	size = sizeof(struct Tileset) + size_tiles + size_color + size_attributes;
-	tileset = CreateBaseObject (OT_TILESET, size);
+	tileset = (TLN_Tileset)CreateBaseObject (OT_TILESET, size);
 	if (!tileset)
 		return NULL;
 
@@ -177,7 +177,7 @@ TLN_Tileset TLN_CloneTileset (TLN_Tileset src)
 	if (!CheckBaseObject (src, OT_TILESET))
 		return NULL;
 
-	tileset = CloneBaseObject (src);
+	tileset = (TLN_Tileset)CloneBaseObject (src);
 	if (tileset)
 	{
 		TLN_SetLastError (TLN_ERR_OK);
@@ -208,8 +208,8 @@ bool TLN_DeleteTileset (TLN_Tileset tileset)
 	{
 		if (ObjectOwner (tileset))
 		{
-			DeleteBaseObject (tileset->palette);
-			DeleteBaseObject (tileset->sp);
+			TLN_DeletePalette (tileset->palette);
+			TLN_DeleteSequencePack (tileset->sp);
 		}
 		DeleteBaseObject (tileset);
 		TLN_SetLastError (TLN_ERR_OK);

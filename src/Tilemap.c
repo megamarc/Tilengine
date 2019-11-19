@@ -56,7 +56,7 @@ TLN_Tilemap TLN_CreateTilemap (int rows, int cols, TLN_Tile tiles, uint32_t bgco
 	TLN_Tilemap tilemap = NULL;
 	int size = sizeof(struct Tilemap) + (rows * cols * sizeof(Tile));
 
-	tilemap = CreateBaseObject (OT_TILEMAP, size);
+	tilemap = (TLN_Tilemap)CreateBaseObject (OT_TILEMAP, size);
 	if (!tilemap)
 		return NULL;
 
@@ -92,7 +92,7 @@ TLN_Tilemap TLN_CloneTilemap (TLN_Tilemap src)
 	if (!CheckBaseObject (src, OT_TILEMAP))
 		return NULL;
 
-	tilemap = CloneBaseObject (src);
+	tilemap = (TLN_Tilemap)CloneBaseObject (src);
 	if (tilemap)
 	{
 		TLN_SetLastError (TLN_ERR_OK);
@@ -273,7 +273,7 @@ bool TLN_DeleteTilemap (TLN_Tilemap tilemap)
 	if (CheckBaseObject (tilemap, OT_TILEMAP))
 	{
 		if (ObjectOwner (tilemap))
-			DeleteBaseObject (tilemap->tileset);
+			TLN_DeleteTileset (tilemap->tileset);
 		DeleteBaseObject (tilemap);
 		TLN_SetLastError (TLN_ERR_OK);
 		return true;

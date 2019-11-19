@@ -1,3 +1,5 @@
+#include "Base64.h"
+
 #define WHITESPACE 64
 #define EQUALS     65
 #define INVALID    66

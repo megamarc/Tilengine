@@ -16,12 +16,12 @@
 #include "simplexml.h"
 #include "zlib.h"
 #include "LoadFile.h"
+#include "Base64.h"
 
 #define MAX_TILESETS	8
 
-extern int base64decode (const char* in, int inLen, unsigned char *out, int *outLen);
 static int csvdecode (const char* in, int numtiles, uint32_t* data);
-static int decompress (unsigned char* in, int in_size, unsigned char* out, int out_size);
+static int decompress (uint8_t* in, int in_size, uint8_t* out, int out_size);
 static uint32_t ParseHTMLColor (const char* string);
 
 typedef enum
@@ -157,7 +157,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		{
 			int numtiles = loader.cols * loader.rows;
 			int size = numtiles * sizeof(uint32_t);
-			uint32_t* data = malloc (size);
+			uint32_t* data = (uint32_t*)malloc (size);
 			
 			memset (data, 0, size);
 			if (loader.encoding == ENCODING_CSV)
@@ -166,12 +166,12 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 			else if (loader.encoding == ENCODING_BASE64)
 			{
 				if (loader.compression == COMPRESSION_NONE)
-					base64decode (szValue, (int)strlen(szValue), (unsigned char*)data, &size);
+					base64decode ((uint8_t*)szValue, (int)strlen(szValue), (uint8_t*)data, &size);
 				else
 				{
-					uint8_t* deflated = malloc (size);
+					uint8_t* deflated = (uint8_t*)malloc (size);
 					int in_size = size;
-					base64decode (szValue, (int)strlen(szValue), (unsigned char*)deflated, &in_size);
+					base64decode ((uint8_t*)szValue, (int)strlen(szValue), (uint8_t*)deflated, &in_size);
 					decompress (deflated, in_size, (uint8_t*)data, size);
 					free (deflated);
 				}
@@ -213,7 +213,7 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 	TLN_Tilemap tilemap = NULL;
 	
 	/* load file */
-	data = LoadFile (filename, &size);
+	data = (uint8_t*)LoadFile (filename, &size);
 	if (!data)
 	{
 		if (size == 0)
@@ -321,7 +321,7 @@ static int csvdecode (const char* in, int numtiles, uint32_t *data)
 }
 
 /* decompress a zipped string */
-static int decompress (unsigned char* in, int in_size, unsigned char* out, int out_size)
+static int decompress (uint8_t* in, int in_size, uint8_t* out, int out_size)
 {
 	int ret;
 	z_stream strm;

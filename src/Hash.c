@@ -91,9 +91,9 @@ static const unsigned int crc32_tab[] =
 
 hash_t hash (unsigned int crc, const void *buf, size_t size)
 {
-	const unsigned char* p;
+	unsigned char* p;
 
-	p = buf;
+	p = (unsigned char*)buf;
 	crc = crc ^ ~0U;
 
 	while (size--)

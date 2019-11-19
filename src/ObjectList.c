@@ -138,7 +138,7 @@ TLN_ObjectList TLN_CreateObjectList(void)
 	const int size = sizeof(struct ObjectList);
 
 	/* create */
-	list = CreateBaseObject(OT_OBJECTLIST, size);
+	list = (TLN_ObjectList)CreateBaseObject(OT_OBJECTLIST, size);
 	if (!list)
 		return NULL;
 
@@ -170,7 +170,7 @@ bool TLN_AddObjectToList(TLN_ObjectList list, TLN_Object* data)
 	if (!CheckBaseObject(list, OT_OBJECTLIST))
 		return false;
 
-	object = calloc(1, sizeof(struct _Object));
+	object = (struct _Object*)calloc(1, sizeof(struct _Object));
 	memcpy(&object->data, data, sizeof(TLN_Object));
 	add_to_list(list, object);
 	return true;
@@ -199,7 +199,7 @@ bool TLN_AddSpriteToList(TLN_ObjectList list, TLN_Spriteset spriteset, const cha
 	if (index == -1)
 		return false;
 
-	object = calloc(1, sizeof(struct _Object));
+	object = (struct _Object*)calloc(1, sizeof(struct _Object));
 	object->sprite = &spriteset->data[index];
 	object->data.x = x;
 	object->data.y = y;
@@ -226,7 +226,7 @@ TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername, i
 	uint8_t *data;
 
 	/* load file */
-	data = LoadFile(filename, &size);
+	data = (uint8_t*)LoadFile(filename, &size);
 	if (!data)
 	{
 		if (size == 0)
@@ -278,7 +278,7 @@ TLN_ObjectList TLN_CloneObjectList(TLN_ObjectList src)
 	if (!CheckBaseObject(src, OT_OBJECTLIST))
 		return NULL;
 
-	list = CloneBaseObject(src);
+	list = (TLN_ObjectList)CloneBaseObject(src);
 	object = src->list;
 	while (object != NULL)
 	{
