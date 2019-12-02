@@ -58,7 +58,6 @@ PlayerInput;
 
 static PlayerInput player_inputs[MAX_PLAYERS];
 
-
 /* CRT effect */
 struct
 {
@@ -407,7 +406,7 @@ static int WindowThread (void* data)
  * \see
  * TLN_DeleteWindow(), TLN_ProcessWindow(), TLN_GetInput(), TLN_DrawFrame()
  */
-bool TLN_CreateWindow (const char* overlay, TLN_WindowFlags flags)
+bool TLN_CreateWindow (const char* overlay, int flags)
 {
 	bool ok;
 
@@ -462,7 +461,7 @@ bool TLN_CreateWindow (const char* overlay, TLN_WindowFlags flags)
  * \see
  * TLN_DeleteWindow(), TLN_IsWindowActive(), TLN_GetInput(), TLN_UpdateFrame()
  */
-bool TLN_CreateWindowThread (const char* overlay, TLN_WindowFlags flags)
+bool TLN_CreateWindowThread (const char* overlay, int flags)
 {
 	bool ok;
 

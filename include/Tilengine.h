@@ -304,18 +304,17 @@ typedef enum
 TLN_Input;
 
 /*! CreateWindow flags. Can be none or a combination of the following: */
-typedef enum
+enum
 {
-	CWF_FULLSCREEN	=	(1<<0),	/*!< create a fullscreen window */
-	CWF_VSYNC		=	(1<<1),	/*!< sync frame updates with vertical retrace */
-	CWF_S1			=	(1<<2),	/*!< create a window the same size as the framebuffer */
-	CWF_S2			=	(2<<2),	/*!< create a window 2x the size the framebuffer */
-	CWF_S3			=	(3<<2),	/*!< create a window 3x the size the framebuffer */
-	CWF_S4			=	(4<<2),	/*!< create a window 4x the size the framebuffer */
-	CWF_S5			=	(5<<2),	/*!< create a window 5x the size the framebuffer */
-	CWF_NEAREST		=   (1<<6),	/*<! unfiltered upscaling */
-}
-TLN_WindowFlags;
+	CWF_FULLSCREEN	= (1 << 0),	/*!< create a fullscreen window */
+	CWF_VSYNC		= (1 << 1),	/*!< sync frame updates with vertical retrace */
+	CWF_S1			= (1 << 2),	/*!< create a window the same size as the framebuffer */
+	CWF_S2			= (2 << 2),	/*!< create a window 2x the size the framebuffer */
+	CWF_S3			= (3 << 2),	/*!< create a window 3x the size the framebuffer */
+	CWF_S4			= (4 << 2),	/*!< create a window 4x the size the framebuffer */
+	CWF_S5			= (5 << 2),	/*!< create a window 5x the size the framebuffer */
+	CWF_NEAREST		= (1 << 6),	/*<! unfiltered upscaling */
+};
 
 /*! Error codes */
 typedef enum
@@ -406,8 +405,8 @@ TLNAPI const char *TLN_GetErrorString (TLN_Error error);
  * \defgroup windowing
  * \brief Built-in window and input management
 * @{ */
-TLNAPI bool TLN_CreateWindow (const char* overlay, TLN_WindowFlags flags);
-TLNAPI bool TLN_CreateWindowThread (const char* overlay, TLN_WindowFlags flags);
+TLNAPI bool TLN_CreateWindow (const char* overlay, int flags);
+TLNAPI bool TLN_CreateWindowThread (const char* overlay, int flags);
 TLNAPI void TLN_SetWindowTitle (const char* title);
 TLNAPI bool TLN_ProcessWindow (void);
 TLNAPI bool TLN_IsWindowActive (void);
