@@ -192,7 +192,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat />
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libpng.lib;SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>

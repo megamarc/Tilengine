@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tilengine", "src\Tilengine.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test\test.vcxproj", "{CE31C686-C6BF-4262-8982-D858830BE967}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tilengine_libretro", "src\tilengine_libretro.vcxproj", "{6BF83D7F-5A97-4CA6-92DC-A997991879E9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -29,6 +31,14 @@ Global
 		{CE31C686-C6BF-4262-8982-D858830BE967}.Release|Win32.ActiveCfg = Release|Win32
 		{CE31C686-C6BF-4262-8982-D858830BE967}.Release|Win32.Build.0 = Release|Win32
 		{CE31C686-C6BF-4262-8982-D858830BE967}.Release|x64.ActiveCfg = Release|x64
+		{6BF83D7F-5A97-4CA6-92DC-A997991879E9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6BF83D7F-5A97-4CA6-92DC-A997991879E9}.Debug|Win32.Build.0 = Debug|Win32
+		{6BF83D7F-5A97-4CA6-92DC-A997991879E9}.Debug|x64.ActiveCfg = Debug|x64
+		{6BF83D7F-5A97-4CA6-92DC-A997991879E9}.Debug|x64.Build.0 = Debug|x64
+		{6BF83D7F-5A97-4CA6-92DC-A997991879E9}.Release|Win32.ActiveCfg = Release|Win32
+		{6BF83D7F-5A97-4CA6-92DC-A997991879E9}.Release|Win32.Build.0 = Release|Win32
+		{6BF83D7F-5A97-4CA6-92DC-A997991879E9}.Release|x64.ActiveCfg = Release|x64
+		{6BF83D7F-5A97-4CA6-92DC-A997991879E9}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
