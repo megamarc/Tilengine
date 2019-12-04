@@ -136,7 +136,7 @@ int simpleXmlParse (SimpleXmlParser parser, SimpleXmlTagHandler handler);
  * @param parser the parser for which to get the error description.
  * @return an error description or NULL if there was no error during parsing.
  */
-char* simpleXmlGetErrorDescription (SimpleXmlParser parser);
+const char* simpleXmlGetErrorDescription (SimpleXmlParser parser);
 
 /**
  * Returns the line number of the current input line that the parser has read.

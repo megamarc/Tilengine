@@ -155,7 +155,7 @@ typedef struct simplexml_parser_state {
 SimpleXmlParserState createSimpleXmlParser (const char *sData, long nDataSize);
 void destroySimpleXmlParser (SimpleXmlParserState parser);
 int initializeSimpleXmlParser (SimpleXmlParserState parser, const char *sData, long nDataSize);
-char* getSimpleXmlParseErrorDescription (SimpleXmlParserState parser);
+const char* getSimpleXmlParseErrorDescription (SimpleXmlParserState parser);
 int parseSimpleXml (SimpleXmlParserState parser, SimpleXmlTagHandler handler);
 int parseOneTag (SimpleXmlParserState parser, SimpleXmlTagHandler parentHandler);
 int readNextTagToken (SimpleXmlParserState parser);
@@ -202,7 +202,7 @@ int simpleXmlParse (SimpleXmlParser parser, SimpleXmlTagHandler handler) {
 	return 0;
 }
 
-char* simpleXmlGetErrorDescription (SimpleXmlParser parser) {
+const char* simpleXmlGetErrorDescription (SimpleXmlParser parser) {
 	return getSimpleXmlParseErrorDescription((SimpleXmlParserState) parser);
 }
 
@@ -384,7 +384,7 @@ int initializeSimpleXmlParser (SimpleXmlParserState parser, const char *sData, l
  * @return an error description or NULL if there was
  * no error during parsing.
  */
-char* getSimpleXmlParseErrorDescription (SimpleXmlParserState parser) {
+const char* getSimpleXmlParseErrorDescription (SimpleXmlParserState parser) {
 	if (parser == NULL) {
 		return NULL;
 	}

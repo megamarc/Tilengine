@@ -1,27 +1,25 @@
+// #define LUA_BUILD_AS_DLL
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <math.h>
-
-#ifndef M_PI
-#define M_PI 3.14159265f
-#endif
-
 #include <stdio.h>
+
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
+
 #include "libretro.h"
 #include "Tilengine.h"
-#include "lua.h"
 
-#define VIDEO_WIDTH 480
-#define VIDEO_HEIGHT 270
-#define VIDEO_PIXELS VIDEO_WIDTH * VIDEO_HEIGHT
+static int VIDEO_WIDTH = 480;
+static int VIDEO_HEIGHT = 360;
 
 static uint8_t *frame_buf;
 static struct retro_log_callback logging;
 static retro_log_printf_t log_cb;
-static bool use_audio_cb;
 static float last_aspect;
 static float last_sample_rate;
 char retro_base_directory[4096];
@@ -34,7 +32,7 @@ char retro_game_path[4096];
 
 static TLN_Engine engine;
 static int frame;
-static lua_State* lua_state;
+static struct lua_State* L;
 
 static void fallback_log(enum retro_log_level level, const char *fmt, ...)
 {
@@ -54,10 +52,14 @@ void retro_init(void)
 	{
 		snprintf(retro_base_directory, sizeof(retro_base_directory), "%s", dir);
 	}
+
+	L = luaL_newstate();
+	luaL_openlibs(L);
 }
 
 void retro_deinit(void)
 {
+	lua_close(L);
 }
 
 unsigned retro_api_version(void)
@@ -80,8 +82,6 @@ void retro_get_system_info(struct retro_system_info *info)
 }
 
 static retro_video_refresh_t video_cb;
-static retro_audio_sample_t audio_cb;
-static retro_audio_sample_batch_t audio_batch_cb;
 static retro_input_poll_t input_poll_cb;
 static retro_input_state_t input_state_cb;
 
@@ -126,12 +126,12 @@ void retro_set_environment(retro_environment_t cb)
 
 void retro_set_audio_sample(retro_audio_sample_t cb)
 {
-	audio_cb = cb;
+	(void)cb;
 }
 
 void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb)
 {
-	audio_batch_cb = cb;
+	(void)cb;
 }
 
 void retro_set_input_poll(retro_input_poll_t cb)
@@ -149,10 +149,6 @@ void retro_set_video_refresh(retro_video_refresh_t cb)
 	video_cb = cb;
 }
 
-static unsigned phase;
-static int mouse_rel_x;
-static int mouse_rel_y;
-
 void retro_reset(void)
 {
 
@@ -168,22 +164,6 @@ static void check_variables(void)
 
 }
 
-static void audio_callback(void)
-{
-	for (unsigned i = 0; i < 30000 / 60; i++, phase++)
-	{
-		int16_t val = (int16_t)(0x800 * sinf(2.0f * M_PI * phase * 300.0f / 30000.0f));
-		audio_cb(val, val);
-	}
-
-	phase %= 100;
-}
-
-static void audio_set_state(bool enable)
-{
-	(void)enable;
-}
-
 void retro_run(void)
 {
 	update_input();
@@ -192,13 +172,33 @@ void retro_run(void)
 	if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
 		check_variables();
 
+	/* game logic in lua script */
+	lua_getglobal(L, "game_loop");
+	lua_pushnumber(L, frame);
+	lua_pcall(L, 1, 0, 0);
+
 	TLN_UpdateFrame(frame);
 	video_cb(frame_buf, VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_WIDTH * sizeof(uint32_t));
 	frame += 1;
 }
 
+/* returns int field from lua table */
+static int getIntField(lua_State* L, const char* key)
+{
+	int result = 0;
+
+	lua_pushstring(L, key);
+	lua_gettable(L, -2);  // get table[key]
+	result = (int)lua_tonumber(L, -1);
+	lua_pop(L, 1);  // remove number from stack
+	return result;
+}
+
 bool retro_load_game(const struct retro_game_info *info)
 {
+	int numlayers, numsprites, numanimations;
+	int retval;
+
 	struct retro_input_descriptor desc[] = {
 	  { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT,  "Left" },
 	  { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP,    "Up" },
@@ -214,25 +214,39 @@ bool retro_load_game(const struct retro_game_info *info)
 	environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
 
 	snprintf(retro_game_path, sizeof(retro_game_path), "%s", info->path);
-	struct retro_audio_callback audio_cb = { audio_callback, audio_set_state };
-	//use_audio_cb = environ_cb(RETRO_ENVIRONMENT_SET_AUDIO_CALLBACK, &audio_cb);
 
 	check_variables();
 
-	(void)info;
+	/* lua */
+	retval = luaL_loadfile(L, "game.lua");
+	printf("%s\n", lua_tostring(L, -1));
+	retval = lua_pcall(L, 0, 0, 0);
+	printf("%s\n", lua_tostring(L, -1));
+	lua_getglobal(L, "game_init");
+	lua_getglobal(L, "config");
+	VIDEO_WIDTH = getIntField(L, "hres");
+	VIDEO_HEIGHT = getIntField(L, "vres");
+	numlayers = getIntField(L, "numlayers");
+	numsprites = getIntField(L, "numsprites");
+	numanimations = getIntField(L, "numanimations");
 
 	/* Tilengine */
-	frame_buf = (uint8_t*)malloc(VIDEO_PIXELS * sizeof(uint32_t));
-	engine = TLN_Init(VIDEO_WIDTH, VIDEO_HEIGHT, TLN_NUM_LAYERS, TLN_NUM_SPRITES, TLN_NUM_ANIMATIONS);
+	frame_buf = (uint8_t*)malloc(VIDEO_WIDTH * VIDEO_HEIGHT* sizeof(uint32_t));
+	engine = TLN_Init(VIDEO_WIDTH, VIDEO_HEIGHT, numlayers, numsprites, numanimations);
 	TLN_SetRenderTarget(frame_buf, VIDEO_WIDTH * sizeof(uint32_t));
-	TLN_SetBGColor(128, 64, 32);
 	frame = 0;
+
+	lua_getglobal(L, "game_load");
+	lua_pcall(L, 0, 0, 0);
 
 	return true;
 }
 
 void retro_unload_game(void)
 {
+	lua_getglobal(L, "game_unload");
+	lua_pcall(L, 0, 0, 0);
+
 	TLN_Deinit();
 	free(frame_buf);
 	frame_buf = NULL;
