@@ -390,6 +390,9 @@ TLNAPI void TLN_SetLogLevel(TLN_LogLevel log_level);
 TLNAPI bool TLN_OpenResourcePack(const char* filename, const char* key);
 TLNAPI void TLN_CloseResourcePack(void);
 
+TLNAPI void LUA_SetFrameCallback(const char* name);
+TLNAPI void LUA_SetRasterCallback(const char* name);
+
 /**@}*/
 
 /**

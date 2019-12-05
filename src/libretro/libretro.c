@@ -20,8 +20,9 @@ static int VIDEO_HEIGHT = 360;
 static uint8_t *frame_buf;
 static struct retro_log_callback logging;
 static retro_log_printf_t log_cb;
-static float last_aspect;
-static float last_sample_rate;
+static char frame_callback_name[64];
+static char raster_callback_name[64];
+
 char retro_base_directory[4096];
 char retro_game_path[4096];
 
@@ -172,11 +173,6 @@ void retro_run(void)
 	if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
 		check_variables();
 
-	/* game logic in lua script */
-	lua_getglobal(L, "game_loop");
-	lua_pushnumber(L, frame);
-	lua_pcall(L, 1, 0, 0);
-
 	TLN_UpdateFrame(frame);
 	video_cb(frame_buf, VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_WIDTH * sizeof(uint32_t));
 	frame += 1;
@@ -222,7 +218,6 @@ bool retro_load_game(const struct retro_game_info *info)
 	printf("%s\n", lua_tostring(L, -1));
 	retval = lua_pcall(L, 0, 0, 0);
 	printf("%s\n", lua_tostring(L, -1));
-	lua_getglobal(L, "game_init");
 	lua_getglobal(L, "config");
 	VIDEO_WIDTH = getIntField(L, "hres");
 	VIDEO_HEIGHT = getIntField(L, "vres");
@@ -236,6 +231,11 @@ bool retro_load_game(const struct retro_game_info *info)
 	TLN_SetRenderTarget(frame_buf, VIDEO_WIDTH * sizeof(uint32_t));
 	frame = 0;
 
+	/* register default callbacks */
+	LUA_SetFrameCallback("game_loop");
+	LUA_SetRasterCallback(NULL);
+
+	/* call game init */
 	lua_getglobal(L, "game_load");
 	lua_pcall(L, 0, 0, 0);
 
@@ -297,4 +297,52 @@ void retro_cheat_set(unsigned index, bool enabled, const char *code)
 	(void)index;
 	(void)enabled;
 	(void)code;
+}
+
+static void frame_callback(int frame)
+{
+	/* game logic in lua script */
+	lua_getglobal(L, frame_callback_name);
+	lua_pushnumber(L, frame);
+	lua_pcall(L, 1, 0, 0);
+}
+
+static void raster_callback(int line)
+{
+	/* raster effect in lua script */
+	lua_getglobal(L, raster_callback_name);
+	lua_pushnumber(L, line);
+	lua_pcall(L, 1, 0, 0);
+}
+
+/*!
+ * Sets the lua function name to be called at the start of each frame, for implementing game logic. Default is "game_loop". Intended to be called from a lua script
+ * 
+ * \param name name of the lua function, or NULL to disable frame callback
+ */
+void LUA_SetFrameCallback(const char* name)
+{
+	if (name)
+	{
+		strncpy(frame_callback_name, name, sizeof(frame_callback_name));
+		TLN_SetFrameCallback(frame_callback);
+	}
+	else
+		TLN_SetFrameCallback(NULL);
+}
+
+/*!
+ * Sets the lua function name to be called at every scanline for raster effects. Default is none. Intended to be called from a lua script
+ * 
+ * \param name name of the lua function, or NULL to disable raster callback
+ */
+void LUA_SetRasterCallback(const char* name)
+{
+	if (name)
+	{
+		strncpy(raster_callback_name, name, sizeof(raster_callback_name));
+		TLN_SetRasterCallback(raster_callback);
+	}
+	else
+		TLN_SetRasterCallback(NULL);
 }

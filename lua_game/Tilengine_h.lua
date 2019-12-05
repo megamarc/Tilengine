@@ -244,6 +244,9 @@ void TLN_SetLogLevel(TLN_LogLevel log_level);
 bool TLN_OpenResourcePack(const char* filename, const char* key);
 void TLN_CloseResourcePack(void);
 
+void LUA_SetFrameCallback(const char* name);
+void LUA_SetRasterCallback(const char* name);
+
 /**@}*/
 
 /**
