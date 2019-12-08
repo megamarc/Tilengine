@@ -14,6 +14,22 @@
 #include "libretro.h"
 #include "Tilengine.h"
 
+/* input flags for input_mask, 
+   values aligned with RETRO_DEVICE_ID_JOYPAD_n */
+enum
+{
+	INPUT_BUTTON1	= 0x0001,
+	INPUT_BUTTON2	= 0x0002,
+	INPUT_SELECT	= 0x0004,
+	INPUT_START		= 0x0008,
+	INPUT_UP		= 0x0010,
+	INPUT_DOWN		= 0x0020,
+	INPUT_LEFT		= 0x0040,
+	INPUT_RIGHT		= 0x0080,
+	INPUT_BUTTON3	= 0x0100,
+	INPUT_BUTTON4	= 0x0200,
+};
+
 static int VIDEO_WIDTH = 480;
 static int VIDEO_HEIGHT = 360;
 
@@ -27,13 +43,10 @@ char retro_base_directory[4096];
 char retro_game_path[4096];
 
 /* tilengine specific */
-#define TLN_NUM_LAYERS		4
-#define TLN_NUM_SPRITES		128
-#define TLN_NUM_ANIMATIONS	32
-
 static TLN_Engine engine;
 static int frame;
 static struct lua_State* L;
+static uint16_t input_mask[2];
 
 static void fallback_log(enum retro_log_level level, const char *fmt, ...)
 {
@@ -111,16 +124,6 @@ void retro_set_environment(retro_environment_t cb)
 	else
 		log_cb = fallback_log;
 
-	static const struct retro_controller_description controllers[] = {
-	   { "Nintendo DS", RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD, 0) },
-	};
-
-	static const struct retro_controller_info ports[] = {
-	   { controllers, 1 },
-	   { NULL, 0 },
-	};
-
-	cb(RETRO_ENVIRONMENT_SET_CONTROLLER_INFO, (void*)ports);
 	cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &no_rom);
 	cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt);
 }
@@ -157,7 +160,48 @@ void retro_reset(void)
 
 static void update_input(void)
 {
+	unsigned port;
 
+	for (port = 0; port < 2; port += 1)
+	{
+		uint16_t input = 0;
+
+		if (input_state_cb(port, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT))
+			input |= INPUT_LEFT;
+		if (input_state_cb(port, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT))
+			input |= INPUT_RIGHT;
+		if (input_state_cb(port, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP))
+			input |= INPUT_UP;
+		if (input_state_cb(port, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN))
+			input |= INPUT_DOWN;
+		if (input_state_cb(port, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_B))
+			input |= INPUT_BUTTON1;
+		if (input_state_cb(port, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_Y))
+			input |= INPUT_BUTTON2;
+		if (input_state_cb(port, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A))
+			input |= INPUT_BUTTON3;
+		if (input_state_cb(port, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_X))
+			input |= INPUT_BUTTON4;
+		if (input_state_cb(port, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_START))
+			input |= INPUT_START;
+		if (input_state_cb(port, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_SELECT))
+			input |= INPUT_SELECT;
+
+		input_mask[port] = input;
+
+#if 0
+		if (input != input_mask[port])
+		{
+			/* call game_input(port, mask) */
+			lua_getglobal(L, "game_input");
+			lua_pushnumber(L, port);
+			lua_pushnumber(L, input);
+			lua_pcall(L, 2, 0, 0);
+			input_mask[port] = input;
+			log_cb(RETRO_LOG_DEBUG, "Input p%d %04X\n", port + 1, input);
+		}
+#endif
+	}
 }
 
 static void check_variables(void)
@@ -196,15 +240,29 @@ bool retro_load_game(const struct retro_game_info *info)
 	int retval;
 
 	struct retro_input_descriptor desc[] = {
-	  { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT,  "Left" },
-	  { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP,    "Up" },
-	  { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN,  "Down" },
-	  { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT, "Right" },
-	  { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_B,     "2" },
-	  { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A,     "1" },
-	  { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_X,     "3" },
-	  { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_Y,     "4" },
-	  { 0 },
+		{ 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT,  "Left" },
+		{ 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP,    "Up" },
+		{ 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN,  "Down" },
+		{ 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT, "Right" },
+		{ 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_B,     "B" },
+		{ 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A,     "A" },
+		{ 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_X,     "X" },
+		{ 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_Y,     "Y" },
+		{ 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_START, "Start" },
+		{ 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_SELECT,"Select" },
+
+		{ 1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT,  "Left" },
+		{ 1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP,    "Up" },
+		{ 1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN,  "Down" },
+		{ 1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT, "Right" },
+		{ 1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_B,     "B" },
+		{ 1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A,     "A" },
+		{ 1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_X,     "X" },
+		{ 1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_Y,     "Y" },
+		{ 1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_START, "Start" },
+		{ 1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_SELECT,"Select" },
+
+		{ 1, RETRO_DEVICE_NONE, 0, 0,  NULL },
 	};
 
 	environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
@@ -214,10 +272,9 @@ bool retro_load_game(const struct retro_game_info *info)
 	check_variables();
 
 	/* lua */
+	log_cb = fallback_log;
 	retval = luaL_loadfile(L, "game.lua");
-	printf("%s\n", lua_tostring(L, -1));
 	retval = lua_pcall(L, 0, 0, 0);
-	printf("%s\n", lua_tostring(L, -1));
 	lua_getglobal(L, "config");
 	VIDEO_WIDTH = getIntField(L, "hres");
 	VIDEO_HEIGHT = getIntField(L, "vres");
@@ -345,4 +402,10 @@ void LUA_SetRasterCallback(const char* name)
 	}
 	else
 		TLN_SetRasterCallback(NULL);
+}
+
+bool LUA_CheckInput(uint8_t port, uint16_t input)
+{
+	log_cb(RETRO_LOG_DEBUG, "LUA_CheckInput(%d,%d)\n", port, input);
+	return (input_mask[port] & input) != 0;
 }

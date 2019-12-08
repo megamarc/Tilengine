@@ -1,8 +1,10 @@
 -- minimal script that integrates with tilengine_libretro core
 
-require("Tilengine_h")
+require("tilengine_libretro")
 local ffi = require("ffi")
 local tln = ffi.load 'tilengine_libretro'
+
+x = 0
 
 -- tilengine configuration
 config = {
@@ -26,9 +28,14 @@ end
 
 -- called every frame
 function game_loop(frame)
-	tln.TLN_SetLayerPosition(0, frame*2, 0)
-	tln.TLN_SetLayerPosition(1, frame, 0)
+	-- update visuals
+	tln.TLN_SetLayerPosition(0, x*2, 0)
+	tln.TLN_SetLayerPosition(1, x, 0)
 	tln.TLN_SetBGColor(0x1B, 0x00, 0x8B)
+	
+	-- process input
+	if LUA_CheckInput(0, INPUT_LEFT) then x = x - 2 end
+	if LUA_CheckInput(0, INPUT_RIGHT) then x = x + 2 end
 end
 
 -- called at end

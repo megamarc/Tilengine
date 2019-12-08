@@ -244,6 +244,22 @@ void TLN_SetLogLevel(TLN_LogLevel log_level);
 bool TLN_OpenResourcePack(const char* filename, const char* key);
 void TLN_CloseResourcePack(void);
 
+/* input flags for input_mask, 
+   values aligned with RETRO_DEVICE_ID_JOYPAD_n */
+enum
+{
+	INPUT_BUTTON1	= 0x0001,
+	INPUT_BUTTON2	= 0x0002,
+	INPUT_SELECT	= 0x0004,
+	INPUT_START		= 0x0008,
+	INPUT_UP		= 0x0010,
+	INPUT_DOWN		= 0x0020,
+	INPUT_LEFT		= 0x0040,
+	INPUT_RIGHT		= 0x0080,
+	INPUT_BUTTON3	= 0x0100,
+	INPUT_BUTTON4	= 0x0200,
+};
+
 void LUA_SetFrameCallback(const char* name);
 void LUA_SetRasterCallback(const char* name);
 

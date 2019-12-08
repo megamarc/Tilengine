@@ -205,18 +205,6 @@ typedef struct
 }
 TLN_Object;
 
-/*! overlays for CRT effect */
-typedef enum
-{
-	TLN_OVERLAY_NONE,		/*!< no overlay */
-	TLN_OVERLAY_SHADOWMASK,	/*!< Shadow mask pattern */
-	TLN_OVERLAY_APERTURE,	/*!< Aperture grille pattern */
-	TLN_OVERLAY_SCANLINES,	/*!< Scanlines pattern */
-	TLN_OVERLAY_CUSTOM,		/*!< User-provided when calling TLN_CreateWindow() */
-	TLN_MAX_OVERLAY
-}
-TLN_Overlay;
-
 /*! pixel mapping for TLN_SetLayerPixelMapping() */
 typedef struct
 {
@@ -253,68 +241,8 @@ typedef struct
 TLN_SpriteState;
 
 /* callbacks */
-typedef union SDL_Event SDL_Event;
 typedef void(*TLN_VideoCallback)(int scanline);
 typedef uint8_t(*TLN_BlendFunction)(uint8_t src, uint8_t dst);
-typedef void(*TLN_SDLCallback)(SDL_Event*);
-
-/*! Player index for input assignment functions */
-typedef enum
-{
-	PLAYER1,	/*!< Player 1 */
-	PLAYER2,	/*!< Player 2 */
-	PLAYER3,	/*!< Player 3 */
-	PLAYER4,	/*!< Player 4 */
-}
-TLN_Player;
-
-/*! Standard inputs query for TLN_GetInput() */
-typedef enum
-{
-	INPUT_NONE,		/*!< no input */
-	INPUT_UP,		/*!< up direction */
-	INPUT_DOWN,		/*!< down direction */
-	INPUT_LEFT,		/*!< left direction */
-	INPUT_RIGHT,	/*!< right direction */
-	INPUT_BUTTON1,	/*!< 1st action button */
-	INPUT_BUTTON2,	/*!< 2nd action button */
-	INPUT_BUTTON3,	/*!< 3th action button */
-	INPUT_BUTTON4,	/*!< 4th action button */
-	INPUT_BUTTON5,	/*!< 5th action button */
-	INPUT_BUTTON6,	/*!< 6th action button */
-	INPUT_START,	/*!< Start button */
-	INPUT_QUIT,		/*!< Window close (only Player 1 keyboard) */
-	INPUT_CRT,		/*!< CRT toggle (only Player 1 keyboard) */
-
-	/* ... up to 32 unique inputs */
-
-	INPUT_P1 = (PLAYER1 << 5), 	/*!< request player 1 input (default) */
-	INPUT_P2 = (PLAYER2 << 5),	/*!< request player 2 input */
-	INPUT_P3 = (PLAYER3 << 5),	/*!< request player 3 input */
-	INPUT_P4 = (PLAYER4 << 5),	/*!< request player 4 input */
-
-	/* compatibility symbols for pre-1.18 input model */
-	INPUT_A = INPUT_BUTTON1,
-	INPUT_B = INPUT_BUTTON2,
-	INPUT_C = INPUT_BUTTON3,
-	INPUT_D = INPUT_BUTTON4,
-	INPUT_E = INPUT_BUTTON5,
-	INPUT_F = INPUT_BUTTON6,
-}
-TLN_Input;
-
-/*! CreateWindow flags. Can be none or a combination of the following: */
-enum
-{
-	CWF_FULLSCREEN	= (1 << 0),	/*!< create a fullscreen window */
-	CWF_VSYNC		= (1 << 1),	/*!< sync frame updates with vertical retrace */
-	CWF_S1			= (1 << 2),	/*!< create a window the same size as the framebuffer */
-	CWF_S2			= (2 << 2),	/*!< create a window 2x the size the framebuffer */
-	CWF_S3			= (3 << 2),	/*!< create a window 3x the size the framebuffer */
-	CWF_S4			= (4 << 2),	/*!< create a window 4x the size the framebuffer */
-	CWF_S5			= (5 << 2),	/*!< create a window 5x the size the framebuffer */
-	CWF_NEAREST		= (1 << 6),	/*<! unfiltered upscaling */
-};
 
 /*! Error codes */
 typedef enum
@@ -392,6 +320,7 @@ TLNAPI void TLN_CloseResourcePack(void);
 
 TLNAPI void LUA_SetFrameCallback(const char* name);
 TLNAPI void LUA_SetRasterCallback(const char* name);
+TLNAPI bool LUA_CheckInput(uint8_t port, uint16_t input);
 
 /**@}*/
 
@@ -402,36 +331,6 @@ TLNAPI void LUA_SetRasterCallback(const char* name);
 TLNAPI void TLN_SetLastError (TLN_Error error);
 TLNAPI TLN_Error TLN_GetLastError (void);
 TLNAPI const char *TLN_GetErrorString (TLN_Error error);
-/**@}*/
-
-/**
- * \defgroup windowing
- * \brief Built-in window and input management
-* @{ */
-TLNAPI bool TLN_CreateWindow (const char* overlay, int flags);
-TLNAPI bool TLN_CreateWindowThread (const char* overlay, int flags);
-TLNAPI void TLN_SetWindowTitle (const char* title);
-TLNAPI bool TLN_ProcessWindow (void);
-TLNAPI bool TLN_IsWindowActive (void);
-TLNAPI bool TLN_GetInput (TLN_Input id);
-TLNAPI void TLN_EnableInput (TLN_Player player, bool enable);
-TLNAPI void TLN_AssignInputJoystick (TLN_Player player, int index);
-TLNAPI void TLN_DefineInputKey (TLN_Player player, TLN_Input input, uint32_t keycode);
-TLNAPI void TLN_DefineInputButton (TLN_Player player, TLN_Input input, uint8_t joybutton);
-TLNAPI void TLN_DrawFrame (int time);
-TLNAPI void TLN_WaitRedraw (void);
-TLNAPI void TLN_DeleteWindow (void);
-TLNAPI void TLN_EnableBlur (bool mode);
-TLNAPI void TLN_EnableCRTEffect (TLN_Overlay overlay, uint8_t overlay_factor, uint8_t threshold, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, bool blur, uint8_t glow_factor);
-TLNAPI void TLN_DisableCRTEffect (void);
-TLNAPI void TLN_SetSDLCallback(TLN_SDLCallback);
-TLNAPI void TLN_Delay (uint32_t msecs);
-TLNAPI uint32_t TLN_GetTicks (void);
-TLNAPI void TLN_BeginWindowFrame (int time);
-TLNAPI void TLN_EndWindowFrame (void);
-TLNAPI int TLN_GetWindowWidth(void);
-TLNAPI int TLN_GetWindowHeight(void);
-
 /**@}*/
 
 /**
