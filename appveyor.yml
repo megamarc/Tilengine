@@ -5,5 +5,5 @@ platform:
 - x86
 - x64
 build:
-  project: src/Tilengine.vcxproj
+  project: src/tilengine_libretro.vcxproj
   verbosity: minimal
