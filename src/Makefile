@@ -2,6 +2,7 @@ CC       = gcc
 SOURCES  = $(filter-out Test.c,$(wildcard *.c))
 OBJECTS  = $(SOURCES:.c=.o)
 INCPATH  = ../include
+TARGET   = tilengine_libretro
 
 # Windows specific flags
 ifeq ($(OS),Windows_NT)
@@ -13,8 +14,8 @@ else
 	
 	# Linux specific flags (i686, x64 and arm)
 	ifeq ($(name),Linux)
-		LIBS = -lSDL2 -lc -lz -lpng
-		BIN  = libTilengine.so
+		LIBS = -lc -lz -lpng
+		BIN  = $(TARGET).so
 		LDFLAGS = -shared -s
 		ifeq ($(arch),i686)
 			CFLAGS = -m32 -msse2
@@ -31,8 +32,8 @@ else
 	
 	# OSX specific flags
 	ifeq ($(name),Darwin)
-		LIBS = -lpng -lz -framework SDL2 -lc
-		BIN  = Tilengine.dylib
+		LIBS = -lpng -lz -lc
+		BIN  = $(TARGET).dylib
 		LDFLAGS = -dynamiclib
 		LIBPATH = ../lib/darwin_x86_64
 	endif
@@ -46,16 +47,12 @@ CFLAGS += -I$(INCPATH) -std=c99 -O2 -fpic -DLIB_EXPORTS
 all: all-before $(BIN) all-after
 
 clean: clean-custom
-	${RM} $(OBJECTS) $(BIN) Test
+	${RM} $(OBJECTS) $(BIN)
 
 $(BIN): $(OBJECTS)
 	$(CC) -shared $(OBJECTS) -o $(BIN) $(LIBS) -fvisibility=hidden
 	mkdir -p $(LIBPATH)
 	cp $(BIN) $(LIBPATH)
-
-Test: Test.c
-	$(RM) Test.o Test
-	$(CC) Test.c -o Test -I$(INCPATH) -L$(LIBPATH) -lTilengine -Wl,-rpath,$(LIBPATH)
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@

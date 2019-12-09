@@ -10,5 +10,3 @@ before_install:
 script:
 - cd src
 - make
-- make Test
-- ./Test
