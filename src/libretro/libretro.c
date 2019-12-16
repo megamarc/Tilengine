@@ -1,5 +1,3 @@
-// #define LUA_BUILD_AS_DLL
-
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -13,6 +11,11 @@
 
 #include "libretro.h"
 #include "Tilengine.h"
+
+#ifdef WIN32
+extern SetCurrentDirectoryA(const char* path);
+#define chdir SetCurrentDirectoryA
+#endif
 
 /* input flags for input_mask, 
    values aligned with RETRO_DEVICE_ID_JOYPAD_n */
@@ -38,9 +41,7 @@ static struct retro_log_callback logging;
 static retro_log_printf_t log_cb;
 static char frame_callback_name[64];
 static char raster_callback_name[64];
-
-char retro_base_directory[4096];
-char retro_game_path[4096];
+static char retro_base_directory[4096];
 
 /* tilengine specific */
 static TLN_Engine engine;
@@ -90,9 +91,9 @@ void retro_get_system_info(struct retro_system_info *info)
 {
 	memset(info, 0, sizeof(*info));
 	info->library_name = "Tilengine";
-	info->library_version = "0.1";
+	info->library_version = "1.0";
 	info->need_fullpath = true;
-	info->valid_extensions = "ini";
+	info->valid_extensions = "lua";
 }
 
 static retro_video_refresh_t video_cb;
@@ -114,7 +115,7 @@ static struct retro_rumble_interface rumble;
 
 void retro_set_environment(retro_environment_t cb)
 {
-	bool no_rom = true;
+	bool no_rom = false;
 	enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_XRGB8888;
 
 	environ_cb = cb;
@@ -188,19 +189,6 @@ static void update_input(void)
 			input |= INPUT_SELECT;
 
 		input_mask[port] = input;
-
-#if 0
-		if (input != input_mask[port])
-		{
-			/* call game_input(port, mask) */
-			lua_getglobal(L, "game_input");
-			lua_pushnumber(L, port);
-			lua_pushnumber(L, input);
-			lua_pcall(L, 2, 0, 0);
-			input_mask[port] = input;
-			log_cb(RETRO_LOG_DEBUG, "Input p%d %04X\n", port + 1, input);
-		}
-#endif
 	}
 }
 
@@ -267,14 +255,17 @@ bool retro_load_game(const struct retro_game_info *info)
 
 	environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
 
-	snprintf(retro_game_path, sizeof(retro_game_path), "%s", info->path);
+	if (!info)
+		return false;
 
 	check_variables();
 
-	/* lua */
-	log_cb = fallback_log;
+	/* load "game.lua" and parse */
+	chdir(info->path);
 	retval = luaL_loadfile(L, "game.lua");
 	retval = lua_pcall(L, 0, 0, 0);
+	
+	/* get config{} struct from lua */
 	lua_getglobal(L, "config");
 	VIDEO_WIDTH = getIntField(L, "hres");
 	VIDEO_HEIGHT = getIntField(L, "vres");
@@ -282,13 +273,13 @@ bool retro_load_game(const struct retro_game_info *info)
 	numsprites = getIntField(L, "numsprites");
 	numanimations = getIntField(L, "numanimations");
 
-	/* Tilengine */
+	/* Setup Tilengine with obtained parameters */
 	frame_buf = (uint8_t*)malloc(VIDEO_WIDTH * VIDEO_HEIGHT* sizeof(uint32_t));
 	engine = TLN_Init(VIDEO_WIDTH, VIDEO_HEIGHT, numlayers, numsprites, numanimations);
 	TLN_SetRenderTarget(frame_buf, VIDEO_WIDTH * sizeof(uint32_t));
 	frame = 0;
 
-	/* register default callbacks */
+	/* register default callbacks (can be overriden later) */
 	LUA_SetFrameCallback("game_loop");
 	LUA_SetRasterCallback(NULL);
 
@@ -358,7 +349,7 @@ void retro_cheat_set(unsigned index, bool enabled, const char *code)
 
 static void frame_callback(int frame)
 {
-	/* game logic in lua script */
+	/* game logic in "game_loop()" lua script */
 	lua_getglobal(L, frame_callback_name);
 	lua_pushnumber(L, frame);
 	lua_pcall(L, 1, 0, 0);
@@ -406,6 +397,5 @@ void LUA_SetRasterCallback(const char* name)
 
 bool LUA_CheckInput(uint8_t port, uint16_t input)
 {
-	log_cb(RETRO_LOG_DEBUG, "LUA_CheckInput(%d,%d)\n", port, input);
 	return (input_mask[port] & input) != 0;
 }

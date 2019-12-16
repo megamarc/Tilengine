@@ -246,7 +246,7 @@ void TLN_CloseResourcePack(void);
 
 /* input flags for input_mask, 
    values aligned with RETRO_DEVICE_ID_JOYPAD_n */
-enum
+typedef enum
 {
 	INPUT_BUTTON1	= 0x0001,
 	INPUT_BUTTON2	= 0x0002,
@@ -258,10 +258,12 @@ enum
 	INPUT_RIGHT		= 0x0080,
 	INPUT_BUTTON3	= 0x0100,
 	INPUT_BUTTON4	= 0x0200,
-};
+}
+TLN_Input;
 
 void LUA_SetFrameCallback(const char* name);
 void LUA_SetRasterCallback(const char* name);
+bool LUA_CheckInput(uint8_t port, uint16_t input);
 
 /**@}*/
 
