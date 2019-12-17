@@ -259,11 +259,11 @@ typedef enum
 	INPUT_BUTTON3	= 0x0100,
 	INPUT_BUTTON4	= 0x0200,
 }
-TLN_Input;
+RetroInput;
 
-void LUA_SetFrameCallback(const char* name);
-void LUA_SetRasterCallback(const char* name);
-bool LUA_CheckInput(uint8_t port, uint16_t input);
+void SetFrameCallback(const char* name);
+void SetRasterCallback(const char* name);
+bool CheckRetroInput(uint8_t port, uint16_t input);
 
 /**@}*/
 

@@ -318,9 +318,9 @@ TLNAPI void TLN_SetLogLevel(TLN_LogLevel log_level);
 TLNAPI bool TLN_OpenResourcePack(const char* filename, const char* key);
 TLNAPI void TLN_CloseResourcePack(void);
 
-TLNAPI void LUA_SetFrameCallback(const char* name);
-TLNAPI void LUA_SetRasterCallback(const char* name);
-TLNAPI bool LUA_CheckInput(uint8_t port, uint16_t input);
+TLNAPI void SetFrameCallbackName(const char* name);
+TLNAPI void SetRasterCallbackName(const char* name);
+TLNAPI bool CheckRetroInput(uint8_t port, uint16_t input);
 
 /**@}*/
 

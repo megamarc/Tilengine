@@ -13,7 +13,7 @@
 #include "Tilengine.h"
 
 #ifdef WIN32
-extern SetCurrentDirectoryA(const char* path);
+#include <Windows.h>
 #define chdir SetCurrentDirectoryA
 #endif
 
@@ -91,7 +91,7 @@ void retro_get_system_info(struct retro_system_info *info)
 {
 	memset(info, 0, sizeof(*info));
 	info->library_name = "Tilengine";
-	info->library_version = "1.0";
+	info->library_version = "1.1";
 	info->need_fullpath = true;
 	info->valid_extensions = "lua";
 }
@@ -280,8 +280,8 @@ bool retro_load_game(const struct retro_game_info *info)
 	frame = 0;
 
 	/* register default callbacks (can be overriden later) */
-	LUA_SetFrameCallback("game_loop");
-	LUA_SetRasterCallback(NULL);
+	SetFrameCallbackName("game_loop");
+	SetRasterCallbackName(NULL);
 
 	/* call game init */
 	lua_getglobal(L, "game_load");
@@ -368,7 +368,7 @@ static void raster_callback(int line)
  * 
  * \param name name of the lua function, or NULL to disable frame callback
  */
-void LUA_SetFrameCallback(const char* name)
+void SetFrameCallbackName(const char* name)
 {
 	if (name)
 	{
@@ -384,7 +384,7 @@ void LUA_SetFrameCallback(const char* name)
  * 
  * \param name name of the lua function, or NULL to disable raster callback
  */
-void LUA_SetRasterCallback(const char* name)
+void SetRasterCallbackName(const char* name)
 {
 	if (name)
 	{
@@ -395,7 +395,7 @@ void LUA_SetRasterCallback(const char* name)
 		TLN_SetRasterCallback(NULL);
 }
 
-bool LUA_CheckInput(uint8_t port, uint16_t input)
+bool CheckRetroInput(uint8_t port, uint16_t input)
 {
 	return (input_mask[port] & input) != 0;
 }

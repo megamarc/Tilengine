@@ -23,15 +23,15 @@ function game_load()
 	background = tln.TLN_LoadTilemap("Sonic_md_bg1.tmx", nil)
 	tln.TLN_SetLayer(0, nil, foreground)
 	tln.TLN_SetLayer(1, nil, background)
-	tln.LUA_SetRasterCallback("rasters")
+	tln.SetRasterCallbackName("rasters")
 	print("game_load")
 end
 
 -- called every frame
 function game_loop(frame)
 	-- process input
-	if tln.LUA_CheckInput(0, tln.INPUT_LEFT) then x = x - 1 end
-	if tln.LUA_CheckInput(0, tln.INPUT_RIGHT) then x = x + 1 end
+	if tln.CheckRetroInput(0, tln.INPUT_LEFT) then x = x - 1 end
+	if tln.CheckRetroInput(0, tln.INPUT_RIGHT) then x = x + 1 end
 
 	-- update visuals
 	tln.TLN_SetLayerPosition(0, x*2, 0)
