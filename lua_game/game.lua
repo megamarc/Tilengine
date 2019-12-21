@@ -30,8 +30,8 @@ end
 -- called every frame
 function game_loop(frame)
 	-- process input
-	if tln.LUA_CheckInput(0, tln.INPUT_LEFT) then x = x - 1 end
-	if tln.LUA_CheckInput(0, tln.INPUT_RIGHT) then x = x + 1 end
+	if tln.LUA_CheckInput(tln.PLAYER1, tln.INPUT_LEFT) then x = x - 1 end
+	if tln.LUA_CheckInput(tln.PLAYER1, tln.INPUT_RIGHT) then x = x + 1 end
 
 	-- update visuals
 	tln.TLN_SetLayerPosition(0, x*2, 0)

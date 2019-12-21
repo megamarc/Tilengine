@@ -1,4 +1,4 @@
--- TileEngine 2.4.1 
+-- TileEngine 2.4.1
 local ffi = require'ffi'
 
 ffi.cdef[[
@@ -143,7 +143,6 @@ typedef struct
 }
 TLN_PixelMap;
 
-typedef struct Engine*		 TLN_Engine;			/*!< Engine context */
 typedef union  Tile*		 TLN_Tile;				/*!< Tile reference */
 typedef struct Tileset*		 TLN_Tileset;			/*!< Opaque tileset reference */
 typedef struct Tilemap*		 TLN_Tilemap;			/*!< Opaque tilemap reference */
@@ -154,10 +153,6 @@ typedef struct SequencePack* TLN_SequencePack;		/*!< Opaque sequence pack refere
 typedef struct Bitmap*		 TLN_Bitmap;			/*!< Opaque bitmap reference */
 typedef struct ObjectList*	 TLN_ObjectList;		/*!< Opaque object list reference */
 
-/* callbacks */
-typedef void(*TLN_VideoCallback)(int scanline);
-typedef uint8_t(*TLN_BlendFunction)(uint8_t src, uint8_t dst);
-
 /*! Sprite state */
 typedef struct
 {
@@ -166,8 +161,8 @@ typedef struct
 	int w;						/*!< Actual width in screen (after scaling) */
 	int h;						/*!< Actual height in screen (after scaling) */
 	TLN_TileFlags flags;		/*!< flags */
-	TLN_Palette palette;		/*!< assigned palette */	 
-	TLN_Spriteset spriteset;	/*!< assigned spriteset */	
+	TLN_Palette palette;		/*!< assigned palette */
+	TLN_Spriteset spriteset;	/*!< assigned spriteset */
 	int index;					/*!< graphic index inside spriteset */
 	bool enabled;				/*!< enabled or not */
 	bool collision;				/*!< per-pixel collision detection enabled or not */
@@ -202,7 +197,7 @@ TLN_Error;
 /*! Debug level */
 typedef enum
 {
-	TLN_LOG_NONE,		/*!< Don't print anything (default) */
+	TLN_LOG_NONE,		/*!< Do not print anything (default) */
 	TLN_LOG_ERRORS,		/*!< Print only runtime errors */
 	TLN_LOG_VERBOSE,	/*!< Print everything */
 }
@@ -214,11 +209,6 @@ TLN_LogLevel;
  * \defgroup setup
  * \brief Basic setup and management
  * @{ */
-TLN_Engine TLN_Init (int hres, int vres, int numlayers, int numsprites, int numanimations);
-void TLN_Deinit (void);
-bool TLN_DeleteContext (TLN_Engine context);
-bool TLN_SetContext(TLN_Engine context);
-TLN_Engine TLN_GetContext(void);
 int TLN_GetWidth (void);
 int TLN_GetHeight (void);
 int TLN_GetBPP (void);
@@ -232,19 +222,22 @@ bool TLN_SetBGColorFromTilemap (TLN_Tilemap tilemap);
 void TLN_DisableBGColor (void);
 bool TLN_SetBGBitmap (TLN_Bitmap bitmap);
 bool TLN_SetBGPalette (TLN_Palette palette);
-void TLN_SetRasterCallback (TLN_VideoCallback);
-void TLN_SetFrameCallback (TLN_VideoCallback);
-void TLN_SetRenderTarget (uint8_t* data, int pitch);
-void TLN_UpdateFrame (int time);
-void TLN_BeginFrame (int time);
-bool TLN_DrawNextScanline (void);
 void TLN_SetLoadPath (const char* path);
-void TLN_SetCustomBlendFunction (TLN_BlendFunction);
 void TLN_SetLogLevel(TLN_LogLevel log_level);
 bool TLN_OpenResourcePack(const char* filename, const char* key);
 void TLN_CloseResourcePack(void);
 
-/* input flags for input_mask, 
+/*! Player index for input checking */
+typedef enum
+{
+	PLAYER1,	/*!< Player 1 */
+	PLAYER2,	/*!< Player 2 */
+	PLAYER3,	/*!< Player 3 */
+	PLAYER4,	/*!< Player 4 */
+}
+TLN_Player;
+
+/* input flags for input_mask,
    values aligned with RETRO_DEVICE_ID_JOYPAD_n */
 typedef enum
 {
@@ -263,7 +256,7 @@ TLN_Input;
 
 void LUA_SetFrameCallback(const char* name);
 void LUA_SetRasterCallback(const char* name);
-bool LUA_CheckInput(uint8_t port, uint16_t input);
+bool LUA_CheckInput(TLN_Player player, TLN_Input input);
 
 /**@}*/
 
@@ -292,7 +285,7 @@ bool TLN_DeleteSpriteset (TLN_Spriteset Spriteset);
 
 /**
  * \defgroup tileset
- * \brief Tileset resources management for background layers 
+ * \brief Tileset resources management for background layers
 * @{ */
 TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette palette, TLN_SequencePack sp, TLN_TileAttributes* attributes);
 TLN_Tileset TLN_LoadTileset (const char* filename);
@@ -309,7 +302,7 @@ bool TLN_DeleteTileset (TLN_Tileset tileset);
 
 /**
  * \defgroup tilemap
- * \brief Tilemap resources management for background layers 
+ * \brief Tilemap resources management for background layers
 * @{ */
 TLN_Tilemap TLN_CreateTilemap (int rows, int cols, TLN_Tile tiles, uint32_t bgcolor, TLN_Tileset tileset);
 TLN_Tilemap TLN_LoadTilemap (const char* filename, const char* layername);

@@ -17,22 +17,6 @@ extern SetCurrentDirectoryA(const char* path);
 #define chdir SetCurrentDirectoryA
 #endif
 
-/* input flags for input_mask, 
-   values aligned with RETRO_DEVICE_ID_JOYPAD_n */
-enum
-{
-	INPUT_BUTTON1	= 0x0001,
-	INPUT_BUTTON2	= 0x0002,
-	INPUT_SELECT	= 0x0004,
-	INPUT_START		= 0x0008,
-	INPUT_UP		= 0x0010,
-	INPUT_DOWN		= 0x0020,
-	INPUT_LEFT		= 0x0040,
-	INPUT_RIGHT		= 0x0080,
-	INPUT_BUTTON3	= 0x0100,
-	INPUT_BUTTON4	= 0x0200,
-};
-
 static int VIDEO_WIDTH = 480;
 static int VIDEO_HEIGHT = 360;
 
@@ -115,7 +99,7 @@ static struct retro_rumble_interface rumble;
 
 void retro_set_environment(retro_environment_t cb)
 {
-	bool no_rom = false;
+	bool no_rom = true;
 	enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_XRGB8888;
 
 	environ_cb = cb;
@@ -124,6 +108,8 @@ void retro_set_environment(retro_environment_t cb)
 		log_cb = logging.log;
 	else
 		log_cb = fallback_log;
+
+	log_cb(RETRO_LOG_INFO, "retro_set_environment");
 
 	cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &no_rom);
 	cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt);
@@ -253,17 +239,19 @@ bool retro_load_game(const struct retro_game_info *info)
 		{ 1, RETRO_DEVICE_NONE, 0, 0,  NULL },
 	};
 
-	environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
+	log_cb(RETRO_LOG_INFO, "retro_load_game");
 
-	if (!info)
-		return false;
+	environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
 
 	check_variables();
 
 	/* load "game.lua" and parse */
-	chdir(info->path);
+	if (info)
+		chdir(info->path);
 	retval = luaL_loadfile(L, "game.lua");
+	log_cb(RETRO_LOG_INFO, "loading game.lua: %d", retval);
 	retval = lua_pcall(L, 0, 0, 0);
+	log_cb(RETRO_LOG_INFO, "init script: %d", retval);
 	
 	/* get config{} struct from lua */
 	lua_getglobal(L, "config");
@@ -395,7 +383,7 @@ void LUA_SetRasterCallback(const char* name)
 		TLN_SetRasterCallback(NULL);
 }
 
-bool LUA_CheckInput(uint8_t port, uint16_t input)
+bool LUA_CheckInput(TLN_Player player, TLN_Input input)
 {
-	return (input_mask[port] & input) != 0;
+	return (input_mask[player] & input) != 0;
 }
