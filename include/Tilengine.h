@@ -345,10 +345,9 @@ typedef enum
 }
 TLN_Input;
 
-TLNAPI void LUA_SetFrameCallback(const char* name);
-TLNAPI void LUA_SetRasterCallback(const char* name);
-TLNAPI bool LUA_CheckInput(TLN_Player port, TLN_Input input);
-
+TLNAPI void SetFrameCallbackName(const char* name);
+TLNAPI void SetRasterCallbackName(const char* name);
+TLNAPI bool CheckRetroInput(TLN_Player port, TLN_Input input);
 /**@}*/
 
 /**

@@ -74,7 +74,7 @@ end
 ## Checking player input
 ```lua
 -- check if player 1 is pressing left input
-if tln.LUA_CheckInput(tln.PLAYER1, tln.INPUT_LEFT) then
+if tln.CheckRetroInput(tln.PLAYER1, tln.INPUT_LEFT) then
 
 end
 ```
@@ -87,7 +87,7 @@ function my_rasters(line)
 end
 
 -- register your raster function
-tln.LUA_SetRasterCallback("my_rasters")
+tln.SetRasterCallbackName("my_rasters")
 ```
 
 # Running the game (Windows)

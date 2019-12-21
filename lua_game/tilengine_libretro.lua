@@ -254,9 +254,9 @@ typedef enum
 }
 TLN_Input;
 
-void LUA_SetFrameCallback(const char* name);
-void LUA_SetRasterCallback(const char* name);
-bool LUA_CheckInput(TLN_Player player, TLN_Input input);
+void SetFrameCallbackName(const char* name);
+void SetRasterCallbackName(const char* name);
+bool CheckRetroInput(TLN_Player player, TLN_Input input);
 
 /**@}*/
 
