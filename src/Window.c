@@ -62,7 +62,7 @@ static PlayerInput player_inputs[MAX_PLAYERS];
 struct
 {
 	bool gaussian;
-	bool table[256];
+	uint8_t table[256];
 	TLN_Overlay overlay_id;
 	SDL_Texture* glow;
 	SDL_Texture* overlay;
