@@ -18,24 +18,6 @@
 static TLN_Bitmap LoadPNG (const char* filename);
 static TLN_Bitmap LoadBMP (const char* filename);
 
-/* fix old libpng referencing removed symbols from the CRT */
-#if _MSC_VER >= 1900
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-	FILE* __cdecl __iob_func(void)
-	{
-		return NULL;
-	}
-
-#ifdef __cplusplus
-}
-#endif
-
-#pragma comment(lib, "legacy_stdio_definitions.lib")
-#endif
-
 /*!
  * \brief
  * Load image file (8-bit BMP or PNG)
