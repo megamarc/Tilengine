@@ -374,40 +374,10 @@ bool TLN_SetSpriteAnimation (int index, int nsprite, TLN_Sequence sequence, int 
 
 /*!
  * \brief
- * Sets the playback speed of a given animation
- * 
- * \param index
- * Id of the animation to set (0 <= id < num_animations)
- * 
- * \param delay
- * New delay between frames to assign
- * 
- * Each sequence has its own delay set in the sqx file. However sometimes it's convenient
- * to speed up or down the playback speed in realtime, for example for a character that is
- * accelerating.
- * 
- * \remarks
- * The meaning of the delay value (i.e. its units) is application dependant. It can usually be frames
- * or milliseconds. Make sure that its units match the ones insode the sqx file and the ones
- * passed to the TLN_UpdateFrame()
- * 
- * \see
- * Animations, TLN_UpdateFrame()
+ * Deprecated, each frame has its own delay
  */
 bool TLN_SetAnimationDelay (int index, int delay)
 {
-	Animation* animation;
-	
-	if (index >= engine->numanimations)
-	{
-		TLN_SetLastError (TLN_ERR_IDX_ANIMATION);
-		return false;
-	}
-	
-	animation = &engine->animations[index];
-	animation->delay = delay;
-
-	TLN_SetLastError (TLN_ERR_OK);
 	return true;
 }
 

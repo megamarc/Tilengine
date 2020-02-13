@@ -35,7 +35,6 @@ typedef struct
 	int loop;
 	int pos;
 	int timer;
-	int delay;
 	int idx;	/* indice de capa, sprite */
 	bool blend;
 	TLN_Palette palette;
