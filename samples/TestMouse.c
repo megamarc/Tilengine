@@ -14,6 +14,7 @@
 
 #include <stdlib.h>
 #include "Tilengine.h"
+#define _STDINT_H_
 #include "SDL2/SDL_events.h"
 
 #define WIDTH			400
@@ -60,6 +61,10 @@ static void sdl_callback(SDL_Event* evt)
 	{
 		SDL_MouseButtonEvent* mouse = (SDL_MouseButtonEvent*)evt;
 		int c;
+		
+		/* scale from window space to framebuffer space */
+		mouse->x = (mouse->x*WIDTH)/TLN_GetWindowWidth();
+		mouse->y = (mouse->y*HEIGHT)/TLN_GetWindowHeight();		
 
 		/* search clicked entity */
 		for (c = 0; c < MAX_ENTITIES; c++)
