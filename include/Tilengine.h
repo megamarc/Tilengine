@@ -59,8 +59,8 @@
 
 /* version */
 #define TILENGINE_VER_MAJ	2
-#define TILENGINE_VER_MIN	4
-#define TILENGINE_VER_REV	2
+#define TILENGINE_VER_MIN	5
+#define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -235,6 +235,15 @@ typedef struct Sequence*	 TLN_Sequence;			/*!< Opaque sequence reference */
 typedef struct SequencePack* TLN_SequencePack;		/*!< Opaque sequence pack reference */
 typedef struct Bitmap*		 TLN_Bitmap;			/*!< Opaque bitmap reference */
 typedef struct ObjectList*	 TLN_ObjectList;		/*!< Opaque object list reference */
+
+/*! Image Tile items for TLN_CreateImageTileset() */
+typedef struct
+{
+	TLN_Bitmap bitmap;
+	uint16_t id;
+	uint8_t	type;
+}
+TLN_TileImage;
 
 /*! Sprite state */
 typedef struct
@@ -450,6 +459,7 @@ TLNAPI bool TLN_DeleteSpriteset (TLN_Spriteset Spriteset);
  * \brief Tileset resources management for background layers 
 * @{ */
 TLNAPI TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette palette, TLN_SequencePack sp, TLN_TileAttributes* attributes);
+TLNAPI TLN_Tileset TLN_CreateImageTileset(int numtiles, TLN_TileImage* images);
 TLNAPI TLN_Tileset TLN_LoadTileset (const char* filename);
 TLNAPI TLN_Tileset TLN_CloneTileset (TLN_Tileset src);
 TLNAPI bool TLN_SetTilesetPixels (TLN_Tileset tileset, int entry, uint8_t* srcdata, int srcpitch);

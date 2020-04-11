@@ -24,7 +24,7 @@ static bool HasTransparentPixels (uint8_t* src, int width);
 
 /*!
  * \brief
- * Creates a new tileset
+ * Creates a tile-based tileset
  * 
  * \param numtiles
  * Number of tiles that the tileset will hold
@@ -82,8 +82,12 @@ TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette 
 	size = sizeof(struct Tileset) + size_tiles + size_color + size_attributes;
 	tileset = (TLN_Tileset)CreateBaseObject (OT_TILESET, size);
 	if (!tileset)
+	{
+		TLN_SetLastError(TLN_ERR_OUT_OF_MEMORY);
 		return NULL;
+	}
 
+	tileset->tstype = TILESET_TILES;
 	tileset->width = width;
 	tileset->height = height;
 	tileset->hshift = hshift;
@@ -106,7 +110,41 @@ TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette 
 
 /*!
  * \brief
- * Sets pixel data for a tile in a tileset
+ * Creates a multiple image-based tileset
+ *
+ * \param numtiles
+ * Number of tiles that the tileset will hold
+ *
+ * \param images
+ * Array of image structures, one for each tile. Can be NULL
+ *
+ * \returns
+ * Reference to the created tileset, or NULL if error
+  */
+
+TLN_Tileset TLN_CreateImageTileset(int numtiles, TLN_TileImage* images)
+{
+	TLN_Tileset tileset;
+	const int images_size = numtiles * sizeof(TLN_TileImage);
+	const int size = sizeof(struct Tileset) + images_size;
+
+	tileset = CreateBaseObject(OT_TILESET, size);
+	if (tileset == NULL)
+	{
+		TLN_SetLastError(TLN_ERR_OUT_OF_MEMORY);
+		return NULL;
+	}
+
+	tileset->tstype = TILESET_IMAGES;
+	tileset->numtiles = numtiles;
+	tileset->images = (TLN_TileImage*)tileset->data;
+	memcpy(tileset->images, images, images_size);
+	return tileset;
+}
+
+/*!
+ * \brief
+ * Sets pixel data for a tile in a tile-based tileset
  * 
  * \param tileset
  * Reference to the tileset
@@ -137,9 +175,9 @@ bool TLN_SetTilesetPixels (TLN_Tileset tileset, int entry, uint8_t* srcdata, int
 	if (!CheckBaseObject (tileset, OT_TILESET))
 		return false;
 
-	if (entry<1 || entry>tileset->numtiles)
+	if (tileset->tstype != TILESET_TILES || entry<1 || entry>tileset->numtiles)
 	{
-		TLN_SetLastError (TLN_ERR_IDX_PICTURE);
+		TLN_SetLastError(TLN_ERR_IDX_PICTURE);
 		return false;
 	}
 
