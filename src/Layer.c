@@ -71,7 +71,7 @@ bool TLN_SetLayer (int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap)
 			TLN_SetLayerPalette (nlayer, tileset->palette);
 	}
 	layer->bitmap = NULL;
-	layer->spriteset = NULL;
+	layer->objects = NULL;
 	layer->ok = true;
 	layer->draw = GetLayerDraw (layer);
 
@@ -161,7 +161,7 @@ bool TLN_SetLayerBitmap(int nlayer, TLN_Bitmap bitmap)
 	layer->tileset = NULL;
 	layer->tilemap = NULL;
 	layer->bitmap = bitmap;
-	layer->spriteset = NULL;
+	layer->objects = NULL;
 	layer->width = bitmap->width;
 	layer->height = bitmap->height;
 	if (bitmap->palette)
@@ -185,37 +185,53 @@ bool TLN_SetLayerBitmap(int nlayer, TLN_Bitmap bitmap)
 }
 
 /*!
- * \brief Configures a background layer with a object list
+ * \brief Configures a background layer with a object list and an image-based tileset
  * 
  * \param nlayer Layer index [0, num_layers - 1]
  * \param objects Reference to the TLN_ObjectList to attach
- * \param spriteset Reference to the TLN_Spriteset with the graphics
- * \param width Layer width
- * \param height Layer height
+ * \param spriteset optional reference to the image-based tileset object. If NULL, objects must have an attached tileset
  */
-bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Spriteset spriteset, int width, int height)
+bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Tileset tileset)
 {
-	Layer *layer;
+	Layer *layer = NULL;
+	TLN_Object* item = NULL;
+
 	if (nlayer >= engine->numlayers)
 	{
 		TLN_SetLastError(TLN_ERR_IDX_LAYER);
 		return false;
 	}
 
+	if (!CheckBaseObject(objects, OT_OBJECTLIST))
+	{
+		TLN_SetLastError(TLN_ERR_REF_TILESET);
+		return false;
+	}
+
+	if (tileset == NULL)
+		tileset = objects->tileset;
+	if (!CheckBaseObject(tileset, OT_TILESET) || tileset->tstype != TILESET_IMAGES)
+	{
+		TLN_SetLastError(TLN_ERR_REF_TILESET);
+		return false;
+	}
+
 	layer = &engine->layers[nlayer];
 	layer->ok = false;
-	if (!CheckBaseObject(spriteset, OT_SPRITESET))
-		return false;
-
-	layer->tileset = NULL;
+	layer->tileset = tileset;
 	layer->tilemap = NULL;
 	layer->bitmap = NULL;
-	layer->spriteset = spriteset;
 	layer->objects = objects;
-	layer->width = width;
-	layer->height = height;
-	if (spriteset->palette)
-		TLN_SetLayerPalette(nlayer, spriteset->palette);
+	layer->width = objects->width;
+	layer->height = objects->height;
+
+	/* link objects to actual bitmaps */
+	item = objects->list;
+	while (item)
+	{
+		item->bitmap = GetTilesetBitmap(tileset, item->tileid);
+		item = item->next;		
+	}
 
 	layer->ok = true;
 	layer->draw = GetLayerDraw(layer);

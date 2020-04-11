@@ -16,17 +16,25 @@
 #include "Hash.h"
 #include "Spriteset.h"
 
-struct _Object
+typedef struct _Object
 {
-	TLN_Object data;
-	SpriteEntry* sprite;
+	int tileid;
+	int x;
+	int y;
+	int width;
+	int height;
+	TLN_Bitmap bitmap;	/* computed after calling TLN_SetLayerObjects() */
 	struct _Object* next;
-};
+}
+TLN_Object;
 
 struct ObjectList
 {
 	DEFINE_OBJECT;
-	int num_items;
+	int num_items;	/* items in list */
+	int width;		/* map width, pixels */
+	int height;		/* map height, pixels */
+	TLN_Tileset tileset;	/* attached tileset, if any */
 	struct _Object* list;
 	struct _Object* last;
 };

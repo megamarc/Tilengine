@@ -53,4 +53,6 @@ struct Tileset
 #define GetTilesetPixel(tileset,index,x,y) \
 	tileset->data[(((index << tileset->vshift) + y) << tileset->hshift) + x]
 
+TLN_Bitmap GetTilesetBitmap(TLN_Tileset tileset, int tileid);
+
 #endif

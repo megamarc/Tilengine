@@ -20,12 +20,11 @@
 typedef struct Layer
 {
 	/* configuración */
-	TLN_Tileset		tileset;	/* puntero al tileset */
-	TLN_Tilemap		tilemap;	/* puntero al array de memoria con el mapa de tiles */
-	TLN_Palette		palette;	/* puntero a la paleta */
-	TLN_Bitmap		bitmap;		/* puntero al bitmap (modo bitmap) */
-	TLN_Spriteset	spriteset;	/* puntero al spriteset (modo object) */
-	TLN_ObjectList	objects;	/* pointer to object list (objects mode) */
+	TLN_Tileset		tileset;	/* pointer to tileset */
+	TLN_Tilemap		tilemap;	/* pointer to tilemap */
+	TLN_Palette		palette;	/* pointer to current pcolor alette */
+	TLN_Bitmap		bitmap;		/* pointer to bitmap (bitmap layer mode) */
+	TLN_ObjectList	objects;	/* pointer to object list (objects layer mode) */
 	int				width;		/* anchura total en píxeles */
 	int				height;		/* altura total en píxeles */
 	bool			ok;

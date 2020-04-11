@@ -1156,8 +1156,6 @@ static bool DrawLayerObjectScanline(int nlayer, int nscan)
 	int x2 = layer->hstart + layer->clip.x2;
 	int y = layer->vstart + nscan;
 	uint8_t* dstscan = GetFramebufferLine(nscan);
-	uint8_t* pixels = layer->spriteset->bitmap->data;
-	uint32_t pitch = layer->spriteset->bitmap->pitch;
 
 	while (object != NULL)
 	{
@@ -1166,13 +1164,14 @@ static bool DrawLayerObjectScanline(int nlayer, int nscan)
 			int w;
 			uint8_t *srcpixel;
 			uint32_t *dstpixel;
+			TLN_Bitmap bitmap = object->bitmap;
 			int srcx, srcy;
 			int dstx1, dstx2;
 
 			srcx = 0;
-			srcy = y - object->data.y;
-			dstx1 = object->data.x - x1;
-			dstx2 = dstx1 + object->data.width;
+			srcy = y - object->y;
+			dstx1 = object->x - x1;
+			dstx2 = dstx1 + object->width;
 			if (dstx1 < layer->clip.x1)
 			{
 				int w = layer->clip.x1 - dstx1;
@@ -1185,9 +1184,9 @@ static bool DrawLayerObjectScanline(int nlayer, int nscan)
 			}
 			w = dstx2 - dstx1;
 
-			srcpixel = pixels + object->sprite->offset + (srcy*pitch) + srcx;
+			srcpixel = get_bitmap_ptr(bitmap, srcx, srcy);
 			dstpixel = (uint32_t*)(dstscan + (dstx1 << 2));
-			layer->blitters[1] (srcpixel, layer->palette, dstpixel, w, 1, 0, layer->blend);
+			layer->blitters[1] (srcpixel, bitmap->palette, dstpixel, w, 1, 0, layer->blend);
 		}
 		object = object->next;
 	}
@@ -1221,7 +1220,7 @@ ScanDrawPtr GetLayerDraw(Layer* layer)
 		return drawers[DRAW_TILED_LAYER][layer->mode];
 	else if (layer->bitmap != NULL)
 		return drawers[DRAW_BITMAP_LAYER][layer->mode];
-	else if (layer->spriteset != NULL)
+	else if (layer->objects != NULL)
 		return drawers[DRAW_OBJECT_LAYER][layer->mode];
 	else
 		return NULL;

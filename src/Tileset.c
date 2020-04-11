@@ -411,6 +411,21 @@ bool TLN_CopyTile (TLN_Tileset tileset, int src, int dst)
 	return true;
 }
 
+/* for image-based tilesets: returns bitmap with matching tileid */
+TLN_Bitmap GetTilesetBitmap(TLN_Tileset tileset, int tileid)
+{
+	int c;
+	if (!CheckBaseObject(tileset, OT_TILESET) || tileset->tstype != TILESET_IMAGES)
+		return NULL;
+
+	for (c = 0; c < tileset->numtiles; c += 1)
+	{
+		if (tileset->images[c].id == tileid)
+			return tileset->images[c].bitmap;
+	}
+	return NULL;
+}
+
 /* devuelve si la línea usa color key */
 static bool HasTransparentPixels (uint8_t* src, int width)
 {

@@ -193,18 +193,6 @@ typedef struct
 }
 TLN_TileAttributes;
 
-/*! ObjectList item for TLN_CreateObjectList() */
-typedef struct
-{
-	int id;		/*!< object unique identifier */
-	int gid;	/*!< graphic identifier (tile index in Tiled) */
-	int x;
-	int y;
-	int width;
-	int height;
-}
-TLN_Object;
-
 /*! overlays for CRT effect */
 typedef enum
 {
@@ -526,11 +514,9 @@ TLNAPI bool TLN_DeleteBitmap (TLN_Bitmap bitmap);
  * \brief ObjectList resources management
  * @{ */
 TLNAPI TLN_ObjectList TLN_CreateObjectList(void);
-TLNAPI bool TLN_AddObjectToList(TLN_ObjectList list, TLN_Object* data);
-TLNAPI bool TLN_AddSpriteToList(TLN_ObjectList list, TLN_Spriteset spriteset, const char* name, int id, int x, int y);
+TLNAPI bool TLN_AddTileObjectToList(TLN_ObjectList list, int tileid, int x, int y);
 TLNAPI TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername, int firstgid);
 TLNAPI TLN_ObjectList TLN_CloneObjectList(TLN_ObjectList src);
-TLNAPI int TLN_GetObjectsInReigion(TLN_ObjectList list, int x, int y, int width, int height, int array_size, TLN_Object* objects[]);
 TLNAPI bool TLN_DeleteObjectList(TLN_ObjectList list);
 /**@}*/
 
@@ -553,7 +539,7 @@ TLNAPI bool TLN_DisableLayerClip (int nlayer);
 TLNAPI bool TLN_SetLayerMosaic (int nlayer, int width, int height);
 TLNAPI bool TLN_DisableLayerMosaic (int nlayer);
 TLNAPI bool TLN_ResetLayerMode (int nlayer);
-TLNAPI bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Spriteset spriteset, int width, int height);
+TLNAPI bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Tileset tileset);
 TLNAPI bool TLN_SetLayerPriority(int nlayer, bool enable);
 TLNAPI bool TLN_SetLayerParent(int nlayer, int parent);
 TLNAPI bool TLN_DisableLayerParent(int nlayer);
