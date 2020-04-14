@@ -17,20 +17,13 @@
 #include "zlib.h"
 #include "LoadFile.h"
 #include "Base64.h"
+#include "LoadTMX.h"
 
 #define MAX_TILESETS	8
 
 static int csvdecode (const char* in, int numtiles, uint32_t* data);
 static int decompress (uint8_t* in, int in_size, uint8_t* out, int out_size);
 static uint32_t ParseHTMLColor (const char* string);
-
-typedef enum
-{
-	LS_IDLE,	/* waiting for start */
-	LS_ACTIVE,	/* loading underway */
-	LS_DONE,	/* loading done, ignore everything */
-}
-LoadState;
 
 /* encoding */
 typedef enum
@@ -54,19 +47,12 @@ compression_t;
 struct
 {
 	char layer_name[64];		/* name of layer to load */
-	LoadState state;
-	int cols, rows;				/* map size */
+	bool state;
 	encoding_t encoding;		/* encoding */
 	compression_t compression;	/* compression */
 	uint32_t bgcolor;			/* background color */
 	uint32_t* data;				/* map data (rows*cols) */
-	struct
-	{
-		int firstgid;
-		TLN_Tileset tileset;
-	}
-	tilesets[MAX_TILESETS];
-	int num_tileset;
+	uint32_t numtiles;
 }
 static loader;
 
@@ -78,18 +64,6 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 	switch (evt)
 	{
 	case ADD_SUBTAG:
-		if (!strcasecmp(szName, "map"))
-			return handler;
-
-		else if (!strcasecmp(szName, "tileset") && loader.num_tileset < MAX_TILESETS - 1)
-			return handler;
-
-		else if (!strcasecmp(szName, "layer") && loader.state == LS_IDLE)
-			return handler;
-
-		else if (!strcasecmp(szName, "data") && loader.state == LS_ACTIVE)
-			return handler;
-
 		break;
 
 	case ADD_ATTRIBUTE:
@@ -101,30 +75,15 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 				loader.bgcolor = ParseHTMLColor (szValue);
 		}
 
-		else if (!strcasecmp(szName, "tileset"))
+		else if (!strcasecmp(szName, "layer") && (!strcasecmp(szAttribute, "name")))
 		{
-			if (!strcasecmp(szAttribute, "firstgid"))
-				loader.tilesets[loader.num_tileset].firstgid = intvalue;
-			else if (!strcasecmp(szAttribute, "source"))
-				loader.tilesets[loader.num_tileset].tileset = TLN_LoadTileset(szValue);
+			if (!strcasecmp(szValue, loader.layer_name))
+				loader.state = true;
+			else
+				loader.state = false;
 		}
 
-		else if (!strcasecmp(szName, "layer") && loader.state != LS_DONE)
-		{
-			if (!strcasecmp(szAttribute, "name"))
-			{
-				if (loader.layer_name[0] == 0 || !strcasecmp(szValue, loader.layer_name))
-					loader.state = LS_ACTIVE;
-			}
-			if (loader.state != LS_ACTIVE)
-				break;
-			else if (!strcasecmp(szAttribute, "width"))
-				loader.cols = intvalue;
-			else if (!strcasecmp(szAttribute, "height"))
-				loader.rows = intvalue;
-		}
-
-		else if (!strcasecmp(szName, "data"))
+		else if (!strcasecmp(szName, "data") && loader.state == true)
 		{
 			if (!strcasecmp(szAttribute, "encoding"))
 			{
@@ -133,14 +92,14 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 				else if (!strcasecmp(szValue, "base64"))
 					loader.encoding = ENCODING_BASE64;
 				else
-					loader.state = LS_IDLE;
+					loader.state = false;
 			}
 
 			else if (!strcasecmp(szAttribute, "compression"))
 			{
 				if (!strcasecmp(szValue, "gzip"))
 					/* loader.compression = COMPRESSION_GZIP; */
-					loader.state = LS_IDLE;
+					loader.state = false;
 				else if (!strcasecmp(szValue, "zlib"))
 					loader.compression = COMPRESSION_ZLIB;
 			}
@@ -148,20 +107,17 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		break;
 
 	case FINISH_ATTRIBUTES:
-		if (!strcasecmp(szName, "tileset"))
-			loader.num_tileset += 1;
 		break;
 
 	case ADD_CONTENT:
-		if (!strcasecmp(szName, "data") && loader.state == LS_ACTIVE)
+		if (!strcasecmp(szName, "data") && loader.state == true)
 		{
-			int numtiles = loader.cols * loader.rows;
-			int size = numtiles * sizeof(uint32_t);
+			int size = loader.numtiles * sizeof(uint32_t);
 			uint32_t* data = (uint32_t*)malloc (size);
 			
 			memset (data, 0, size);
 			if (loader.encoding == ENCODING_CSV)
-				csvdecode (szValue, numtiles, data);
+				csvdecode (szValue, loader.numtiles, data);
 
 			else if (loader.encoding == ENCODING_BASE64)
 			{
@@ -177,7 +133,6 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 				}
 			}
 			loader.data = data;
-			loader.state = LS_DONE;
 		}
 		break;
 
@@ -211,6 +166,7 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 	ssize_t size;
 	uint8_t *data;
 	TLN_Tilemap tilemap = NULL;
+	TMXInfo tmxinfo = { 0 };
 	
 	/* load file */
 	data = (uint8_t*)LoadFile (filename, &size);
@@ -224,12 +180,14 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 	}
 
 	/* parse */
+	TMXLoad(filename, &tmxinfo);
 	memset (&loader, 0, sizeof(loader));
 	if (layername)
-	{
 		strncpy (loader.layer_name, layername, sizeof(loader.layer_name));
-		loader.layer_name[sizeof(loader.layer_name) - 1] = '\0';
-	}
+	else
+		strncpy (loader.layer_name, TMXGetFirstLayerName(&tmxinfo, LAYER_TILE), sizeof(loader.layer_name));
+	loader.numtiles = tmxinfo.width*tmxinfo.height;
+
 	parser = simpleXmlCreateParser ((char*)data, (long)size);
 	if (parser != NULL)
 	{
@@ -247,57 +205,34 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 	simpleXmlDestroyParser(parser);
 	free (data);
 
-	if (loader.state == LS_DONE)
+	if (loader.data != NULL)
 	{
 		TLN_Tileset tileset = NULL;
-		int numtiles = loader.cols*loader.rows;
-		int c;
-		uint32_t* data = loader.data;
-		uint32_t firstgid = 9999999;
-		uint32_t lastgid = 0;
-
-		/* find range of used tiles */
-		for (c = 0; c < numtiles; c++)
-		{
-			Tile* tile = (Tile*)&data[c];
-			if (tile->index > 0)
-			{
-				if (firstgid > tile->index)
-					firstgid = tile->index;
-				if (lastgid < tile->index)
-					lastgid = tile->index;
-			}
-		}
+		TMXTileset* tmxtileset;
+		Tile* tile;
+		uint32_t c;
+		int gid = 0;
 
 		/* find suitable tileset */
-		for (c = 0; c < loader.num_tileset && tileset == NULL; c++)
+		tile = (Tile*)loader.data;
+		for (c = 0; c < loader.numtiles && gid == 0; c += 1, tile += 1)
 		{
-			uint32_t tilefirst = loader.tilesets[c].firstgid;
-			uint32_t tilelast = tilefirst + TLN_GetTilesetNumTiles(loader.tilesets[c].tileset);
-			if (firstgid >= tilefirst && lastgid <= tilelast)
-			{
-				tileset = loader.tilesets[c].tileset;
-				firstgid = loader.tilesets[c].firstgid;
-			}
+			if (tile->index > 0)
+				gid = tile->index;
 		}
+		tmxtileset = TMXGetSuitableTileset(&tmxinfo, gid);
+		tileset = TLN_LoadTileset(tmxtileset->source);
 
 		/* correct with firstgid */
-		for (c = 0; c < numtiles; c++)
+		tile = (Tile*)loader.data;
+		for (c = 0; c < loader.numtiles; c+=1,tile+=1)
 		{
-			Tile* tile = (Tile*)&data[c];
 			if (tile->index > 0)
-				tile->index = tile->index - firstgid + 1;
+				tile->index = tile->index - tmxtileset->firstgid + 1;
 		}
 
 		/* create */
-		tilemap = TLN_CreateTilemap(loader.rows, loader.cols, (TLN_Tile)data, loader.bgcolor, tileset);
-
-		/* delete loaded but unused tilesets */
-		for (c = 0; c < loader.num_tileset; c++)
-		{
-			if (loader.tilesets[c].tileset != tileset)
-				TLN_DeleteTileset(loader.tilesets[c].tileset);
-		}
+		tilemap = TLN_CreateTilemap(tmxinfo.height, tmxinfo.width, (Tile*)loader.data, loader.bgcolor, tileset);
 	}
 	return tilemap;
 }

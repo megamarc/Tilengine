@@ -18,7 +18,7 @@
 
 typedef struct _Object
 {
-	int tileid;
+	int gid;
 	int x;
 	int y;
 	int width;

@@ -15,25 +15,13 @@
 #include "Sprite.h"
 #include "simplexml.h"
 #include "LoadFile.h"
-
-typedef enum
-{
-	LS_IDLE,	/* waiting for start */
-	LS_ACTIVE,	/* loading underway */
-	LS_DONE,	/* loading done, ignore everything */
-}
-LoadState;
+#include "LoadTMX.h"
 
 /* load manager */
 struct
 {
 	char layer_name[64];		/* name of layer to load */
-	LoadState state;
-	int firstgid;
-	int width;
-	int height;
-	int tilewidth;
-	int tileheight;
+	bool state;
 	TLN_ObjectList objects;
 	TLN_Object object;
 }
@@ -49,44 +37,23 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 	switch (evt)
 	{
 	case ADD_SUBTAG:
-		if (!strcasecmp(szName, "map"))
-			return handler;
-
-		else if (loader.state == LS_IDLE && !strcasecmp(szName, "objectgroup"))
-			return handler;
-		
-		/* create new object and add to list */
-		else if (loader.state == LS_ACTIVE && !strcasecmp(szName, "object"))
-		{
-			return handler;
-		}
-		return NULL;
+		break;
 
 	case ADD_ATTRIBUTE:
 
 		intvalue = atoi(szValue);
-		if (!strcasecmp(szName, "map"))
+		if (!strcasecmp(szName, "objectgroup") && (!strcasecmp(szAttribute, "name")))
 		{
-			if (!strcasecmp(szAttribute, "width"))
-				loader.width = intvalue;
-			else if (!strcasecmp(szAttribute, "height"))
-				loader.height = intvalue;
-			else if (!strcasecmp(szAttribute, "tilewidth"))
-				loader.tilewidth = intvalue;
-			else if (!strcasecmp(szAttribute, "tileheight"))
-				loader.tileheight = intvalue;
-		}
-
-		else if (!strcasecmp(szName, "objectgroup") && !strcasecmp(szAttribute, "name"))
-		{
-			if (loader.layer_name[0] == 0 || !strcasecmp(szValue, loader.layer_name))
-				loader.state = LS_ACTIVE;
+			if (!strcasecmp(szValue, loader.layer_name))
+				loader.state = true;
+			else
+				loader.state = false;
 		}
 
 		else if (!strcasecmp(szName, "object"))
 		{
 			if (!strcasecmp(szAttribute, "gid"))
-				loader.object.tileid = intvalue - loader.firstgid;
+				loader.object.gid = intvalue;
 			else if (!strcasecmp(szAttribute, "x"))
 				loader.object.x = intvalue;
 			else if (!strcasecmp(szAttribute, "y"))
@@ -99,15 +66,16 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 		break;
 
 	case FINISH_ATTRIBUTES:
-		if (!strcasecmp(szName, "objectgroup"))
+		if (loader.state == true)
 		{
-			/* create */
-			loader.width *= loader.tilewidth;
-			loader.height *= loader.tileheight;
-			loader.objects = TLN_CreateObjectList();
+			if (!strcasecmp(szName, "objectgroup"))
+				loader.objects = TLN_CreateObjectList();
+			else if (!strcasecmp(szName, "object"))
+			{
+				loader.object.y -= loader.object.height;
+				CloneObjectToList(loader.objects, &loader.object);
+			}
 		}
-		else if (!strcasecmp(szName, "object"))
-			CloneObjectToList(loader.objects, &loader.object);
 		break;
 
 	case ADD_CONTENT:
@@ -115,7 +83,7 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 
 	case FINISH_TAG:
 		if (!strcasecmp(szName, "objectgroup"))
-			loader.state = LS_DONE;
+			loader.state = false;
 		break;
 	}
 	return handler;
@@ -180,12 +148,12 @@ static bool CloneObjectToList(TLN_ObjectList list, TLN_Object* data)
  * \brief Adds an image-based tileset item to given TLN_ObjectList
  * 
  * \param list Reference to TLN_ObjectList
- * \param tileid Id of the tileset object to insert
+ * \param gid Id of the tileset object to insert
  * \param x Layer-space horizontal coordinate of the top-left corner
  * \param y Layer-space bertical coordinate of the top-left corner
  * \return true if success or false if error
  */
-bool TLN_AddTileObjectToList(TLN_ObjectList list, int tileid, int x, int y)
+bool TLN_AddTileObjectToList(TLN_ObjectList list, int gid, int x, int y)
 {
 	struct _Object* object;
 
@@ -193,7 +161,7 @@ bool TLN_AddTileObjectToList(TLN_ObjectList list, int tileid, int x, int y)
 		return false;
 
 	object = (struct _Object*)calloc(1, sizeof(struct _Object));
-	object->tileid = tileid;
+	object->gid = gid;
 	object->x = x;
 	object->y = y;
 	add_to_list(list, object);
@@ -205,14 +173,14 @@ bool TLN_AddTileObjectToList(TLN_ObjectList list, int tileid, int x, int y)
  * 
  * \param filename Name of the .tmx file containing the list
  * \param layername Name of the layer to load
- * \param firstgid First graphic id (gid) of the tileset used by layer, must match Tiled value!
  * \return Reference to the loaded object or NULL if error
  */
-TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername, int firstgid)
+TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername)
 {
 	SimpleXmlParser parser;
 	ssize_t size;
 	uint8_t *data;
+	TMXInfo tmxinfo = { 0 };
 
 	/* load file */
 	data = (uint8_t*)LoadFile(filename, &size);
@@ -226,13 +194,13 @@ TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername, i
 	}
 
 	/* parse */
+	TMXLoad(filename, &tmxinfo);
 	memset(&loader, 0, sizeof(loader));
-	loader.firstgid = firstgid;
 	if (layername)
-	{
 		strncpy(loader.layer_name, layername, sizeof(loader.layer_name));
-		loader.layer_name[sizeof(loader.layer_name) - 1] = '\0';
-	}
+	else
+		strncpy(loader.layer_name, TMXGetFirstLayerName(&tmxinfo, LAYER_OBJECT), sizeof(loader.layer_name));
+
 	parser = simpleXmlCreateParser((char*)data, (long)size);
 	if (parser != NULL)
 	{
@@ -250,6 +218,38 @@ TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername, i
 
 	simpleXmlDestroyParser(parser);
 	free(data);
+
+	if (loader.objects != NULL)
+	{
+		TLN_Tileset tileset = NULL;
+		TMXTileset* tmxtileset;
+		struct _Object* item;
+		int gid = 0;
+
+		/* find suitable tileset */
+		item = loader.objects->list;
+		while (item && gid == 0)
+		{
+			if (item->gid > 0)
+				gid = item->gid;
+			item = item->next;
+		}
+		tmxtileset = TMXGetSuitableTileset(&tmxinfo, gid);
+		tileset = TLN_LoadTileset(tmxtileset->source);
+
+		/* correct with firstgid */
+		item = loader.objects->list;
+		while (item)
+		{
+			if (item->gid > 0)
+				item->gid = item->gid - tmxtileset->firstgid;
+			item = item->next;
+		}
+
+		loader.objects->tileset = tileset;
+		loader.objects->width = tmxinfo.width*tmxinfo.tilewidth;
+		loader.objects->height = tmxinfo.height*tmxinfo.tileheight;
+	}
 	
 	return loader.objects;
 }

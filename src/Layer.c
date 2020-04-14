@@ -229,7 +229,7 @@ bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Tileset tileset
 	item = objects->list;
 	while (item)
 	{
-		item->bitmap = GetTilesetBitmap(tileset, item->tileid);
+		item->bitmap = GetTilesetBitmap(tileset, item->gid);
 		item = item->next;		
 	}
 
@@ -554,7 +554,9 @@ bool TLN_GetLayerTile (int nlayer, int x, int y, TLN_TileInfo* info)
 	tileset = layer->tileset;
 	tilemap = layer->tilemap;
 
-	xpos  = x % layer->width;
+	xpos = x % layer->width;
+	if (xpos < 0)
+		xpos += layer->width;
 	xtile = xpos >> tileset->hshift;
 	srcx  = xpos & tileset->hmask;
 	

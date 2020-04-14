@@ -235,6 +235,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <ClCompile Include="LoadSpriteset.c" />
     <ClCompile Include="LoadTilemap.c" />
     <ClCompile Include="LoadTileset.c" />
+    <ClCompile Include="LoadTMX.c" />
     <ClCompile Include="Math2D.c" />
     <ClCompile Include="Object.c" />
     <ClCompile Include="ObjectList.c" />
@@ -264,6 +265,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <ClInclude Include="Hash.h" />
     <ClInclude Include="Layer.h" />
     <ClInclude Include="LoadFile.h" />
+    <ClInclude Include="LoadTMX.h" />
     <ClInclude Include="Math2D.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ObjectList.h" />

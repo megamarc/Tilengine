@@ -19,6 +19,7 @@
 typedef enum
 {
 	PROPERTY_NONE,
+	PROPERTY_TYPE,
 	PROPERTY_PRIORITY,
 }
 Property;
@@ -128,14 +129,18 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		{
 			if (!strcasecmp(szAttribute, "name"))
 			{
-				if (!strcasecmp(szValue, "priority"))
+				if (!strcasecmp(szValue, "type"))
+					loader.tile.property = PROPERTY_TYPE;
+				else if (!strcasecmp(szValue, "priority"))
 					loader.tile.property = PROPERTY_PRIORITY;
 				else
 					loader.tile.property = PROPERTY_NONE;
 			}
 			else if (!strcasecmp(szAttribute, "value"))
 			{
-				if (loader.tile.property == PROPERTY_PRIORITY)
+				if (loader.tile.property == PROPERTY_TYPE)
+					loader.attributes[loader.tile.id].type = atoi(szValue);
+				else if (loader.tile.property == PROPERTY_PRIORITY)
 				{
 					if (!strcasecmp(szValue, "true"))
 						loader.attributes[loader.tile.id].priority = true;
