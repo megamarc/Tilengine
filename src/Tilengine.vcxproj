@@ -212,8 +212,8 @@ if not exist $(SolutionDir)lib\$(Platform) (
   mkdir $(SolutionDir)lib
   mkdir $(SolutionDir)lib\$(Platform)
 )
+copy $(TargetPath) $(SolutionDir)samples
 copy $(TargetPath) $(SolutionDir)lib\$(Platform)
-
 copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
 </Command>
     </PostBuildEvent>

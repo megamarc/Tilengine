@@ -18,7 +18,9 @@
 
 typedef struct _Object
 {
-	int gid;
+	uint16_t id;
+	uint16_t gid;
+	uint16_t flags;
 	int x;
 	int y;
 	int width;
@@ -37,6 +39,8 @@ struct ObjectList
 	TLN_Tileset tileset;	/* attached tileset, if any */
 	struct _Object* list;
 	struct _Object* last;
+	struct _Object* iterator;
+	TLN_ObjectInfo* info;
 };
 
 extern bool IsObjectInLine(struct _Object* object, int x1, int x2, int y);

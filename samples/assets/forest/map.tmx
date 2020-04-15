@@ -8,7 +8,11 @@
   </data>
  </layer>
  <objectgroup id="2" name="Object Layer">
-  <object id="1" gid="246" x="32" y="240" width="213" height="223"/>
+  <object id="1" gid="2147483894" x="32" y="240" width="213" height="223">
+   <properties>
+    <property name="priority" type="bool" value="true"/>
+   </properties>
+  </object>
   <object id="2" gid="241" x="2352" y="208" width="193" height="165"/>
   <object id="43" gid="245" x="256" y="208" width="49" height="29"/>
   <object id="44" gid="242" x="336" y="208" width="25" height="33"/>

@@ -189,7 +189,7 @@ bool TLN_SetLayerBitmap(int nlayer, TLN_Bitmap bitmap)
  * 
  * \param nlayer Layer index [0, num_layers - 1]
  * \param objects Reference to the TLN_ObjectList to attach
- * \param spriteset optional reference to the image-based tileset object. If NULL, objects must have an attached tileset
+ * \param spriteset optional reference to the image-based tileset object. If NULL, object list must have an attached tileset
  */
 bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Tileset tileset)
 {
@@ -204,7 +204,7 @@ bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Tileset tileset
 
 	if (!CheckBaseObject(objects, OT_OBJECTLIST))
 	{
-		TLN_SetLastError(TLN_ERR_REF_TILESET);
+		TLN_SetLastError(TLN_ERR_REF_LIST);
 		return false;
 	}
 

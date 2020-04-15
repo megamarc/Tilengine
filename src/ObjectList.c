@@ -17,6 +17,15 @@
 #include "LoadFile.h"
 #include "LoadTMX.h"
 
+/* properties */
+typedef enum
+{
+	PROPERTY_NONE,
+	PROPERTY_TYPE,
+	PROPERTY_PRIORITY,
+}
+Property;
+
 /* load manager */
 struct
 {
@@ -24,6 +33,7 @@ struct
 	bool state;
 	TLN_ObjectList objects;
 	TLN_Object object;
+	Property property;			/* current property */
 }
 static loader;
 
@@ -37,6 +47,8 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 	switch (evt)
 	{
 	case ADD_SUBTAG:
+		if (!strcasecmp(szName, "object"))
+			memset(&loader.object, 0, sizeof(struct _Object));
 		break;
 
 	case ADD_ATTRIBUTE:
@@ -52,8 +64,15 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 
 		else if (!strcasecmp(szName, "object"))
 		{
-			if (!strcasecmp(szAttribute, "gid"))
-				loader.object.gid = intvalue;
+			if (!strcasecmp(szAttribute, "id"))
+				loader.object.id = intvalue;
+			else if (!strcasecmp(szAttribute, "gid"))
+			{
+				Tile tile;
+				tile.value = strtoul(szValue, NULL, 0);
+				loader.object.flags = tile.flags;
+				loader.object.gid = tile.index;
+			}
 			else if (!strcasecmp(szAttribute, "x"))
 				loader.object.x = intvalue;
 			else if (!strcasecmp(szAttribute, "y"))
@@ -63,6 +82,26 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 			else if (!strcasecmp(szAttribute, "height"))
 				loader.object.height = intvalue;
 		}
+
+		/* <property name="type" type="int" value="12"/> */
+		else if (!strcasecmp(szName, "property"))
+		{
+			if (!strcasecmp(szAttribute, "name"))
+			{
+				if (!strcasecmp(szValue, "priority"))
+					loader.property = PROPERTY_PRIORITY;
+				else
+					loader.property = PROPERTY_NONE;
+			}
+			else if (!strcasecmp(szAttribute, "value"))
+			{
+				if (loader.property == PROPERTY_PRIORITY)
+				{
+					if (!strcasecmp(szValue, "true"))
+						loader.object.flags += FLAG_PRIORITY;
+				}
+			}
+		}
 		break;
 
 	case FINISH_ATTRIBUTES:
@@ -70,11 +109,6 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 		{
 			if (!strcasecmp(szName, "objectgroup"))
 				loader.objects = TLN_CreateObjectList();
-			else if (!strcasecmp(szName, "object"))
-			{
-				loader.object.y -= loader.object.height;
-				CloneObjectToList(loader.objects, &loader.object);
-			}
 		}
 		break;
 
@@ -82,8 +116,16 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 		break;
 
 	case FINISH_TAG:
-		if (!strcasecmp(szName, "objectgroup"))
-			loader.state = false;
+		if (loader.state == true)
+		{
+			if (!strcasecmp(szName, "objectgroup"))
+				loader.state = false;
+			else if (!strcasecmp(szName, "object"))
+			{
+				loader.object.y -= loader.object.height;
+				CloneObjectToList(loader.objects, &loader.object);
+			}
+		}
 		break;
 	}
 	return handler;
@@ -148,12 +190,14 @@ static bool CloneObjectToList(TLN_ObjectList list, TLN_Object* data)
  * \brief Adds an image-based tileset item to given TLN_ObjectList
  * 
  * \param list Reference to TLN_ObjectList
- * \param gid Id of the tileset object to insert
+ * \param id Unique ID of the tileset object
+ * \param gid Graphic Id (tile index) of the tileset object
+ * \param flags Combination of FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY
  * \param x Layer-space horizontal coordinate of the top-left corner
  * \param y Layer-space bertical coordinate of the top-left corner
  * \return true if success or false if error
  */
-bool TLN_AddTileObjectToList(TLN_ObjectList list, int gid, int x, int y)
+bool TLN_AddTileObjectToList(TLN_ObjectList list, uint16_t id, uint16_t gid, uint16_t flags, int x, int y)
 {
 	struct _Object* object;
 
@@ -274,7 +318,68 @@ TLN_ObjectList TLN_CloneObjectList(TLN_ObjectList src)
 		CloneObjectToList(list, object);
 		object = object->next;
 	}
+	list->iterator = NULL;
 	return list;
+}
+
+/*!
+ * \brief Returns number of items in TLN_ObjectList
+ * \param list Pointer to TLN_ObjectList to query
+ * \return number of items 
+ */
+int TLN_GetListNumObjects(TLN_ObjectList list)
+{
+	if (CheckBaseObject(list, OT_OBJECTLIST))
+	{
+		TLN_SetLastError(TLN_ERR_OK);
+		return list->num_items;
+	}
+	else
+	{
+		TLN_SetLastError(TLN_ERR_REF_LIST);
+		return 0;
+	}
+}
+
+/*!
+ * \brief Iterates over elements in a TLN_ObjectList
+ * \param list Reference to TLN_ObjectList to get items
+ * \param info Pointer to user-allocated TLN_ObjectInfo struct
+ * \return true if item returned, false if no more items left
+ * \remarks The info pointer acts as a switch to select first/next element:
+ *	* If not NULL, starts the iterator and returns the first item
+ *  * If NULL, return the next item
+ */
+bool TLN_GetListObject(TLN_ObjectList list, TLN_ObjectInfo* info)
+{
+	if (!CheckBaseObject(list, OT_OBJECTLIST))
+	{
+		TLN_SetLastError(TLN_ERR_REF_LIST);
+		return false;
+	}
+
+	/* start iterator */
+	if (info != NULL)
+	{
+		list->iterator = list->list;
+		list->info = info;
+	}
+
+	if (list->iterator == NULL)
+		return false;
+
+	/* copy info */
+	list->info->id = list->iterator->id;
+	list->info->gid = list->iterator->gid;
+	list->info->flags = list->iterator->flags;
+	list->info->x = list->iterator->x;
+	list->info->y = list->iterator->y;
+	list->info->width = list->iterator->width;
+	list->info->height = list->iterator->height;
+
+	/* advance */
+	list->iterator = list->iterator->next;
+	return true;
 }
 
 bool IsObjectInLine(struct _Object* object, int x1, int x2, int y)

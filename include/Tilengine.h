@@ -185,6 +185,19 @@ typedef struct
 }
 TLN_TileInfo;
 
+/*! Object item info returned by TLN_GetObjectInfo() */
+typedef struct
+{
+	uint16_t id;	/*!< unique ID */
+	uint16_t gid;	/*!< graphic ID (tile index) */
+	uint16_t flags;	/*!< attributes (FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY) */
+	int x;			/*!< horizontal position */
+	int y;			/*!< vertical position */
+	int width;		/*!< horizontal size */
+	int height;		/*!< vertical size */
+}
+TLN_ObjectInfo;
+
 /*! Tileset attributes for TLN_CreateTileset() */
 typedef struct
 {
@@ -334,6 +347,7 @@ typedef enum
 	TLN_ERR_WRONG_FORMAT,	/*!< Resource file has invalid format */
 	TLN_ERR_WRONG_SIZE,		/*!< A width or height parameter is invalid */
 	TLN_ERR_UNSUPPORTED,	/*!< Unsupported function */
+	TLN_ERR_REF_LIST,		/*!< Invalid TLN_ObjectList reference */
 	TLN_MAX_ERR,
 }
 TLN_Error;
@@ -514,9 +528,11 @@ TLNAPI bool TLN_DeleteBitmap (TLN_Bitmap bitmap);
  * \brief ObjectList resources management
  * @{ */
 TLNAPI TLN_ObjectList TLN_CreateObjectList(void);
-TLNAPI bool TLN_AddTileObjectToList(TLN_ObjectList list, int tileid, int x, int y);
+TLNAPI bool TLN_AddTileObjectToList(TLN_ObjectList list, uint16_t id, uint16_t gid, uint16_t flags, int x, int y);
 TLNAPI TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername);
 TLNAPI TLN_ObjectList TLN_CloneObjectList(TLN_ObjectList src);
+TLNAPI int TLN_GetListNumObjects(TLN_ObjectList list);
+TLNAPI bool TLN_GetListObject(TLN_ObjectList list, TLN_ObjectInfo* info);
 TLNAPI bool TLN_DeleteObjectList(TLN_ObjectList list);
 /**@}*/
 

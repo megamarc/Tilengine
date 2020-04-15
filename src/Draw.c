@@ -1156,6 +1156,7 @@ static bool DrawLayerObjectScanline(int nlayer, int nscan)
 	int x2 = layer->hstart + layer->clip.x2;
 	int y = layer->vstart + nscan;
 	uint8_t* dstscan = GetFramebufferLine(nscan);
+	bool priority = false;
 
 	while (object != NULL)
 	{
@@ -1163,10 +1164,12 @@ static bool DrawLayerObjectScanline(int nlayer, int nscan)
 		{
 			int w;
 			uint8_t *srcpixel;
+			uint8_t *target;
 			uint32_t *dstpixel;
 			TLN_Bitmap bitmap = object->bitmap;
 			int srcx, srcy;
 			int dstx1, dstx2;
+			int direction = 1;
 
 			srcx = 0;
 			srcy = y - object->y;
@@ -1184,14 +1187,31 @@ static bool DrawLayerObjectScanline(int nlayer, int nscan)
 			}
 			w = dstx2 - dstx1;
 
+			/* H/V flip */
+			if (object->flags & FLAG_FLIPX)
+			{
+				direction = -1;
+				srcx = object->width - srcx - 1;
+			}
+			if (object->flags & FLAG_FLIPY)
+				srcy = object->height - srcy - 1;
+
+			/* paint tile scanline */
 			srcpixel = get_bitmap_ptr(bitmap, srcx, srcy);
-			dstpixel = (uint32_t*)(dstscan + (dstx1 << 2));
-			layer->blitters[1] (srcpixel, bitmap->palette, dstpixel, w, 1, 0, layer->blend);
+			if (object->flags & FLAG_PRIORITY)
+			{
+				target = engine->priority;
+				priority = true;
+			}
+			else
+				target = dstscan;
+			dstpixel = (uint32_t*)(target + (dstx1 << 2));
+			layer->blitters[1] (srcpixel, bitmap->palette, dstpixel, w, direction, 0, layer->blend);
 		}
 		object = object->next;
 	}
 
-	return true;
+	return priority;
 }
 
 /* draw modes */

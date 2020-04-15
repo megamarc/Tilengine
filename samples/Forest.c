@@ -25,7 +25,7 @@ enum
 {
 	LAYER_PROPS_FRONT,	/* props in front of sprites */
 	LAYER_FOREGROUND,	/* main foreground layer (tiles) */
-	LAYER_PROPS_BACK,	/* props behind sprites */
+	LAYER_PROPS,		/* object layer */
 	LAYER_MIDDLEGROUND,	/* middle (bitmap) */
 	LAYER_BACKGROUND,	/* back ( bitmap) */
 	NUM_LAYERS
@@ -36,13 +36,15 @@ int main(int argc, char* argv[])
 	int frame = 0;
 	TLN_Tilemap foreground;
 	TLN_Bitmap middleground, background;
-	TLN_ObjectList props_list_front, props_list;
+	TLN_ObjectList props_list;
 	TLN_Spriteset player;
 	TLN_Sequence idle, skip;
 	int xworld = 0;
 	int xplayer, yplayer;
 	int oldx = -1;
 	int width, height;
+	TLN_ObjectInfo info = {0};
+	bool ok;
 
 	TLN_Init(HRES, VRES, NUM_LAYERS, 8, 8);
 
@@ -63,13 +65,20 @@ int main(int argc, char* argv[])
 	height = TLN_GetLayerHeight(LAYER_FOREGROUND);
 
 	/* objects layer: add front objects (in front of sprites) */
+	printf("pops_list length = %d\n", TLN_GetListNumObjects(props_list));
+	ok = TLN_GetListObject(props_list, &info);
+	while (ok)
+	{
+		printf("object id=%d gid=%d x=%d y=%d w=%d h=%d\n", info.id, info.gid, info.x, info.y, info.width, info.height);
+		ok = TLN_GetListObject(props_list, NULL);
+	}
 
 	/* objects layer: add back objects (behind sprites) */
-	TLN_SetLayerObjects(LAYER_PROPS_BACK, props_list, NULL);
+	TLN_SetLayerObjects(LAYER_PROPS, props_list, NULL);
 
 	/* sync props layer positions to main layer */
 	TLN_SetLayerParent(LAYER_PROPS_FRONT, LAYER_FOREGROUND);
-	TLN_SetLayerParent(LAYER_PROPS_BACK, LAYER_FOREGROUND);
+	TLN_SetLayerParent(LAYER_PROPS, LAYER_FOREGROUND);
 
 	/* create sprite sequences */
 	idle = TLN_CreateSpriteSequence(NULL, player, "player-idle-", 9, 6);
