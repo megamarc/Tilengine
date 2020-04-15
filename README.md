@@ -10,19 +10,25 @@ Tilengine is an open source, cross-platform 2D graphics engine for creating clas
 http://www.tilengine.org
 
 # Contents
+- [Tilengine - The 2D retro graphics engine](#tilengine---the-2d-retro-graphics-engine)
+- [Contents](#contents)
 - [Features](#features)
 - [Getting binaries](#getting-binaries)
-- [Installing](#installing)
+  - [Download from itch.io](#download-from-itchio)
+  - [Build from source](#build-from-source)
     - [Windows](#windows)
-    - [Unix-like](#unix-like)
+    - [Linux/OSX](#linuxosx)
+- [Installing](#installing)
+  - [Windows](#windows-1)
+  - [Debian-based linux](#debian-based-linux)
 - [Running the samples](#running-the-samples)
-    - [Windows](#windows-1)
-    - [Unix-like](#unix-like-1)
+  - [Windows](#windows-2)
+  - [Unix-like](#unix-like)
 - [The tilengine window](#the-tilengine-window)
 - [Creating your first program](#creating-your-first-program)
-    - [Windows](#windows)
-    - [Linux](#linux)
-    - [Apple OS X](#apple-os-x)
+  - [Windows](#windows-3)
+  - [Linux](#linux)
+  - [Apple OS X](#apple-os-x)
 - [Documentation](#documentation)
 - [Editing assets](#editing-assets)
 - [Creating packages](#creating-packages)
@@ -50,7 +56,7 @@ http://www.tilengine.org
 # Getting binaries
 
 ## Download from itch.io
-The best way to get prebuilt binaries ready to run is grabbing them from official itch.io acount: https://megamarc.itch.io/tilengine. Just download the package for your platform. You can also find prebuilt binaries and their dependencies inside the `/lib` directory
+The best way to get prebuilt binaries ready to run is grabbing them from official itch.io account: https://megamarc.itch.io/tilengine. Just download the package for your platform.
 
 ## Build from source
 You can also build the library from source. It's very easy:

@@ -1,6 +1,16 @@
 # Tilengine changelog
 
-## [2.4.2] 22/12/2019
+## [2.5.0] - 15/4/2020
+- Adds support for Tiled editor image-based tilesets and objet layers
+- ObjectList: Removes old TLN_AddSpriteToList(), TLN_GetObjectsInReigion() and TLN_Object struct
+- ObjectList: Renames old TLN_AddObjectToList() to TLN_AddTileObjectToList()
+- ObjectList: Adds TLN_GetListNumObjects(), TLN_GetListObject() and TLN_ObjectInfo struct
+- Tileset: adds new function TLN_CreateImageTileset() and TLN_TileImage struct
+- Fixes TLN_GetLayerTile() crashing when passing negative x
+- Adds TLN_ERR_REF_LIST error value to signal bad TLN_ObjectList reference
+- Updates sample "Forest" to showcase new image-based tileset and object list features
+
+## [2.4.2] - 22/12/2019
 - Fixes broken crt effect in x64, due to mismatched bool for uint8_t causing missalignment of indexed data. Updates windows binaries
 
 ## [2.4.1] - 19/11/2019
