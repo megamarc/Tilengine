@@ -21,7 +21,7 @@ else
 		ifeq ($(arch),x86_64)
 			CFLAGS = -m64 -msse2
 		endif
-		LIBPATH = $(HOME)/Tilengine/lib
+		LIBPATH = $(HOME)/Tilengine/lib/linux_$(arch)
 		LDFLAGS = -L$(LIBPATH) -lTilengine -lm -s -Wl,-rpath,$(LIBPATH)
 	endif
 	
