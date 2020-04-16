@@ -240,9 +240,9 @@ typedef struct ObjectList*	 TLN_ObjectList;		/*!< Opaque object list reference *
 /*! Image Tile items for TLN_CreateImageTileset() */
 typedef struct
 {
-	TLN_Bitmap bitmap;
-	uint16_t id;
-	uint8_t	type;
+	TLN_Bitmap bitmap;	/*!< Reference to TLN_Bitmap object with the tile */
+	uint16_t id;		/*!< Graphic ID (gid) to be referenced at runtime */
+	uint8_t	type;		/*!< Type of tile (application defined) */
 }
 TLN_TileImage;
 
