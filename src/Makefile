@@ -18,15 +18,11 @@ else
 		LDFLAGS = -shared -s
 		ifeq ($(arch),i686)
 			CFLAGS = -m32 -msse2
-			LIBPATH = ../lib/linux_i686
 		endif
 		ifeq ($(arch),x86_64)
 			CFLAGS = -m64 -msse2
-			LIBPATH = ../lib/linux_x86_64
 		endif
-		ifeq ($(arch),armv7l)
-			LIBPATH = ../lib/linux_arm
-		endif
+		LIBPATH = ../lib/linux_$(arch)
 	endif
 	
 	# OSX specific flags

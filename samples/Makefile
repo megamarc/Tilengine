@@ -2,7 +2,6 @@ CC       = gcc
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
 TARGETS  = barrel mode7 platformer racer scaling shadow shooter tutorial wobble colorcycle benchmark supermarioclone test_mouse forest
-LIBPATH  = $(HOME)/Tilengine/lib
 
 # Windows specific flags
 ifeq ($(OS),Windows_NT)
@@ -22,6 +21,7 @@ else
 		ifeq ($(arch),x86_64)
 			CFLAGS = -m64 -msse2
 		endif
+		LIBPATH = $(HOME)/Tilengine/lib
 		LDFLAGS = -L$(LIBPATH) -lTilengine -lm -s -Wl,-rpath,$(LIBPATH)
 	endif
 	
@@ -86,4 +86,3 @@ forest: Forest.o
 # clean
 clean: clean-custom
 	$(RM) $(OBJECTS) $(TARGETS)
-	
