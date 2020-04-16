@@ -12,8 +12,3 @@ script:
 - make
 - make Test
 - ./Test
-- cd ..
-
-after_success:
-- curl -T lib/linux_x86_64/libTilengine.so -u u661101079.builder:builder ftp://tilengine.org/linux_x86_64/
-
