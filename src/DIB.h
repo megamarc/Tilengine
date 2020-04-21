@@ -20,9 +20,13 @@ typedef struct
 }
 RGBTRIPLE;
 
-typedef struct
+typedef union
 {
-	uint8_t b,g,r,a;
+	uint32_t value;
+	struct
+	{
+		uint8_t b, g, r, a;
+	};
 }
 RGBQUAD;
 

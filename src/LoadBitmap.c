@@ -14,9 +14,179 @@
 #include "LoadFile.h"
 #include "png.h"
 #include "DIB.h"
+#include "Bitmap.h"
+#include "Palette.h"
 
 static TLN_Bitmap LoadPNG (const char* filename);
 static TLN_Bitmap LoadBMP (const char* filename);
+
+typedef struct
+{
+	uint32_t items[255];
+	uint16_t count;
+}
+Set;
+
+static void set_init(Set* set)
+{
+	set->count = 0;
+}
+
+static int set_get_index(Set* set, uint32_t value)
+{
+	int c;
+	for (c = 0; c < set->count; c += 1)
+	{
+		if (set->items[c] == value)
+			return c;
+	}
+	return -1;
+}
+
+static bool set_add(Set* set, uint32_t value)
+{
+	int index;
+	if (set->count == 255)
+		return false;
+
+	index = set_get_index(set, value);
+	if (index == -1)
+	{
+		set->items[set->count] = value;
+		set->count += 1;
+	}
+	return true;
+}
+
+static TLN_Palette BuildPaletteFromSet(Set* colors)
+{
+	int c;
+	RGBQUAD srccolor;
+
+	TLN_Palette palette = TLN_CreatePalette(colors->count + 1);
+	uint32_t* dstcolor = (uint32_t*)palette->data;
+
+	*dstcolor = 0xFFFF00FF;	/* pink */
+	dstcolor += 1;
+	for (c = 0; c < colors->count; c += 1)
+	{
+		srccolor.value = colors->items[c];
+		*dstcolor = PackRGB32(srccolor.b, srccolor.g, srccolor.r);
+		dstcolor += 1;
+	}
+	return palette;
+}
+
+static TLN_Bitmap Convert24ToIndexed(TLN_Bitmap source)
+{
+	TLN_Bitmap bitmap = NULL;
+	Set colors;
+	int x, y;
+	uint8_t* srcscan;
+	uint8_t* dstscan;
+
+	/* count unique colors up to 255 */
+	set_init(&colors);
+	srcscan = source->data;
+	for (y = 0; y < source->height; y += 1)
+	{
+		RGBTRIPLE* color = (RGBTRIPLE*)srcscan;
+		for (x = 0; x < source->width; x += 1)
+		{
+			uint32_t value = PackRGB32(color->r, color->g, color->b);
+			if (!set_add(&colors, value))
+				return NULL;
+			color += 1;
+		}
+		srcscan += source->pitch;
+	}
+
+	/* create new bitmap at 8 bpp */
+	bitmap = TLN_CreateBitmap(source->width, source->height, 8);
+	srcscan = source->data;
+	dstscan = bitmap->data;
+
+	/* set colors with palette indexes */
+	for (y = 0; y < source->height; y += 1)
+	{
+		RGBTRIPLE* srccolor = (RGBTRIPLE*)srcscan;
+		uint8_t* dstcolor = dstscan;
+		for (x = 0; x < source->width; x += 1)
+		{
+			uint32_t value = PackRGB32(srccolor->r, srccolor->g, srccolor->b);
+			*dstcolor = set_get_index(&colors, value) + 1;
+			srccolor += 1;
+			dstcolor += 1;
+		}
+
+		srcscan += source->pitch;
+		dstscan += bitmap->pitch;
+	}
+
+	/* create attached palette and set actual colors */
+	bitmap->palette = BuildPaletteFromSet(&colors);
+
+	return bitmap;
+}
+
+static TLN_Bitmap Convert32ToIndexed(TLN_Bitmap source)
+{
+	TLN_Bitmap bitmap = NULL;
+	Set colors;
+	int x,y;
+	uint8_t* srcscan;
+	uint8_t* dstscan;
+
+	/* count unique colors up to 255 */
+	set_init(&colors);
+	srcscan = source->data;
+	for (y = 0; y < source->height; y += 1)
+	{
+		RGBQUAD* color = (RGBQUAD*)srcscan;
+		for (x = 0; x < source->width; x += 1)
+		{
+			if (color->a >= 128)
+			{
+				color->a = 255;
+				if (!set_add(&colors, color->value))
+					return NULL;
+			}
+			else
+				color->a = 0;
+			color += 1;
+		}
+		srcscan += source->pitch;
+	}
+
+	/* create new bitmap at 8 bpp */
+	bitmap = TLN_CreateBitmap(source->width, source->height, 8);
+	srcscan = source->data;
+	dstscan = bitmap->data;
+	
+	/* set colors with palette indexes */
+	for (y = 0; y < source->height; y += 1)
+	{
+		RGBQUAD* srccolor = (RGBQUAD*)srcscan;
+		uint8_t* dstcolor = dstscan;
+		for (x = 0; x < source->width; x += 1)
+		{
+			if (srccolor->a == 0)
+				*dstcolor = 0;
+			else
+				*dstcolor = set_get_index(&colors, srccolor->value) + 1;
+			srccolor += 1;
+			dstcolor += 1;
+		}
+
+		srcscan += source->pitch;
+		dstscan += bitmap->pitch;
+	}
+
+	/* create attached palette and set actual colors */
+	bitmap->palette = BuildPaletteFromSet(&colors);
+
+	return bitmap;
+}
 
 /*!
  * \brief
@@ -51,6 +221,27 @@ TLN_Bitmap TLN_LoadBitmap (const char* filename)
 	{
 		/* accept only 8 bpp */
 		int bpp = TLN_GetBitmapDepth (bitmap);
+		if (bpp == 24)
+		{
+			TLN_Bitmap indexed = Convert24ToIndexed(bitmap);
+			if (indexed != NULL)
+			{
+				TLN_DeleteBitmap(bitmap);
+				bitmap = indexed;
+				bpp = 8;
+			}
+		}
+		else if (bpp == 32)
+		{
+			TLN_Bitmap indexed = Convert32ToIndexed(bitmap);
+			if (indexed != NULL)
+			{
+				TLN_DeleteBitmap(bitmap);
+				bitmap = indexed;
+				bpp = 8;
+			}
+		}
+
 		if (bpp == 8)
 			TLN_SetLastError (TLN_ERR_OK);
 		else
