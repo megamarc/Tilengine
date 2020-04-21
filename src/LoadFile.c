@@ -211,3 +211,61 @@ bool CheckFile (const char* filename)
 	FileClose (pf);
 	return true;
 }
+
+/* returns file extension in lowercase */
+void SplitFilename(const char* filename, FileInfo* fileinfo)
+{
+	int len = 0;
+	char* block1 = strrchr(filename, SLASH);
+	char* block2 = strrchr(filename, '.');
+	if (block1 == NULL)
+		block1 = strrchr(filename, BACKSLASH);
+	
+	memset(fileinfo, 0, sizeof(FileInfo));
+
+	/* path */
+	if (block1)
+	{
+		block1 += 1;
+		len = (int)(block1 - filename) - 1;
+		memcpy(fileinfo->path, filename, len);
+		fileinfo->path[len] = 0;
+	}
+	else
+		block1 = filename;
+
+	/* name + ext */
+	if (block2 && block2 > block1)
+	{
+		/* name */
+		len = (int)(block2 - block1);
+		if (block1 == NULL)
+			block1 = filename;
+		memcpy(fileinfo->name, block1, len);
+		fileinfo->name[len] = 0;
+
+		/* ext */
+		block2 += 1;
+		strncpy(fileinfo->ext, block2, 16);
+	}
+
+	/* name only */
+	else
+		strncpy(fileinfo->name, block1, 200);
+}
+
+/* builds complete file path */
+void BuildFilePath(char* full_path, int len, const char* path, const char* name, const char* ext)
+{
+	bool valid_path = path != NULL && path[0] != 0;
+	bool valid_ext = ext != NULL && ext[0] != 0;
+	
+	if (valid_path && valid_ext)
+		snprintf(full_path, len, "%s/%s.%s", path, name, ext);
+	else if (valid_path)
+		snprintf(full_path, len, "%s/%s", path, name);
+	else if (valid_ext)
+		snprintf(full_path, len, "%s.%s", name, ext);
+	else
+		snprintf(full_path, len, "%s", name);
+}

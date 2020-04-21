@@ -224,6 +224,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <ClCompile Include="Base64.c" />
     <ClCompile Include="Bitmap.c" />
     <ClCompile Include="Blitters.c" />
+    <ClCompile Include="cJSON.c" />
     <ClCompile Include="Draw.c" />
     <ClCompile Include="GaussianBlur.c" />
     <ClCompile Include="Hash.c" />
@@ -259,6 +260,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <ClInclude Include="Base64.h" />
     <ClInclude Include="Bitmap.h" />
     <ClInclude Include="Blitters.h" />
+    <ClInclude Include="cJSON.h" />
     <ClInclude Include="DIB.h" />
     <ClInclude Include="Draw.h" />
     <ClInclude Include="Engine.h" />

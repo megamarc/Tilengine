@@ -26,9 +26,27 @@ typedef SSIZE_T ssize_t;
 #endif
 #endif
 
-void* LoadFile (const char* filename, ssize_t* out_size);
-void FileClose(FILE* pf);
-FILE* FileOpen (const char* filename);
-bool CheckFile (const char* filename);
+typedef struct
+{
+	char path[200];
+	char name[200];
+	char ext[16];
+}
+FileInfo;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+	void* LoadFile(const char* filename, ssize_t* out_size);
+	void FileClose(FILE* pf);
+	FILE* FileOpen(const char* filename);
+	bool CheckFile(const char* filename);
+	void SplitFilename(const char* filename, FileInfo* fileinfo);
+	void BuildFilePath(char* full_path, int len, const char* path, const char* name, const char* ext);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

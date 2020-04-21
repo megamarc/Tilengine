@@ -107,6 +107,9 @@
     <ClCompile Include="LoadTMX.c">
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
+    <ClCompile Include="cJSON.c">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h">
@@ -185,6 +188,9 @@
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="LoadTMX.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="cJSON.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>
