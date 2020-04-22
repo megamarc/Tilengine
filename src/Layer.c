@@ -99,7 +99,7 @@ bool TLN_SetLayer (int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap)
 		int index, c;
 		TLN_Sequence sequence;
 
-		/* desactiva animaciones de patrón de la capa actual */
+		/* desactiva animaciones de patrï¿½n de la capa actual */
 		for (c=0; c<engine->numanimations; c++)
 		{
 			Animation* animation = &engine->animations[c];
@@ -189,7 +189,7 @@ bool TLN_SetLayerBitmap(int nlayer, TLN_Bitmap bitmap)
  * 
  * \param nlayer Layer index [0, num_layers - 1]
  * \param objects Reference to the TLN_ObjectList to attach
- * \param spriteset optional reference to the image-based tileset object. If NULL, object list must have an attached tileset
+ * \param tileset optional reference to the image-based tileset object. If NULL, object list must have an attached tileset
  */
 bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Tileset tileset)
 {

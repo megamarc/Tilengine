@@ -1,5 +1,9 @@
 # Tilengine changelog
 
+## [2.6.0] - 22/4/2020
+- Supports .json array for spritesheet loader, compatible with Aseprite, Texturepacker, Piskel...
+- Supports loading of 24/32 bpp pixel data on the fly. Note that bitmaps must have less than 255 unique colors
+
 ## [2.5.0] - 15/4/2020
 - Adds support for Tiled editor image-based tilesets and objet layers
 - ObjectList: Removes old TLN_AddSpriteToList(), TLN_GetObjectsInReigion() and TLN_Object struct
