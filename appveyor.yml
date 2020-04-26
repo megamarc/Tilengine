@@ -7,3 +7,4 @@ platform:
 build:
   project: src/Tilengine.vcxproj
   verbosity: minimal
+  

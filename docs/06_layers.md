@@ -6,6 +6,50 @@ Background layers are one of the two main graphics entities in tilengine, the ot
 
 Layers are referenced by an index, starting at 0 for the topmost, increasing up to number of layers minus 1 for the bottom-most.
 
+## Types of layers
+
+### Tiled layers
+
+### Bitmap layers
+
+### Object layers
+
+## Common operations
+
+### Movement & scroll
+
+### Setting the palette
+
+### Blending
+
+### Priority
+
+### Disabling
+
+### Layer linking
+
+## Special effects
+
+### Column offset
+
+### Clipping rectangle
+
+### Scaling
+
+### Affine transform
+
+### Per-pixel mapping
+
+### Mosaic
+
+### Special effects chart
+
+## Gameplay support: getting layer data
+
+
+
+
+
 ## Basic setup
 In order to get displayed, a layer needs to have attached three items: a tilemap, a tileset and a palette. Usually a tilemap has an internal reference to its associated tileset, and a tileset has a palette embedded, we only have to explicitly set the tilemap and the other items are loaded automatically. This is accomplished with the \ref TLN_SetLayer function.
 

@@ -31,7 +31,7 @@ static void set_sprite_entry (TLN_Spriteset spriteset, int entry, TLN_SpriteData
 /*!
  * \brief
  * Creates a new spriteset
- * 
+ *
  * \param bitmap
  * Bitmap containing the sprite graphics
  *
@@ -40,10 +40,10 @@ static void set_sprite_entry (TLN_Spriteset spriteset, int entry, TLN_SpriteData
  *
  * \param num_entries
  * Number of entries in data[] array
- * 
+ *
  * \returns
  * Reference to the created spriteset, or NULL if error
- * 
+ *
  * \see
  * TLN_DeleteSpriteset()
  */
@@ -78,13 +78,13 @@ TLN_Spriteset TLN_CreateSpriteset (TLN_Bitmap bitmap, TLN_SpriteData* data, int 
 /*!
  * \brief
  * Sets attributes and pixels of a given sprite inside a spriteset
- * 
+ *
  * \param spriteset
  * Spriteset to set the data
  *
  * \param entry
  * The entry index inside the spriteset to modify [0, num_sprites - 1]
- * 
+ *
  * \param data
  * Pointer to a user-provided TLN_SpriteData structure with sprite description
  *
@@ -128,10 +128,10 @@ bool TLN_SetSpritesetData (TLN_Spriteset spriteset, int entry, TLN_SpriteData* d
 /*!
  * \brief
  * Creates a duplicate of the specified spriteset and its associated palette
- * 
+ *
  * \param src
  * Spriteset to clone
- * 
+ *
  * \returns
  * A reference to the newly cloned spriteset, or NULL if error
  * \see
@@ -157,13 +157,13 @@ TLN_Spriteset TLN_CloneSpriteset (TLN_Spriteset src)
 /*!
  * \brief
  * Deletes the specified spriteset and frees memory
- * 
+ *
  * \param spriteset
  * Spriteset to delete
- * 
+ *
  * \remarks
  * Don't delete a spriteset currently attached to a sprite!
- * 
+ *
  * \see
  * TLN_LoadSpriteset(), TLN_CloneSpriteset()
  */
@@ -184,16 +184,16 @@ bool TLN_DeleteSpriteset (TLN_Spriteset spriteset)
 /*!
  * \brief
  * Query the details about the specified sprite inside a spriteset
- * 
+ *
  * \param spriteset
  * Reference to the spriteset to get info about
- * 
+ *
  * \param entry
  * The entry index inside the spriteset [0, num_sprites - 1]
- * 
+ *
  * \param info
  * Pointer to application-allocated TLN_SpriteInfo structure that will receive the data
- * 
+ *
  * \returns
  * true if success or false if error
  */
@@ -214,15 +214,15 @@ bool TLN_GetSpriteInfo (TLN_Spriteset spriteset, int entry, TLN_SpriteInfo* info
 /*!
  * \brief
  * Returns a reference to the palette associated to the specified spriteset
- * 
+ *
  * \param spriteset
  * Spriteset to obtain the palette
- * 
+ *
  * \remarks
  * The palette of a spriteset is created at load time and cannot be modified. When TLN_ConfigSprite
  * function is used to setup a sprite, the palette associated with the specified spriteset is automatically
  * assigned to that sprite, but it can be later replaced with TLN_SetSpritePalette
- * 
+ *
  * \see
  * TLN_SetSpritePalette()
  */
@@ -240,7 +240,7 @@ TLN_Palette TLN_GetSpritesetPalette (TLN_Spriteset spriteset)
 /*!
  * \brief
  * Returns a reference to the palette associated to the specified spriteset
- * 
+ *
  * \param spriteset
  * Spriteset where to find the sprite
  *

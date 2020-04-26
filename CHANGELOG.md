@@ -1,5 +1,14 @@
 # Tilengine changelog
 
+## [2.7.0] - 26/4/2020
+- Adds sprite linked list order: TLN_SetFirstSprite() and TLN_SetNextSprite
+- Adds sprite masking: TLN_EnableSpriteMasking() and TLN_SetSpritesMaskRegion()
+- Removes parameter "count" in TLN_CreateSpriteSequence(), now gets detected from sprite names
+- CRT effect: when disabled always uses nearest-neighbor interpolation
+- Fixes compiler-induced optimization bugs in built-in window
+- Samples: removes usage of old sqx files for sprite animation and replaces with TLN_CreateSpriteAnimation() (shooter, supermarioclone, forest)
+- Fixes broken loading of txt-based spritesheets in 2.6.0
+
 ## [2.6.0] - 22/4/2020
 - Supports .json array for spritesheet loader, compatible with Aseprite, Texturepacker, Piskel...
 - Supports loading of 24/32 bpp pixel data on the fly. Note that bitmaps must have less than 255 unique colors
@@ -15,7 +24,7 @@
 - Updates sample "Forest" to showcase new image-based tileset and object list features
 
 ## [2.4.2] - 22/12/2019
-- Fixes broken crt effect in x64, due to mismatched bool for uint8_t causing missalignment of indexed data. Updates windows binaries
+- Fixes broken crt effect in x64, due to mismatched bool for uint8_t causing misalignment of indexed data. Updates windows binaries
 
 ## [2.4.1] - 19/11/2019
 - Uses explicit casts on all functions returning generic void*, allows for more strict C++ compile-time checks but it's still full pure C compliant

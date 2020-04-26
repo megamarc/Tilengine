@@ -2,6 +2,12 @@
 
 [TOC]
 
+## Types of tilesets
+
+### Tile-based tileset
+
+### Image-based tileset
+
 ## Load from file
 
 ## Create at runtime

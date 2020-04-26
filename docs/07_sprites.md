@@ -84,6 +84,12 @@ To query the collision status for a given sprite, call \ref TLN_GetSpriteCollisi
 bool collision = TLN_GetSpriteCollision (0);
 ```
 
+## Sprite priority
+
+## Sprite drawing order
+
+## Sprite masking
+
 ## Disabling
 To disable a sprite so it is not rendered, just call \ref TLN_DisableSprite passing the sprite index:
 ```c
