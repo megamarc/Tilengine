@@ -21,6 +21,18 @@
 static void DrawSpriteCollision (int nsprite, uint8_t *srcpixel, uint16_t *dstpixel, int width, int dx);
 static void DrawSpriteCollisionScaling (int nsprite, uint8_t *srcpixel, uint16_t *dstpixel, int width, int dx, int srcx);
 
+static bool check_sprite_coverage(Sprite* sprite, int nscan)
+{
+	/* check sprite coverage */
+	if (nscan < sprite->dstrect.y1 || nscan >= sprite->dstrect.y2)
+		return false;
+	if (sprite->dstrect.x2 < 0 || sprite->srcrect.x2 < 0)
+		return false;
+	if (sprite->masking && nscan >= engine->sprite_mask_top && nscan <= engine->sprite_mask_bottom)
+		return false;
+	return true;
+}
+
 /*!
  * \brief Draws the next scanline of the frame started with TLN_BeginFrame() or TLN_BeginWindowFrame()
  * \remarks Use this function in conjunction with TLN_BeginFrame() (custom render target) or 
@@ -33,6 +45,7 @@ bool TLN_DrawNextScanline(void)
 	uint8_t* scan = GetFramebufferLine(line);
 	int size = engine->framebuffer.width;
 	int c;
+	int index;
 	bool background_priority = false;
 	bool sprite_priority = false;
 
@@ -77,16 +90,18 @@ bool TLN_DrawNextScanline(void)
 	}
 
 	/* draw regular sprites */
-	for (c = 0; c < engine->numsprites; c++)
+	index = engine->first_sprite;
+	while (index != -1)
 	{
-		Sprite* sprite = &engine->sprites[c];
-		if (sprite->ok)
+		Sprite* sprite = &engine->sprites[index];
+		if (check_sprite_coverage(sprite, line))
 		{
 			if (!(sprite->flags & FLAG_PRIORITY))
-				engine->sprites[c].draw(c, line);
+				sprite->draw(index, line);
 			else
 				sprite_priority = true;
 		}
+		index = sprite->next;
 	}
 
 	/* draw background layers with priority */
@@ -114,11 +129,12 @@ bool TLN_DrawNextScanline(void)
 	/* draw sprites with priority */
 	if (sprite_priority == true)
 	{
-		for (c = 0; c < engine->numsprites; c++)
+		index = engine->first_sprite;
+		while (index != -1)
 		{
-			Sprite* sprite = &engine->sprites[c];
-			if (sprite->ok && (sprite->flags & FLAG_PRIORITY))
-				engine->sprites[c].draw(c, line);
+			Sprite* sprite = &engine->sprites[index];
+			if (check_sprite_coverage(sprite, line) && (sprite->flags & FLAG_PRIORITY))
+				sprite->draw(index, line);
 		}
 	}
 
@@ -629,13 +645,6 @@ static bool DrawSpriteScanline (int nsprite, int nscan)
 	int direction;
 
 	sprite = &engine->sprites[nsprite];
-
-	/* check sprite coverage */
-	if (nscan<sprite->dstrect.y1 || nscan>=sprite->dstrect.y2)
-		return false;
-	if (sprite->dstrect.x2 < 0 || sprite->srcrect.x2 < 0)
-		return false;
-
 	dstscan = GetFramebufferLine(nscan);
 		
 	srcx = sprite->srcrect.x1;
@@ -677,12 +686,6 @@ static bool DrawScalingSpriteScanline (int nsprite, int nscan)
 	struct Palette* palette;
 
 	sprite = &engine->sprites[nsprite];
-
-	/* check sprite coverage */
-	if (nscan<sprite->dstrect.y1 || nscan>=sprite->dstrect.y2)
-		return false;
-	if (sprite->dstrect.x2 < 0 || sprite->srcrect.x2 < 0)
-		return false;
 
 	dstscan = GetFramebufferLine(nscan);
 	srcx = sprite->srcrect.x1;

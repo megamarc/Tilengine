@@ -21,28 +21,33 @@
 /* motor */
 typedef struct Engine
 {
-	uint32_t	header;		/* object signature to identify as engine context */
-	uint8_t*	priority;	/* scanline que recibe los tiles con prioridad */
-	uint16_t*	collision;	/* scanline con IDs de colision de sprites */
-	uint8_t*	tmpindex;	/* indices temporales para capas transformadas con transparencia */
-	int			numsprites;	/* nº de sprites */
-	Sprite*		sprites;	/* puntero a los sprites */
-	int			numlayers;	/* nº de capas */
-	Layer*		layers;		/* puntero a las capas */
-	int			numanimations;
-	Animation*	animations;
-	bool		dopriority;
-	TLN_Error	error;		/* ultimo error */
-	TLN_LogLevel log_level;	/* logging level */
+	uint32_t	header;			/* object signature to identify as engine context */
+	uint8_t*	priority;		/* buffer receiving tiles with priority */
+	uint16_t*	collision;		/* buffer with sprite coverage IDs for per-pixel collision */
+	uint8_t*	tmpindex;		/* buffer for intermediate scanline output  */
+	int			numsprites;		/* number of sprites */
+	Sprite*		sprites;		/* pointer to sprite buffer */
+	int			numlayers;		/* number of layers */
+	Layer*		layers;			/* pointer to layer buffer */
+	int			numanimations;	/* number of animations */
+	Animation*	animations;		/* pointer to animation buffer */
+	bool		dopriority;		/* there is some data in "priority" buffer that need blitting */
+	TLN_Error	error;			/* last error code */
+	TLN_LogLevel log_level;		/* logging level */
 
-	uint32_t	bgcolor;	/* color de fondo */
-	TLN_Bitmap	bgbitmap;	/* bitmap de fondo */
-	TLN_Palette	bgpalette;	/* paleta de fondo */
-	ScanBlitPtr	blit_fast;	/* blitter para bitmap de fondo */
-	uint8_t*	mod_table;	/* tabla de modulacion */
-	void		(*raster)(int);
-	void		(*frame)(int);
-	int line;				/* línea actual */
+	uint32_t	bgcolor;		/* background color */
+	TLN_Bitmap	bgbitmap;		/* background bitmap */
+	TLN_Palette	bgpalette;		/* background bitmap palette */
+	ScanBlitPtr	blit_fast;		/* blitter for background bitmap */
+	uint8_t*	blend_table;	/* current blending table */
+	void		(*raster)(int);	/* raster callback */
+	void		(*frame)(int);	/* frame callback */
+	int line;					/* current scanline */
+
+	int first_sprite;			/* first sprite in list, none = -1 */
+	int last_sprite;			/* last sprite in list, none = -1 */
+	int sprite_mask_top;		/* top scanline for sprite masking */
+	int sprite_mask_bottom;		/* bottom scanline for sprite masking */
 
 	struct
 	{

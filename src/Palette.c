@@ -174,7 +174,7 @@ bool TLN_MixPalettes (TLN_Palette src1, TLN_Palette src2, TLN_Palette dst, uint8
 {
 	int c;
 	const uint8_t invfactor = 255 - factor;
-	const uint8_t* mod_table = engine->mod_table;
+	const uint8_t* blend_table = engine->blend_table;
 	uint8_t* src1ptr;
 	uint8_t* src2ptr;
 	uint8_t* dstptr;
@@ -186,7 +186,7 @@ bool TLN_MixPalettes (TLN_Palette src1, TLN_Palette src2, TLN_Palette dst, uint8
 	src1ptr = TLN_GetPaletteData (src1, 0);
 	src2ptr = TLN_GetPaletteData (src2, 0);
 	dstptr  = TLN_GetPaletteData (dst, 0);
-	mod_table = SelectBlendTable (BLEND_MOD);
+	blend_table = SelectBlendTable (BLEND_MOD);
 
 	if (src1->entries > src2->entries)
 		count = src1->entries;
@@ -195,9 +195,9 @@ bool TLN_MixPalettes (TLN_Palette src1, TLN_Palette src2, TLN_Palette dst, uint8
 
 	for (c=0; c<count; c++)
 	{
-		dstptr[0] = blendfunc(mod_table,src2ptr[0],factor) + blendfunc(mod_table,src1ptr[0],invfactor);
-		dstptr[1] = blendfunc(mod_table,src2ptr[1],factor) + blendfunc(mod_table,src1ptr[1],invfactor);
-		dstptr[2] = blendfunc(mod_table,src2ptr[2],factor) + blendfunc(mod_table,src1ptr[2],invfactor);
+		dstptr[0] = blendfunc(blend_table,src2ptr[0],factor) + blendfunc(blend_table,src1ptr[0],invfactor);
+		dstptr[1] = blendfunc(blend_table,src2ptr[1],factor) + blendfunc(blend_table,src1ptr[1],invfactor);
+		dstptr[2] = blendfunc(blend_table,src2ptr[2],factor) + blendfunc(blend_table,src1ptr[2],invfactor);
 		src1ptr += sizeof(uint32_t);
 		src2ptr += sizeof(uint32_t);
 		dstptr  += sizeof(uint32_t);

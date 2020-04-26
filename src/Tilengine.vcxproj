@@ -261,6 +261,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <ClInclude Include="Bitmap.h" />
     <ClInclude Include="Blitters.h" />
     <ClInclude Include="cJSON.h" />
+    <ClInclude Include="Debug.h" />
     <ClInclude Include="DIB.h" />
     <ClInclude Include="Draw.h" />
     <ClInclude Include="Engine.h" />

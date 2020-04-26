@@ -37,7 +37,7 @@ static TLN_SpriteData* load_txt_csv(const char* filename, int* num_entries)
 	while (fgets(line, sizeof(line), pf))
 	{
 		if (strchr(line, '='))
-			sscanf(line, "%[^=]= %d %d %d %d", entry->name, &entry->x, &entry->y, &entry->w, &entry->h);
+			sscanf(line, "%s = %d %d %d %d", entry->name, &entry->x, &entry->y, &entry->w, &entry->h);
 		else if (strchr(line, ','))
 			sscanf(line, "%64[^,],%d,%d,%d,%d", entry->name, &entry->x, &entry->y, &entry->w, &entry->h);
 		entry += 1;

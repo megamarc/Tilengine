@@ -44,7 +44,6 @@ typedef struct
 }
 layer_t;
 
-TLN_SequencePack sp;
 TLN_Sequence sequences[MAX_SEQ];
 TLN_Spriteset spritesets[MAX_SPRITESET];
 TLN_Palette palettes[MAX_LAYER];
@@ -107,13 +106,12 @@ int main (int argc, char *argv[])
 	LoadLayer (LAYER_FOREGROUND, "TF4_fg1");
 	LoadLayer (LAYER_BACKGROUND, "TF4_bg1");
 
-	/* load sequences */
-	sp = TLN_LoadSequencePack ("TF4_seq.sqx");
-	sequences[SEQ_CLAW  ] = TLN_FindSequence (sp, "seq_claw");
-	sequences[SEQ_BLADE1] = TLN_FindSequence (sp, "seq_bladeb");
-	sequences[SEQ_BLADE2] = TLN_FindSequence (sp, "seq_blades");
-	sequences[SEQ_EXPLO1] = TLN_FindSequence (sp, "seq_explob");
-	sequences[SEQ_EXPLO2] = TLN_FindSequence (sp, "seq_explos");
+	/* create sequences from sprite names */
+	sequences[SEQ_CLAW  ] = TLN_CreateSpriteSequence (NULL, spritesets[SPRITESET_MAIN], "claw", 4);
+	sequences[SEQ_BLADE1] = TLN_CreateSpriteSequence (NULL, spritesets[SPRITESET_MAIN], "bladeb", 2);
+	sequences[SEQ_BLADE2] = TLN_CreateSpriteSequence (NULL, spritesets[SPRITESET_MAIN], "blades", 2);
+	sequences[SEQ_EXPLO1] = TLN_CreateSpriteSequence (NULL, spritesets[SPRITESET_MAIN], "explb", 3);
+	sequences[SEQ_EXPLO2] = TLN_CreateSpriteSequence (NULL, spritesets[SPRITESET_MAIN], "expls", 2);
 
 	/* create actors */
 	CreateActors (MAX_ACTOR);
@@ -193,7 +191,6 @@ int main (int argc, char *argv[])
 	/* deinit */
 	FreeLayer (LAYER_FOREGROUND);
 	FreeLayer (LAYER_BACKGROUND);
-	TLN_DeleteSequencePack (sp);
 	TLN_Deinit ();
 
 	return 0;

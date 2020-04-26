@@ -17,7 +17,7 @@
 #include "Palette.h"
 #include "Spriteset.h"
 #include "Tables.h"
-#include "Hash.h"
+#include "Debug.h"
 
 #ifdef _MSC_VER
 #define inline __inline
@@ -25,6 +25,63 @@
 
 static void SelectBlitter (Sprite* sprite);
 static void UpdateSprite (Sprite* sprite);
+
+void print_sprites(void)
+{
+#ifdef _DEBUG
+	int index;
+	int c = 0;
+	debugmsg("sprites: ");
+	index = engine->first_sprite;
+	while (index != -1)
+	{
+		debugmsg("%d ", index);
+		index = engine->sprites[index].next;
+		c += 1;
+		if (c > engine->numsprites)
+		{
+			exit(0);
+		}
+	}
+	debugmsg("\n");
+#endif
+}
+
+/* helper for sprite linked list */
+static void link_sprites(int num1, int num2)
+{
+	if (num1 != -1)
+		engine->sprites[num1].next = num2;
+	if (num2 != -1)
+		engine->sprites[num2].prev = num1;
+}
+
+static void unlink_sprite(int num)
+{
+	Sprite* sprite = &engine->sprites[num];
+	if (sprite->prev != -1)
+		engine->sprites[sprite->prev].next = sprite->next;
+	if (sprite->next != -1)
+		engine->sprites[sprite->next].prev = sprite->prev;
+	if (engine->first_sprite == num)
+		engine->first_sprite = sprite->next;
+	if (engine->last_sprite == num)
+		engine->last_sprite = sprite->prev;
+	sprite->prev = -1;
+	sprite->next = -1;
+
+	print_sprites();
+}
+
+static append_sprite(int num)
+{
+	if (engine->first_sprite == -1)
+		engine->first_sprite = num;
+	link_sprites(engine->last_sprite, num);
+	engine->last_sprite = num;
+
+	print_sprites();
+}
 
 /*!
  * \brief
@@ -70,6 +127,7 @@ bool TLN_ConfigSprite (int nsprite, TLN_Spriteset spriteset, TLN_TileFlags flags
 bool TLN_SetSpriteSet (int nsprite, TLN_Spriteset spriteset)
 {
 	Sprite *sprite;
+	bool enabled;
 	if (nsprite >= engine->numsprites)
 	{
 		TLN_SetLastError (TLN_ERR_IDX_SPRITE);
@@ -81,12 +139,21 @@ bool TLN_SetSpriteSet (int nsprite, TLN_Spriteset spriteset)
 	sprite = &engine->sprites[nsprite];
 	sprite->spriteset = spriteset;
 	sprite->pitch = sprite->spriteset->bitmap->pitch;
+	enabled = sprite->ok;
 	if (spriteset->palette)
 		sprite->palette = spriteset->palette;
 	sprite->ok = sprite->spriteset && sprite->palette;
-	sprite->num = nsprite;
+	if (sprite->ok)
+	{
+		sprite->num = nsprite;
+		sprite->ok = TLN_SetSpritePicture(nsprite, 0);
+	}
+
+	/* sprite enabled: add to the end */
+	if (enabled == false && sprite->ok == true)
+		append_sprite(nsprite);
 	
-	return TLN_SetSpritePicture (nsprite, 0);
+	return sprite->ok;
 }
 
 /*!
@@ -486,7 +553,7 @@ bool TLN_SetSpriteRotation(int nsprite, float angle)
 	for (y = 0; y < rotated->height; y++)
 	{
 		for (x = 0; x < rotated->width; x++)
-			printf("%2d ", *get_bitmap_ptr(rotated, x, y));
+			debugmsg("%2d ", *get_bitmap_ptr(rotated, x, y));
 	}
 	*/
 	return true;
@@ -625,13 +692,25 @@ bool TLN_GetSpriteCollision(int nsprite)
  */
 bool TLN_DisableSprite(int nsprite)
 {
+	Sprite* sprite;
+	bool enabled;
 	if (nsprite >= engine->numsprites)
 	{
 		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
 		return false;
 	}
 
-	engine->sprites[nsprite].ok = false;
+	sprite = &engine->sprites[nsprite];
+	enabled = sprite->ok;
+	sprite->ok = false;
+
+	/* disabled: remove from linked list */
+	if (enabled == true)
+	{
+		debugmsg("%s(%d)\t", __FUNCTION__, nsprite);
+		unlink_sprite(nsprite);
+	}
+
 	TLN_SetLastError(TLN_ERR_OK);
 	return true;
 }
@@ -686,6 +765,104 @@ TLNAPI bool TLN_GetSpriteState(int nsprite, TLN_SpriteState* state)
 	
 	TLN_SetLastError(TLN_ERR_OK);
 	return true;
+}
+
+/*!
+ * \brief Sets the first sprite drawn (beginning of list)
+ * \param nsprite Id of the sprite [0, num_sprites - 1]. Must be enabled (visible)
+ */
+bool TLN_SetFirstSprite(int nsprite)
+{
+	Sprite* sprite;
+	int cut1, cut2;
+	if (nsprite >= engine->numsprites || !engine->sprites[nsprite].ok || nsprite == engine->first_sprite)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
+		return false;
+	}
+	sprite = &engine->sprites[nsprite];
+
+	/* cut points inside the list to rejoin */
+	cut1 = sprite->prev;
+	cut2 = sprite->next;
+
+	/* rejoin segments */
+	sprite->prev = -1;
+	sprite->next = -1;
+	link_sprites(nsprite, engine->first_sprite);
+	link_sprites(cut1, cut2);
+	engine->first_sprite = nsprite;
+
+	debugmsg("%s(%d)\t", __FUNCTION__, nsprite);
+	print_sprites();
+	TLN_SetLastError(TLN_ERR_OK);
+	return true;
+}
+
+/*!
+ * \brief Sets the next sprite to draw for a given sprite, builds list
+ * \param nsprite Id of the sprite [0, num_sprites - 1]. Must be enabled (visible)
+ * \param next Id of the sprite to draw after Id [0, num_sprites - 1]. Must be enabled (visible)
+ */
+bool TLN_SetNextSprite(int nsprite, int next)
+{
+	int cut1, cut2, cut3;
+	if (nsprite >= engine->numsprites || !engine->sprites[nsprite].ok || nsprite == next)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
+		return false;
+	}
+
+	if (next >= engine->numsprites || !engine->sprites[next].ok)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
+		return false;
+	}
+
+	/* cut points inside the list te rejoin */
+	cut1 = engine->sprites[nsprite].next;
+	cut2 = engine->sprites[next].prev;
+	cut3 = engine->sprites[next].next;
+
+	/* rejoin segments */
+	link_sprites(nsprite, next);
+	link_sprites(next, cut1);
+	link_sprites(cut2, cut3);
+	if (engine->first_sprite == next)
+		engine->first_sprite = cut3;
+
+	debugmsg("%s(%d,%d)\t", __FUNCTION__, nsprite, next);
+	print_sprites();
+	TLN_SetLastError(TLN_ERR_OK);
+	return true;
+}
+
+/*!
+ * \brief Enables or disables masking for this sprite, if enabled it won't be drawn inside the region set up with TLN_SetSpritesMaskRegion()
+ * \param nsprite Id of the sprite to mask [0, num_sprites - 1].
+ */
+bool TLN_EnableSpriteMasking(int nsprite, bool enable)
+{
+	if (nsprite >= engine->numsprites)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
+		return false;
+	}
+
+	engine->sprites[nsprite].masking = true;
+	TLN_SetLastError(TLN_ERR_OK);
+	return true;
+}
+
+/*!
+ * \brief Defines a sprite masking region between the two scanlines. Sprites masked with TLN_EnableSpriteMasking() won't be drawn inside this region.
+ * \param top_line Top scaline where masking starts
+ * \param bottom_line Bottom scaline where masking ends
+ */
+void TLN_SetSpritesMaskRegion(int top_line, int bottom_line)
+{
+	engine->sprite_mask_top = top_line;
+	engine->sprite_mask_bottom = bottom_line;
 }
 
 /* actualiza datos internos */
@@ -792,7 +969,7 @@ static void UpdateSprite (Sprite* sprite)
 	}
 
 	/*
-	printf ("Sprite %02d scale=%.02f,%.02f src=[%d,%d,%d,%d] dst=[%d,%d,%d,%d]\n",
+	debugmsg ("Sprite %02d scale=%.02f,%.02f src=[%d,%d,%d,%d] dst=[%d,%d,%d,%d]\n",
 		sprite->num, sprite->sx, sprite->sy,
 		fix2int(sprite->srcrect.x1), fix2int(sprite->srcrect.y1), fix2int(sprite->srcrect.x2), fix2int(sprite->srcrect.y2), 
 		sprite->dstrect.x1, sprite->dstrect.y1, sprite->dstrect.x2, sprite->dstrect.y2);

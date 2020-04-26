@@ -14,7 +14,6 @@ enum
 
 int main (int argc, char* argv[])
 {
-	TLN_SequencePack sp;
 	TLN_Sequence seq_walking;
 	TLN_Spriteset spriteset;
 	TLN_Tilemap tilemaps[MAX_LAYER];
@@ -42,12 +41,11 @@ int main (int argc, char* argv[])
 	TLN_SetSpritePosition (0, player_x, player_y);
 
 	/* setup animations */
-	sp = TLN_LoadSequencePack ("sequences.sqx");
-	seq_walking = TLN_FindSequence (sp, "seq_walking");
+	seq_walking = TLN_CreateSpriteSequence (NULL, spriteset, "walking", 6);
 	TLN_SetSpriteAnimation (2, 0, seq_walking, 0);
 
 	/* main loop */
-	TLN_CreateWindow ("overlay.bmp", CWF_VSYNC);
+	TLN_CreateWindow (NULL, 0);
 	while (TLN_ProcessWindow())
 	{
 		player_x += 1;
@@ -60,7 +58,6 @@ int main (int argc, char* argv[])
 	/* deinit */
 	TLN_DeleteTilemap (tilemaps[LAYER_FOREGROUND]);
 	TLN_DeleteTilemap (tilemaps[LAYER_BACKGROUND]);
-	TLN_DeleteSequencePack (sp);
 	TLN_Deinit ();
 
 	return 0;

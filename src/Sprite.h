@@ -48,7 +48,10 @@ typedef struct Sprite
 	bool			ok;
 	bool			do_collision;
 	bool			collision;
+	bool			masking;
 	TLN_Bitmap		rotation_bitmap;
+	int				prev;
+	int				next;
 }
 Sprite;
 

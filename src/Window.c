@@ -216,24 +216,8 @@ static bool CreateWindow(void)
 		return false;
 	}
 
-	/* sets upscale filtering */
-	if (wnd_params.flags & CWF_NEAREST)
-		quality[0] = '0';	/* nearest */
-	else
-		quality[0] = '1';	/* linear */
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, quality);
-
-	/* create framebuffer texture */
-	format = SDL_PIXELFORMAT_ARGB8888;
-	backbuffer = SDL_CreateTexture(renderer, format, SDL_TEXTUREACCESS_STREAMING, wnd_params.width, wnd_params.height);
-	if (!backbuffer)
-	{
-		DeleteWindow();
-		return false;
-	}
-	SDL_SetTextureAlphaMod(backbuffer, 0);
-
 	/* CRT effect textures */
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 	crt.overlay_id = TLN_OVERLAY_NONE;
 	crt.glow = SDL_CreateTexture(renderer, format, SDL_TEXTUREACCESS_STREAMING, wnd_params.width / 2, wnd_params.height / 2);
 	crt.blur = SDL_CreateRGBSurface(0, wnd_params.width / 2, wnd_params.height / 2, 32, 0, 0, 0, 0);
@@ -249,8 +233,11 @@ static bool CreateWindow(void)
 	if (wnd_params.file_overlay[0])
 		crt.overlays[TLN_OVERLAY_CUSTOM] = SDL_LoadBMP(wnd_params.file_overlay);
 
-	/* enables CRT effect with last used parameters */
-	EnableCRTEffect();
+	/* enables CRT effect */
+	if (crt_enable)
+		EnableCRTEffect();
+	else
+		TLN_DisableCRTEffect();
 
 	/* temporal downsample surface */
 	resize_half_width = SDL_CreateRGBSurface(0, wnd_params.width / 2, wnd_params.height, 32, 0, 0, 0, 0);
@@ -430,6 +417,7 @@ bool TLN_CreateWindow (const char* overlay, int flags)
 		wnd_params.file_overlay[MAX_PATH - 1] = '\0';
 	}
 
+	crt_enable = (wnd_params.flags & CWF_NEAREST) == 0;
 	ok = CreateWindow ();
 	if (ok)
 		instances++;
@@ -486,6 +474,7 @@ bool TLN_CreateWindowThread (const char* overlay, int flags)
 		wnd_params.file_overlay[MAX_PATH - 1] = '\0';
 	}
 
+	crt_enable = (wnd_params.flags & CWF_NEAREST) == 0;
 	lock = SDL_CreateMutex ();
 	cond = SDL_CreateCond ();
 
@@ -522,6 +511,7 @@ void TLN_DeleteWindow (void)
 
 	DeleteWindow ();
 	SDL_Quit ();
+	printf("");
 }
 
 /* marks input as pressed */
@@ -644,29 +634,42 @@ bool TLN_ProcessWindow (void)
 			break;
 
 		case SDL_KEYDOWN:
-		case SDL_KEYUP:
 			keybevt = (SDL_KeyboardEvent*)&evt;
-			if (keybevt->state == SDL_PRESSED)
+			if (keybevt->repeat == true)
+				break;
+
+			/* special inputs */
+			if (keybevt->keysym.sym == player_inputs[PLAYER1].keycodes[INPUT_QUIT])
+				done = true;
+			else if (keybevt->keysym.sym == player_inputs[PLAYER1].keycodes[INPUT_CRT])
 			{
-				if (keybevt->keysym.sym == player_inputs[PLAYER1].keycodes[INPUT_QUIT])
-					done = true;
-				else if (keybevt->keysym.sym == player_inputs[PLAYER1].keycodes[INPUT_CRT])
-				{
-					crt_enable = !crt_enable;
+				crt_enable = !crt_enable;
+				if (crt_enable)
 					EnableCRTEffect();
-				}
-				else if (keybevt->keysym.sym == SDLK_RETURN && keybevt->keysym.mod & KMOD_ALT)
-				{
-					DeleteWindow ();
-					wnd_params.flags ^= CWF_FULLSCREEN;
-					CreateWindow ();
-				}
+				else
+					TLN_DisableCRTEffect();
+			}
+			else if (keybevt->keysym.sym == SDLK_RETURN && keybevt->keysym.mod & KMOD_ALT)
+			{
+				DeleteWindow();
+				wnd_params.flags ^= CWF_FULLSCREEN;
+				CreateWindow();
 			}
 
-			for (c=PLAYER1; c<MAX_PLAYERS; c++)
+			/* regular user input */
+			for (c = PLAYER1; c < MAX_PLAYERS; c++)
 			{
 				if (player_inputs[c].enabled == true)
-					ProcessKeycodeInput ((TLN_Player)c, keybevt->keysym.sym, keybevt->state);
+					ProcessKeycodeInput((TLN_Player)c, keybevt->keysym.sym, keybevt->state);
+			}
+			break;
+
+		case SDL_KEYUP:
+			keybevt = (SDL_KeyboardEvent*)&evt;
+			for (c = PLAYER1; c < MAX_PLAYERS; c++)
+			{
+				if (player_inputs[c].enabled == true)
+					ProcessKeycodeInput((TLN_Player)c, keybevt->keysym.sym, keybevt->state);
 			}
 			break;
 
@@ -793,6 +796,13 @@ void TLN_EnableCRTEffect (TLN_Overlay overlay, uint8_t overlay_factor, uint8_t t
 {
 	int c;
 
+	/* create framebuffer texture with linear scaling */
+	if (backbuffer != NULL)
+		SDL_DestroyTexture(backbuffer);
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+	backbuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, wnd_params.width, wnd_params.height);
+	SDL_SetTextureAlphaMod(backbuffer, 0);
+
 	/* cache parameters to persist between fullscreen toggles*/
 	crt_params.overlay = overlay;
 	crt_params.overlay_factor = overlay_factor;
@@ -835,27 +845,30 @@ void TLN_EnableCRTEffect (TLN_Overlay overlay, uint8_t overlay_factor, uint8_t t
  */ 
 void TLN_DisableCRTEffect (void)
 {
+	/* create framebuffer texture with neartest */
+	if (backbuffer != NULL)
+		SDL_DestroyTexture(backbuffer);
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+	backbuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, wnd_params.width, wnd_params.height);
+	SDL_SetTextureAlphaMod(backbuffer, 0);
 	crt_enable = false;
 }
-
 
 /* enables CRT effect with last used parameters */
 static void EnableCRTEffect (void)
 {
-	if (crt_enable)
-	{
-		TLN_EnableCRTEffect(crt_params.overlay,
-			crt_params.overlay_factor,
-			crt_params.threshold,
-			crt_params.v0,
-			crt_params.v1,
-			crt_params.v2,
-			crt_params.v3,
-			crt_params.blur,
-			crt_params.glow_factor
-		);
-	}
+	TLN_EnableCRTEffect(crt_params.overlay,
+		crt_params.overlay_factor,
+		crt_params.threshold,
+		crt_params.v0,
+		crt_params.v1,
+		crt_params.v2,
+		crt_params.v3,
+		crt_params.blur,
+		crt_params.glow_factor
+	);
 }
+
 /*!
  * \brief
  * Returns the state of a given input
@@ -884,9 +897,11 @@ static void EnableCRTEffect (void)
  */
 bool TLN_GetInput (TLN_Input input)
 {
-	const int value = (int)input;
-	const TLN_Player player = (TLN_Player)(value >> 5);
-	return (player_inputs[player].inputs & (1 << (input & INPUT_MASK))) != 0;
+	const TLN_Player player = (TLN_Player)(input >> 5);
+	const uint32_t mask = (player_inputs[player].inputs & (1 << (input & INPUT_MASK)));
+	if (mask)
+		return true;
+	return false;
 }
 
 /*!

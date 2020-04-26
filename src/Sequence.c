@@ -136,18 +136,37 @@ TLN_Sequence TLN_CreateCycle (const char* name, int count, TLN_ColorStrip* strip
  * \param name Optional name used to retrieve it when adding to a TLN_SequencePack, can be NULL
  * \param spriteset Reference to the spriteset with frames to animate
  * \param basename Base of the sprite name for the numbered sequence
- * \param count Number of frames in the animation
  * \param delay Number of ticks to delay between frame
  * \return Reference to the created TLN_Sequence object or NULL if error
+ * \remarks Trailing numbers in sprite names must start with 1 and be correlative (eg basename1... basename14)
   */
-TLN_Sequence TLN_CreateSpriteSequence(const char* name, TLN_Spriteset spriteset, char* basename, int count, int delay)
+TLN_Sequence TLN_CreateSpriteSequence(const char* name, TLN_Spriteset spriteset, const char* basename, int delay)
 {
 	int size;
 	TLN_Sequence sequence;
 	TLN_SequenceFrame* frame;
-	int c, old;
+	int c;
+	int count = 0;
+	int index;
+	char framename[64];
 
 	if (!CheckBaseObject(spriteset, OT_SPRITESET))
+	{
+		TLN_SetLastError(TLN_ERR_REF_SPRITESET);
+		return NULL;
+	}
+
+	/* find number of frames */
+	do
+	{
+		snprintf(framename, sizeof(framename), "%s%d", basename, count + 1);
+		index = TLN_FindSpritesetSprite(spriteset, framename);
+		if (index != -1)
+			count += 1;
+	} while (index != -1);
+
+	/* noi matching frames found: exit */
+	if (count == 0)
 	{
 		TLN_SetLastError(TLN_ERR_REF_SPRITESET);
 		return NULL;
@@ -168,21 +187,10 @@ TLN_Sequence TLN_CreateSpriteSequence(const char* name, TLN_Spriteset spriteset,
 
 	/* build frames from sprite name */
 	frame = (TLN_SequenceFrame*)&sequence->data;
-	old = 0;
 	for (c = 0; c < count; c++)
 	{
-		int index;
-		char num[5];
-		char framename[64];
-
-		snprintf(num, sizeof(num), "%d", c + 1);
-		snprintf(framename, sizeof(framename), "%s%s", basename, num);
-		index = TLN_FindSpritesetSprite(spriteset, framename);
-		if (index != -1)
-			frame->index = index;
-		else
-			frame->index = old;
-		old = frame->index;
+		snprintf(framename, sizeof(framename), "%s%d", basename, c + 1);
+		frame->index = TLN_FindSpritesetSprite(spriteset, framename);
 		frame->delay = delay;
 		frame += 1;
 	}

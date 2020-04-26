@@ -81,8 +81,8 @@ int main(int argc, char* argv[])
 	TLN_SetLayerParent(LAYER_PROPS, LAYER_FOREGROUND);
 
 	/* create sprite sequences */
-	idle = TLN_CreateSpriteSequence(NULL, atlas, "player-idle/player-idle-", 9, 6);
-	skip = TLN_CreateSpriteSequence(NULL, atlas, "player-skip/player-skip-", 8, 6);
+	idle = TLN_CreateSpriteSequence(NULL, atlas, "player-idle/player-idle-", 6);
+	skip = TLN_CreateSpriteSequence(NULL, atlas, "player-skip/player-skip-", 6);
 	
 	/* setup main player sprite */
 	xplayer = 48;

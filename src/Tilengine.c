@@ -114,10 +114,15 @@ static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int
 	}
 	for (c=0; c<context->numsprites; c++)
 	{
-		context->sprites[c].draw = GetSpriteDraw (MODE_NORMAL);
-		context->sprites[c].blitter = GetBlitter (bpp, true, false, false);
-		context->sprites[c].sx = context->sprites[c].sy = 1.0f;
+		Sprite* sprite = &context->sprites[c];
+		sprite->draw = GetSpriteDraw (MODE_NORMAL);
+		sprite->blitter = GetBlitter (bpp, true, false, false);
+		sprite->sx = sprite->sy = 1.0f;
+		sprite->prev = -1;
+		sprite->next = -1;
 	}
+	context->first_sprite = -1;
+	context->last_sprite = -1;
 
 	context->numanimations = numanimations;
 	context->animations = (Animation*)calloc (numanimations, sizeof(Animation));
@@ -136,7 +141,7 @@ static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int
 		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 		return NULL;
 	}
-	context->mod_table = SelectBlendTable (BLEND_MOD);
+	context->blend_table = SelectBlendTable (BLEND_MOD);
 
 	/* set as default context if it's the first one */
 	if (engine == NULL)
@@ -144,6 +149,10 @@ static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int
 
 	for (c = 0; c<context->numlayers; c++)
 		TLN_DisableLayerClip(c);
+
+#ifdef _DEBUG
+	TLN_SetLogLevel(TLN_LOG_ERRORS);
+#endif
 
 	return context;
 }
@@ -410,7 +419,7 @@ void TLN_BeginFrame (int time)
 
 	/* limpia colisiones de sprites */
 	for (c=0; c<engine->numsprites; c++)
-		engine->sprites[c].collision = 0;
+		engine->sprites[c].collision = false;
 
 	/* frame callback */
 	if (engine->frame)

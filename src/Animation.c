@@ -29,9 +29,9 @@ static int lerp (int x, int x0, int x1, int fx0, int fx1)
 
 static inline void blendColors (uint8_t* srcptr0, uint8_t* srcptr1, uint8_t* dstptr, uint8_t f0, uint8_t f1)
 {
-	dstptr[0] = blendfunc(engine->mod_table, srcptr0[0], f0) + blendfunc(engine->mod_table, srcptr1[0], f1);
-	dstptr[1] = blendfunc(engine->mod_table, srcptr0[1], f0) + blendfunc(engine->mod_table, srcptr1[1], f1);
-	dstptr[2] = blendfunc(engine->mod_table, srcptr0[2], f0) + blendfunc(engine->mod_table, srcptr1[2], f1);
+	dstptr[0] = blendfunc(engine->blend_table, srcptr0[0], f0) + blendfunc(engine->blend_table, srcptr1[0], f1);
+	dstptr[1] = blendfunc(engine->blend_table, srcptr0[1], f0) + blendfunc(engine->blend_table, srcptr1[1], f1);
+	dstptr[2] = blendfunc(engine->blend_table, srcptr0[2], f0) + blendfunc(engine->blend_table, srcptr1[2], f1);
 }
 
 static void SetAnimation (Animation* animation, TLN_Sequence sequence, animation_t type);
