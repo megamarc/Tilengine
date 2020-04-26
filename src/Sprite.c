@@ -85,7 +85,7 @@ static append_sprite(int num)
 
 /*!
  * \brief
- * Configures a sprite, setting setting spriteset and flags at once
+ * Configures a sprite, setting spriteset and flags at once
  * 
  * \param nsprite
  * Id of the sprite [0, num_sprites - 1]
@@ -501,7 +501,7 @@ bool TLN_SetSpriteRotation(int nsprite, float angle)
 		corners[c].y = (math2d_t)roundf(corners[c].y);
 	}
 
-	/* obtiene rectángulo contenedor en pantalla */
+	/* obtiene rectÃ¡ngulo contenedor en pantalla */
 	rect = &sprite->dstrect;
 	rect->x1 = rect->x2 = (int)corners[0].x;
 	rect->y1 = rect->y2 = (int)corners[0].y;
@@ -514,7 +514,7 @@ bool TLN_SetSpriteRotation(int nsprite, float angle)
 		if (rect->y2 < point->y) rect->y2 = (int)point->y;
 	}
 
-	/* ajusta array de puntos a origen (0,0) para obtener tamaño */
+	/* ajusta array de puntos a origen (0,0) para obtener tamaÃ±o */
 	for (c = 0; c < 4; c++)
 	{
 		corners[c].x -= rect->x1;
