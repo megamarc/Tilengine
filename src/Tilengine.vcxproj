@@ -169,8 +169,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>upx -9 $(TargetPath)
-
+      <Command>
 if not exist $(SolutionDir)lib\$(Platform) (
   mkdir $(SolutionDir)lib
   mkdir $(SolutionDir)lib\$(Platform)
@@ -206,8 +205,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>upx -9 $(TargetPath)
-
+      <Command>
 if not exist $(SolutionDir)lib\$(Platform) (
   mkdir $(SolutionDir)lib
   mkdir $(SolutionDir)lib\$(Platform)
