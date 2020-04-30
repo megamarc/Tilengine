@@ -5,6 +5,9 @@
 #include <stdbool.h>
 #include "Tileset.h"
 
+#define TMX_MAX_LAYER		64
+#define TMX_MAX_TILESET		64
+
 typedef enum
 {
 	LAYER_NONE,
@@ -39,8 +42,8 @@ typedef struct
 	int tileheight;			/* */
 	int num_layers;			/* number of layers */
 	int num_tilesets;		/* number of tilesets */
-	TMXLayer layers[16];	/* array of layers */
-	TMXTileset tilesets[16];/* array of tilesets */
+	TMXLayer layers[TMX_MAX_LAYER];			/* array of layers */
+	TMXTileset tilesets[TMX_MAX_TILESET];	/* array of tilesets */
 }
 TMXInfo;
 

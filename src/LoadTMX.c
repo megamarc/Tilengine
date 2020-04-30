@@ -61,11 +61,11 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 		break;
 
 	case FINISH_TAG:
-		if (!strcasecmp(szName, "tileset"))
+		if (!strcasecmp(szName, "tileset") && tmxinfo->num_tilesets < TMX_MAX_TILESET - 1)
 			tmxinfo->num_tilesets += 1;
-		else if (!strcasecmp(szName, "layer"))
+		else if (!strcasecmp(szName, "layer") && tmxinfo->num_layers < TMX_MAX_LAYER - 1)
 			tmxinfo->num_layers += 1;
-		else if (!strcasecmp(szName, "objectgroup"))
+		else if (!strcasecmp(szName, "objectgroup") && tmxinfo->num_layers < TMX_MAX_LAYER - 1)
 			tmxinfo->num_layers += 1;
 		else if (!strcasecmp(szName, "object"))
 			tmxinfo->layers[tmxinfo->num_layers].num_objects += 1;
