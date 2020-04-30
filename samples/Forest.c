@@ -45,12 +45,33 @@ int main(int argc, char* argv[])
 	int width, height;
 	TLN_ObjectInfo info = {0};
 	bool ok;
+	char* respack = NULL;
+	char* passkey = NULL;
+	
+	/* get arguments */
+	if (argc > 1)
+		respack = argv[1];
+	if (argc > 2)
+		passkey = argv[2];
 
 	TLN_Init(HRES, VRES, NUM_LAYERS, 8, 8);
 
 	/* load assets */
 	TLN_SetLogLevel(TLN_LOG_ERRORS);
-	TLN_SetLoadPath("assets/forest");
+	if (respack != NULL)
+	{
+		ok = TLN_OpenResourcePack(respack, passkey);
+		if (!ok)
+		{
+			printf("Cannot open resource pack!\n");
+			TLN_Deinit();
+			return 0;
+		}
+		TLN_SetLoadPath("forest");
+	}
+	else
+		TLN_SetLoadPath("assets/forest");
+	
 	foreground = TLN_LoadTilemap("map.tmx", "Main Layer");
 	middleground = TLN_LoadBitmap("middleground.png");
 	background = TLN_LoadBitmap("background.png");
@@ -114,6 +135,7 @@ int main(int argc, char* argv[])
 		}
 	}
 	TLN_DeleteWindow();
+	TLN_CloseResourcePack();
 	TLN_Deinit();
 	return 0;
 }

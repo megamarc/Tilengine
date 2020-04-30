@@ -54,6 +54,18 @@ The recommended way to get prebuilt binaries ready to install, run and test samp
 ## Build from source
 You can also build the library from source. Tilengine requires `SDL2` and `libpng` to build, you must provide these libraries yourself depending on your target platform.
 
+### Windows
+Provide development libraries into the following locations inside the `src` directory:
+Path | Files
+-----|---------------------------------------
+`src\libpng`             | libpng headers
+`src\libpng\$(Platform)` | libpng.lib static library
+`src\sdl\SDL2`           | SDL2 headers
+`src\sdl\lib\$(Platform)`| SDL2.lib import library
+
+### Debian-based linux
+Just install standard packages `libpng-dev` and `libsdl2-dev`
+
 # Running the samples
 
 C samples are located in `Tilengine/samples` folder. To build them you need the gcc compiler suite, and/or Visual C++ in windows.

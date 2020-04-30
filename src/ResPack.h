@@ -15,6 +15,32 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#define RESPACK_ID			"ResPack"
+#define RESPACK_KEYSIZE		128
+#define RESPACK_ENCRYPTED	0x80
+
+/* asset descriptor register */
+typedef struct
+{
+	uint32_t	id;			/* hash identifier derived from original file path */
+	uint32_t	crc;		/* crc of asset content to verify integrity */
+	uint32_t	data_size;	/* actual size of asset */
+	uint32_t	pack_size;	/* size padded to 16-byte boundary, required by AES */
+	uint32_t	offset;		/* start of asset content */
+}
+ResEntry;
+
+/* ResPack file header*/
+typedef struct
+{
+	char id[8];				/* file header, must be "ResPack" null-terminated */
+	uint8_t version;		/* file version number */
+	uint8_t seed;			/* seed used for perfect hashing */
+	uint8_t reserved[2];	/* reserved, for future usage */
+	uint32_t num_regs;		/* number of assets */
+}
+ResHeader;
+
 typedef struct _ResPack* ResPack;
 typedef struct _ResAsset* ResAsset;
 
@@ -29,7 +55,6 @@ ResAsset	ResPack_OpenAsset(ResPack rp, const char* filename);
 FILE*		ResPack_GetAssetFile(ResAsset asset);
 uint32_t	ResPack_GetAssetSize(ResAsset asset);
 void		ResPack_CloseAsset(ResAsset asset);
-int			ResPack_Build(const char* filelist, const char* aes_key);
 
 #ifdef __cplusplus
 }

@@ -8,8 +8,6 @@
 * file, You can obtain one at http://mozilla.org/MPL/2.0/.
 * */
 
-#pragma warning(disable : 4200)
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,31 +16,8 @@
 #include "Hash.h"
 #include "ResPack.h"
 
-#define KEY_SIZE	128
-#define FILE_ID		"ResPack"
-
 static uint8_t iv[AES_BLOCK_SIZE] = { 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f };
 static uint32_t key[60] = { 0 };
-
-/* asset descriptor register */
-typedef struct
-{
-	uint32_t	id;			/* hash identifier derived from original file path */
-	uint32_t	crc;		/* crc of asset content to verify integrity */
-	uint32_t	data_size;	/* actual size of asset */
-	uint32_t	pack_size;	/* size padded to 16-byte boundary, required by AES */
-	uint32_t	offset;		/* start of asset content */
-}
-ResEntry;
-
-/* ResPack file header*/
-typedef struct
-{
-	char id[8];				/* file header, must be "ResPack" null-terminated */
-	uint32_t reserved;		/* reserved, for future usage */
-	uint32_t num_regs;		/* number of assets */
-}
-ResHeader;
 
 /* private ResPack memory handler */
 struct _ResPack
@@ -51,6 +26,8 @@ struct _ResPack
 	uint32_t key[60];		/* scheduled AES key*/
 	uint32_t num_entries;	/* number of assets */
 	bool encrypted;			/* true if pack is encrypted */
+	bool sorted;			/* can perform binary search */
+	uint8_t seed;			/* seed used for perfect hash */
 	ResEntry entries[0];	/* array of ResEntry fields */
 };
 
@@ -63,25 +40,52 @@ struct _ResAsset
 };
 
 /* lowercases path and uses forward slash */
-static void normalize_path(char* path)
+static void normalize_path(char* path, uint8_t seed)
 {
 	while (*path != 0)
 	{
-		*path = tolower(*path);
 		if (*path == '\\')
 			*path = '/';
+		*path ^= seed;
 		path += 1;
 	}
 }
 
-/* calculates hash of file path */
-static uint32_t path2hash(const char* filename)
+/* calculates hash of file path and random seed */
+uint32_t path2hash(const char* filename, uint8_t seed)
 {
 	char path[200];
 	strncpy(path, filename, sizeof(path));
 	path[sizeof(path) - 1] = 0;
-	normalize_path(path);
+	normalize_path(path, seed);
 	return hash(0, path, strlen(path));
+}
+
+/* builds aes key schedule from string */
+void build_aes_key(const char* string, uint32_t* output)
+{
+	uint8_t padded_key[16] = { 0 };
+	int c = 0;
+	while (*string)
+	{
+		padded_key[c] ^= *string;
+		c = (c + 1) & 0x0F;
+		string += 1;
+	}
+	aes_key_setup(padded_key, output, RESPACK_KEYSIZE);
+}
+
+int rpcompare(void const* a, void const* b)
+{
+	ResEntry* e1 = (ResEntry*)a;
+	ResEntry* e2 = (ResEntry*)b;
+
+	if (e1->id < e2->id)
+		return -1;
+	if (e1->id > e2->id)
+		return 1;
+	else
+		return 0;
 }
 
 /* finds given entry inside a resource pack */
@@ -96,11 +100,23 @@ static ResEntry* find_entry(ResPack rp, const char* filename)
 		return NULL;
 
 	/* find entry */
-	id = path2hash(filename);
-	for (c = 0; c < rp->num_entries; c++)
+	id = path2hash(filename, 0);
+
+	/* sorted: binary search */
+	if (rp->sorted)
 	{
-		if (rp->entries[c].id == id)
-			return &rp->entries[c];
+		entry = bsearch(&id, rp->entries, rp->num_entries, sizeof(ResEntry), rpcompare);
+		return entry;
+	}
+
+	/* unsorted: linear search */
+	else
+	{
+		for (c = 0; c < rp->num_entries; c++)
+		{
+			if (rp->entries[c].id == id)
+				return &rp->entries[c];
+		}
 	}
 	return NULL;
 }
@@ -116,10 +132,10 @@ static void* load_asset(ResPack rp, ResEntry* entry)
 	fseek(rp->pf, entry->offset, SEEK_SET);
 	if (rp->encrypted == true)
 	{
-		uint8_t* cypher = (uint8_t*)malloc(entry->pack_size);
-		uint8_t* content = (uint8_t*)malloc(entry->pack_size);
+		void* cypher = malloc(entry->pack_size);
+		void* content = malloc(entry->pack_size);
 		fread(cypher, entry->pack_size, 1, rp->pf);
-		aes_decrypt_cbc(cypher, entry->pack_size, content, rp->key, KEY_SIZE, iv);
+		aes_decrypt_cbc(cypher, entry->pack_size, content, rp->key, RESPACK_KEYSIZE, iv);
 		memcpy(buffer, content, entry->data_size);
 		free(content);
 		free(cypher);
@@ -145,6 +161,8 @@ ResPack ResPack_Open(const char* filename, const char* key)
 	ResHeader res_header;
 	FILE* pf;
 	uint32_t size;
+	uint8_t version;
+	uint8_t flags;
 
 	/* open file */
 	pf = fopen(filename, "rb");
@@ -153,7 +171,7 @@ ResPack ResPack_Open(const char* filename, const char* key)
 
 	/* check header */
 	fread(&res_header, sizeof(res_header), 1, pf);
-	if (strcmp(res_header.id, FILE_ID))
+	if (strcmp(res_header.id, RESPACK_ID))
 	{
 		fclose(pf);
 		return NULL;
@@ -161,17 +179,29 @@ ResPack ResPack_Open(const char* filename, const char* key)
 
 	/* create object */
 	size = sizeof(struct _ResPack) + sizeof(ResEntry)*res_header.num_regs;
-	rp = (ResPack)calloc(size, 1);
+	rp = calloc(size, 1);
 	rp->num_entries = res_header.num_regs;
+	rp->seed = res_header.seed;
+	version = res_header.version & 0x0F;
+	flags = res_header.version & 0xF0;
+	if (version >= 1)
+		rp->sorted = true;
+	if (flags & RESPACK_ENCRYPTED)
+		rp->encrypted = true;
 	rp->pf = pf;
 	
-	/* prepare AES-128 key*/
-	if (key != NULL)
+	if (rp->encrypted == true)
 	{
-		char padded_key[16] = { 0 };
-		strncpy(padded_key, key, sizeof(padded_key));
-		aes_key_setup((uint8_t*)padded_key, rp->key, KEY_SIZE);
-		rp->encrypted = true;
+		/* prepare AES-128 key*/
+		if (key != NULL)
+			build_aes_key(key, rp->key);
+		else
+		{
+			free(rp);
+			fclose(pf);
+			printf("ResPack: must provide AES key for %s\n", filename);
+			return NULL;
+		}
 	}
 
 	/* load index */
@@ -225,7 +255,7 @@ ResAsset ResPack_OpenAsset(ResPack rp, const char* filename)
 	if (content == NULL)
 		return NULL;
 
-	asset = (ResAsset)malloc(sizeof(struct _ResAsset));
+	asset = malloc(sizeof(struct _ResAsset));
 	sprintf(asset->filename, "_tmp%d", entry->id);
 	asset->pf = fopen(asset->filename, "wb");
 	fwrite(content, entry->data_size, 1, asset->pf);
@@ -263,34 +293,4 @@ void ResPack_CloseAsset(ResAsset asset)
 		remove(asset->filename);
 		free(asset);
 	}
-}
-
-/* loads file to memory, padded to 16 byte boundary for AES */
-static void* load_file(const char* filename, uint32_t padding, uint32_t* data_size, uint32_t* pack_size)
-{
-	FILE* pf;
-	uint32_t size;
-	uint32_t pad_size;
-	void* buffer;
-
-	pf = fopen(filename, "rb");
-	if (pf == NULL)
-		return NULL;
-
-	fseek(pf, 0, SEEK_END);
-	size = ftell(pf);
-	if (padding > 1)
-		pad_size = ((size + padding - 1) / padding) * padding;
-	else
-		pad_size = size;
-	fseek(pf, 0, SEEK_SET);
-
-	buffer = malloc(pad_size);
-	memset(buffer, 0, pad_size);
-	fread(buffer, size, 1, pf);
-	fclose(pf);
-
-	*data_size = size;
-	*pack_size = pad_size;
-	return buffer;
 }
