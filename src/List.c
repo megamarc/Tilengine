@@ -1,6 +1,7 @@
 /* generic, array-based double linked list */
 
 #include <stdint.h>
+#include <stddef.h>
 #include "List.h"
 #include "Debug.h"
 
