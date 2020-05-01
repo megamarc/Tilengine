@@ -198,6 +198,16 @@ static bool CreateWindow(void)
 	/* create window */
 	if (window_title == NULL)
 		window_title = strdup("Tilengine window");
+
+#ifdef __linux__
+	if (rflags & CWF_FULLSCREEN) {
+#if SDL_VERSION_ATLEAST(2,0,5)
+		rflags |= SDL_WINDOW_ALWAYS_ON_TOP;
+#endif /*SDL_VERSION_ATLEAST*/
+		rflags |= SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_BORDERLESS;
+	}
+#endif /*__linux__*/
+
 	window = SDL_CreateWindow(window_title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, wnd_width, wnd_height, rflags);
 	if (!window)
 	{
