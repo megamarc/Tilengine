@@ -13,13 +13,13 @@
 
 #include "Tilengine.h"
 #include "Sequence.h"
+#include "List.h"
 
-#define MAX_COLOR_STRIPS	32
+#define MAX_COLOR_STRIPS	64
 
 typedef enum
 {
 	TYPE_NONE,
-	TYPE_TILEMAP,
 	TYPE_SPRITE,
 	TYPE_PALETTE,
 	TYPE_TILESET,
@@ -31,17 +31,20 @@ typedef struct
 {
 	animation_t type;
 	TLN_Sequence sequence;
+	TLN_Bitmap backup;	/* bavkup of frame 0 for tileset animation */
 	bool enabled;
 	int loop;
 	int pos;
 	int timer;
-	int idx;	/* indice de capa, sprite */
+	int idx;	/* index of layer or sprite */
 	bool blend;
 	TLN_Palette palette;
 	TLN_Palette srcpalette;
+	ListNode list_node;
 }
 Animation;
 
-void UpdateAnimations (int time);
+bool SetTilesetAnimation(TLN_Tileset tileset, int index, TLN_Sequence sequence);
+void UpdateAnimation(Animation* animation, int time);
 
 #endif

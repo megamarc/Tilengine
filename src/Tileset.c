@@ -14,6 +14,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "Tilengine.h"
 #include "Tileset.h"
 #include "Palette.h"
@@ -103,6 +104,10 @@ TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette 
 	tileset->attributes = (TLN_TileAttributes*)(tileset->data + tileset->size_tiles + tileset->size_color);
 	if (attributes != NULL)
 		memcpy (tileset->attributes, attributes, size_attributes);
+
+	/* create animations */
+	if (sp != NULL)
+		tileset->animations = calloc(sp->num_sequences, sizeof(Animation));
 	
 	TLN_SetLastError (TLN_ERR_OK);
 	return tileset;
@@ -399,8 +404,6 @@ bool TLN_CopyTile (TLN_Tileset tileset, int src, int dst)
 		return false;
 	}
 
-	src += 1;
-	dst += 1;
 	tilesize = tileset->width * tileset->height;
 	srcdata = tileset->data + (src * tilesize);
 	dstdata = tileset->data + (dst * tilesize);

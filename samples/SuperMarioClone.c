@@ -22,7 +22,7 @@ int main (int argc, char* argv[])
 	int player_y = 160;
 
 	/* basic setup */
-	TLN_Init (WIDTH, HEIGHT, MAX_LAYER,1,3);
+	TLN_Init (WIDTH, HEIGHT, MAX_LAYER,1,0);
 	TLN_SetBGColor (0, 96, 184);
 
 	/* load resources */
@@ -42,7 +42,7 @@ int main (int argc, char* argv[])
 
 	/* setup animations */
 	seq_walking = TLN_CreateSpriteSequence (NULL, spriteset, "walking", 6);
-	TLN_SetSpriteAnimation (2, 0, seq_walking, 0);
+	TLN_SetSpriteAnimation (0, seq_walking, 0);
 
 	/* main loop */
 	TLN_CreateWindow (NULL, 0);

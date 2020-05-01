@@ -48,7 +48,7 @@ int main (int argc, char* argv[])
 	TLN_Sequence walk;
 
 	/* setup engine */
-	TLN_Init (WIDTH, HEIGHT, 2,1,1);
+	TLN_Init (WIDTH, HEIGHT, 2,1,0);
 	TLN_SetBGColor (0,128,238);
 	TLN_SetRasterCallback (raster_callback);
 
@@ -65,7 +65,7 @@ int main (int argc, char* argv[])
 
 	TLN_ConfigSprite (0, spriteset, 0);
 	TLN_SetSpritePosition (0, 200,160);
-	TLN_SetSpriteAnimation (0, 0, walk, 0);
+	TLN_SetSpriteAnimation (0, walk, 0);
 	
 	xpos = 2000;
 

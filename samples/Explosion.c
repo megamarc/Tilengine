@@ -12,7 +12,7 @@ Actor* CreateExplosion (int index, int x, int y, TLN_Sequence sequence)
 	Actor* actor = GetActor (index);
 	SetActor (index, TYPE_EXPLOSION, x,y, 32,32, ExplosionTasks);
 	TLN_ConfigSprite (index, spritesets[SPRITESET_MAIN], 0);
-	TLN_SetSpriteAnimation (index, index, sequence, 1);
+	TLN_SetSpriteAnimation (index, sequence, 1);
 	//TLN_SetSpriteBlendMode (index, BLEND_ADD);
 	return actor;
 }

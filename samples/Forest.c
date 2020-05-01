@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 	if (argc > 2)
 		passkey = argv[2];
 
-	TLN_Init(HRES, VRES, NUM_LAYERS, 8, 8);
+	TLN_Init(HRES, VRES, NUM_LAYERS, 8, 0);
 
 	/* load assets */
 	TLN_SetLogLevel(TLN_LOG_ERRORS);
@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
 	xplayer = 48;
 	yplayer = 144;
 	TLN_ConfigSprite(0, atlas, 0);
-	TLN_SetSpriteAnimation(0, 0, idle, 0);
+	TLN_SetSpriteAnimation(0, idle, 0);
 
 	/* create window & main loop */
 	TLN_CreateWindow(NULL, 0);

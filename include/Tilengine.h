@@ -59,8 +59,8 @@
 
 /* version */
 #define TILENGINE_VER_MAJ	2
-#define TILENGINE_VER_MIN	7
-#define TILENGINE_VER_REV	6
+#define TILENGINE_VER_MIN	8
+#define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -626,13 +626,12 @@ TLNAPI bool TLN_DeleteSequencePack (TLN_SequencePack sp);
 * @{ */
 TLNAPI bool TLN_SetPaletteAnimation (int index, TLN_Palette palette, TLN_Sequence sequence, bool blend);
 TLNAPI bool TLN_SetPaletteAnimationSource (int index, TLN_Palette);
-TLNAPI bool TLN_SetTilesetAnimation (int index, int nlayer, TLN_Sequence);
-TLNAPI bool TLN_SetTilemapAnimation (int index, int nlayer, TLN_Sequence);
-TLNAPI bool TLN_SetSpriteAnimation (int index, int nsprite, TLN_Sequence sequence, int loop);
+TLNAPI bool TLN_SetSpriteAnimation (int nsprite, TLN_Sequence sequence, int loop);
 TLNAPI bool TLN_GetAnimationState (int index);
 TLNAPI bool TLN_SetAnimationDelay (int index, int delay);
 TLNAPI int  TLN_GetAvailableAnimation (void);
-TLNAPI bool TLN_DisableAnimation (int index);
+TLNAPI bool TLN_DisablePaletteAnimation(int index);
+TLNAPI bool TLN_DisableSpriteAnimation(int index);
 /**@}*/
 
 #ifdef __cplusplus

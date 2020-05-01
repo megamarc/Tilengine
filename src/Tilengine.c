@@ -33,7 +33,7 @@ static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int
 
 /*!
  * \brief
- * Initializes the graphic engine in 32 bpp pixel format
+ * Initializes the graphic engine
  * 
  * \param hres
  * horizontal resolution in pixels
@@ -48,7 +48,7 @@ static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int
  * number of sprites
  * 
  * \param numanimations
- * number of animations
+ * number of palette animation slots
  * 
  * Performs initialisation of the main engine, creates the viewport with the specified dimensions
  * and allocates the number of layers, sprites and animation slots
@@ -118,11 +118,8 @@ static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int
 		sprite->draw = GetSpriteDraw (MODE_NORMAL);
 		sprite->blitter = GetBlitter (bpp, true, false, false);
 		sprite->sx = sprite->sy = 1.0f;
-		sprite->prev = -1;
-		sprite->next = -1;
 	}
-	context->first_sprite = -1;
-	context->last_sprite = -1;
+	ListInit(&context->list_sprites, &context->sprites[0].list_node, sizeof(Sprite), context->numsprites);
 
 	context->numanimations = numanimations;
 	context->animations = (Animation*)calloc (numanimations, sizeof(Animation));
@@ -132,6 +129,7 @@ static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int
 		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 		return NULL;
 	}
+	ListInit(&context->list_animations, &context->animations[0].list_node, sizeof(Animation), context->numanimations);
 
 	context->bgcolor = PackRGB32(0,0,0);
 	context->blit_fast = GetBlitter (bpp, false, false, false);
@@ -412,16 +410,46 @@ void TLN_UpdateFrame (int time)
  */
 void TLN_BeginFrame (int time)
 {
-	int c;
+	/* update active animations */
+	List* list;
+	int index;
 
-	UpdateAnimations (time);
-	engine->line = 0;
+	/* color cycle animations */
+	list = &engine->list_animations;
+	index = list->first;
+	while (index != -1)
+	{
+		Animation* animation = &engine->animations[index];
+		UpdateAnimation(animation, time);
+		index = animation->list_node.next;
+	}
 
-	/* limpia colisiones de sprites */
-	for (c=0; c<engine->numsprites; c++)
-		engine->sprites[c].collision = false;
+	/* sprite animations */
+	list = &engine->list_sprites;
+	index = list->first;
+	while (index != -1)
+	{
+		Sprite* sprite = &engine->sprites[index];
+		sprite->collision = false;
+		if (sprite->animation.enabled)
+			UpdateAnimation(&sprite->animation, time);
+		index = sprite->list_node.next;
+	}
+
+	/* tileset animations */
+	for (index = 0; index < engine->numlayers; index += 1)
+	{
+		TLN_Tileset tileset = engine->layers[index].tileset;
+		if (tileset != NULL && tileset->sp != NULL)
+		{
+			int c;
+			for (c = 0; c < tileset->sp->num_sequences; c += 1)
+				UpdateAnimation(&tileset->animations[c], time);
+		}
+	}
 
 	/* frame callback */
+	engine->line = 0;
 	if (engine->frame)
 		engine->frame (time);
 }

@@ -154,7 +154,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		else if (!strcasecmp(szName, "frame"))
 		{
 			if (!strcasecmp(szAttribute, "tileid"))
-				loader.frames[loader.frame_count].index = atoi(szValue);
+				loader.frames[loader.frame_count].index = atoi(szValue) + 1;
 			else if (!strcasecmp(szAttribute, "duration"))
 				loader.frames[loader.frame_count].delay = atoi(szValue)*60/1000;
 		}
@@ -196,7 +196,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 			char name[16];
 			TLN_Sequence sequence;
 			sprintf (name, "%d", loader.tile.id);
-			sequence = TLN_CreateSequence (name, loader.tile.id, loader.frame_count, loader.frames);
+			sequence = TLN_CreateSequence (name, loader.tile.id + 1, loader.frame_count, loader.frames);
 			if (loader.sp == NULL)
 				loader.sp = TLN_CreateSequencePack ();
 			TLN_AddSequenceToPack (loader.sp, sequence);
@@ -204,6 +204,37 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		break;
 	}
 	return handler;
+}
+
+/* cache section: keeps already loaded tilesets so it doesnt spawn multiple instances of the same */
+#define CACHE_SIZE	16
+static cache_entries = 0;
+struct
+{
+	char name[200];
+	TLN_Tileset tileset;
+}
+static cache[16];
+
+static TLN_Tileset search_cache(const char* name)
+{
+	int c;
+	for (c = 0; c < cache_entries; c += 1)
+	{
+		if (!strcmp(cache[c].name, name))
+			return cache[c].tileset;
+	}
+	return NULL;
+}
+
+static void add_to_cache(const char* name, TLN_Tileset tileset)
+{
+	if (cache_entries < CACHE_SIZE - 1)
+	{
+		strncpy(cache[cache_entries].name, name, sizeof(cache[0].name));
+		cache[cache_entries].tileset = tileset;
+		cache_entries += 1;
+	}
 }
 
 /*!
@@ -225,6 +256,11 @@ TLN_Tileset TLN_LoadTileset (const char* filename)
 	ssize_t size = 0;
 	uint8_t *data = NULL;
 	TLN_Tileset tileset = NULL;
+
+	/* find in cache */
+	tileset = search_cache(filename);
+	if (tileset)
+		return tileset;
 	
 	/* load file */
 	data = (uint8_t*)LoadFile (filename, &size);
@@ -315,6 +351,7 @@ TLN_Tileset TLN_LoadTileset (const char* filename)
 	if (loader.images != NULL)
 		free(loader.images);
 
+	add_to_cache(filename, tileset);
 	TLN_SetLastError (TLN_ERR_OK);
 	return tileset;
 }

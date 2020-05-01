@@ -227,6 +227,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <ClCompile Include="GaussianBlur.c" />
     <ClCompile Include="Hash.c" />
     <ClCompile Include="Layer.c" />
+    <ClCompile Include="List.c" />
     <ClCompile Include="LoadBitmap.c" />
     <ClCompile Include="LoadFile.c" />
     <ClCompile Include="LoadPalette.c" />
@@ -265,6 +266,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Hash.h" />
     <ClInclude Include="Layer.h" />
+    <ClInclude Include="List.h" />
     <ClInclude Include="LoadFile.h" />
     <ClInclude Include="LoadTMX.h" />
     <ClInclude Include="Math2D.h" />

@@ -95,7 +95,7 @@ int main (int argc, char *argv[])
 	int c;
 
 	/* setup engine */
-	TLN_Init (WIDTH,HEIGHT, MAX_LAYER, MAX_ACTOR, MAX_ACTOR);
+	TLN_Init (WIDTH,HEIGHT, MAX_LAYER, MAX_ACTOR, 0);
 	TLN_SetRasterCallback (raster_callback);
 	TLN_SetBGColor (136,238,204);
 

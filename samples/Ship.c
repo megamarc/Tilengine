@@ -136,7 +136,7 @@ Actor* CreateClaw (int id)
 	Claw* claw = (Claw*)actor->usrdata;
 
 	TLN_ConfigSprite (actor->index, spritesets[SPRITESET_MAIN], 0);
-	TLN_SetSpriteAnimation (actor->index, actor->index, sequences[SEQ_CLAW], 0);
+	TLN_SetSpriteAnimation (actor->index, sequences[SEQ_CLAW], 0);
 
 	claw->angle = id==ACTOR_CLAW1? 360:180;
 	claw->radius = 0;
@@ -197,7 +197,7 @@ Actor* CreateShot (int type, int x, int y)
 	actor->vx = 8;
 	actor->vy = 0;
 	TLN_ConfigSprite (actor->index, spritesets[SPRITESET_MAIN], 0);
-	TLN_SetSpriteAnimation (actor->index, actor->index, sequences[seq], 0);
+	TLN_SetSpriteAnimation (actor->index, sequences[seq], 0);
 
 	return actor;
 }

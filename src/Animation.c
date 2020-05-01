@@ -20,6 +20,7 @@
 #include "Engine.h"
 #include "Palette.h"
 #include "Tables.h"
+#include "Debug.h"
 
 /* linear interploation */
 static int lerp (int x, int x0, int x1, int fx0, int fx1)
@@ -37,112 +38,108 @@ static inline void blendColors (uint8_t* srcptr0, uint8_t* srcptr1, uint8_t* dst
 static void SetAnimation (Animation* animation, TLN_Sequence sequence, animation_t type);
 static void ColorCycle (TLN_Palette srcpalette, TLN_Palette dstpalette, struct Strip* strip);
 static void ColorCycleBlend (TLN_Palette srcpalette, TLN_Palette dstpalette, struct Strip* strip, int t);
-static void ReplaceTiles (TLN_Tilemap tilemap, int srctile, int dsttile);
 
-/* main loop tasks */
-void UpdateAnimations (int time)
+static void tileset_animation(Animation* animation, int srctile, int dsttile)
 {
-	int c;
-	TLN_Sequence sequence;
-	TLN_SequenceFrame* frames;
-	struct Strip* strips;
-	
-	for (c=0; c<engine->numanimations; c++)
+	TLN_Tileset tileset = engine->layers[animation->idx].tileset;
+	debugmsg("TileAnim: %d -> %d\n", srctile, dsttile);
+	if (srctile != dsttile)
+		TLN_CopyTile(tileset, srctile, dsttile);
+	else
 	{
-		Animation* animation = &engine->animations[c];
-		if (animation->enabled==false)
-			continue;
+		TLN_Bitmap bitmap = animation->backup;
+		TLN_SetTilesetPixels(tileset, srctile, bitmap->data, bitmap->pitch);
+	}
+}
 
-		sequence = animation->sequence;
-		if (animation->type == TYPE_PALETTE)
+/* updates animation state */
+void UpdateAnimation(Animation* animation, int time)
+{
+	TLN_Sequence sequence = animation->sequence;
+	TLN_SequenceFrame* frames = NULL;
+
+	if (animation->type == TYPE_PALETTE)
+	{
+		int i;
+		struct Strip* strips = (struct Strip*)&sequence->data;
+		for (i = 0; i < sequence->count; i++)
 		{
-			int i;
-			strips = (struct Strip*)&sequence->data;
-			for (i=0; i<sequence->count; i++)
+			struct Strip* strip = &strips[i];
+			/* next frame */
+			if (time >= strip->timer)
 			{
-				struct Strip* strip = &strips[i];
-				/* next frame */
-				if (time >= strip->timer)
-				{
-					strip->timer = time + strip->delay;
-					strip->pos = (strip->pos + 1) % strip->count;
-					strip->t0 = time;
-					if (!animation->blend)
-						ColorCycle (animation->srcpalette, animation->palette, strip);
-				}
-
-				/* interpolate */
-				if (animation->blend)
-					ColorCycleBlend (animation->srcpalette, animation->palette, strip, time);
+				strip->timer = time + strip->delay;
+				strip->pos = (strip->pos + 1) % strip->count;
+				strip->t0 = time;
+				if (!animation->blend)
+					ColorCycle(animation->srcpalette, animation->palette, strip);
 			}
-			continue;
+
+			/* interpolate */
+			if (animation->blend)
+				ColorCycleBlend(animation->srcpalette, animation->palette, strip, time);
 		}
+		return;
+	}
 
-		if (time < animation->timer)
-			continue;
+	if (time < animation->timer)
+		return;
 
-		frames = (TLN_SequenceFrame*)&sequence->data;
-		animation->timer = time + frames[animation->pos].delay;
-		switch (animation->type)
-		{
-		case TYPE_TILEMAP:
-			ReplaceTiles (engine->layers[animation->idx].tilemap, 
-				frames[animation->pos].index, 
-				frames[animation->pos + 1].index % sequence->count);
-			break;
+	frames = (TLN_SequenceFrame*)&sequence->data;
+	animation->timer = time + frames[animation->pos].delay;
+	switch (animation->type)
+	{
+	case TYPE_SPRITE:
+		TLN_SetSpritePicture(animation->idx, frames[animation->pos].index);
+		break;
 
-		case TYPE_SPRITE:
-			TLN_SetSpritePicture (animation->idx, frames[animation->pos].index);
-			break;
+	case TYPE_TILESET:
+		tileset_animation(animation, frames[animation->pos].index, sequence->target);
+		break;
 
-		case TYPE_TILESET:
-			TLN_CopyTile (engine->layers[animation->idx].tileset, frames[animation->pos].index, sequence->target);
-			break;
-
-		/* Fall through									*/
+		/* Fall through */
 		/* Stop warning GNU C compiler	*/
-		case TYPE_NONE:
-		case TYPE_PALETTE:
-			break;
-		}
+	case TYPE_NONE:
+	case TYPE_PALETTE:
+		break;
+	}
 
-		/* next frame */
-		animation->pos++;
-		if (animation->pos == sequence->count)
+	/* next frame */
+	animation->pos++;
+	if (animation->pos == sequence->count)
+	{
+		if (animation->loop > 1)
 		{
-			if (animation->loop > 1)
-			{
-				animation->loop--;
-				animation->pos = 0;
-			}
-			else if (animation->loop == 1)
-				animation->enabled = false;
-			else if (animation->loop == 0)
-				animation->pos = 0;
+			animation->loop--;
+			animation->pos = 0;
 		}
+		else if (animation->loop == 1)
+			animation->enabled = false;
+		else if (animation->loop == 0)
+			animation->pos = 0;
 	}
 }
 
 /**
  * \brief
- * Checks the state of the specified animation
+ * Checks the state of the animation for given sprite
  * 
  * \param index
- * Id of the animation to check (0 <= id < num_animations)
+ * Id of the sprite to check (0 <= id < num_sprites)
  * 
  * \returns
  * true if animation is running, false if it's finished or inactive
  */
 bool TLN_GetAnimationState (int index)
 {
-	if (index >= engine->numanimations)
+	if (index >= engine->numsprites)
 	{
-		TLN_SetLastError (TLN_ERR_IDX_ANIMATION);
+		TLN_SetLastError (TLN_ERR_IDX_SPRITE);
 		return false;
 	}
 
 	TLN_SetLastError (TLN_ERR_OK);
-	return engine->animations[index].enabled;
+	return engine->sprites[index].animation.enabled;
 }
 
 /*!
@@ -163,7 +160,7 @@ bool TLN_GetAnimationState (int index)
  */
 bool TLN_SetPaletteAnimation (int index, TLN_Palette palette, TLN_Sequence sequence, bool blend)
 {
-	Animation* animation;
+	Animation* animation = NULL;
 	int c;
 	struct Strip* strips;
 
@@ -175,15 +172,16 @@ bool TLN_SetPaletteAnimation (int index, TLN_Palette palette, TLN_Sequence seque
 		return false;
 	}
 	
-	animation = &engine->animations[index];
-
-	if (animation->sequence == sequence)
+	if (engine->animations[index].sequence == sequence)
 		return true;
 
 	/* validate type */
 	if (!CheckBaseObject (palette, OT_PALETTE) || !CheckBaseObject (sequence, OT_SEQUENCE))
 		return false;
 
+	animation = &engine->animations[index];
+	if (!animation->enabled)
+		ListAppendNode(&engine->list_animations, index);
 	SetAnimation (animation, sequence, TYPE_PALETTE);
 	animation->palette = palette;
 	animation->blend = blend;
@@ -220,7 +218,7 @@ bool TLN_SetPaletteAnimation (int index, TLN_Palette palette, TLN_Sequence seque
  */
 bool TLN_SetPaletteAnimationSource (int index, TLN_Palette palette)
 {
-	Animation* animation;
+	Animation* animation = NULL;
 
 	if (index >= engine->numanimations)
 	{
@@ -239,34 +237,14 @@ bool TLN_SetPaletteAnimationSource (int index, TLN_Palette palette)
 	return true;
 }
 
-/*!
- * \brief
- * Starts a tileset animation
- * 
- * \param index
- * Id of the animation to set (0 <= id < num_animations)
- * 
- * \param nlayer
- * Id of the layer to animate (0 <= id < num_layers)
- * 
- * \param sequence
- * Reference of the sequence to assign
- * 
- * \see
- * Animations
- */
-bool TLN_SetTilesetAnimation (int index, int nlayer, TLN_Sequence sequence)
+bool SetTilesetAnimation(TLN_Tileset tileset, int index, TLN_Sequence sequence)
 {
-	Animation* animation;
+	Animation* animation = NULL;
+	int c;
 	
-	if (index >= engine->numanimations)
+	if (index >= tileset->sp->num_sequences)
 	{
 		TLN_SetLastError (TLN_ERR_IDX_ANIMATION);
-		return false;
-	}
-	if (nlayer >= engine->numlayers)
-	{
-		TLN_SetLastError (TLN_ERR_IDX_LAYER);
 		return false;
 	}
 
@@ -274,52 +252,19 @@ bool TLN_SetTilesetAnimation (int index, int nlayer, TLN_Sequence sequence)
 	if (!CheckBaseObject (sequence, OT_SEQUENCE))
 		return false;
 	
-	animation = &engine->animations[index];
-	SetAnimation (animation, sequence, TYPE_TILESET);
-	animation->idx = nlayer;
-
-	TLN_SetLastError (TLN_ERR_OK);
-	return true;
-}
-
-/*!
- * \brief
- * Starts a tilemap animation
- * 
- * \param index
- * Id of the animation to set (0 <= id < num_animations)
- * 
- * \param nlayer
- * Id of the layer to animate (0 <= id < num_layers)
- * 
- * \param sequence
- * Reference of the sequence to assign
- * 
- * \see
- * Animations
- */
-bool TLN_SetTilemapAnimation (int index, int nlayer, TLN_Sequence sequence)
-{
-	Animation* animation;
+	animation = &tileset->animations[index];
+	SetAnimation(animation, sequence, TYPE_TILESET);
+	if (animation->backup != NULL)
+		TLN_DeleteBitmap(animation->backup);
 	
-	if (index >= engine->numanimations)
+	/* backup tile 0 on separate bitmap */
+	animation->backup = TLN_CreateBitmap(tileset->width, tileset->height, 8);
+	for (c = 0; c < tileset->height; c += 1)
 	{
-		TLN_SetLastError (TLN_ERR_IDX_ANIMATION);
-		return false;
-	}
-	if (nlayer >= engine->numlayers)
-	{
-		TLN_SetLastError (TLN_ERR_IDX_LAYER);
-		return false;
-	}
-
-	/* validate type */
-	if (!CheckBaseObject (sequence, OT_SEQUENCE))
-		return false;
-	
-	animation = &engine->animations[index];
-	SetAnimation (animation, sequence, TYPE_TILEMAP);
-	animation->idx = nlayer;
+		uint8_t* srcdata = &GetTilesetPixel(tileset, sequence->target, 0, c);
+		uint8_t* dstdata = get_bitmap_ptr(animation->backup, 0, c);
+		memcpy(dstdata, srcdata, tileset->width);
+	}	
 
 	TLN_SetLastError (TLN_ERR_OK);
 	return true;
@@ -328,9 +273,6 @@ bool TLN_SetTilemapAnimation (int index, int nlayer, TLN_Sequence sequence)
 /*!
  * \brief
  * Starts a sprite animation
- * 
- * \param index
- * Id of the animation to set (0 <= id < num_animations)
  * 
  * \param nsprite
  * If of the sprite to animate (0 <= id < num_sprites)
@@ -344,15 +286,11 @@ bool TLN_SetTilemapAnimation (int index, int nlayer, TLN_Sequence sequence)
  * \see
  * Animations
  */
-bool TLN_SetSpriteAnimation (int index, int nsprite, TLN_Sequence sequence, int loop)
+bool TLN_SetSpriteAnimation (int nsprite, TLN_Sequence sequence, int loop)
 {
-	Animation* animation;
+	Sprite* sprite;
+	Animation* animation = NULL;
 	
-	if (index >= engine->numanimations)
-	{
-		TLN_SetLastError (TLN_ERR_IDX_ANIMATION);
-		return false;
-	}
 	if (nsprite >= engine->numsprites)
 	{
 		TLN_SetLastError (TLN_ERR_IDX_SPRITE);
@@ -363,7 +301,8 @@ bool TLN_SetSpriteAnimation (int index, int nsprite, TLN_Sequence sequence, int 
 	if (!CheckBaseObject (sequence, OT_SEQUENCE))
 		return false;
 	
-	animation = &engine->animations[index];
+	sprite = &engine->sprites[nsprite];
+	animation = &sprite->animation;
 	SetAnimation (animation, sequence, TYPE_SPRITE);
 	animation->idx = nsprite;
 	animation->loop = loop;
@@ -403,7 +342,7 @@ int TLN_GetAvailableAnimation (void)
 
 /*!
  * \brief
- * Disables the animation so it stops playing and returns it to the list of available animations
+ * Disables the color cycle animation so it stops playing
  * 
  * \param index
  * Id of the animation to set (0 <= id < num_animations)
@@ -411,7 +350,7 @@ int TLN_GetAvailableAnimation (void)
  * \see
  * Animations
  */
-bool TLN_DisableAnimation (int index)
+bool TLN_DisablePaletteAnimation (int index)
 {
 	Animation* animation;
 	
@@ -422,13 +361,47 @@ bool TLN_DisableAnimation (int index)
 	}
 	
 	animation = &engine->animations[index];
+	if (animation->enabled)
+		ListUnlinkNode(&engine->list_animations, index);
+	
 	animation->enabled = false;
 	animation->type = TYPE_NONE;
 	animation->sequence = NULL;
-
+	ListUnlinkNode(&engine->list_animations, index);
 	TLN_SetLastError (TLN_ERR_OK);
 	return true;
 }
+
+/*!
+ * \brief
+ * Disables animation for the given sprite
+ *
+ * \param index
+ * Id of the spriteto set (0 <= id < num_sprites)
+ *
+ * \see
+ * Animations
+ */
+bool TLN_DisableSpriteAnimation(int index)
+{
+	Sprite* sprite;
+	Animation* animation;
+
+	if (index >= engine->numsprites)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
+		return false;
+	}
+
+	sprite = &engine->sprites[index];
+	animation = &sprite->animation;
+	animation->enabled = false;
+	animation->type = TYPE_NONE;
+	animation->sequence = NULL;
+	TLN_SetLastError(TLN_ERR_OK);
+	return true;
+}
+
 
 /* animation commons */
 static void SetAnimation (Animation* animation, TLN_Sequence sequence, animation_t type)
@@ -495,18 +468,5 @@ static void ColorCycleBlend (TLN_Palette srcpalette, TLN_Palette dstpalette, str
 		srcptr1 = GetPaletteData (srcpalette, strip->first + idx1);
 		dstptr  = GetPaletteData (dstpalette, strip->first + c);
 		blendColors (srcptr0, srcptr1, dstptr, f0, f1);
-	}
-}
-
-/* tile substitution */
-static void ReplaceTiles (TLN_Tilemap tilemap, int srctile, int dsttile)
-{
-	int c;
-	int size = tilemap->rows * tilemap->cols;
-
-	for (c=0; c<size; c++)
-	{
-		if (tilemap->tiles[c].index == srctile)
-			tilemap->tiles[c].index = dsttile;
 	}
 }

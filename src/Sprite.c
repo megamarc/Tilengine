@@ -26,63 +26,6 @@
 static void SelectBlitter (Sprite* sprite);
 static void UpdateSprite (Sprite* sprite);
 
-void print_sprites(void)
-{
-#ifdef _DEBUG
-	int index;
-	int c = 0;
-	debugmsg("sprites: ");
-	index = engine->first_sprite;
-	while (index != -1)
-	{
-		debugmsg("%d ", index);
-		index = engine->sprites[index].next;
-		c += 1;
-		if (c > engine->numsprites)
-		{
-			exit(0);
-		}
-	}
-	debugmsg("\n");
-#endif
-}
-
-/* helper for sprite linked list */
-static void link_sprites(int num1, int num2)
-{
-	if (num1 != -1)
-		engine->sprites[num1].next = num2;
-	if (num2 != -1)
-		engine->sprites[num2].prev = num1;
-}
-
-static void unlink_sprite(int num)
-{
-	Sprite* sprite = &engine->sprites[num];
-	if (sprite->prev != -1)
-		engine->sprites[sprite->prev].next = sprite->next;
-	if (sprite->next != -1)
-		engine->sprites[sprite->next].prev = sprite->prev;
-	if (engine->first_sprite == num)
-		engine->first_sprite = sprite->next;
-	if (engine->last_sprite == num)
-		engine->last_sprite = sprite->prev;
-	sprite->prev = -1;
-	sprite->next = -1;
-
-	print_sprites();
-}
-
-static append_sprite(int num)
-{
-	if (engine->first_sprite == -1)
-		engine->first_sprite = num;
-	link_sprites(engine->last_sprite, num);
-	engine->last_sprite = num;
-
-	print_sprites();
-}
-
 /*!
  * \brief
  * Configures a sprite, setting spriteset and flags at once
@@ -151,7 +94,7 @@ bool TLN_SetSpriteSet (int nsprite, TLN_Spriteset spriteset)
 
 	/* sprite enabled: add to the end */
 	if (enabled == false && sprite->ok == true)
-		append_sprite(nsprite);
+		ListAppendNode(&engine->list_sprites, nsprite);
 	
 	return sprite->ok;
 }
@@ -253,6 +196,7 @@ bool TLN_SetSpritePicture (int nsprite, int entry)
 	sprite->info = &sprite->spriteset->data[entry];
 	sprite->pixels = sprite->spriteset->bitmap->data + sprite->info->offset;
 	UpdateSprite (sprite);
+	debugmsg("SetSpritePicture %d -> %d\n", nsprite, entry);
 
 	TLN_SetLastError (TLN_ERR_OK);
 	return true;
@@ -708,7 +652,7 @@ bool TLN_DisableSprite(int nsprite)
 	if (enabled == true)
 	{
 		debugmsg("%s(%d)\t", __FUNCTION__, nsprite);
-		unlink_sprite(nsprite);
+		ListUnlinkNode(&engine->list_sprites, nsprite);
 	}
 
 	TLN_SetLastError(TLN_ERR_OK);
@@ -774,27 +718,31 @@ TLNAPI bool TLN_GetSpriteState(int nsprite, TLN_SpriteState* state)
 bool TLN_SetFirstSprite(int nsprite)
 {
 	Sprite* sprite;
+	List* list;
+	ListNode* node;
 	int cut1, cut2;
-	if (nsprite >= engine->numsprites || !engine->sprites[nsprite].ok || nsprite == engine->first_sprite)
+	if (nsprite >= engine->numsprites || !engine->sprites[nsprite].ok || nsprite == engine->list_sprites.first)
 	{
 		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
 		return false;
 	}
+	list = &engine->list_sprites;
 	sprite = &engine->sprites[nsprite];
+	node = &sprite->list_node;
 
 	/* cut points inside the list to rejoin */
-	cut1 = sprite->prev;
-	cut2 = sprite->next;
+	cut1 = node->prev;
+	cut2 = node->next;
 
 	/* rejoin segments */
-	sprite->prev = -1;
-	sprite->next = -1;
-	link_sprites(nsprite, engine->first_sprite);
-	link_sprites(cut1, cut2);
-	engine->first_sprite = nsprite;
+	node->prev = -1;
+	node->next = -1;
+	ListLinkNodes(list, nsprite, list->first);
+	ListLinkNodes(list, cut1, cut2);
+	list->first = nsprite;
 
 	debugmsg("%s(%d)\t", __FUNCTION__, nsprite);
-	print_sprites();
+	ListPrint(list);
 	TLN_SetLastError(TLN_ERR_OK);
 	return true;
 }
@@ -806,6 +754,7 @@ bool TLN_SetFirstSprite(int nsprite)
  */
 bool TLN_SetNextSprite(int nsprite, int next)
 {
+	List* list;
 	int cut1, cut2, cut3;
 	if (nsprite >= engine->numsprites || !engine->sprites[nsprite].ok || nsprite == next)
 	{
@@ -818,21 +767,22 @@ bool TLN_SetNextSprite(int nsprite, int next)
 		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
 		return false;
 	}
+	list = &engine->list_sprites;
 
 	/* cut points inside the list te rejoin */
-	cut1 = engine->sprites[nsprite].next;
-	cut2 = engine->sprites[next].prev;
-	cut3 = engine->sprites[next].next;
+	cut1 = ListGetNext(list, nsprite);
+	cut2 = ListGetPrev(list, next);
+	cut3 = ListGetNext(list, next);
 
 	/* rejoin segments */
-	link_sprites(nsprite, next);
-	link_sprites(next, cut1);
-	link_sprites(cut2, cut3);
-	if (engine->first_sprite == next)
-		engine->first_sprite = cut3;
+	ListLinkNodes(list, nsprite, next);
+	ListLinkNodes(list, next, cut1);
+	ListLinkNodes(list, cut2, cut3);
+	if (list->first == next)
+		list->first = cut3;
 
 	debugmsg("%s(%d,%d)\t", __FUNCTION__, nsprite, next);
-	print_sprites();
+	ListPrint(list);
 	TLN_SetLastError(TLN_ERR_OK);
 	return true;
 }

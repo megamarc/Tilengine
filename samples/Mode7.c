@@ -58,7 +58,7 @@ static void raster_callback (int line);
 int main (int argc, char* argv[])
 {
 	/* setup engine */
-	TLN_Init (WIDTH,HEIGHT, MAX_LAYER, 0, 5);
+	TLN_Init (WIDTH,HEIGHT, MAX_LAYER, 0, 0);
 	TLN_SetRasterCallback (raster_callback);
 	TLN_SetBGColor (0,0,0);
 

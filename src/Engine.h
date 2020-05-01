@@ -17,6 +17,7 @@
 #include "Animation.h"
 #include "Bitmap.h"
 #include "Blitters.h"
+#include "List.h"
 
 /* motor */
 typedef struct Engine
@@ -44,8 +45,8 @@ typedef struct Engine
 	void		(*frame)(int);	/* frame callback */
 	int line;					/* current scanline */
 
-	int first_sprite;			/* first sprite in list, none = -1 */
-	int last_sprite;			/* last sprite in list, none = -1 */
+	List list_sprites;			/* linked list active of sprites */
+	List list_animations;		/* linked list active of animations */
 	int sprite_mask_top;		/* top scanline for sprite masking */
 	int sprite_mask_bottom;		/* bottom scanline for sprite masking */
 

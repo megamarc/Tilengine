@@ -162,6 +162,6 @@ static void TasksActor (Actor* actor)
 	else
 	{
 		TLN_DisableSprite (actor->index);
-		TLN_DisableAnimation (actor->index);
+		TLN_DisableSpriteAnimation (actor->index);
 	}
 }

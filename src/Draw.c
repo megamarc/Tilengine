@@ -48,6 +48,7 @@ bool TLN_DrawNextScanline(void)
 	int index;
 	bool background_priority = false;
 	bool sprite_priority = false;
+	List* list;
 
 	/* call raster effect callback */
 	if (engine->raster)
@@ -90,7 +91,8 @@ bool TLN_DrawNextScanline(void)
 	}
 
 	/* draw regular sprites */
-	index = engine->first_sprite;
+	list = &engine->list_sprites;
+	index = list->first;
 	while (index != -1)
 	{
 		Sprite* sprite = &engine->sprites[index];
@@ -101,7 +103,7 @@ bool TLN_DrawNextScanline(void)
 			else
 				sprite_priority = true;
 		}
-		index = sprite->next;
+		index = sprite->list_node.next;
 	}
 
 	/* draw background layers with priority */
@@ -129,12 +131,13 @@ bool TLN_DrawNextScanline(void)
 	/* draw sprites with priority */
 	if (sprite_priority == true)
 	{
-		index = engine->first_sprite;
+		index = list->first;
 		while (index != -1)
 		{
 			Sprite* sprite = &engine->sprites[index];
 			if (check_sprite_coverage(sprite, line) && (sprite->flags & FLAG_PRIORITY))
 				sprite->draw(index, line);
+			index = sprite->list_node.next;
 		}
 	}
 

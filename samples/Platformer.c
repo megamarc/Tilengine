@@ -66,7 +66,7 @@ int main (int argc, char *argv[])
 	TLN_Palette palette;
 
 	/* setup engine */
-	TLN_Init (WIDTH,HEIGHT, MAX_LAYER, 0, 20);
+	TLN_Init (WIDTH,HEIGHT, MAX_LAYER, 0, 1);
 	TLN_SetRasterCallback (raster_callback);
 	TLN_SetBGColor (0,128,238);
 

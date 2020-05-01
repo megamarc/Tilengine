@@ -57,16 +57,16 @@ void SimonSetState (int s)
 	switch (state)
 	{
 	case SIMON_IDLE:
-		TLN_DisableAnimation (0);
+		TLN_DisableSpriteAnimation (0);
 		TLN_SetSpritePicture (0, 0);
 		break;
 
 	case SIMON_WALKING:
-		TLN_SetSpriteAnimation (0, 0, walk, 0);
+		TLN_SetSpriteAnimation (0, walk, 0);
 		break;
 
 	case SIMON_JUMPING:
-		TLN_DisableAnimation (0);
+		TLN_DisableSpriteAnimation (0);
 		TLN_SetSpritePicture (0, 7);
 		sy = -18;
 		break;
