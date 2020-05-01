@@ -49,19 +49,25 @@ http://www.tilengine.org
 # Getting binaries
 
 ## Download from itch.io
-The recommended way to get prebuilt binaries ready to install, run and test samples is grabbing them from official itch.io account: https://megamarc.itch.io/tilengine. Just download the package for your platform, they contain required dependencies to run.
+The recommended way to get prebuilt binaries ready to install, run and test samples is grabbing them from official [itch.io download](https://megamarc.itch.io/tilengine.account). Just download the package for your platform, they contain required dependencies to run.
 
 ## Build from source
 You can also build the library from source. Tilengine requires `SDL2` and `libpng` to build, you must provide these libraries yourself depending on your target platform.
 
 ### Windows
-Provide development libraries into the following locations inside the `src` directory:
+You must provide development libraries:
+* SDL: https://www.libsdl.org/download-2.0.php
+* libpng: http://gnuwin32.sourceforge.net/packages/libpng.htm
+
+Put the following files inside the `src` directory:
 Path | Files
 -----|---------------------------------------
 `src\libpng`             | libpng headers
-`src\libpng\$(Platform)` | libpng.lib static library
+`src\libpng\$(Platform)` | libpng.lib import library
 `src\sdl\SDL2`           | SDL2 headers
 `src\sdl\lib\$(Platform)`| SDL2.lib import library
+
+**NOTE**: If you're having problems setting up these dependencies, you can download them already pre-packaged from [itch.io downloads](https://megamarc.itch.io/tilengine), file is `windows_libs.zip`. It contains headers and libraries for both 32 and 64 bit platforms.
 
 ### Debian-based linux
 Just install standard packages `libpng-dev` and `libsdl2-dev`
