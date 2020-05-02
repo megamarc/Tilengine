@@ -179,7 +179,10 @@ static bool CreateWindow(void)
 	}
 	else
 	{
-		rflags = CWF_FULLSCREEN;
+		rflags = SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_BORDERLESS;
+#if SDL_VERSION_ATLEAST(2,0,5)
+		rflags |= SDL_WINDOW_ALWAYS_ON_TOP;
+#endif
 		wnd_width = mode.w;
 		wnd_height = wnd_width * wnd_params.height / wnd_params.width;
 		if (wnd_height > mode.h)
