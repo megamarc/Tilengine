@@ -19,7 +19,7 @@ Layers represent the scrolling planes (or backgrounds) composed of square tiles.
 Sprites represent the movable objects that are not part of the backgrounds and where the gameplay occurs. A sprite must be assigned a spriteset and optionally a palette. Read at least the functions \ref TLN_ConfigSprite, \ref TLN_SetSpritePicture and \ref TLN_SetSpritePosition.
 
 ## Animations
-Animations represent the built-in sequencers that play sequences. An animation must be assigned a sequence and one of the following: a layer (for tileset animation), a sprite (for sprite animation) or a palette (for color animation). Read at least the functions \ref TLN_SetSpriteAnimation, \ref TLN_SetTilemapAnimation and \ref TLN_SetPaletteAnimation.
+Animations represent the built-in sequencers that play sequences. An animation must be assigned a sequence and one of the following: a layer (for tileset animation), a sprite (for sprite animation) or a palette (for color animation). Read at least the functions \ref TLN_SetSpriteAnimation and \ref TLN_SetPaletteAnimation.
 
 ## Tilesets
 Tilesets are the building blocks of the backgrounds, the individual tiles themselves packed together. They are loaded at runtime from Tiled *tsx* files with the \ref TLN_LoadTileset function.

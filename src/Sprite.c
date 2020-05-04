@@ -790,6 +790,7 @@ bool TLN_SetNextSprite(int nsprite, int next)
 /*!
  * \brief Enables or disables masking for this sprite, if enabled it won't be drawn inside the region set up with TLN_SetSpritesMaskRegion()
  * \param nsprite Id of the sprite to mask [0, num_sprites - 1].
+ * \param enable Enables (true) or disables (false) masking
  */
 bool TLN_EnableSpriteMasking(int nsprite, bool enable)
 {
