@@ -41,14 +41,13 @@ static void ColorCycleBlend (TLN_Palette srcpalette, TLN_Palette dstpalette, str
 
 static void tileset_animation(Animation* animation, int srctile, int dsttile)
 {
-	TLN_Tileset tileset = engine->layers[animation->idx].tileset;
 	debugmsg("TileAnim: %d -> %d\n", srctile, dsttile);
 	if (srctile != dsttile)
-		TLN_CopyTile(tileset, srctile, dsttile);
+		TLN_CopyTile(animation->tileset, srctile, dsttile);
 	else
 	{
 		TLN_Bitmap bitmap = animation->backup;
-		TLN_SetTilesetPixels(tileset, srctile, bitmap->data, bitmap->pitch);
+		TLN_SetTilesetPixels(animation->tileset, srctile, bitmap->data, bitmap->pitch);
 	}
 }
 
@@ -90,7 +89,7 @@ void UpdateAnimation(Animation* animation, int time)
 	switch (animation->type)
 	{
 	case TYPE_SPRITE:
-		TLN_SetSpritePicture(animation->idx, frames[animation->pos].index);
+		TLN_SetSpritePicture(animation->nsprite, frames[animation->pos].index);
 		break;
 
 	case TYPE_TILESET:
@@ -254,6 +253,7 @@ bool SetTilesetAnimation(TLN_Tileset tileset, int index, TLN_Sequence sequence)
 	
 	animation = &tileset->animations[index];
 	SetAnimation(animation, sequence, TYPE_TILESET);
+	animation->tileset = tileset;
 	if (animation->backup != NULL)
 		TLN_DeleteBitmap(animation->backup);
 	
@@ -304,7 +304,7 @@ bool TLN_SetSpriteAnimation (int nsprite, TLN_Sequence sequence, int loop)
 	sprite = &engine->sprites[nsprite];
 	animation = &sprite->animation;
 	SetAnimation (animation, sequence, TYPE_SPRITE);
-	animation->idx = nsprite;
+	animation->nsprite = nsprite;
 	animation->loop = loop;
 
 	TLN_SetLastError (TLN_ERR_OK);

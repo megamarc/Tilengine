@@ -31,12 +31,13 @@ typedef struct
 {
 	animation_t type;
 	TLN_Sequence sequence;
-	TLN_Bitmap backup;	/* bavkup of frame 0 for tileset animation */
+	TLN_Bitmap backup;		/* backup of frame 0 for tileset animation */
+	TLN_Tileset tileset;	/* tileset for tileset animations */
 	bool enabled;
 	int loop;
 	int pos;
 	int timer;
-	int idx;	/* index of layer or sprite */
+	int nsprite;			/* sprite number for sprite animation */
 	bool blend;
 	TLN_Palette palette;
 	TLN_Palette srcpalette;
