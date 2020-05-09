@@ -54,7 +54,7 @@ bool TLN_SetLayer(int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap)
 	if (!CheckBaseObject(tilemap, OT_TILEMAP))
 		return false;
 
-	/* seleccionar tileset del tilemap */
+	/* select tilemsp's own tileset */
 	if (tileset == NULL)
 		tileset = tilemap->tileset;
 
@@ -72,10 +72,8 @@ bool TLN_SetLayer(int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap)
 	}
 	layer->bitmap = NULL;
 	layer->objects = NULL;
-	layer->ok = true;
-	layer->draw = GetLayerDraw(layer);
 
-	/* aplica atributo de prioridad del tileset al tilemap */
+	/* apply priority attribute */
 	if (tileset->attributes != NULL)
 	{
 		const int num_tiles = tilemap->rows * tilemap->cols;
@@ -93,7 +91,7 @@ bool TLN_SetLayer(int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap)
 		}
 	}
 
-	/* inicia animaciones */
+	/* start animations */
 	if (tileset->sp != NULL)
 	{
 		int c;
@@ -109,7 +107,13 @@ bool TLN_SetLayer(int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap)
 		}
 	}
 
-	SelectBlitter (layer);
+	if (tilemap->visible)
+	{
+		layer->ok = true;
+		layer->draw = GetLayerDraw(layer);
+		SelectBlitter(layer);
+	}
+
 	TLN_SetLastError (TLN_ERR_OK);
 	return true;
 }
@@ -188,6 +192,8 @@ bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Tileset tileset
 		TLN_SetLastError(TLN_ERR_IDX_LAYER);
 		return false;
 	}
+	layer = &engine->layers[nlayer];
+	layer->ok = false;
 
 	if (!CheckBaseObject(objects, OT_OBJECTLIST))
 	{
@@ -203,26 +209,28 @@ bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Tileset tileset
 		return false;
 	}
 
-	layer = &engine->layers[nlayer];
-	layer->ok = false;
 	layer->tileset = tileset;
 	layer->tilemap = NULL;
 	layer->bitmap = NULL;
 	layer->objects = objects;
 	layer->width = objects->width;
 	layer->height = objects->height;
-
+	
 	/* link objects to actual bitmaps */
 	item = objects->list;
 	while (item)
 	{
-		item->bitmap = GetTilesetBitmap(tileset, item->gid);
-		item = item->next;		
+		if (item->visible && item->has_gid)
+			item->bitmap = GetTilesetBitmap(tileset, item->gid);
+		item = item->next;
 	}
 
-	layer->ok = true;
-	layer->draw = GetLayerDraw(layer);
-	SelectBlitter(layer);
+	if (objects->visible)
+	{
+		layer->ok = true;
+		layer->draw = GetLayerDraw(layer);
+		SelectBlitter(layer);
+	}
 	TLN_SetLastError(TLN_ERR_OK);
 	return true;
 }
@@ -482,7 +490,8 @@ bool TLN_SetLayerPosition (int nlayer, int hstart, int vstart)
 		layer->vstart += layer->height;
 
 	TLN_SetLastError (TLN_ERR_OK);
-	layer->ok = true;
+	if ((layer->tilemap && layer->tilemap->visible) || (layer->objects && layer->objects->visible))
+		layer->ok = true;
 	return true;
 }
 

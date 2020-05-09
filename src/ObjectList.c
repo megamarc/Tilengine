@@ -29,7 +29,7 @@ Property;
 /* load manager */
 struct
 {
-	char layer_name[64];		/* name of layer to load */
+	TMXLayer* layer;
 	bool state;
 	TLN_ObjectList objects;
 	TLN_Object object;
@@ -48,7 +48,10 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 	{
 	case ADD_SUBTAG:
 		if (!strcasecmp(szName, "object"))
+		{
 			memset(&loader.object, 0, sizeof(struct _Object));
+			loader.object.visible = true;
+		}
 		break;
 
 	case ADD_ATTRIBUTE:
@@ -56,7 +59,7 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 		intvalue = atoi(szValue);
 		if (!strcasecmp(szName, "objectgroup") && (!strcasecmp(szAttribute, "name")))
 		{
-			if (!strcasecmp(szValue, loader.layer_name))
+			if (!strcasecmp(szValue, loader.layer->name))
 				loader.state = true;
 			else
 				loader.state = false;
@@ -70,6 +73,7 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 			{
 				Tile tile;
 				tile.value = strtoul(szValue, NULL, 0);
+				loader.object.has_gid = true;
 				loader.object.flags = tile.flags;
 				loader.object.gid = tile.index;
 			}
@@ -81,6 +85,12 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 				loader.object.width = intvalue;
 			else if (!strcasecmp(szAttribute, "height"))
 				loader.object.height = intvalue;
+			else if (!strcasecmp(szAttribute, "type"))
+				loader.object.type = intvalue;
+			else if (!strcasecmp(szAttribute, "visible"))
+				loader.object.visible = (bool)intvalue;
+			else if (!strcasecmp(szAttribute, "name"))
+				strncpy(loader.object.name, szValue, sizeof(loader.object.name));
 		}
 
 		/* <property name="type" type="int" value="12"/> */
@@ -108,7 +118,11 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 		if (loader.state == true)
 		{
 			if (!strcasecmp(szName, "objectgroup"))
+			{
 				loader.objects = TLN_CreateObjectList();
+				loader.objects->id = loader.layer->id;
+				loader.objects->visible = loader.layer->visible;
+			}
 		}
 		break;
 
@@ -122,7 +136,8 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 				loader.state = false;
 			else if (!strcasecmp(szName, "object"))
 			{
-				loader.object.y -= loader.object.height;
+				if (loader.object.has_gid)
+					loader.object.y -= loader.object.height;
 				CloneObjectToList(loader.objects, &loader.object);
 			}
 		}
@@ -152,6 +167,7 @@ TLN_ObjectList TLN_CreateObjectList(void)
 	if (!list)
 		return NULL;
 
+	list->visible = true;
 	TLN_SetLastError(TLN_ERR_OK);
 	return list;
 }
@@ -226,25 +242,27 @@ TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername)
 	uint8_t *data;
 	TMXInfo tmxinfo = { 0 };
 
-	/* load file */
-	data = (uint8_t*)LoadFile(filename, &size);
-	if (!data)
+	/* load map info */
+	if (!TMXLoad(filename, &tmxinfo))
 	{
-		if (size == 0)
-			TLN_SetLastError(TLN_ERR_FILE_NOT_FOUND);
-		else if (size == -1)
-			TLN_SetLastError(TLN_ERR_OUT_OF_MEMORY);
+		TLN_SetLastError(TLN_ERR_FILE_NOT_FOUND);
+		return NULL;
+	}
+		
+	/* get target layer */
+	memset(&loader, 0, sizeof(loader));
+	if (layername)
+		loader.layer = TMXGetLayer(&tmxinfo, layername);
+	else
+		loader.layer = TMXGetFirstLayer(&tmxinfo, LAYER_OBJECT);
+	if (loader.layer == NULL)
+	{
+		TLN_SetLastError(TLN_ERR_FILE_NOT_FOUND);
 		return NULL;
 	}
 
 	/* parse */
-	TMXLoad(filename, &tmxinfo);
-	memset(&loader, 0, sizeof(loader));
-	if (layername)
-		strncpy(loader.layer_name, layername, sizeof(loader.layer_name));
-	else
-		strncpy(loader.layer_name, TMXGetFirstLayerName(&tmxinfo, LAYER_OBJECT), sizeof(loader.layer_name));
-
+	data = (uint8_t*)LoadFile(filename, &size);
 	parser = simpleXmlCreateParser((char*)data, (long)size);
 	if (parser != NULL)
 	{
@@ -352,6 +370,7 @@ int TLN_GetListNumObjects(TLN_ObjectList list)
  */
 bool TLN_GetListObject(TLN_ObjectList list, TLN_ObjectInfo* info)
 {
+	struct _Object* item;
 	if (!CheckBaseObject(list, OT_OBJECTLIST))
 	{
 		TLN_SetLastError(TLN_ERR_REF_LIST);
@@ -369,16 +388,22 @@ bool TLN_GetListObject(TLN_ObjectList list, TLN_ObjectInfo* info)
 		return false;
 
 	/* copy info */
-	list->info->id = list->iterator->id;
-	list->info->gid = list->iterator->gid;
-	list->info->flags = list->iterator->flags;
-	list->info->x = list->iterator->x;
-	list->info->y = list->iterator->y;
-	list->info->width = list->iterator->width;
-	list->info->height = list->iterator->height;
+	item = list->iterator;
+	info = list->info;
+	info->id = item->id;
+	info->gid = item->gid;
+	info->flags = item->flags;
+	info->x = item->x;
+	info->y = item->y;
+	info->width = item->width;
+	info->height = item->height;
+	info->type = item->type;
+	info->visible = item->visible;
+	if (item->name[0])
+		strncpy(info->name, item->name, sizeof(info->name));
 
 	/* advance */
-	list->iterator = list->iterator->next;
+	list->iterator = item->next;
 	return true;
 }
 

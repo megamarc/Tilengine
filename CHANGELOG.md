@@ -1,5 +1,12 @@
 # Tilengine changelog
 
+## [2.8.2] - 9/5/2020
+- Fixes bug where tileset animations weren't correctly played on layer index other than 0
+- Enhanced TMX compatibility: 
+  - handles "visible" property on layers and objects 
+  - correctly loads "Rectangle" objects in addition to "Tile" ones
+  - TLN_ObjectInfo returns standard TMX properties: "name", "type" (integer) and "visible"
+
 ## [2.8.0] - 3/5/2020
 - Revamped animation engine. Slotted animations used only by palette (color cycle)
 - Tileset sequences: a frame and the target tile can be the same

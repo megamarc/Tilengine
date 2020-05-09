@@ -60,7 +60,7 @@
 /* version */
 #define TILENGINE_VER_MAJ	2
 #define TILENGINE_VER_MIN	8
-#define TILENGINE_VER_REV	1
+#define TILENGINE_VER_REV	2
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -195,6 +195,9 @@ typedef struct
 	int y;			/*!< vertical position */
 	int width;		/*!< horizontal size */
 	int height;		/*!< vertical size */
+	uint8_t type;	/*!< type property */
+	bool visible;	/*!< visible property */
+	char name[64];	/*!< name property */
 }
 TLN_ObjectInfo;
 

@@ -21,11 +21,15 @@ typedef struct _Object
 	uint16_t id;
 	uint16_t gid;
 	uint16_t flags;
+	uint8_t type;
+	char name[64];
 	int x;
 	int y;
 	int width;
 	int height;
 	TLN_Bitmap bitmap;	/* computed after calling TLN_SetLayerObjects() */
+	bool has_gid;
+	bool visible;
 	struct _Object* next;
 }
 TLN_Object;
@@ -36,6 +40,8 @@ struct ObjectList
 	int num_items;	/* items in list */
 	int width;		/* map width, pixels */
 	int height;		/* map height, pixels */
+	int id;			/* id property */
+	bool visible;	/* visible property */
 	TLN_Tileset tileset;	/* attached tileset, if any */
 	struct _Object* list;
 	struct _Object* last;

@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
 	ok = TLN_GetListObject(props_list, &info);
 	while (ok)
 	{
-		printf("object id=%d gid=%d x=%d y=%d w=%d h=%d\n", info.id, info.gid, info.x, info.y, info.width, info.height);
+		printf("object id=%d name=\"%s\" type=%d gid=%d x=%d y=%d w=%d h=%d\n", info.id, info.name, info.type, info.gid, info.x, info.y, info.width, info.height);
 		ok = TLN_GetListObject(props_list, NULL);
 	}
 

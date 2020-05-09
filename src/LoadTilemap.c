@@ -18,12 +18,12 @@
 #include "LoadFile.h"
 #include "Base64.h"
 #include "LoadTMX.h"
+#include "Tilemap.h"
 
 #define MAX_TILESETS	8
 
 static int csvdecode (const char* in, int numtiles, uint32_t* data);
 static int decompress (uint8_t* in, int in_size, uint8_t* out, int out_size);
-static uint32_t ParseHTMLColor (const char* string);
 
 /* encoding */
 typedef enum
@@ -46,11 +46,10 @@ compression_t;
 /* load manager */
 struct
 {
-	char layer_name[64];		/* name of layer to load */
+	TMXLayer* layer;			/* target layer */
 	bool state;
 	encoding_t encoding;		/* encoding */
 	compression_t compression;	/* compression */
-	uint32_t bgcolor;			/* background color */
 	uint32_t* data;				/* map data (rows*cols) */
 	uint32_t numtiles;
 }
@@ -69,15 +68,9 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 	case ADD_ATTRIBUTE:
 
 		intvalue = atoi(szValue);
-		if (!strcasecmp(szName, "map"))
+		if (!strcasecmp(szName, "layer") && (!strcasecmp(szAttribute, "name")))
 		{
-			if (!strcasecmp(szAttribute, "backgroundcolor"))
-				loader.bgcolor = ParseHTMLColor (szValue);
-		}
-
-		else if (!strcasecmp(szName, "layer") && (!strcasecmp(szAttribute, "name")))
-		{
-			if (!strcasecmp(szValue, loader.layer_name))
+			if (!strcasecmp(szValue, loader.layer->name))
 				loader.state = true;
 			else
 				loader.state = false;
@@ -168,27 +161,29 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 	TLN_Tilemap tilemap = NULL;
 	TMXInfo tmxinfo = { 0 };
 	
-	/* load file */
-	data = (uint8_t*)LoadFile (filename, &size);
-	if (!data)
+	/* load map info */
+	if (!TMXLoad(filename, &tmxinfo))
 	{
-		if (size == 0)
-			TLN_SetLastError (TLN_ERR_FILE_NOT_FOUND);
-		else if (size == -1)
-			TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
+		TLN_SetLastError(TLN_ERR_FILE_NOT_FOUND);
 		return NULL;
 	}
 
-	/* parse */
-	TMXLoad(filename, &tmxinfo);
-	memset (&loader, 0, sizeof(loader));
+	/* get target layer */
+	memset(&loader, 0, sizeof(loader));
 	if (layername)
-		strncpy (loader.layer_name, layername, sizeof(loader.layer_name));
+		loader.layer = TMXGetLayer(&tmxinfo, layername);
 	else
-		strncpy (loader.layer_name, TMXGetFirstLayerName(&tmxinfo, LAYER_TILE), sizeof(loader.layer_name));
-	loader.numtiles = tmxinfo.width*tmxinfo.height;
+		loader.layer = TMXGetFirstLayer(&tmxinfo, LAYER_TILE);
+	if (loader.layer == NULL)
+	{
+		TLN_SetLastError(TLN_ERR_FILE_NOT_FOUND);
+		return NULL;
+	}		
 
-	parser = simpleXmlCreateParser ((char*)data, (long)size);
+	/* parse */
+	loader.numtiles = loader.layer->width*loader.layer->height;
+	data = (uint8_t*)LoadFile(filename, &size);
+	parser = simpleXmlCreateParser((char*)data, (long)size);
 	if (parser != NULL)
 	{
 		if (simpleXmlParse(parser, handler) != 0)
@@ -232,7 +227,9 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 		}
 
 		/* create */
-		tilemap = TLN_CreateTilemap(tmxinfo.height, tmxinfo.width, (Tile*)loader.data, loader.bgcolor, tileset);
+		tilemap = TLN_CreateTilemap(loader.layer->height, loader.layer->width, (Tile*)loader.data, tmxinfo.bgcolor, tileset);
+		tilemap->id = loader.layer->id;
+		tilemap->visible = loader.layer->visible;
 	}
 	return tilemap;
 }
@@ -303,35 +300,4 @@ static int decompress (uint8_t* in, int in_size, uint8_t* out, int out_size)
 	/* clean up and return */
 	(void)inflateEnd(&strm);
 	return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
-}
-
-static uint8_t ParseHexChar (char data)
-{
-	if (data >= '0' && data <= '9')
-		return data - '0';
-	else if (data >= 'A' && data <= 'F')
-		return data - 'A' + 10;
-	else if (data >= 'a' && data <= 'f')
-		return data - 'a' + 10;
-	else
-		return 0;
-}
-
-static uint8_t ParseHexByte (const char* string)
-{
-	return (ParseHexChar(string[0]) << 4) + ParseHexChar(string[1]);
-}
-
-static uint32_t ParseHTMLColor (const char* string)
-{
-	int r,g,b;
-
-	if (string[0] != '#')
-		return 0;
-
-	r = ParseHexByte (&string[1]);
-	g = ParseHexByte (&string[3]);
-	b = ParseHexByte (&string[5]);
-
-	return (uint32_t)(0xFF000000 | (r << 16) | (g << 8) | b);
 }

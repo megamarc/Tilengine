@@ -16,9 +16,24 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 	{
 	case ADD_SUBTAG:
 		if (!strcasecmp(szName, "layer"))
-			tmxinfo->layers[tmxinfo->num_layers].type = LAYER_TILE;
+		{
+			TMXLayer* layer = &tmxinfo->layers[tmxinfo->num_layers];
+			memset(layer, 0, sizeof(TMXLayer));
+			layer->type = LAYER_TILE;
+			layer->visible = true;
+		}
 		else if (!strcasecmp(szName, "objectgroup"))
-			tmxinfo->layers[tmxinfo->num_layers].type = LAYER_OBJECT;
+		{
+			TMXLayer* layer = &tmxinfo->layers[tmxinfo->num_layers];
+			memset(layer, 0, sizeof(TMXLayer));
+			layer->type = LAYER_OBJECT;
+			layer->visible = true;
+		}
+		else if (!strcasecmp(szName, "tileset"))
+		{
+			TMXTileset* tileset = &tmxinfo->tilesets[tmxinfo->num_tilesets];
+			memset(tileset, 0, sizeof(TMXTileset));
+		}
 		break;
 
 	case ADD_ATTRIBUTE:
@@ -33,24 +48,35 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 				tmxinfo->tilewidth = intvalue;
 			else if (!strcasecmp(szAttribute, "tileheight"))
 				tmxinfo->tileheight = intvalue;
+			else if (!strcasecmp(szAttribute, "backgroundcolor"))
+			{
+				sscanf(&szValue[1], "%x", &tmxinfo->bgcolor);
+				tmxinfo->bgcolor += 0xFF000000;
+			}
 		}
 
 		else if (!strcasecmp(szName, "tileset"))
 		{
+			TMXTileset* tileset = &tmxinfo->tilesets[tmxinfo->num_tilesets];
 			if (!strcasecmp(szAttribute, "firstgid"))
-				tmxinfo->tilesets[tmxinfo->num_tilesets].firstgid = intvalue;
+				tileset->firstgid = intvalue;
 			else if (!strcasecmp(szAttribute, "source"))
-				strncpy(tmxinfo->tilesets[tmxinfo->num_tilesets].source, szValue, 64);
+				strncpy(tileset->source, szValue, sizeof(tileset->source));
 		}
 
 		else if (!strcasecmp(szName, "layer") || !strcasecmp(szName, "objectgroup"))
 		{
+			TMXLayer* layer = &tmxinfo->layers[tmxinfo->num_layers];
 			if (!strcasecmp(szAttribute, "name"))
-				strncpy(tmxinfo->layers[tmxinfo->num_layers].name, szValue, 64);
+				strncpy(layer->name, szValue, 64);
+			else if (!strcasecmp(szAttribute, "id"))
+				layer->id = intvalue;
+			else if (!strcasecmp(szAttribute, "visible"))
+				layer->visible = (bool)intvalue;
 			else if (!strcasecmp(szAttribute, "width"))
-				tmxinfo->layers[tmxinfo->num_layers].width = intvalue;
+				layer->width = intvalue;
 			else if (!strcasecmp(szAttribute, "height"))
-				tmxinfo->layers[tmxinfo->num_layers].height = intvalue;
+				layer->height = intvalue;
 		}
 		break;
 
@@ -132,13 +158,25 @@ TMXTileset* TMXGetSuitableTileset(TMXInfo* info, int gid)
 }
 
 /*returns first layer of requested type */
-char* TMXGetFirstLayerName(TMXInfo* info, LayerType type)
+TMXLayer* TMXGetFirstLayer(TMXInfo* info, LayerType type)
 {
 	int c;
 	for (c = 0; c < info->num_layers; c += 1)
 	{
 		if (info->layers[c].type == type)
-			return info->layers[c].name;
+			return &info->layers[c];
+	}
+	return NULL;
+}
+
+/* returns specified layer */
+TMXLayer* TMXGetLayer(TMXInfo* info, const char* name)
+{
+	int c;
+	for (c = 0; c < info->num_layers; c += 1)
+	{
+		if (!strcasecmp(info->layers[c].name, name))
+			return &info->layers[c];
 	}
 	return NULL;
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.2.3" orientation="orthogonal" renderorder="right-down" width="160" height="25" tilewidth="16" tileheight="16" infinite="0" backgroundcolor="#0000ff" nextlayerid="4" nextobjectid="50">
+<map version="1.2" tiledversion="1.2.3" orientation="orthogonal" renderorder="right-down" width="160" height="25" tilewidth="16" tileheight="16" infinite="0" backgroundcolor="#0000ff" nextlayerid="4" nextobjectid="57">
  <tileset firstgid="1" source="tileset.tsx"/>
  <tileset firstgid="241" source="props.tsx"/>
  <layer id="1" name="Main Layer" width="160" height="25">
@@ -8,7 +8,7 @@
   </data>
  </layer>
  <objectgroup id="2" name="Object Layer">
-  <object id="1" gid="2147483894" x="32" y="240" width="213" height="223">
+  <object id="1" gid="2147483894" x="16" y="224" width="213" height="223">
    <properties>
     <property name="priority" type="bool" value="true"/>
    </properties>
@@ -20,5 +20,8 @@
   <object id="47" gid="247" x="304" y="64" width="41" height="53"/>
   <object id="48" gid="247" x="976" y="64" width="41" height="53"/>
   <object id="49" gid="246" x="2128" y="224" width="213" height="223"/>
+  <object id="53" x="240" y="0" width="192" height="176"/>
+  <object id="54" name="OneRectangle" type="3" x="0" y="0" width="112" height="112"/>
+  <object id="55" name="AnotherRectangle" type="4" x="272" y="256" width="176" height="128"/>
  </objectgroup>
 </map>

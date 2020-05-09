@@ -23,6 +23,8 @@ typedef struct
 	int width;			/* layer width (tiles) */
 	int height;			/* layer height (tiles) */
 	int num_objects;	/* */
+	int id;
+	bool visible;
 }
 TMXLayer;
 
@@ -42,6 +44,7 @@ typedef struct
 	int tileheight;			/* */
 	int num_layers;			/* number of layers */
 	int num_tilesets;		/* number of tilesets */
+	uint32_t bgcolor;		/* background color */
 	TMXLayer layers[TMX_MAX_LAYER];			/* array of layers */
 	TMXTileset tilesets[TMX_MAX_TILESET];	/* array of tilesets */
 }
@@ -49,6 +52,7 @@ TMXInfo;
 
 bool TMXLoad(const char* filename, TMXInfo* info);
 TMXTileset* TMXGetSuitableTileset(TMXInfo* info, int gid);
-char* TMXGetFirstLayerName(TMXInfo* info, LayerType type);
+TMXLayer* TMXGetFirstLayer(TMXInfo* info, LayerType type);
+TMXLayer* TMXGetLayer(TMXInfo* info, const char* name);
 
 #endif

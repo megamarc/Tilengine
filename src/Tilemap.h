@@ -18,11 +18,13 @@
 struct Tilemap
 {
 	DEFINE_OBJECT;
-	int		rows;		/* filas */
-	int		cols;		/* columnas */
-	int		maxindex;	/* nº de tile más alto */
-	int		bgcolor;	/* color de fondo */
-	struct Tileset* tileset; /* tileset asociado (si hay) */
+	int		rows;		/* rows*/
+	int		cols;		/* columns */
+	int		maxindex;	/* highest tile index */
+	int		bgcolor;	/* background color */
+	int id;				/* id property */
+	bool visible;		/* visible property */
+	struct Tileset* tileset; /* attached tileset (if any) */
 	Tile	tiles[];
 };
 

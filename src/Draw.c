@@ -1166,7 +1166,7 @@ static bool DrawLayerObjectScanline(int nlayer, int nscan)
 
 	while (object != NULL)
 	{
-		if (IsObjectInLine(object, x1, x2, y) && object->bitmap != NULL)
+		if (IsObjectInLine(object, x1, x2, y) && object->visible && object->bitmap != NULL)
 		{
 			int w;
 			uint8_t *srcpixel;
