@@ -134,8 +134,15 @@ int main(int argc, char* argv[])
 			oldx = xworld;
 		}
 	}
-	TLN_DeleteWindow();
+
+	/* release resources */
+	TLN_DeleteTilemap(foreground);
+	TLN_DeleteBitmap(middleground);
 	TLN_CloseResourcePack();
+	TLN_DeleteSpriteset(atlas);
+	TLN_DeleteObjectList(props_list);
+
+	TLN_DeleteWindow();
 	TLN_Deinit();
 	return 0;
 }

@@ -64,6 +64,7 @@ TLN_Tilemap TLN_CreateTilemap (int rows, int cols, TLN_Tile tiles, uint32_t bgco
 	tilemap->cols = cols;
 	tilemap->bgcolor = bgcolor;
 	tilemap->tileset = tileset;
+	tilemap->visible = true;
 
 	if (tiles)
 		memcpy (tilemap->tiles, tiles, tilemap->size - sizeof(struct Tilemap));

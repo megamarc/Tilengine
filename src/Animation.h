@@ -31,7 +31,6 @@ typedef struct
 {
 	animation_t type;
 	TLN_Sequence sequence;
-	TLN_Bitmap backup;		/* backup of frame 0 for tileset animation */
 	TLN_Tileset tileset;	/* tileset for tileset animations */
 	bool enabled;
 	int loop;

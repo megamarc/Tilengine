@@ -224,6 +224,8 @@ static bool DrawLayerScanline (int nlayer, int nscan)
 		/* paint if not empty tile */
 		if (tile->index)
 		{
+			const uint16_t tile_index = tileset->tiles[tile->index];
+			
 			/* H/V flip */
 			if (tile->flags & FLAG_FLIPX)
 			{
@@ -236,7 +238,7 @@ static bool DrawLayerScanline (int nlayer, int nscan)
 				srcy = tileset->height - srcy - 1;
 
 			/* paint tile scanline */
-			srcpixel = &GetTilesetPixel (tileset, tile->index, srcx, srcy);
+			srcpixel = &GetTilesetPixel (tileset, tile_index, srcx, srcy);
 			if (tile->flags & FLAG_PRIORITY)
 			{
 				dst = dstpixel_pri;
@@ -246,7 +248,7 @@ static bool DrawLayerScanline (int nlayer, int nscan)
 			{
 				dst = dstpixel;
 			}
-			line = GetTilesetLine (tileset, tile->index, srcy);
+			line = GetTilesetLine (tileset, tile_index, srcy);
 			color_key = *(tileset->color_key + line);
 			layer->blitters[color_key] (srcpixel, layer->palette, dst, width, direction, 0, layer->blend);
 		}
@@ -372,6 +374,8 @@ static bool DrawLayerScanlineScaling (int nlayer, int nscan)
 		/* paint if tile is not empty */
 		if (tile->index)
 		{
+			const uint16_t tile_index = tileset->tiles[tile->index];
+
 			/* volteado H/V */
 			if (tile->flags & FLAG_FLIPX)
 			{
@@ -384,7 +388,7 @@ static bool DrawLayerScanlineScaling (int nlayer, int nscan)
 				srcy = tileset->height - srcy - 1;
 
 			/* pinta tile scanline */
-			srcpixel = &GetTilesetPixel (tileset, tile->index, srcx, srcy);
+			srcpixel = &GetTilesetPixel (tileset, tile_index, srcx, srcy);
 			if (tile->flags & FLAG_PRIORITY)
 			{
 				dst = dstpixel_pri;
@@ -394,7 +398,7 @@ static bool DrawLayerScanlineScaling (int nlayer, int nscan)
 			{
 				dst = dstpixel;
 			}
-			line = GetTilesetLine (tileset, tile->index, srcy);
+			line = GetTilesetLine (tileset, tile_index, srcy);
 			color_key = *(tileset->color_key + line);
 			layer->blitters[color_key] (srcpixel, layer->palette, dst, width, direction, 0, layer->blend);
 		}
@@ -497,6 +501,8 @@ static bool DrawLayerScanlineAffine (int nlayer, int nscan)
 		/* paint if not empty tile */
 		if (tile->index)
 		{
+			const uint16_t tile_index = tileset->tiles[tile->index];
+
 			/* H/V flip */
 			if (tile->flags & FLAG_FLIPX)
 				srcx = tileset->width - srcx - 1;
@@ -504,7 +510,7 @@ static bool DrawLayerScanlineAffine (int nlayer, int nscan)
 				srcy = tileset->height - srcy - 1;
 
 			/* pinta scanline tile */
-			*dstpixel = GetTilesetPixel (tileset, tile->index, srcx, srcy);
+			*dstpixel = GetTilesetPixel (tileset, tile_index, srcx, srcy);
 		}
 
 		/* next pixel */
@@ -595,6 +601,8 @@ static bool DrawLayerScanlinePixelMapping (int nlayer, int nscan)
 		/* paint if not empty tile */
 		if (tile->index)
 		{
+			const uint16_t tile_index = tileset->tiles[tile->index];
+
 			/* H/V flip */
 			if (tile->flags & FLAG_FLIPX)
 				srcx = tileset->width - srcx - 1;
@@ -602,7 +610,7 @@ static bool DrawLayerScanlinePixelMapping (int nlayer, int nscan)
 				srcy = tileset->height - srcy - 1;
 
 			/* paint tile scanline */
-			*dstpixel = GetTilesetPixel (tileset, tile->index, srcx, srcy);
+			*dstpixel = GetTilesetPixel (tileset, tile_index, srcx, srcy);
 		}
 
 		/* next pixel */

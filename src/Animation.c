@@ -39,18 +39,6 @@ static void SetAnimation (Animation* animation, TLN_Sequence sequence, animation
 static void ColorCycle (TLN_Palette srcpalette, TLN_Palette dstpalette, struct Strip* strip);
 static void ColorCycleBlend (TLN_Palette srcpalette, TLN_Palette dstpalette, struct Strip* strip, int t);
 
-static void tileset_animation(Animation* animation, int srctile, int dsttile)
-{
-	debugmsg("TileAnim: %d -> %d\n", srctile, dsttile);
-	if (srctile != dsttile)
-		TLN_CopyTile(animation->tileset, srctile, dsttile);
-	else
-	{
-		TLN_Bitmap bitmap = animation->backup;
-		TLN_SetTilesetPixels(animation->tileset, srctile, bitmap->data, bitmap->pitch);
-	}
-}
-
 /* updates animation state */
 void UpdateAnimation(Animation* animation, int time)
 {
@@ -93,7 +81,7 @@ void UpdateAnimation(Animation* animation, int time)
 		break;
 
 	case TYPE_TILESET:
-		tileset_animation(animation, frames[animation->pos].index, sequence->target);
+		animation->tileset->tiles[sequence->target] = frames[animation->pos].index;
 		break;
 
 		/* Fall through */
@@ -239,7 +227,6 @@ bool TLN_SetPaletteAnimationSource (int index, TLN_Palette palette)
 bool SetTilesetAnimation(TLN_Tileset tileset, int index, TLN_Sequence sequence)
 {
 	Animation* animation = NULL;
-	int c;
 	
 	if (index >= tileset->sp->num_sequences)
 	{
@@ -254,17 +241,6 @@ bool SetTilesetAnimation(TLN_Tileset tileset, int index, TLN_Sequence sequence)
 	animation = &tileset->animations[index];
 	SetAnimation(animation, sequence, TYPE_TILESET);
 	animation->tileset = tileset;
-	if (animation->backup != NULL)
-		TLN_DeleteBitmap(animation->backup);
-	
-	/* backup tile 0 on separate bitmap */
-	animation->backup = TLN_CreateBitmap(tileset->width, tileset->height, 8);
-	for (c = 0; c < tileset->height; c += 1)
-	{
-		uint8_t* srcdata = &GetTilesetPixel(tileset, sequence->target, 0, c);
-		uint8_t* dstdata = get_bitmap_ptr(animation->backup, 0, c);
-		memcpy(dstdata, srcdata, tileset->width);
-	}	
 
 	TLN_SetLastError (TLN_ERR_OK);
 	return true;

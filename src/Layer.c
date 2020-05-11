@@ -221,7 +221,14 @@ bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Tileset tileset
 	while (item)
 	{
 		if (item->visible && item->has_gid)
+		{
 			item->bitmap = GetTilesetBitmap(tileset, item->gid);
+			if (item->bitmap)
+			{
+				item->width = item->bitmap->width;
+				item->height = item->bitmap->height;
+			}
+		}
 		item = item->next;
 	}
 

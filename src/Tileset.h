@@ -39,13 +39,13 @@ struct Tileset
 	int		hmask;			 /* horizontal bitmask */
 	int		vmask;			 /* vertical bitmask */
 	int		size_tiles;		 /* size of tiles collection section */
-	int		size_color;		 /* size of color key array */
 	TLN_Palette palette;	 /* palette */
 	TLN_SequencePack sp;	 /* associated sequences (if any) */
 	Animation* animations;	 /* active tile animations */
 	TLN_TileImage* images;	/* image tiles array */
 	TLN_TileAttributes* attributes;	/* attribute array */
-	bool*	color_key;		 /* array telling if each line has color key or is solid */
+	bool* color_key;		 /* array telling if each line has color key or is solid */
+	uint16_t* tiles;		/* tile indexes for animation */
 	uint8_t	data[];			 /* variable size data for images[], attributes[], color_key[] and pixels */
 };
 

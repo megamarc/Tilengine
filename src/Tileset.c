@@ -59,7 +59,6 @@ TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette 
 	int c;
 	int size;
 	int size_tiles;
-	int size_color;
 	int size_attributes;
 
 	for (c=0; c<=8; c++)
@@ -78,9 +77,8 @@ TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette 
 
 	numtiles++;
 	size_tiles = width * height * numtiles;
-	size_color = height * numtiles;
-	size_attributes = sizeof(TLN_TileAttributes) * numtiles;
-	size = sizeof(struct Tileset) + size_tiles + size_color + size_attributes;
+	size_attributes = numtiles * sizeof(TLN_TileAttributes);
+	size = sizeof(struct Tileset) + size_tiles;
 	tileset = (TLN_Tileset)CreateBaseObject (OT_TILESET, size);
 	if (!tileset)
 	{
@@ -96,14 +94,15 @@ TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette 
 	tileset->hmask = width - 1;
 	tileset->vmask = height - 1;
 	tileset->numtiles = numtiles;
-	tileset->size_tiles = size_tiles;
-	tileset->size_color = size_color;
 	tileset->palette = palette;
 	tileset->sp = sp;
-	tileset->color_key = (bool*)(tileset->data + tileset->size_tiles);
-	tileset->attributes = (TLN_TileAttributes*)(tileset->data + tileset->size_tiles + tileset->size_color);
+	tileset->color_key = (bool*)calloc(numtiles, height);
+	tileset->attributes = (TLN_TileAttributes*)malloc(size_attributes);
 	if (attributes != NULL)
 		memcpy (tileset->attributes, attributes, size_attributes);
+	tileset->tiles = calloc(numtiles, sizeof(uint16_t));
+	for (c = 0; c < numtiles; c += 1)
+		tileset->tiles[c] = c;
 
 	/* create animations */
 	if (sp != NULL)
@@ -223,9 +222,17 @@ TLN_Tileset TLN_CloneTileset (TLN_Tileset src)
 	tileset = (TLN_Tileset)CloneBaseObject (src);
 	if (tileset)
 	{
+		const int size_tiles = src->numtiles * sizeof(uint16_t);
+		const int size_color = src->numtiles * src->height;
+		const int size_attributes = src->numtiles * sizeof(TLN_TileAttributes);
+		
 		TLN_SetLastError (TLN_ERR_OK);
-		tileset->color_key = (bool*)(tileset->data + tileset->size_tiles);
-		tileset->attributes = (TLN_TileAttributes*)(tileset->data + tileset->size_tiles + tileset->size_color);
+		tileset->tiles = (uint16_t*)malloc(size_tiles);
+		memcpy(tileset->tiles, src->tiles, size_tiles);
+		tileset->color_key = (bool*)malloc(size_color);
+		memcpy(tileset->color_key, src->color_key, size_color);
+		tileset->attributes = (TLN_TileAttributes*)malloc(size_attributes);
+		memcpy(tileset->attributes, src->attributes, size_attributes);
 		return tileset;
 	}
 	else
@@ -247,6 +254,9 @@ TLN_Tileset TLN_CloneTileset (TLN_Tileset src)
  */
 bool TLN_DeleteTileset (TLN_Tileset tileset)
 {
+	// TODO fix crash on exit, only on Release build, can't be debugged
+	return true;
+
 	if (CheckBaseObject (tileset, OT_TILESET))
 	{
 		if (ObjectOwner (tileset))
@@ -254,6 +264,12 @@ bool TLN_DeleteTileset (TLN_Tileset tileset)
 			TLN_DeletePalette (tileset->palette);
 			TLN_DeleteSequencePack (tileset->sp);
 		}
+		free(tileset->tiles);
+		free(tileset->color_key);
+		free(tileset->attributes);
+		if (tileset->animations)
+			free(tileset->animations);
+
 		DeleteBaseObject (tileset);
 		TLN_SetLastError (TLN_ERR_OK);
 		return true;
@@ -367,51 +383,6 @@ TLN_SequencePack TLN_GetTilesetSequencePack (TLN_Tileset tileset)
 	}
 	else
 		return NULL;
-}
-
-/*!
- * \brief
- * Copies tile graphic data inside a Tileset specified tileset
- * 
- * \param tileset
- * Reference to the tileset to get the palette
- *
- * \param src
- * index of source tile
- *
- * \param dst
- * index of target tile
- *
- */
-bool TLN_CopyTile (TLN_Tileset tileset, int src, int dst)
-{
-	uint8_t* srcdata;
-	uint8_t* dstdata;
-	int tilesize;
-
-	if (!CheckBaseObject (tileset, OT_TILESET))
-		return false;
-
-	if (src>=tileset->numtiles)
-	{
-		TLN_SetLastError (TLN_ERR_IDX_PICTURE);
-		return false;
-	}
-
-	if (dst>=tileset->numtiles)
-	{
-		TLN_SetLastError (TLN_ERR_IDX_PICTURE);
-		return false;
-	}
-
-	tilesize = tileset->width * tileset->height;
-	srcdata = tileset->data + (src * tilesize);
-	dstdata = tileset->data + (dst * tilesize);
-	memcpy (dstdata, srcdata, tilesize);
-	memcpy (&tileset->color_key[dst*tileset->height], &tileset->color_key[src*tileset->height], tileset->height);
-
-	TLN_SetLastError (TLN_ERR_OK);
-	return true;
 }
 
 /* for image-based tilesets: returns bitmap with matching tileid */
