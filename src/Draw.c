@@ -51,8 +51,8 @@ bool TLN_DrawNextScanline(void)
 	List* list;
 
 	/* call raster effect callback */
-	if (engine->raster)
-		engine->raster(line);
+	if (engine->cb_raster)
+		engine->cb_raster(line);
 
 	/* background is bitmap */
 	if (engine->bgbitmap && engine->bgpalette)

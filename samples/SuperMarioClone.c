@@ -16,8 +16,7 @@ int main (int argc, char* argv[])
 {
 	TLN_Sequence seq_walking;
 	TLN_Spriteset spriteset;
-	TLN_Tilemap tilemaps[MAX_LAYER];
-	int frame = 0;
+	TLN_Tilemap foreground, background;
 	int player_x = -16;
 	int player_y = 160;
 
@@ -27,10 +26,10 @@ int main (int argc, char* argv[])
 
 	/* load resources */
 	TLN_SetLoadPath ("assets/smw");
-	tilemaps[LAYER_FOREGROUND] = TLN_LoadTilemap ("smw_foreground.tmx", NULL);
-	tilemaps[LAYER_BACKGROUND] = TLN_LoadTilemap ("smw_background.tmx", NULL);
-	TLN_SetLayer (LAYER_FOREGROUND, NULL, tilemaps[LAYER_FOREGROUND]);
-	TLN_SetLayer (LAYER_BACKGROUND, NULL, tilemaps[LAYER_BACKGROUND]);
+	foreground = TLN_LoadTilemap ("smw_foreground.tmx", NULL);
+	background = TLN_LoadTilemap ("smw_background.tmx", NULL);
+	TLN_SetLayerTilemap (LAYER_FOREGROUND, foreground);
+	TLN_SetLayerTilemap (LAYER_BACKGROUND, background);
 	TLN_SetLayerPosition (LAYER_FOREGROUND, 0,48);
 	TLN_SetLayerPosition (LAYER_BACKGROUND, 0,80);
 
@@ -52,12 +51,12 @@ int main (int argc, char* argv[])
 		if (player_x >= WIDTH)
 			player_x = -16;
 		TLN_SetSpritePosition (0, player_x, player_y);
-		TLN_DrawFrame (frame++);
+		TLN_DrawFrame (0);
 	}
 
 	/* deinit */
-	TLN_DeleteTilemap (tilemaps[LAYER_FOREGROUND]);
-	TLN_DeleteTilemap (tilemaps[LAYER_BACKGROUND]);
+	TLN_DeleteTilemap (foreground);
+	TLN_DeleteTilemap (background);
 	TLN_Deinit ();
 
 	return 0;

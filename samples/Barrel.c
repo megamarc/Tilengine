@@ -41,8 +41,6 @@ enum
 
 TLN_Palette palette;
 TLN_Palette palettes[MAX_PALETTE];
-unsigned int frame;
-unsigned int time;
 TLN_Affine transform;
 int xpos, ypos;
 
@@ -63,8 +61,8 @@ int main (int argc, char *argv[])
 	TLN_SetLoadPath ("assets/sc4");
 	tilemaps[LAYER_FOREGROUND] = TLN_LoadTilemap ("castle_fg.tmx", NULL);
 	tilemaps[LAYER_BACKGROUND] = TLN_LoadTilemap ("castle_bg.tmx", NULL);
-	TLN_SetLayer (LAYER_FOREGROUND, NULL, tilemaps[LAYER_FOREGROUND]);
-	TLN_SetLayer (LAYER_BACKGROUND, NULL, tilemaps[LAYER_BACKGROUND]);
+	TLN_SetLayerTilemap (LAYER_FOREGROUND, tilemaps[LAYER_FOREGROUND]);
+	TLN_SetLayerTilemap (LAYER_BACKGROUND, tilemaps[LAYER_BACKGROUND]);
 
 	/* tweak palettes */
 	palette = TLN_GetLayerPalette (LAYER_BACKGROUND);
@@ -85,8 +83,6 @@ int main (int argc, char *argv[])
 	TLN_CreateWindow (NULL, 0);
 	while (TLN_ProcessWindow ())
 	{
-		/* timekeeper */
-		time = frame;
 		ypos++;
 		SimonTasks ();
 
@@ -98,9 +94,7 @@ int main (int argc, char *argv[])
 		TLN_SetLayerPosition (LAYER_FOREGROUND, xpos, 0);
 
 		/* render to window */
-		TLN_DrawFrame (time);
-
-		frame++;
+		TLN_DrawFrame (0);
 	}
 
 	/* deinit */

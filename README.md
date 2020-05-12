@@ -14,12 +14,14 @@ http://www.tilengine.org
 - [Getting binaries](#getting-binaries)
   - [Download from itch.io](#download-from-itchio)
   - [Build from source](#build-from-source)
+    - [Windows](#windows)
+    - [Debian-based linux](#debian-based-linux)
 - [Running the samples](#running-the-samples)
-  - [Windows](#windows)
+  - [Windows](#windows-1)
   - [Unix-like](#unix-like)
 - [The tilengine window](#the-tilengine-window)
 - [Creating your first program](#creating-your-first-program)
-  - [Windows](#windows-1)
+  - [Windows](#windows-2)
   - [Linux](#linux)
   - [Apple OS X](#apple-os-x)
 - [Documentation](#documentation)
@@ -100,13 +102,12 @@ The following actions can be done in the created window:
 # Creating your first program
 The following section shows how to create from scratch and execute a simple tilengine application that does the following:
 1. Reference the inclusion of Tilengine module
-2. Initialize the engine with a resolution of 400x240, one layer, no sprites and 20 animation slots
-3. Set the loading path to the assets folder
-4. Load a *tilemap*, the asset that contains background layer data
-5. Attach the loaded tilemap to the allocated background layer
-6. Create a display window with default parameters: windowed, auto scale and CRT effect enabled
-7. Run the window loop, updating the display at each iteration until the window is closed
-8. Release allocated resources
+2. Initialize the engine with a resolution of 400x240, one layer, no sprites and no palette animations
+3. Load a *tilemap*, the asset that contains background layer data
+4. Attach the loaded tilemap to the allocated background layer
+5. Create a display window with default parameters: windowed, auto scale and CRT effect enabled
+6. Run the window loop, updating the display at each iteration until the window is closed
+7. Release allocated resources
 
 ![Test](test.png)
 
@@ -116,19 +117,18 @@ Create a file called `test.c` in `Tilengine/samples` folder, and type the follow
 
 void main(void) {
     TLN_Tilemap foreground;
-    int frame = 0;
 
-    TLN_Init (400,240,1,0,20);
+    TLN_Init (400, 240, 1, 0, 0);
     TLN_SetLoadPath ("assets/sonic");
-    foreground = TLN_LoadTilemap ("Sonic_md_fg1.tmx", NULL);
-    TLN_SetLayer (0, NULL, foreground);
+    foreground = TLN_LoadTilemap ("assets/sonic/Sonic_md_fg1.tmx", NULL);
+    TLN_SetLayerTilemap (0, foreground);
 
     TLN_CreateWindow (NULL, 0);
     while (TLN_ProcessWindow()) {
-        TLN_DrawFrame (frame);
-        frame += 1;
+        TLN_DrawFrame (0);
     }
 
+    TLN_DeleteTilemap (foreground);
     TLN_Deinit ();
 }
 ```

@@ -67,7 +67,7 @@ int main (int argc, char* argv[])
 	/* load resources*/
 	TLN_SetLoadPath ("assets/racer");
 	tilemap = TLN_LoadTilemap ("racer.tmx", NULL);
-	TLN_SetLayer (LAYER_PLAYFIELD, NULL, tilemap);
+	TLN_SetLayerTilemap (LAYER_PLAYFIELD, tilemap);
 	palettes[0] = TLN_GetLayerPalette (LAYER_PLAYFIELD);
 	palettes[1] = TLN_LoadPalette ("racer.act");
 	spritesets[SPRITESET_TREES] = TLN_LoadSpriteset ("trees");

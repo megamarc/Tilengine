@@ -49,8 +49,6 @@ enum
 float pos_foreground = {0};
 float pos_background[6] = {0};
 float inc_background[6] = {0};
-unsigned int frame;
-unsigned int time;
 float speed;
 int ypos;
 
@@ -60,7 +58,8 @@ static void raster_callback (int line);
 int main (int argc, char *argv[])
 {
 	int c;
-	TLN_Tilemap tilemaps[MAX_LAYER];
+	TLN_Tilemap foreground;
+	TLN_Tilemap background;
 	TLN_SequencePack sp;
 	TLN_Sequence sequence;
 	TLN_Palette palette;
@@ -72,10 +71,10 @@ int main (int argc, char *argv[])
 
 	/* load resources*/
 	TLN_SetLoadPath ("assets/sonic");
-	tilemaps[LAYER_FOREGROUND] = TLN_LoadTilemap ("Sonic_md_fg1.tmx", NULL);
-	tilemaps[LAYER_BACKGROUND] = TLN_LoadTilemap ("Sonic_md_bg1.tmx", NULL);
-	TLN_SetLayer (LAYER_FOREGROUND, NULL, tilemaps[LAYER_FOREGROUND]);
-	TLN_SetLayer (LAYER_BACKGROUND, NULL, tilemaps[LAYER_BACKGROUND]);
+	foreground = TLN_LoadTilemap ("Sonic_md_fg1.tmx", NULL);
+	background = TLN_LoadTilemap ("Sonic_md_bg1.tmx", NULL);
+	TLN_SetLayerTilemap (LAYER_FOREGROUND, foreground);
+	TLN_SetLayerTilemap (LAYER_BACKGROUND, background);
 	sp = TLN_LoadSequencePack ("Sonic_md_seq.sqx");
 	sequence = TLN_FindSequence (sp, "seq_water");
 
@@ -97,9 +96,6 @@ int main (int argc, char *argv[])
 	/* main loop */
 	while (TLN_ProcessWindow ())
 	{
-		/* timekeeper */
-		time = frame;
-
 		if (TLN_GetInput (INPUT_RIGHT))
 		{
 			speed += 0.02f;
@@ -133,14 +129,12 @@ int main (int argc, char *argv[])
 			pos_background[c] += (inc_background[c] * speed);
 
 		/* render to window */
-		TLN_DrawFrame (time);
-
-		frame++;
+		TLN_DrawFrame (0);
 	}
 
 	/* deinit */
-	TLN_DeleteTilemap (tilemaps[LAYER_FOREGROUND]);
-	TLN_DeleteTilemap (tilemaps[LAYER_BACKGROUND]);
+	TLN_DeleteTilemap (foreground);
+	TLN_DeleteTilemap (background);
 	TLN_DeleteSequencePack (sp);
 	TLN_Deinit ();
 

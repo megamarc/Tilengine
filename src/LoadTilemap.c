@@ -216,7 +216,19 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 				gid = tile->index;
 		}
 		tmxtileset = TMXGetSuitableTileset(&tmxinfo, gid);
-		tileset = TLN_LoadTileset(tmxtileset->source);
+		if (tmxtileset != NULL)
+		{
+			FileInfo fi = { 0 };
+			char tsxpath[200];
+
+			/* composite tsx filename with relative path of parent tmx */
+			SplitFilename(filename, &fi);
+			if (fi.path[0] != 0)
+				snprintf(tsxpath, sizeof(tsxpath), "%s/%s", fi.path, tmxtileset->source);
+			else
+				strncpy(tsxpath, tmxtileset->source, sizeof(tsxpath));
+			tileset = TLN_LoadTileset(tsxpath);
+		}
 
 		/* correct with firstgid */
 		tile = (Tile*)loader.data;

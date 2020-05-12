@@ -302,8 +302,17 @@ TLN_Tileset TLN_LoadTileset (const char* filename)
 		int x, y, dx, dy;
 		int id;
 		int pitch;
+		FileInfo fi = { 0 };
+		char imagepath[200];
 
-		bitmap = TLN_LoadBitmap(loader.source);
+		/* composite bitmap filename with relative path of parent tsx */
+		SplitFilename(filename, &fi);
+		if (fi.path[0] != 0)
+			snprintf(imagepath, sizeof(imagepath), "%s/%s", fi.path, loader.source);
+		else
+			strncpy(imagepath, loader.source, sizeof(imagepath));
+
+		bitmap = TLN_LoadBitmap(imagepath);
 		if (!bitmap)
 		{
 			TLN_SetLastError(TLN_ERR_FILE_NOT_FOUND);

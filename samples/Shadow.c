@@ -27,7 +27,8 @@ RGB sky_lo;
 
 static int frame;
 static int xpos;
-static int speed = 2;
+static const int speed = 2;
+static const int max_xpos = 4720;
 
 /* layers */
 enum
@@ -42,9 +43,8 @@ static void raster_callback (int line);
 /* entry point */
 int main (int argc, char* argv[])
 {
-	TLN_Tilemap tilemaps[MAX_LAYER];
+	TLN_Tilemap foreground, background;
 	TLN_Spriteset spriteset;
-	TLN_SequencePack sp;
 	TLN_Sequence walk;
 
 	/* setup engine */
@@ -54,16 +54,15 @@ int main (int argc, char* argv[])
 
 	/* load resources */
 	TLN_SetLoadPath ("assets/sotb");
-	tilemaps[LAYER_FOREGROUND] = TLN_LoadTilemap ("SOTB_fg.tmx", NULL);
-	tilemaps[LAYER_BACKGROUND] = TLN_LoadTilemap ("SOTB_bg.tmx", NULL);
-	TLN_SetLayer (LAYER_FOREGROUND, NULL, tilemaps[LAYER_FOREGROUND]);
-	TLN_SetLayer (LAYER_BACKGROUND, NULL, tilemaps[LAYER_BACKGROUND]);
+	foreground = TLN_LoadTilemap ("SOTB_fg.tmx", NULL);
+	background = TLN_LoadTilemap ("SOTB_bg.tmx", NULL);
+	TLN_SetLayerTilemap (LAYER_FOREGROUND, foreground);
+	TLN_SetLayerTilemap (LAYER_BACKGROUND, background);
 
 	spriteset = TLN_LoadSpriteset ("SOTB");
-	sp = TLN_LoadSequencePack ("SOTB.sqx");
-	walk = TLN_FindSequence (sp, "walk");
+	walk = TLN_CreateSpriteSequence (NULL, spriteset, "walk", 6);
 
-	TLN_ConfigSprite (0, spriteset, 0);
+	TLN_SetSpriteSet (0, spriteset);
 	TLN_SetSpritePosition (0, 200,160);
 	TLN_SetSpriteAnimation (0, walk, 0);
 	
@@ -80,12 +79,16 @@ int main (int argc, char* argv[])
 	TLN_CreateWindow (NULL, 0);
 	while (TLN_ProcessWindow ())
 	{
-		/* input */
-		if (TLN_GetInput (INPUT_LEFT) && xpos > 0)
-			xpos -= speed;
-		else if (TLN_GetInput (INPUT_RIGHT) && xpos < 4720)
+		if (xpos < max_xpos)
+		{
 			xpos += speed;
-
+			if (xpos >= max_xpos)
+			{
+				TLN_DisableSpriteAnimation (0);
+				TLN_SetSpritePicture (0, 0);
+			}
+		}
+			
 		/* sky gradient */
 		if (frame>=300 && frame<=900)
 		{
@@ -108,8 +111,9 @@ int main (int argc, char* argv[])
 	}
 
 	/* release resources */
-	TLN_DeleteTilemap (tilemaps[LAYER_FOREGROUND]);
-	TLN_DeleteTilemap (tilemaps[LAYER_BACKGROUND]);
+	TLN_DeleteSequence(walk);
+	TLN_DeleteTilemap (foreground);
+	TLN_DeleteTilemap (background);
 	TLN_Deinit ();
 
 	return 0;

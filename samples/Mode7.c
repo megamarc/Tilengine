@@ -42,14 +42,10 @@ enum
 int pos_foreground = {0};
 int pos_background[6] = {0};
 int inc_background[6] = {0};
-TLN_Tileset tilesets[MAX_MAP];
-TLN_Tilemap tilemaps[MAX_MAP];
-unsigned int frame;
-unsigned int time;
 
 fix_t x,y,s,a;
 
-static TLN_Affine affine;
+static TLN_Tileset road, horizon;
 static int angle;
 
 static void raster_callback (int line);
@@ -64,10 +60,8 @@ int main (int argc, char* argv[])
 
 	/* load resources*/
 	TLN_SetLoadPath ("assets/smk");
-	tilesets[MAP_HORIZON] = TLN_LoadTileset ("track1_bg.tsx");
-	tilemaps[MAP_HORIZON] = TLN_LoadTilemap ("track1_bg.tmx", NULL);
-	tilesets[MAP_TRACK  ] = TLN_LoadTileset ("track1.tsx");
-	tilemaps[MAP_TRACK  ] = TLN_LoadTilemap ("track1.tmx", NULL);
+	road = TLN_LoadTilemap ("track1.tmx", NULL);
+	horizon = TLN_LoadTilemap ("track1_bg.tmx", NULL);
 
 	/* startup display */
 	TLN_CreateWindow (NULL, 0);
@@ -79,23 +73,14 @@ int main (int argc, char* argv[])
 	angle = 0;
 	BuildSinTable ();
 
-	affine.dx = WIDTH/2;
-	affine.dy = HEIGHT;
-	affine.sx = 1.0f;
-	affine.sy = 1.0f;
-	affine.angle = (float)angle;
-
 	/* main loop */
 	while (TLN_ProcessWindow ())
 	{
-		/* timekeeper */
-		time = frame;
-
-		TLN_SetLayer (LAYER_FOREGROUND, tilesets[MAP_HORIZON], tilemaps[MAP_HORIZON]);
-		TLN_SetLayer (LAYER_BACKGROUND, tilesets[MAP_HORIZON], tilemaps[MAP_HORIZON]);
+		TLN_SetLayerTilemap (LAYER_FOREGROUND, horizon);
+		TLN_SetLayerTilemap (LAYER_BACKGROUND, horizon);
 		TLN_SetLayerPosition (LAYER_FOREGROUND, lerp(angle*2, 0,360, 0,256), 24);
 		TLN_SetLayerPosition (LAYER_BACKGROUND, lerp(angle, 0,360, 0,256), 0);
-		TLN_SetLayerAffineTransform (LAYER_BACKGROUND, NULL);
+		TLN_ResetLayerMode (LAYER_BACKGROUND);
 
 		/* input */		
 		if (TLN_GetInput (INPUT_LEFT))
@@ -129,18 +114,13 @@ int main (int argc, char* argv[])
 			y -= CalcCos (angle, s);
 		}
 
-		affine.angle = (float)angle;
-
 		/* render to window */
-		TLN_DrawFrame (time);
-		frame++;
+		TLN_DrawFrame (0);
 	}
 
 	/* deinit */
-	TLN_DeleteTileset (tilesets[MAP_HORIZON]);
-	TLN_DeleteTilemap (tilemaps[MAP_HORIZON]);
-	TLN_DeleteTileset (tilesets[MAP_TRACK  ]);
-	TLN_DeleteTilemap (tilemaps[MAP_TRACK  ]);
+	TLN_DeleteTilemap (road);
+	TLN_DeleteTilemap (horizon);
 	TLN_DeleteWindow ();
 	TLN_Deinit ();
 	return 0;
@@ -151,7 +131,7 @@ static void raster_callback (int line)
 {
 	if (line == 24)
 	{
-		TLN_SetLayer (LAYER_BACKGROUND, tilesets[MAP_TRACK], tilemaps[MAP_TRACK]);
+		TLN_SetLayerTilemap (LAYER_BACKGROUND, road);
 		TLN_SetLayerPosition (LAYER_BACKGROUND, fix2int(x), fix2int(y));
 		TLN_DisableLayer (LAYER_FOREGROUND);
 	}
@@ -162,9 +142,6 @@ static void raster_callback (int line)
 		fix_t s1 = float2fix (5.0f);
 		fix_t s = lerp (line, 24,HEIGHT, s0,s1);
 		float scale = fix2float (s);
-
-		affine.sx = scale;
-		affine.sy = scale;		
-		TLN_SetLayerAffineTransform (LAYER_BACKGROUND, &affine);
+		TLN_SetLayerTransform (LAYER_BACKGROUND, (float)angle, WIDTH/2, HEIGHT, scale, scale);
 	}
 }

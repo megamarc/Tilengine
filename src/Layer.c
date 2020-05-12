@@ -21,6 +21,7 @@
 static void SelectBlitter (Layer* layer);
 
 /*!
+ * \deprecated Use TLN_SetLayerTilemap instead
  * \brief
  * Configures a background layer with the specified tileset and tilemap
  * 
@@ -119,6 +120,18 @@ bool TLN_SetLayer(int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap)
 }
 
 /*!
+ * \brief Configures a tiled background layer with the specified tilemap
+ * \param nlayer Layer index [0, num_layers - 1]
+ * \param tilemap Reference to the tilemap to assign
+ * \returns true if success or false if error
+ * \see TLN_LoadTilemap()
+ */
+bool TLN_SetLayerTilemap(int nlayer, TLN_Tilemap tilemap)
+{
+	return TLN_SetLayer(nlayer, NULL, tilemap);
+}
+
+/*!
 * \brief
 * Configures a background layer with the specified full bitmap
 *
@@ -133,7 +146,7 @@ bool TLN_SetLayer(int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap)
 * but assigns the palette of the specified bitmap
 *
 * \see
-* TLN_DisableLayer()
+* TLN_LoadBitmap() TLN_DisableLayer()
 */
 bool TLN_SetLayerBitmap(int nlayer, TLN_Bitmap bitmap)
 {
@@ -181,6 +194,7 @@ bool TLN_SetLayerBitmap(int nlayer, TLN_Bitmap bitmap)
  * \param nlayer Layer index [0, num_layers - 1]
  * \param objects Reference to the TLN_ObjectList to attach
  * \param tileset optional reference to the image-based tileset object. If NULL, object list must have an attached tileset
+ * \see TLN_LoadObjectList()
  */
 bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Tileset tileset)
 {

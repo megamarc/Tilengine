@@ -15,7 +15,6 @@ int main (int argc, char* argv[])
 	TLN_Init(WIDTH, HEIGHT, 1, 1, 1);
 	TLN_SetBGColor (0,128,238);
 	TLN_SetRenderTarget(framebuffer, WIDTH * 4);
-	TLN_SetLoadPath("assets/sonic");
 	TLN_SetLogLevel(TLN_LOG_VERBOSE);
 	printf("Tilengine version %06X\n", TLN_GetVersion());
 	
@@ -25,7 +24,7 @@ int main (int argc, char* argv[])
 	{
 		TLN_SetLayer(0, NULL, tilemap);
 		if (tilemap == NULL)
-			tilemap = TLN_LoadTilemap("Sonic_md_bg1.tmx", NULL);
+			tilemap = TLN_LoadTilemap("assets/sonic/Sonic_md_bg1.tmx", NULL);
 	}
 	TLN_SetLayerPosition(1, 0, 0);
 	TLN_SetLayerPosition(0, 0, 0);

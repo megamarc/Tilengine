@@ -60,7 +60,7 @@
 /* version */
 #define TILENGINE_VER_MAJ	2
 #define TILENGINE_VER_MIN	8
-#define TILENGINE_VER_REV	3
+#define TILENGINE_VER_REV	4
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -543,6 +543,7 @@ TLNAPI bool TLN_DeleteObjectList(TLN_ObjectList list);
  * \brief Background layers management
 * @{ */
 TLNAPI bool TLN_SetLayer (int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap);
+TLNAPI bool TLN_SetLayerTilemap(int nlayer, TLN_Tilemap tilemap);
 TLNAPI bool TLN_SetLayerBitmap(int nlayer, TLN_Bitmap bitmap);
 TLNAPI bool TLN_SetLayerPalette (int nlayer, TLN_Palette palette);
 TLNAPI bool TLN_SetLayerPosition (int nlayer, int hstart, int vstart);

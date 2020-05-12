@@ -33,7 +33,6 @@ enum
 
 int main(int argc, char* argv[])
 {
-	int frame = 0;
 	TLN_Tilemap foreground;
 	TLN_Bitmap middleground, background;
 	TLN_ObjectList props_list;
@@ -115,8 +114,7 @@ int main(int argc, char* argv[])
 	TLN_CreateWindow(NULL, 0);
 	while (TLN_ProcessWindow())
 	{
-		TLN_DrawFrame(frame);
-		frame += 1;
+		TLN_DrawFrame(0);
 
 		/* move 3 pixels right/left main layer */
 		if (TLN_GetInput(INPUT_LEFT) && xworld > 0)

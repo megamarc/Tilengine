@@ -39,7 +39,7 @@ static void raster_callback (int line);
 /* entry point */
 int main (int argc, char *argv[])
 {
-	TLN_Tilemap tilemaps[MAX_LAYER];
+	TLN_Tilemap foreground, background;
 	int c;
 
 	/* setup engine */
@@ -49,10 +49,10 @@ int main (int argc, char *argv[])
 
 	/* load resources*/
 	TLN_SetLoadPath ("assets/tf3");
-	tilemaps[LAYER_FOREGROUND] = TLN_LoadTilemap ("tf3_bg2.tmx", NULL);
-	tilemaps[LAYER_BACKGROUND] = TLN_LoadTilemap ("tf3_bg3.tmx", NULL);
-	TLN_SetLayer (LAYER_FOREGROUND, NULL, tilemaps[LAYER_FOREGROUND]);
-	TLN_SetLayer (LAYER_BACKGROUND, NULL, tilemaps[LAYER_BACKGROUND]);
+	foreground = TLN_LoadTilemap ("tf3_bg2.tmx", NULL);
+	background = TLN_LoadTilemap ("tf3_bg3.tmx", NULL);
+	TLN_SetLayerTilemap (LAYER_FOREGROUND, foreground);
+	TLN_SetLayerTilemap (LAYER_BACKGROUND, background);
 
 	BuildSinTable ();
 	TLN_SetLayerColumnOffset (LAYER_BACKGROUND, column);
@@ -75,8 +75,8 @@ int main (int argc, char *argv[])
 	}
 
 	/* deinit */
-	TLN_DeleteTilemap (tilemaps[LAYER_FOREGROUND]);
-	TLN_DeleteTilemap (tilemaps[LAYER_BACKGROUND]);
+	TLN_DeleteTilemap (foreground);
+	TLN_DeleteTilemap (background);
 	TLN_Deinit ();
 
 	return 0;

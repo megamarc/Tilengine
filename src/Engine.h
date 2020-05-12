@@ -41,8 +41,9 @@ typedef struct Engine
 	TLN_Palette	bgpalette;		/* background bitmap palette */
 	ScanBlitPtr	blit_fast;		/* blitter for background bitmap */
 	uint8_t*	blend_table;	/* current blending table */
-	void		(*raster)(int);	/* raster callback */
-	void		(*frame)(int);	/* frame callback */
+	void		(*cb_raster)(int);	/* raster callback */
+	void		(*cb_frame)(int);	/* frame callback */
+	int	frame;					/* current frame number */
 	int line;					/* current scanline */
 
 	List list_sprites;			/* linked list active of sprites */

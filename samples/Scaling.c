@@ -40,7 +40,7 @@ static void raster_callback (int line);
 /* entry point */
 int main (int argc, char* argv[])
 {
-	TLN_Tilemap tilemaps[MAX_LAYER];
+	TLN_Tilemap foreground, background;
 
 	/* setup engine */
 	TLN_Init (WIDTH, HEIGHT, MAX_LAYER,0,0);
@@ -49,10 +49,10 @@ int main (int argc, char* argv[])
 
 	/* load resources */
 	TLN_SetLoadPath ("assets/fox");
-	tilemaps[LAYER_FOREGROUND] = TLN_LoadTilemap ("psycho.tmx", NULL);
-	tilemaps[LAYER_BACKGROUND] = TLN_LoadTilemap ("rolo.tmx", NULL);
-	TLN_SetLayer (LAYER_FOREGROUND, NULL, tilemaps[LAYER_FOREGROUND]);
-	TLN_SetLayer (LAYER_BACKGROUND, NULL, tilemaps[LAYER_BACKGROUND]);
+	foreground = TLN_LoadTilemap ("psycho.tmx", NULL);
+	background = TLN_LoadTilemap ("rolo.tmx", NULL);
+	TLN_SetLayerTilemap (LAYER_FOREGROUND, foreground);
+	TLN_SetLayerTilemap (LAYER_BACKGROUND, background);
 	
 	/* initial values */
 	xpos = 0;
@@ -103,8 +103,8 @@ int main (int argc, char* argv[])
 	}
 
 	/* release resources */
-	TLN_DeleteTilemap (tilemaps[LAYER_FOREGROUND]);
-	TLN_DeleteTilemap (tilemaps[LAYER_BACKGROUND]);
+	TLN_DeleteTilemap (foreground);
+	TLN_DeleteTilemap (background);
 	TLN_Deinit ();
 
 	return 0;

@@ -345,7 +345,6 @@ void TLN_SetWindowTitle (const char* title)
 
 static int WindowThread (void* data)
 {
-	int time = 0;
 	bool ok;
 
 	ok = CreateWindow ();
@@ -361,7 +360,7 @@ static int WindowThread (void* data)
 	while (TLN_IsWindowActive())
 	{
 		SDL_LockMutex (lock);
-		TLN_DrawFrame (time++);
+		TLN_DrawFrame (0);
 		SDL_CondSignal (cond);
 		SDL_UnlockMutex (lock);
 		TLN_ProcessWindow ();
@@ -999,15 +998,15 @@ int TLN_GetLastInput (void)
 
 /*!
  * \brief Begins active rendering frame in built-in window
- * \param time Timestamp (same value as in TLN_UpdateFrame())
+ * \param frame Frame number. Set to 0 to autoincrement from previous value
  * \remarks Use this function instead of TLN_BeginFrame() when using the built-in window
  * \see TLN_CreateWindow(), TLN_EndWindowFrame(), TLN_DrawNextScanline()
  */
-void TLN_BeginWindowFrame (int time)
+void TLN_BeginWindowFrame (int frame)
 {
 	SDL_LockTexture (backbuffer, NULL, (void**)&rt_pixels, &rt_pitch);
 	TLN_SetRenderTarget (rt_pixels, rt_pitch);
-	TLN_BeginFrame (time);
+	TLN_BeginFrame (frame);
 }
 
 /*!
@@ -1059,8 +1058,8 @@ void TLN_EndWindowFrame (void)
  * \brief
  * Draws a frame to the window
  * 
- * \param time
- * Timestamp (same value as in TLN_UpdateFrame())
+ * \param frame 
+ * Frame number. Set to 0 to autoincrement from previous value
  * 
  * Draws a frame to the window
  * 
@@ -1072,9 +1071,9 @@ void TLN_EndWindowFrame (void)
  * \see
  * TLN_CreateWindow(), TLN_UpdateFrame()
  */
-void TLN_DrawFrame (int time)
+void TLN_DrawFrame (int frame)
 {
-	TLN_BeginWindowFrame (time);
+	TLN_BeginWindowFrame (frame);
 	while (TLN_DrawNextScanline ()){}
 	TLN_EndWindowFrame ();
 }

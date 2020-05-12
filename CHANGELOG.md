@@ -1,5 +1,16 @@
 # Tilengine changelog
 
+## [2.8.4] - 12/5/2020
+- Deprecates old TLN_SetLayer that required passing a NULL tileset, and replaces with new TLN_SetLayerTilemap that just requires the tilemap
+- TLN_SetLoadPath() not needed anymore: chain loading of resources being loaded from subdirectories (.tsx -> .tmx -> png)
+- TLN_DrawFrame(): frame parameter can be always 0, in that case it auto-increments internally. Application doesn't need to keep track of frames just to make the animation engine work. 
+- Updates many samples to use current features, making them easier to follow
+
+## [2.8.3] - 11/5/2020
+- Changes tileset animation method: discards internal bitmap copy and backup of pixel data, and replaces by an intermediate LUT of indexes
+- Removes TLN_CopyTile(), not needed anymore
+- Tilemaps created procedurally are visible by default
+
 ## [2.8.2] - 9/5/2020
 - Fixes bug where tileset animations weren't correctly played on layer index other than 0
 - Enhanced TMX compatibility: 

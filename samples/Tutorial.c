@@ -13,8 +13,7 @@ int main (int argc, char* argv[])
 	TLN_Init (WIDTH, HEIGHT, 1,0,0);
 
 	/* load layer */
-	TLN_SetLoadPath ("assets/sonic");
-	tilemap = TLN_LoadTilemap ("Sonic_md_fg1.tmx", NULL);
+	tilemap = TLN_LoadTilemap ("assets/sonic/Sonic_md_fg1.tmx", NULL);
 	
 	/* setup the layer */
 	TLN_SetLayer (0, NULL, tilemap);
@@ -28,7 +27,7 @@ int main (int argc, char* argv[])
 		TLN_SetLayerPosition (0, frame, 0);
 		
 		/* render to the window */
-		TLN_DrawFrame (frame);
+		TLN_DrawFrame (0);
 		frame++;
 	}
 

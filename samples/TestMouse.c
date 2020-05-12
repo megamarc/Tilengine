@@ -98,8 +98,7 @@ int main(int argc, char* argv[])
 	int frame = 0;
 
 	TLN_Init(WIDTH, HEIGHT, 0, MAX_ENTITIES, 0);
-	TLN_SetLoadPath("assets/smw");
-	spriteset = TLN_LoadSpriteset("smw_sprite");
+	spriteset = TLN_LoadSpriteset("assets/smw/smw_sprite.png");
 	palette_sprite = TLN_GetSpritesetPalette(spriteset);
 	palette_select = TLN_ClonePalette(palette_sprite);
 	TLN_AddPaletteColor(palette_select, 64, 64, 64, 1, 32);

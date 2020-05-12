@@ -39,7 +39,7 @@ int main (int argc, char* argv[])
 	spriteset = TLN_LoadSpriteset ("FireLeo");
 
 	/* setup layer */
-	ok = TLN_SetLayer (0, NULL, tilemap);
+	ok = TLN_SetLayerTilemap (0, tilemap);
 	pixels = HRES*VRES;
 
 	printf ("Normal layer..........");

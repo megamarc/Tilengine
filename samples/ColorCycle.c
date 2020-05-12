@@ -8,7 +8,6 @@ int main (int argc, char* argv[])
 	TLN_SequencePack sp;
 	TLN_Sequence sequence;
 	TLN_Palette palette;
-	int frame = 0;
 
 	/* engine init */
 	TLN_Init (640,480,0,0,1);
@@ -27,7 +26,7 @@ int main (int argc, char* argv[])
 	/* main loop */
 	TLN_CreateWindow (NULL, 0);
 	while (TLN_ProcessWindow ())
-		TLN_DrawFrame (frame++);
+		TLN_DrawFrame (0);
 
 	TLN_DeleteBitmap (background);
 	TLN_DeleteSequencePack (sp);
