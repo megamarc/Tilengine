@@ -386,8 +386,7 @@ int TLN_GetRenderTargetPitch (void)
  * \brief
  * Draws the frame to the previously specified render target
  * 
- * \param frame
- * Frame number. Set to 0 to autoincrement from previous value
+ * \param frame Optional frame number. Set to 0 to autoincrement from previous value
  * 
  * \see
  * TLN_SetRenderTarget()
@@ -401,7 +400,7 @@ void TLN_UpdateFrame (int frame)
 
 /*!
  * \brief Starts active rendering of the current frame
- * \param frame Frame number. Set to 0 to autoincrement from previous value
+ * \param frame Optional frame number. Set to 0 to autoincrement from previous value
  * \see TLN_DrawNextScanline(), TLN_BeginWindowFrame(), TLN_EndWindowFrame()
  */
 void TLN_BeginFrame (int frame)

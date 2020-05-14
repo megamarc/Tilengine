@@ -21,7 +21,7 @@
 static void SelectBlitter (Layer* layer);
 
 /*!
- * \deprecated Use TLN_SetLayerTilemap instead
+ * \deprecated Use \ref TLN_SetLayerTilemap instead
  * \brief
  * Configures a background layer with the specified tileset and tilemap
  * 

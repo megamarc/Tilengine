@@ -998,7 +998,7 @@ int TLN_GetLastInput (void)
 
 /*!
  * \brief Begins active rendering frame in built-in window
- * \param frame Frame number. Set to 0 to autoincrement from previous value
+ * \param frame Optional frame number. Set to 0 to autoincrement from previous value
  * \remarks Use this function instead of TLN_BeginFrame() when using the built-in window
  * \see TLN_CreateWindow(), TLN_EndWindowFrame(), TLN_DrawNextScanline()
  */
@@ -1058,8 +1058,7 @@ void TLN_EndWindowFrame (void)
  * \brief
  * Draws a frame to the window
  * 
- * \param frame 
- * Frame number. Set to 0 to autoincrement from previous value
+ * \param frame Optional frame number. Set to 0 to autoincrement from previous value
  * 
  * Draws a frame to the window
  * 
