@@ -14,9 +14,9 @@ Layers are referenced by an index, starting at 0 for the topmost, increasing up 
 
 Tilengine supports three types of layers:
 
-* Tiled layer: uses a tilemap and a tile-based tileset
-* Object list: uses an object list and a bitmap-based tileset
-* Single bitmap: uses a whole bitmap
+* **Tiled layer**: uses a tilemap and a tile-based tileset
+* **Object list**: uses an object list and a bitmap-based tileset
+* **Single bitmap**: uses a whole bitmap
 
 ### Tiled layers
 
@@ -25,22 +25,22 @@ Tiled layers are composed of **tilemaps**, a rectangular, grid-like arrangement 
 Tiled layers are loaded from `.tmx` files with the \ref TLN_LoadTilemap function, that gets a filename and an optional layer name, and returns a \ref TLN_Tilemap handler.
 
 ```C
-TLN_Tilemap tilemap = TLN_LoadTilemap("level`.tmx`", "foreground");
+TLN_Tilemap tilemap = TLN_LoadTilemap("level.tmx", "foreground");
 ```
 
 If layer name is set to `NULL`, it loads the first layer it encounters:
 
 ```C
-TLN_Tilemap tilemap = TLN_LoadTilemap("level`.tmx`", NULL);
+TLN_Tilemap tilemap = TLN_LoadTilemap("level.tmx", NULL);
 ```
 
-Once a tilemap is loaded, it must be assigned to a layer with \ref TLN_SetLayer function. It takes the layer index, an optional tileset, and  the tilemap:
+Once a tilemap is loaded, it must be assigned to a layer with \ref TLN_SetLayerTilemap function. It takes the layer index and the tilemap handler:
 
 ```C
-TLN_SetLayer(0, NULL, tilemap);
+TLN_SetLayerTilemap(0, tilemap);
 ```
 
-Explicit tileset is hardly ever user, because when a tilemap is loaded, it already contains its associated tileset that is used by default. However it can be loaded with \ref TLN_LoadTileset from a `.tsx` file and explicitly set:
+Explicit tileset is hardly ever user, because when a tilemap is loaded from a `.tmx` file, it already contains its associated tileset that is used by default. However it can be loaded with \ref TLN_LoadTileset from a `.tsx` file and explicitly set with \ref TLN_SetLayer:
 
 ```C
 TLN_Tileset tileset = TLN_LoadTileset("level.tsx")
