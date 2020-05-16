@@ -16,6 +16,7 @@ http://www.tilengine.org
   - [Build from source](#build-from-source)
     - [Windows](#windows)
     - [Debian-based linux](#debian-based-linux)
+    - [Apple OSX](#apple-osx)
 - [Running the samples](#running-the-samples)
   - [Windows](#windows-1)
   - [Unix-like](#unix-like)
@@ -73,6 +74,10 @@ Path | Files
 
 ### Debian-based linux
 Just install standard packages `libpng-dev` and `libsdl2-dev`
+
+### Apple OSX
+SDL2 development libraries for OSX can be download here:
+https://www.libsdl.org/download-2.0.php
 
 # Running the samples
 
@@ -163,7 +168,7 @@ Tilengine is just a programming library that doesn't come with any editor, but t
 * Maps: [Tiled Map Editor](https://www.mapeditor.org/)
 
 # Creating packages
-To create a package with all the assets, the open-source tool [ResourcePacker](https://github.com/megamarc/ResourcePacker) must be used. It's a cross-platform, easy to use command line tool that creates packages with files keeping the same directory structure. Tilengine has built-in support for loading assets from these packages just as if they still were stand-alone files.
+To create a package with all the assets, the add-on tool [ResourcePacker](https://megamarc.itch.io/resourcepacker) must be used. It's a Windows command-line tool that creates packages with files keeping the same directory structure. Tilengine has built-in support for loading assets from these packages just as if they still were stand-alone files.
 
 # Bindings
 There are bindings to use Tilengine from several programming languages:
