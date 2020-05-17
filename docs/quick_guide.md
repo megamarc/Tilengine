@@ -19,9 +19,9 @@ In the source files of your application where you use Tilengine, you need to inc
 First step is initialize the engine with \ref TLN_Init. This takes the following parameters, that will remain constant and cannot be changed once the engine is initialized:
 
 * Width and height of the framebuffer (virtual screen)
-* Maximum number of background layers
-* Maximum number of sprites
-* Maximum number of color-cycle palette animations
+* Maximum number of [background layers](layers.md)
+* Maximum number of [sprites](sprites.md)
+* Maximum number of color-cycle [palette animations](animations.md)
 
 ```C
 TLN_Init(480, 272, 4, 64, 0);
@@ -47,7 +47,7 @@ This creates a default window. There are some key bindings:
 
 ### Loading a tilemap
 
-Tilemaps with the layout of backgrounds are stored inside `.tmx` files. Each `.tmx` file can contain many tilemap and object layers. To load one, call \ref TLN_LoadTilemap with the filename and the name of the layer to load, and returns a \ref TLN_Tilemap handler:
+[Tilemaps](tilemaps.md) with the layout of backgrounds are stored inside `.tmx` files. Each `.tmx` file can contain many tilemap and object layers. To load one, call \ref TLN_LoadTilemap with the filename and the name of the layer to load, and returns a \ref TLN_Tilemap handler:
 
 ```C
 TLN_Tilemap background = TLN_LoadTilemap ("ruff_n_tumble.tmx", NULL);
@@ -73,7 +73,7 @@ This advances the viewport of layer 0 32 pixels to the right.
 
 ### Loading a spriteset
 
-Spritesets containing the animation frames for a sprite are contained inside `.png` files with layout information in associated `.txt`, `.csv`, or `.json` text files. They're loaded with \ref TLN_LoadSpriteset passing the .png file, and return a \ref TLN_Spriteset handler:
+[Spritesets](spritesets.md) containing the animation frames for a sprite are contained inside `.png` files with layout information in associated `.txt`, `.csv`, or `.json` text files. They're loaded with \ref TLN_LoadSpriteset passing the .png file, and return a \ref TLN_Spriteset handler:
 
 ```C
 TLN_Spriteset character = TLN_LoadSpriteset("ruff1.png");
@@ -97,7 +97,7 @@ TLN_SetSpritePosition(0, 160, 192);
 
 ### Setting the sprite image
 
-A spriteset contains many frames of animation. By default a sprite is assigned the first image of the spriteset. Images in a spriteset are referenced with their index, starting from 0. Indexes can be obtained from sprite name with \ref TLN_FindSpritesetSprite and assigned with \ref TLN_SetSpritePicture oassing sprite index and frame index:
+A spriteset contains many frames of animation. By default a sprite is assigned the first image of the spriteset. Images in a spriteset are referenced with their index, starting from 0. Indexes can be obtained from sprite name with \ref TLN_FindSpritesetSprite and assigned with \ref TLN_SetSpritePicture passing sprite index and frame index:
 
 ```C
 int frame = TLN_FindSpritesetSprite(spriteset, "standing1");
@@ -133,8 +133,8 @@ void main(void) {
 
     /* init engine and window */
     TLN_Init(480, 272, 4, 64, 0);
-    TLN_CreateWindow (NULL, 0);    
-	
+    TLN_CreateWindow (NULL, 0);
+
     /* setup background layer */
     background = TLN_LoadTilemap ("ruff_n_tumble.tmx", NULL);
     TLN_SetLayerTilemap (0, background);
@@ -162,7 +162,7 @@ void main(void) {
 To build for Linux, just link with `libTilengine.so` library:
 
 ```
-gcc test.c lTilengine -o test
+gcc test.c -lTilengine -o test
 ```
 
 Building for Windows requires linking to `Tilengine.lib`:

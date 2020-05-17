@@ -1,5 +1,8 @@
 # Guides
 
+\attention
+Documentation guides are in an unfinished, work-in-progress state. Some sections are complete, others outdated, and others missing. Documentation is being actively written and should be finished soon.
+
 There are specific guides for each feature
 
 [Installing](install.md) shows how to install the development files
@@ -23,7 +26,7 @@ There are specific guides for each feature
 **Working with assets**
 
 * [Tilemaps](tilemaps.md) - managing background layout
-* [Tilesets](tilesets.md)tilesets - managing background graphic pieces
+* [Tilesets](tilesets.md) - managing background graphic pieces
 * [Spritesets](spritesets.md) - managing sprite graphics
 * [Palettes](palettes.md) - managing color
 * [Sequences](sequences.md) - managing sequences for animation engine
