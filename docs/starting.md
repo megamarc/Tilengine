@@ -22,19 +22,19 @@ To set a solid color there is the function \ref TLN_SetBGColor that takes the th
 TLN_SetBGColor (0,32,96);
 ```
 
-It is also possible to set the background color defined inside a tilemap object with the \ref TLN_SetBGColorFromTilemap function. Tilemaps may specify a default background color that can be used here. To see how to load and manipulate tilemaps, please refer to [chapter 10](11_tilemaps.md). For now, to load a tilemap called "tilemap.tmx" and use its default background color, you have to do the following:
+It is also possible to set the background color defined inside a tilemap object with the \ref TLN_SetBGColorFromTilemap function. Tilemaps may specify a default background color that can be used here. To see how to load and manipulate tilemaps, please refer to [Tilemaps section](tilemaps.md). For now, to load a tilemap called "tilemap.tmx" and use its default background color, you have to do the following:
 ```c
 TLN_Tilemap tilemap = TLN_LoadTilemap ("tilemap.tmx");
 TLN_SetBGColorFromTilemap (tilemap);
 ```
 
 ### Bitmap background
-To set a bitmap, there is the function \ref TLN_SetBGBitmap that takes the \ref TLN_Bitmap reference of a loaded bitmap. To see how to load an manipulate bitmaps, please refer to [chapter 14](15_bitmaps.md). For now, to load a bitmap called "Background.png" and set it as the background, you have to do the following:
+To set a bitmap, there is the function \ref TLN_SetBGBitmap that takes the \ref TLN_Bitmap reference of a loaded bitmap. To see how to load an manipulate bitmaps, please refer to [Bitmaps section](bitmaps.md). For now, to load a bitmap called "Background.png" and set it as the background, you have to do the following:
 ```c
 TLN_Bitmap background = TLN_LoadBitmap ("Background.png");
 TLN_SetBGBitmap (background);
 ```
-It's possible to change the default palette provided by the bitmap. To do so, use the \ref TLN_SetBGPalette function that takes a \ref TLN_Palette object. To see how to load and manipulate palettes, please refer to [chapter 12](13_palettes.md). Assuming you have an alternative palette file called "Background.act", do the following to set it:
+It's possible to change the default palette provided by the bitmap. To do so, use the \ref TLN_SetBGPalette function that takes a \ref TLN_Palette object. To see how to load and manipulate palettes, please refer to [Palettes section](palettes.md). Assuming you have an alternative palette file called "Background.act", do the following to set it:
 ```c
 TLN_Palette palette = TLN_LoadPalette ("Background.act");
 TLN_SetBGPalette (palette);

@@ -5,9 +5,9 @@
 A sprite is any moving object in a videogame that is not a background: a character, enemy, bullet,player, ball, special effect...
 
 ## Basic setup
-A sprite needs at least a [spriteset](12_spritesets.md), and optionally a set of [flags](\ref TLN_TileFlags) and a [palette](\ref TLN_Palette). Usually you want to pack together all the animation frames of a single character inside the same spriteset, so to change the displayed graphic it's only needed to change the image index.
+A sprite needs at least a [spriteset](spritesets.md), and optionally a set of [flags](\ref TLN_TileFlags) and a [palette](\ref TLN_Palette). Usually you want to pack together all the animation frames of a single character inside the same spriteset, so to change the displayed graphic it's only needed to change the image index.
 
-We have to load the spriteset first with \ref TLN_LoadSpriteset (read more about [spritesets](12_spritesets.md)). Then we call \ref TLN_SetSpriteSet to attach it to the sprite, passing the sprite index and the reference to the spriteset:
+We have to load the spriteset first with \ref TLN_LoadSpriteset (read more about [spritesets](spritesets.md)). Then we call \ref TLN_SetSpriteSet to attach it to the sprite, passing the sprite index and the reference to the spriteset:
 ```c
 TLN_Spriteset spriteset = TLN_LoadSpriteset ("FireLeo");
 TLN_SetSpriteSet (0, spriteset);
@@ -40,7 +40,7 @@ TLN_SetSpritePalette (0, palette);
 ```
 
 ## Blending
-Blending is supported in sprites, with different modes and effects. To get extended information about the modes and their effects, please refer to [Chapter 09 - Blending](09_blending.md).
+Blending is supported in sprites, with different modes and effects. To get extended information about the modes and their effects, please refer to [Blending section](blending.md).
 
 To enable blending, call \ref TLN_SetSpriteBlendMode passing the sprite index and the blending mode. For example, to set 50%/50% blending in sprite 0:
 ```c
