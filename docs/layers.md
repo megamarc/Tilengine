@@ -8,7 +8,7 @@ Background layers are used to implement the levels where gameplay takes place. T
 
 Background layers can have transparent, cut-through areas where the underlying layer(s) or background color is seen.
 
-Layers are referenced by an index, starting at 0 for the topmost, increasing up to number of layers minus 1 for the bottom-most.
+Layers are referenced by an index, starting at 0 for the topmost, increasing up to number of layers minus 1 for the bottom-most. The total number of layers is pre-allocated when the engine is initialized with \ref TLN_Init and cannot be changed later at runtime.
 
 ## Types of layers
 

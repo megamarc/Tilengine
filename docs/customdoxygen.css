@@ -132,6 +132,7 @@ em {
 h1 {
   padding-top: 0.5em;
   font-size: 180%;
+  border-bottom: solid 1px #606060;
 }
 h2 {
   padding-top: 0.5em;
