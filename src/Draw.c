@@ -28,7 +28,7 @@ static bool check_sprite_coverage(Sprite* sprite, int nscan)
 		return false;
 	if (sprite->dstrect.x2 < 0 || sprite->srcrect.x2 < 0)
 		return false;
-	if (sprite->masking && nscan >= engine->sprite_mask_top && nscan <= engine->sprite_mask_bottom)
+	if ((sprite->flags & FLAG_MASKED) && nscan >= engine->sprite_mask_top && nscan <= engine->sprite_mask_bottom)
 		return false;
 	return true;
 }

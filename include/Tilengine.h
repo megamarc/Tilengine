@@ -73,6 +73,7 @@ typedef enum
 	FLAG_FLIPY		= BITVAL(14),	/*!< vertical flip */
 	FLAG_ROTATE		= BITVAL(13),	/*!< row/column flip (unsupported, Tiled compatibility) */
 	FLAG_PRIORITY	= BITVAL(12),	/*!< tile goes in front of sprite layer */
+	FLAG_MASKED		= BITVAL(11),	/*!< sprite won't be drawn inside masked region */
 }
 TLN_TileFlags;
 
@@ -577,6 +578,7 @@ TLNAPI int  TLN_GetLayerHeight (int nlayer);
 TLNAPI bool TLN_ConfigSprite (int nsprite, TLN_Spriteset spriteset, TLN_TileFlags flags);
 TLNAPI bool TLN_SetSpriteSet (int nsprite, TLN_Spriteset spriteset);
 TLNAPI bool TLN_SetSpriteFlags (int nsprite, TLN_TileFlags flags);
+TLNAPI bool TLN_EnableSpriteFlag(int nsprite, TLN_TileFlags flag, bool enable);
 TLNAPI bool TLN_SetSpritePosition (int nsprite, int x, int y);
 TLNAPI bool TLN_SetSpritePicture (int nsprite, int entry);
 TLNAPI bool TLN_SetSpritePalette (int nsprite, TLN_Palette palette);

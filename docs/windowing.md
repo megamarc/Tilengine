@@ -20,7 +20,7 @@ Supported creation flags are as follows:
 
 |Flag value    |Effect
 |--------------|----------------------------
-|CWF_FULLSCREEN|create a fullscreen window
+|CWF_FULLSCREEN|create a full-screen window
 |CWF_VSYNC     |sync frame updates with vertical retrace
 |CWF_Sn        |force integer upscale factor (n is 1-5)
 |CWF_NEAREST   |sharp upscaling without bilinear filter
@@ -29,22 +29,20 @@ The following key combinations are used to control the window:
 
 |Key                   |Effect
 |----------------------|-------------------------------------
-|<kbd>Alt + Enter</kbd>|Toggle windowed/fullscreen mode
+|<kbd>Alt + Enter</kbd>|Toggle windowed/full-screen mode
 |<kbd>Backspace</kbd>  |Toggle CRT/RF effect or on off
 |<kbd>Escape</kbd>     |Close the window
 
-Once the window is created, it must be processed calling \ref TLN_ProcessWindow for each frame. This function returns true while the window is alive, or false when the user has requested to terminate it. Draw the frames with \ref TLN_DrawFrame. This function takes an optional integer value, that represents a timestamp used by the animation engine. If there are not animations it can be left as 0.
+Once the window is created, it must be processed calling \ref TLN_ProcessWindow for each frame. This function returns true while the window is alive, or false when the user has requested to terminate it. Draw the frames with \ref TLN_DrawFrame. This function takes an optional integer value, that represents a frame counter used by the animation engine.
 
 This basic sample show how to initialize the engine, create the window and do the window loop until the user requests to exit:
+
 ```c
-int frame = 0;
 TLN_Init (400,240, 2,8,0);   /* init the engine */
 TLN_CreateWindow (NULL, 0);  /* create the window */
 while (TLN_ProcessWindow())  /* the window loop */
-{
-    TLN_DrawFrame (frame);   /* draw next frame */
-    frame += 1;
-}
+    TLN_DrawFrame (0);       /* draw next frame */
+
 TLN_Deinit ();               /* release resources */
 ```
 
@@ -56,9 +54,8 @@ This is the same sample with the multi-threaded window:
 TLN_Init (400,240, 2,8,0);         /* init the engine */
 TLN_CreateWindowThread (NULL, 0);  /* create the window */
 while (TLN_IsWindowActive())       /* check window state */
-{
     TLN_WaitRedraw ();             /* optionally sync to window drawing for fps control */
-}
+
 TLN_Deinit ();                     /* release resources */
 ```
 
@@ -114,7 +111,7 @@ if (TLN_GetInput(INPUT_P2 + INPUT_START))
 ```
 
 ### Enhanced input with SDL2
-If the built-in input layout of tilengine is not enough, because your game needs mouse input, analog sticks, more keys, etc, Tilengine can catch the events delivered by the underlying SDL2 library and pass them to your own input handling. This is done by a user callback, that can be registered with \ref TLN_SetSDLCallback function. The user callback must have the format `void sdl_callback(SDL_Event*);`. For example, to check mouse click:
+If the built-in input layout of tilengine is not enough, because your game needs mouse input, analog sticks, more keys, etc. Tilengine can catch the events delivered by the underlying SDL2 library and pass them to your own input handling. This is done by a user callback, that can be registered with \ref TLN_SetSDLCallback function. The user callback must have the format `void sdl_callback(SDL_Event*);`. For example, to check mouse click:
 ```c
 #include <SDL2/SDL.h>
 ...

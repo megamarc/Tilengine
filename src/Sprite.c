@@ -27,6 +27,7 @@ static void SelectBlitter (Sprite* sprite);
 static void UpdateSprite (Sprite* sprite);
 
 /*!
+ * \deprecated use \ref TLN_SetSpriteSet and \ref TLN_EnableSpriteFlag
  * \brief
  * Configures a sprite, setting spriteset and flags at once
  * 
@@ -100,6 +101,7 @@ bool TLN_SetSpriteSet (int nsprite, TLN_Spriteset spriteset)
 }
 
 /*!
+ * \deprecated Use \ref TLN_EnableSpriteFlag to enable or disable individual flags
  * \brief
  * Sets flags for a given sprite
  * 
@@ -107,7 +109,7 @@ bool TLN_SetSpriteSet (int nsprite, TLN_Spriteset spriteset)
  * Id of the sprite [0, num_sprites - 1]
  * 
  * \param flags
- * Can be 0 or a combination of FLAG_FLIPX and FLAG_FLIPY
+ * Can be 0 or a combination of TLN_TileFlags
  */
 bool TLN_SetSpriteFlags (int nsprite, TLN_TileFlags flags)
 {
@@ -119,6 +121,29 @@ bool TLN_SetSpriteFlags (int nsprite, TLN_TileFlags flags)
 	
 	engine->sprites[nsprite].flags = flags;
 	TLN_SetLastError (TLN_ERR_OK);
+	return true;
+}
+
+/*!
+ * \brief Enables or disables specified flag for a sprite
+ * \param nsprite of the sprite [0, num_sprites - 1]
+ * \param flag flag (or combination of flags) to modfy
+ * \param enable true for enable, false for disable
+*/
+bool TLN_EnableSpriteFlag(int nsprite, TLN_TileFlags flag, bool enable)
+{
+	if (nsprite >= engine->numsprites)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
+		return false;
+	}
+
+	if (enable)
+		engine->sprites[nsprite].flags |= flag;
+	else
+		engine->sprites[nsprite].flags &= ~flag;
+
+	TLN_SetLastError(TLN_ERR_OK);
 	return true;
 }
 
@@ -170,14 +195,8 @@ bool TLN_SetSpritePosition (int nsprite, int x, int y)
  * \param entry
  * Index of the actual picture inside the srpteset to assign (0 <= entry < num_spriteset_graphics)
  * 
- * To show a sprite, at least two function calls are needed: first call TLN_ConfigSprite to assign
- * the spriteset containing the graphics, and then call TLN_SetSpritePicture to assign the actual graphic.
- * Usually all the frames for a given character are contained inside the same spriteset, so it is only
- * needed to configure the sprite once at the beginning for a particular character, and then just reassign
- * the graphic
- * 
  * \see
- * TLN_ConfigSprite(), TLN_SetSpriteSet(), TLN_SetSpritePictureByName()
+ * TLN_SetSpriteSet()
  */
 bool TLN_SetSpritePicture (int nsprite, int entry)
 {
@@ -211,13 +230,6 @@ bool TLN_SetSpritePicture (int nsprite, int entry)
  * 
  * \param palette
  * Reference of the palete to assign
- * 
- * Write detailed description for TLN_SetSpritePalette here.
- * 
- * \remarks
- * When a sprite is configured with a spriteset with the function TLN_ConfigSprite(), it
- * automatically sets the palette of the assigned spriteset to the sprite. 
- * Use this function to override it and set another palette
  */
 bool TLN_SetSpritePalette (int nsprite, TLN_Palette palette)
 {
@@ -367,6 +379,8 @@ bool TLN_ResetSpriteScaling (int nsprite)
 	SelectBlitter (sprite);
 	return true;
 }
+
+#if 0
 
 typedef struct
 {
@@ -522,6 +536,8 @@ bool TLN_ResetSpriteRotation(int nsprite)
 	return true;
 }
 
+#endif
+
 /*!
  * \brief
  * Returns the index of the assigned picture from the spriteset
@@ -668,9 +684,6 @@ bool TLN_DisableSprite(int nsprite)
  * 
  * \param state
  * Pointer to a user-allocated TLN_SpriteState structure to fill with requested data
- * 
- * \remarks
- * Info may not be accurate if SpriteState.enabled member is returned as false
  */
 TLNAPI bool TLN_GetSpriteState(int nsprite, TLN_SpriteState* state)
 {
@@ -788,21 +801,14 @@ bool TLN_SetNextSprite(int nsprite, int next)
 }
 
 /*!
+ * \deprecated, use \ref TLN_EnableSpriteFlag (nsprite, FLAG_MASKED, enable)
  * \brief Enables or disables masking for this sprite, if enabled it won't be drawn inside the region set up with TLN_SetSpritesMaskRegion()
  * \param nsprite Id of the sprite to mask [0, num_sprites - 1].
  * \param enable Enables (true) or disables (false) masking
  */
 bool TLN_EnableSpriteMasking(int nsprite, bool enable)
 {
-	if (nsprite >= engine->numsprites)
-	{
-		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
-		return false;
-	}
-
-	engine->sprites[nsprite].masking = true;
-	TLN_SetLastError(TLN_ERR_OK);
-	return true;
+	return TLN_EnableSpriteFlag(nsprite, FLAG_MASKED, enable);
 }
 
 /*!

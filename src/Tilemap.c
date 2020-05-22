@@ -226,7 +226,7 @@ bool TLN_GetTilemapTile (TLN_Tilemap tilemap, int row, int col, TLN_Tile tile)
  * Column (horizontal position) of the tile [0 - num_cols - 1]
  * 
  * \param tile
- * Reference to the tile to set
+ * Reference to the tile to set, or NULL to set an empty tile
  * 
  * \returns
  * true (success) or false (error)
@@ -238,10 +238,14 @@ bool TLN_SetTilemapTile (TLN_Tilemap tilemap, int row, int col, TLN_Tile tile)
 		TLN_Tile dsttile = GetTilemapPtr (tilemap, row, col);
 		if (dsttile)
 		{
-			dsttile->flags = tile->flags;
-			dsttile->index = tile->index;
-			if (tilemap->maxindex < tile->index)
-				tilemap->maxindex = tile->index;
+			if (tile)
+			{
+				dsttile->value = tile->value;
+				if (tilemap->maxindex < tile->index)
+					tilemap->maxindex = tile->index;
+			}
+			else
+				dsttile->value = 0;
 
 			TLN_SetLastError (TLN_ERR_OK);
 			return true;

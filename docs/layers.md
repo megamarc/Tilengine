@@ -22,6 +22,10 @@ Tilengine supports three types of layers:
 
 Tiled layers are composed of **tilemaps**, a rectangular, grid-like arrangement of square pieces called **tiles**. These tiles are located inside a **tileset**, a collection of related square pieces that are assembled to form a level.
 
+![Tiled layer graph](img/graph_tiled_layer.png)
+
+*Block diagram of a tiled layer*
+
 Tiled layers are loaded from `.tmx` files with the \ref TLN_LoadTilemap function, that gets a filename and an optional layer name, and returns a \ref TLN_Tilemap handler.
 
 ```C
@@ -61,9 +65,17 @@ Once a bitmap is loaded, it must be assigned to a layer with \ref TLN_SetLayerBi
 TLN_SetLayerBitmap(0, bitmap);
 ```
 
+![Bitmap layer graph](img/graph_bitmap_layer.png)
+
+*Block diagram of a bitmap layer*
+
 ### Object layers
 
 Object layers have a list of different items freely scattered across the playfield. Each item is a bitmap inside a bitmap-based tileset.
+
+![Object layer graph](img/graph_object_layer.png)
+
+*Block diagram of an object layer*
 
 Object list are loaded from `.tmx` files too, with the \ref TLN_LoadObjectList function that takes a filename and an optional layer name, and returns a \ref TLN_ObjectList handle. Just like tiled layers, if no layer name is specified, it loads the first object layer inside the `.tmx` file:
 

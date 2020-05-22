@@ -232,7 +232,7 @@ void SplitFilename(const char* filename, FileInfo* fileinfo)
 		fileinfo->path[len] = 0;
 	}
 	else
-		block1 = filename;
+		block1 = (char*)filename;
 
 	/* name + ext */
 	if (block2 && block2 > block1)
@@ -240,7 +240,7 @@ void SplitFilename(const char* filename, FileInfo* fileinfo)
 		/* name */
 		len = (int)(block2 - block1);
 		if (block1 == NULL)
-			block1 = filename;
+			block1 = (char*)filename;
 		memcpy(fileinfo->name, block1, len);
 		fileinfo->name[len] = 0;
 

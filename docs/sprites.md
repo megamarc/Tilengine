@@ -1,6 +1,3 @@
-\attention
-This section is incomplete and being updated. Sorry for the inconvenience.
-
 # Sprites
 
 [TOC]
@@ -42,17 +39,19 @@ To move the sprite to a different location, call the \ref TLN_SetSpritePosition,
 ```c
 TLN_SetSpritePosition (3, 160,120);
 ```
-## Setting attributes
+## Special attributes
 There are some special modifiers that control sprite flipping and priority. Sprite flipping allows to draw a sprite upside down and/or horizontally mirrored. For example a platformer game just needs to have sprites drawn facing to the right, when character need to walk to the left, just set the horizontal flipping flag.
 
-**Priority** will draw the sprite in front of priority layers, instead of behind them. To set attributes, call \ref TLN_SetSpriteFlags passing the sprite index and a combination of \ref TLN_TileFlags. For example to draw sprite 0 upside down:
+**Priority** will draw the sprite in front of priority layers, instead of behind them. To set attributes, call \ref TLN_EnableSpriteFlag passing the sprite index and a combination of \ref TLN_TileFlags. For example to draw sprite 0 upside down:
 
 ```c
-TLN_SetSpriteFlags (0, FLAG_FLIPY);
+TLN_EnableSpriteFlag (0, FLAG_FLIPY);
 ```
 Flipping modes: a) 0, b) FLAG_FLIPX, c) FLAG_FLIPY, d) FLAG_FLIPX + FLAG_FLIPY:
 
 ![Flipping modes](img/sprite_flags.png)
+
+**Masking** 
 
 ## Setting the palette
 By default, a sprite is assigned the associated palette of its spriteset, but this can be changed calling \ref TLN_SetSpritePalette passing the sprite index and a \ref TLN_Palette reference:
@@ -93,7 +92,7 @@ TLN_ResetSpriteScaling (0);
 ## Collision detection
 A basic action on any game is checking if two given sprites collide. For example, if our hero is hit by any enemy bullet. A quick way to determine a collision is to check if their bounding boxes overlap (a *bounding box* is the rectangular area that fully encloses a sprite). This method is fast and easy to implement, but sometimes the bounding boxes of two sprites can overlap, but in regions where there aren't solid pixels, just transparent ones. In this case, you see that the bullet isn't going to hit your hero, but it gets actually hit without touching it. A common solution is to use bounding boxes that are *smaller* than the sprite, but this can have the opposite effect: missing collisions that actually happen.
 
-To solve this, tilengine implements pixel-based collision detection. With this feature enabled, you know that a sprite gets involved in a collision only if there are actual non-transparent pixels in both sprites overlapping. But this method also has a limitation: it can tell you that a given sprite is per-pixel colliding with another sprite, but you don't know with *which* sprite.
+To solve this, Tilengine implements pixel-based collision detection. With this feature enabled, you know that a sprite gets involved in a collision only if there are actual non-transparent pixels in both sprites overlapping. But this method also has a limitation: it can tell you that a given sprite is per-pixel colliding with another sprite, but you don't know with *which* sprite.
 
 The final solution consists in combining both methods as they compliment each other: first determine coarse collision with bounding boxes, and then check per-pixel collision detection in those sprites.
 
@@ -109,7 +108,60 @@ bool collision = TLN_GetSpriteCollision (0);
 
 ## Sprite drawing order
 
+By default, each sprite activated is added to the end of a list of sprites that are drawn from first to last, following [painter's algorithm](https://en.wikipedia.org/wiki/Painter%27s_algorithm). That means dat sprites added later will overlap the ones added first. For example if sprites 0, 1, 2, 3 are added in sequence:
+
+```
+0 -> 1 -> 2 -> 3
+```
+
+Sprite 0 will be drawn first, sprite 3 will be drawn last, overlapping the others.
+
+This order can be changed with \ref TLN_SetFirstSprite and \ref TLN_SetNextSprite functions.
+
+To set the first sprite in the list, call \ref TLN_SetFirstSprite passing the index of first sprite. In the above example, to set 2 at the beginning:
+
+```C
+TLN_SetFirstSprite(2);
+```
+
+The list becomes:
+
+```C
+2 -> 0 -> 1 -> 3
+```
+
+To change any other sprite, call \ref TLN_SetNextSprite, passing the current sprite, and which one goes next. Taking the previous list, to move sprite 0 from its position to be drawn after sprite 3:
+
+```C
+TLN_SetNextSprite(3, 0);
+```
+
+The list becomes:
+
+
+```C
+2 -> 1 -> 3 -> 0
+```
+
+Now sprite 0 overlaps sprite 3
+
 ## Sprite masking
+
+Sprite masking allows defining a rectangular region that spans the whole frame width, where selected sprites won't be drawn when they cross this region.
+
+To define the masking area, call \ref TLN_SetSpritesMaskRegion, passing the bottom and top scanlines that define the exclusion area. For example to create a masking area that goes from y = 120 to y = 160, call:
+
+```C
+TLN_SetSpritesMaskRegion(120, 160);
+```
+
+To disable masking region, pass 0, 0:
+
+```C
+TLN_SetSpritesMaskRegion(0, 0);
+```
+
+Only sprites flagged with TLN_MASKED flag will disappear inside the mask region. Use \ref TLN_EnableSpriteFlag to enable or disable FLAG_MASKED flag. 
 
 ## Disabling
 To disable a sprite so it is not rendered, just call \ref TLN_DisableSprite passing the sprite index:
@@ -122,9 +174,8 @@ This is a quick reference of related functions in this chapter:
 
 |Function                        | Quick description
 |--------------------------------|-------------------------------------
-|\ref TLN_ConfigSprite           |Configures a sprite, setting spriteset and flags at once
 |\ref TLN_SetSpriteSet           |Assigns the spriteset and its palette to a given sprite
-|\ref TLN_SetSpriteFlags         |Sets flags for a given sprite
+|\ref TLN_EnableSpriteFlag       |Sets flags for a given sprite
 |\ref TLN_SetSpritePosition      |Sets the sprite position inside the viewport
 |\ref TLN_SetSpritePicture       |Sets the actual graphic to the sprite
 |\ref TLN_SetSpritePalette       |Assigns a palette to a sprite
@@ -135,5 +186,6 @@ This is a quick reference of related functions in this chapter:
 |\ref TLN_GetAvailableSprite     |Returns the first available (unused) sprite
 |\ref TLN_EnableSpriteCollision  |Enable sprite collision checking at pixel level
 |\ref TLN_GetSpriteCollision     |Gets the collision status of a given sprite
+|\ref TLN_SetSpritesMaskRegion   |Defines masking region to hide FLAG_MASKED sprites
 |\ref TLN_DisableSprite          |Disables the sprite so it is not drawn
 |\ref TLN_GetSpritePalette       |Returns the current palette of a sprite
