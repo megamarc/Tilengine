@@ -289,10 +289,44 @@ bool TLN_SetSpriteAnimation (int nsprite, TLN_Sequence sequence, int loop)
 
 /*!
  * \brief
- * Deprecated, each frame has its own delay
+ * Sets animation delay for single frame of given sprite animation
+ *
+ * \param index
+ * Id of the sprite with animation (0 <= id < num_sprites)
+ *
+ * \param frame
+ * Id of animation frame to change delay in (0 <= id < sequence->count)
+ *
+ * \param delay
+ * New animation frame delay to set
+ *
+ * \see
+ * Animations
+ *
  */
-bool TLN_SetAnimationDelay (int index, int delay)
+bool TLN_SetAnimationDelay(int index, int frame, int delay)
 {
+	Animation* animation;
+	TLN_SequenceFrame* frames = NULL;
+
+	if (index >= engine->numanimations || index < 0)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
+		return false;
+	}
+
+	animation = &engine->sprites[index].animation;
+	frames = (TLN_SequenceFrame*)animation->sequence->data;
+
+	if (frame >= animation->sequence->count || frame < 0)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_ANIMATION);
+		return false;
+	}
+
+	frames[frame].delay = delay;
+
+	TLN_SetLastError(TLN_ERR_OK);
 	return true;
 }
 
