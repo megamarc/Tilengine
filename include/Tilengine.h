@@ -633,7 +633,7 @@ TLNAPI bool TLN_SetPaletteAnimation (int index, TLN_Palette palette, TLN_Sequenc
 TLNAPI bool TLN_SetPaletteAnimationSource (int index, TLN_Palette);
 TLNAPI bool TLN_SetSpriteAnimation (int nsprite, TLN_Sequence sequence, int loop);
 TLNAPI bool TLN_GetAnimationState (int index);
-TLNAPI bool TLN_SetAnimationDelay (int index, int delay);
+TLNAPI bool TLN_SetAnimationDelay (int index, int frame, int delay);
 TLNAPI int  TLN_GetAvailableAnimation (void);
 TLNAPI bool TLN_DisablePaletteAnimation(int index);
 TLNAPI bool TLN_DisableSpriteAnimation(int index);
