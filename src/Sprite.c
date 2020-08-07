@@ -663,6 +663,8 @@ bool TLN_DisableSprite(int nsprite)
 	sprite = &engine->sprites[nsprite];
 	enabled = sprite->ok;
 	sprite->ok = false;
+	sprite->collision = false;
+	sprite->do_collision = false;
 
 	/* disabled: remove from linked list */
 	if (enabled == true)
