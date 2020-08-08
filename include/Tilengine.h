@@ -382,7 +382,6 @@ TLNAPI bool TLN_SetContext(TLN_Engine context);
 TLNAPI TLN_Engine TLN_GetContext(void);
 TLNAPI int TLN_GetWidth (void);
 TLNAPI int TLN_GetHeight (void);
-TLNAPI int TLN_GetBPP (void);
 TLNAPI uint32_t TLN_GetNumObjects (void);
 TLNAPI uint32_t TLN_GetUsedMemory (void);
 TLNAPI uint32_t TLN_GetVersion (void);
@@ -397,8 +396,6 @@ TLNAPI void TLN_SetRasterCallback (TLN_VideoCallback);
 TLNAPI void TLN_SetFrameCallback (TLN_VideoCallback);
 TLNAPI void TLN_SetRenderTarget (uint8_t* data, int pitch);
 TLNAPI void TLN_UpdateFrame (int frame);
-TLNAPI void TLN_BeginFrame (int frame);
-TLNAPI bool TLN_DrawNextScanline (void);
 TLNAPI void TLN_SetLoadPath (const char* path);
 TLNAPI void TLN_SetCustomBlendFunction (TLN_BlendFunction);
 TLNAPI void TLN_SetLogLevel(TLN_LogLevel log_level);
@@ -439,8 +436,6 @@ TLNAPI void TLN_DisableCRTEffect (void);
 TLNAPI void TLN_SetSDLCallback(TLN_SDLCallback);
 TLNAPI void TLN_Delay (uint32_t msecs);
 TLNAPI uint32_t TLN_GetTicks (void);
-TLNAPI void TLN_BeginWindowFrame (int frame);
-TLNAPI void TLN_EndWindowFrame (void);
 TLNAPI int TLN_GetWindowWidth(void);
 TLNAPI int TLN_GetWindowHeight(void);
 
@@ -596,6 +591,8 @@ TLNAPI bool TLN_SetFirstSprite(int nsprite);
 TLNAPI bool TLN_SetNextSprite(int nsprite, int next);
 TLNAPI bool TLN_EnableSpriteMasking(int nsprite, bool enable);
 TLNAPI void TLN_SetSpritesMaskRegion(int top_line, int bottom_line);
+TLNAPI bool TLN_SetSpriteAnimation (int nsprite, TLN_Sequence sequence, int loop);
+TLNAPI bool TLN_DisableSpriteAnimation(int nsprite);
 TLNAPI bool TLN_DisableSprite (int nsprite);
 TLNAPI TLN_Palette TLN_GetSpritePalette (int nsprite);
 /**@}*/
@@ -627,16 +624,14 @@ TLNAPI bool TLN_DeleteSequencePack (TLN_SequencePack sp);
 
 /**
  * \defgroup animation
- * \brief Animation engine manager
+ * \brief Color cycle animation
 * @{ */
 TLNAPI bool TLN_SetPaletteAnimation (int index, TLN_Palette palette, TLN_Sequence sequence, bool blend);
 TLNAPI bool TLN_SetPaletteAnimationSource (int index, TLN_Palette);
-TLNAPI bool TLN_SetSpriteAnimation (int nsprite, TLN_Sequence sequence, int loop);
 TLNAPI bool TLN_GetAnimationState (int index);
 TLNAPI bool TLN_SetAnimationDelay (int index, int frame, int delay);
 TLNAPI int  TLN_GetAvailableAnimation (void);
 TLNAPI bool TLN_DisablePaletteAnimation(int index);
-TLNAPI bool TLN_DisableSpriteAnimation(int index);
 /**@}*/
 
 #ifdef __cplusplus

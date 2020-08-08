@@ -996,24 +996,13 @@ int TLN_GetLastInput (void)
 	return retval;
 }
 
-/*!
- * \brief Begins active rendering frame in built-in window
- * \param frame Optional frame number. Set to 0 to autoincrement from previous value
- * \remarks Use this function instead of TLN_BeginFrame() when using the built-in window
- * \see TLN_CreateWindow(), TLN_EndWindowFrame(), TLN_DrawNextScanline()
- */
-void TLN_BeginWindowFrame (int frame)
+static void BeginWindowFrame (void)
 {
 	SDL_LockTexture (backbuffer, NULL, (void**)&rt_pixels, &rt_pitch);
 	TLN_SetRenderTarget (rt_pixels, rt_pitch);
-	TLN_BeginFrame (frame);
 }
 
-/*!
- * \brief Finishes rendering the current frame and updates the built-in window
- * \see TLN_CreateWindow(), TLN_BeginWindowFrame(), TLN_DrawNextScanline()
- */
-void TLN_EndWindowFrame (void)
+static void EndWindowFrame (void)
 {
 	/* pixeles con threshold */
 	if (crt_enable && crt.glow_factor != 0)
@@ -1072,9 +1061,9 @@ void TLN_EndWindowFrame (void)
  */
 void TLN_DrawFrame (int frame)
 {
-	TLN_BeginWindowFrame (frame);
-	while (TLN_DrawNextScanline ()){}
-	TLN_EndWindowFrame ();
+	BeginWindowFrame ();
+	TLN_UpdateFrame(frame);
+	EndWindowFrame ();
 }
 
 /*!

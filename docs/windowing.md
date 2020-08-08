@@ -23,7 +23,7 @@ Supported creation flags are as follows:
 |CWF_FULLSCREEN|create a full-screen window
 |CWF_VSYNC     |sync frame updates with vertical retrace
 |CWF_Sn        |force integer upscale factor (n is 1-5)
-|CWF_NEAREST   |sharp upscaling without bilinear filter
+|CWF_NEAREST   |start with CRT/RF effect disabled
 
 The following key combinations are used to control the window:
 

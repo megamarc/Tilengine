@@ -40,7 +40,7 @@ To move the sprite to a different location, call the \ref TLN_SetSpritePosition,
 TLN_SetSpritePosition (3, 160,120);
 ```
 ## Special attributes
-There are some special modifiers that control sprite flipping and priority. Sprite flipping allows to draw a sprite upside down and/or horizontally mirrored. For example a platformer game just needs to have sprites drawn facing to the right, when character need to walk to the left, just set the horizontal flipping flag.
+There are some special modifiers that control sprite flipping, priority and masking. Sprite flipping allows to draw a sprite upside down and/or horizontally mirrored. For example a platformer game just needs to have sprites drawn facing to the right, when character need to walk to the left, just set the horizontal flipping flag.
 
 **Priority** will draw the sprite in front of priority layers, instead of behind them. To set attributes, call \ref TLN_EnableSpriteFlag passing the sprite index and a combination of \ref TLN_TileFlags. For example to draw sprite 0 upside down:
 
@@ -51,7 +51,7 @@ Flipping modes: a) 0, b) FLAG_FLIPX, c) FLAG_FLIPY, d) FLAG_FLIPX + FLAG_FLIPY:
 
 ![Flipping modes](img/sprite_flags.png)
 
-**Masking** 
+**Masking** will mark the sprite as affected by mask region if flagged with \ref FLAG_MASKED. Read "sprite masking" section below to know more about masking.
 
 ## Setting the palette
 By default, a sprite is assigned the associated palette of its spriteset, but this can be changed calling \ref TLN_SetSpritePalette passing the sprite index and a \ref TLN_Palette reference:
@@ -163,6 +163,29 @@ TLN_SetSpritesMaskRegion(0, 0);
 
 Only sprites flagged with TLN_MASKED flag will disappear inside the mask region. Use \ref TLN_EnableSpriteFlag to enable or disable FLAG_MASKED flag. 
 
+## Animation
+Although it is possible to animate a sprite manually using the \ref TLN_SetSpritePicture function at timed intervals, tilengine has built-in animation support. To animate a sprite it is necessary to have a \ref TLN_Sequence object describing the animation. See the chapter [Sequences](sequences.md) to see how to create a \ref TLN_Sequence object from a \ref TLN_Spriteset object.
+
+For example, assuming a spriteset called `spriteset`, containing frames numbered sequentially from `walk1` to `walk8`, you can create the sequence with these frames, with a cadence of 6 fps at 60 Hz:
+
+```c
+TLN_Sequence walk_sequence = TLN_CreateSpriteSequence ("walking", spriteset, "walk", 60/6);
+```
+
+Once created, set the animation to the sprite with \ref TLN_SetSpriteAnimation, indicating the index of the sprite, the \ref TLN_Sequence object, and the number of times the animation should loop, indicating 0 for it to repeat indefinitely. For example, to animate sprite 0 with the `walk_sequence` previously created and to be repeated continuously:
+
+```c
+TLN_SetSpriteAnimation (0, walk_sequence, 0);
+```
+
+**NOTE**: the sprite must have been previously assigned with the same spriteset used to create the sequence.
+
+To finish playing an ongoing animation, call \ref TLN_DisableSpriteAnimation passing the index of the sprite to stop animation:
+
+```c
+TLN_DisableSpriteAnimation(0);
+```
+
 ## Disabling
 To disable a sprite so it is not rendered, just call \ref TLN_DisableSprite passing the sprite index:
 ```c
@@ -187,5 +210,7 @@ This is a quick reference of related functions in this chapter:
 |\ref TLN_EnableSpriteCollision  |Enable sprite collision checking at pixel level
 |\ref TLN_GetSpriteCollision     |Gets the collision status of a given sprite
 |\ref TLN_SetSpritesMaskRegion   |Defines masking region to hide FLAG_MASKED sprites
-|\ref TLN_DisableSprite          |Disables the sprite so it is not drawn
+|\ref TLN_SetSpriteAnimation     |Starts a sprite animation
+|\ref TLN_DisableSpriteAnimation |Disables animation of sprite
 |\ref TLN_GetSpritePalette       |Returns the current palette of a sprite
+|\ref TLN_DisableSprite          |Disables the sprite so it is not drawn

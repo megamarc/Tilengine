@@ -28,4 +28,6 @@ typedef struct Layer Layer;
 ScanDrawPtr GetLayerDraw (Layer* layer);
 ScanDrawPtr GetSpriteDraw (draw_t mode);
 
+extern bool DrawScanline(void);
+
 #endif

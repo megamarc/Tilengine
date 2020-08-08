@@ -33,13 +33,8 @@ static bool check_sprite_coverage(Sprite* sprite, int nscan)
 	return true;
 }
 
-/*!
- * \brief Draws the next scanline of the frame started with TLN_BeginFrame() or TLN_BeginWindowFrame()
- * \remarks Use this function in conjunction with TLN_BeginFrame() (custom render target) or 
- * TLN_BeginWindoFrame() and TLN_EndWindowFrame() (built-in window) for active rendering without callbacks.
- * \returns true if there are still scanlines to draw or false when the frame is complete
- */
-bool TLN_DrawNextScanline(void)
+/* Draws the next scanline of the frame started with TLN_BeginFrame() or TLN_BeginWindowFrame() */
+bool DrawScanline(void)
 {
 	int line = engine->line;
 	uint8_t* scan = GetFramebufferLine(line);

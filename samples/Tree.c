@@ -22,7 +22,8 @@ Actor* CreateTree (int x, int y, char side)
 		return NULL;
 
 	actor = SetActor (index, 1, 0,0, 136,208, TreeTasks);
-	TLN_ConfigSprite (index, spritesets[SPRITESET_TREES], 0);
+	TLN_SetSpriteSet (index, spritesets[SPRITESET_TREES]);
+	//TLN_SetFirstSprite (index);
 	tree = (Tree*)actor->usrdata;
 	tree->x = x;
 	tree->y = y;

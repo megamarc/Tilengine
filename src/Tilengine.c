@@ -317,19 +317,6 @@ int TLN_GetHeight (void)
 
 /*!
  * \brief
- * Returns the pixel format of the framebuffer
- * 
- * \see
- * TLN_InitBPP()
- */
-int TLN_GetBPP (void)
-{
-	TLN_SetLastError (TLN_ERR_OK);
-	return 32;
-}
-
-/*!
- * \brief
  * Sets the output surface for rendering
  * 
  * \param data
@@ -382,28 +369,8 @@ int TLN_GetRenderTargetPitch (void)
 	return engine->framebuffer.pitch;
 }
 
-/*!
- * \brief
- * Draws the frame to the previously specified render target
- * 
- * \param frame Optional frame number. Set to 0 to autoincrement from previous value
- * 
- * \see
- * TLN_SetRenderTarget()
- */
-void TLN_UpdateFrame (int frame)
-{
-	TLN_BeginFrame (frame);
-	while (TLN_DrawNextScanline ()){}
-	TLN_SetLastError (TLN_ERR_OK);
-}
-
-/*!
- * \brief Starts active rendering of the current frame
- * \param frame Optional frame number. Set to 0 to autoincrement from previous value
- * \see TLN_DrawNextScanline(), TLN_BeginWindowFrame(), TLN_EndWindowFrame()
- */
-void TLN_BeginFrame (int frame)
+/* Starts active rendering of the current frame */
+static void BeginFrame (int frame)
 {
 	/* update active animations */
 	List* list;
@@ -453,6 +420,22 @@ void TLN_BeginFrame (int frame)
 	engine->line = 0;
 	if (engine->cb_frame)
 		engine->cb_frame (engine->frame);
+}
+
+/*!
+ * \brief
+ * Draws the frame to the previously specified render target
+ *
+ * \param frame Optional frame number. Set to 0 to autoincrement from previous value
+ *
+ * \see
+ * TLN_SetRenderTarget()
+ */
+void TLN_UpdateFrame(int frame)
+{
+	BeginFrame(frame);
+	while (DrawScanline()) {}
+	TLN_SetLastError(TLN_ERR_OK);
 }
 
 /*!
