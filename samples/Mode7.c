@@ -22,6 +22,14 @@
 /* linear interploation */
 #define lerp(x, x0,x1, fx0,fx1) \
 	(fx0) + ((fx1) - (fx0))*((x) - (x0))/((x1) - (x0))
+	
+/* fixed point helper */
+typedef int fix_t;
+#define FIXED_BITS	16
+#define float2fix(f)	(fix_t)(f*(1 << FIXED_BITS))
+#define int2fix(i)		((int)(i) << FIXED_BITS)
+#define fix2int(f)		((int)(f) >> FIXED_BITS)
+#define fix2float(f)	(float)(f)/(1 << FIXED_BITS)
 
 /*
 /* layers */

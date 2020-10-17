@@ -637,7 +637,7 @@ bool TLN_ProcessWindow (void)
 
 		case SDL_KEYDOWN:
 			keybevt = (SDL_KeyboardEvent*)&evt;
-			if (keybevt->repeat == true)
+			if (keybevt->repeat != 0)
 				break;
 
 			/* special inputs */

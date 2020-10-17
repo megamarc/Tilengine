@@ -45,7 +45,7 @@ static void UpdateSprite (Sprite* sprite);
  * \see
  * TLN_SetSpritePicture()
  */
-bool TLN_ConfigSprite (int nsprite, TLN_Spriteset spriteset, TLN_TileFlags flags)
+bool TLN_ConfigSprite (int nsprite, TLN_Spriteset spriteset, uint32_t flags)
 {
 	return 
 		TLN_SetSpriteSet (nsprite, spriteset) && 
@@ -111,7 +111,7 @@ bool TLN_SetSpriteSet (int nsprite, TLN_Spriteset spriteset)
  * \param flags
  * Can be 0 or a combination of TLN_TileFlags
  */
-bool TLN_SetSpriteFlags (int nsprite, TLN_TileFlags flags)
+bool TLN_SetSpriteFlags (int nsprite, uint32_t flags)
 {
 	if (nsprite >= engine->numsprites)
 	{
@@ -130,7 +130,7 @@ bool TLN_SetSpriteFlags (int nsprite, TLN_TileFlags flags)
  * \param flag flag (or combination of flags) to modfy
  * \param enable true for enable, false for disable
 */
-bool TLN_EnableSpriteFlag(int nsprite, TLN_TileFlags flag, bool enable)
+bool TLN_EnableSpriteFlag(int nsprite, uint32_t flag, bool enable)
 {
 	if (nsprite >= engine->numsprites)
 	{

@@ -208,7 +208,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 
 /* cache section: keeps already loaded tilesets so it doesnt spawn multiple instances of the same */
 #define CACHE_SIZE	16
-static cache_entries = 0;
+static int cache_entries = 0;
 struct
 {
 	char name[200];

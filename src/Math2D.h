@@ -28,24 +28,32 @@ typedef struct
 }
 Point2D;
 
+/* fixed point helper */
+typedef int fix_t;
+#define FIXED_BITS	16
+#define float2fix(f)	(fix_t)(f*(1 << FIXED_BITS))
+#define int2fix(i)		((int)(i) << FIXED_BITS)
+#define fix2int(f)		((int)(f) >> FIXED_BITS)
+#define fix2float(f)	(float)(f)/(1 << FIXED_BITS)
+
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 
-void Matrix3SetIdentity (Matrix3*);
-void Matrix3Set (Matrix3*, math2d_t*);
-void Matrix3Add (Matrix3*, Matrix3*);
-void Matrix3Multiply (Matrix3*, Matrix3*);
-void Matrix3SetRotation (Matrix3 *matrix, math2d_t angle);
-void Matrix3SetTranslation (Matrix3 *matrix, math2d_t x, math2d_t y);
-void Matrix3SetScale (Matrix3 *matrix, math2d_t sx, math2d_t sy);
+	void Matrix3SetIdentity(Matrix3*);
+	void Matrix3Set(Matrix3*, math2d_t*);
+	void Matrix3Add(Matrix3*, Matrix3*);
+	void Matrix3Multiply(Matrix3*, Matrix3*);
+	void Matrix3SetRotation(Matrix3 *matrix, math2d_t angle);
+	void Matrix3SetTranslation(Matrix3 *matrix, math2d_t x, math2d_t y);
+	void Matrix3SetScale(Matrix3 *matrix, math2d_t sx, math2d_t sy);
 
-void Point2DSet (Point2D*, math2d_t,math2d_t);
-void Point2DAdd (Point2D*, Point2D*);
-void Point2DMultiply (Point2D*, Matrix3*);
+	void Point2DSet(Point2D*, math2d_t, math2d_t);
+	void Point2DAdd(Point2D*, Point2D*);
+	void Point2DMultiply(Point2D*, Matrix3*);
 
 #if defined _MSC_VER && _MSC_VER < 1900
-int roundf(float fvalue);
+	int roundf(float fvalue);
 #endif
 
 #ifdef __cplusplus

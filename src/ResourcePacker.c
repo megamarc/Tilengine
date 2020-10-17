@@ -105,7 +105,7 @@ static ResEntry* find_entry(ResPack rp, const char* filename)
 	/* sorted: binary search */
 	if (rp->sorted)
 	{
-		entry = bsearch(&id, rp->entries, rp->num_entries, sizeof(ResEntry), rpcompare);
+		entry = (ResEntry*)bsearch(&id, rp->entries, rp->num_entries, sizeof(ResEntry), rpcompare);
 		return entry;
 	}
 
@@ -135,7 +135,7 @@ static void* load_asset(ResPack rp, ResEntry* entry)
 		void* cypher = malloc(entry->pack_size);
 		void* content = malloc(entry->pack_size);
 		fread(cypher, entry->pack_size, 1, rp->pf);
-		aes_decrypt_cbc(cypher, entry->pack_size, content, rp->key, RESPACK_KEYSIZE, iv);
+		aes_decrypt_cbc((uint8_t*)cypher, entry->pack_size, (uint8_t*)content, rp->key, RESPACK_KEYSIZE, iv);
 		memcpy(buffer, content, entry->data_size);
 		free(content);
 		free(cypher);
@@ -179,7 +179,7 @@ ResPack ResPack_Open(const char* filename, const char* key)
 
 	/* create object */
 	size = sizeof(struct _ResPack) + sizeof(ResEntry)*res_header.num_regs;
-	rp = calloc(size, 1);
+	rp = (ResPack)calloc(size, 1);
 	rp->num_entries = res_header.num_regs;
 	rp->seed = res_header.seed;
 	version = res_header.version & 0x0F;
@@ -255,7 +255,7 @@ ResAsset ResPack_OpenAsset(ResPack rp, const char* filename)
 	if (content == NULL)
 		return NULL;
 
-	asset = malloc(sizeof(struct _ResAsset));
+	asset = (ResAsset)malloc(sizeof(struct _ResAsset));
 	sprintf(asset->filename, "_tmp%d", entry->id);
 	asset->pf = fopen(asset->filename, "wb");
 	fwrite(content, entry->data_size, 1, asset->pf);

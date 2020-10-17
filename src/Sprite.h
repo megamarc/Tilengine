@@ -44,7 +44,7 @@ typedef struct Sprite
 	rect_t			dstrect;
 	draw_t			mode;
 	uint8_t*		blend;
-	TLN_TileFlags	flags;
+	uint32_t		flags;
 	ScanDrawPtr		draw;
 	ScanBlitPtr		blitter;
 	bool			ok;
