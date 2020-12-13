@@ -181,6 +181,8 @@ C#        | [CsTilengine](https://github.com/megamarc/CsTilengine)
 Pascal    | [PascalTileEngine](https://github.com/turric4n/PascalTileEngine)
 FreeBasic | [FBTilengine](https://github.com/megamarc/FBTilengine)
 Java	    | [JTilengine](https://github.com/megamarc/JTilengine)
+Rust      | [tilengine-sys](https://crates.io/crates/tilengine-sys)
+LuaJIT    | [tilengine_libretro](https://github.com/megamarc/Tilengine/tree/libretro) ([libretro](https://www.libretro.com) core)
 
 # Contributors
 These people contributed to tilengine:
