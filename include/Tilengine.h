@@ -59,8 +59,8 @@
 
 /* version */
 #define TILENGINE_VER_MAJ	2
-#define TILENGINE_VER_MIN	8
-#define TILENGINE_VER_REV	5
+#define TILENGINE_VER_MIN	9
+#define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -258,6 +258,18 @@ typedef struct
 }
 TLN_SpriteState;
 
+/*! Tiled font descriptor */
+typedef struct
+{
+	int firstgid;		/*!< gid with first character */
+	char firstchar;		/*!< first ASCII character */
+	int glyph_width;	/*!< width of glyph in tiles */
+	int glyph_height;	/*!< height of glyph in tiles */
+	int glyphs_row;		/*!< num of glyps on each row */
+	int glyph_pitch;	/*!< num of tiles */
+}
+TLN_Font;
+
 /* callbacks */
 typedef union SDL_Event SDL_Event;
 typedef void(*TLN_VideoCallback)(int scanline);
@@ -393,7 +405,6 @@ TLNAPI void TLN_SetCustomBlendFunction (TLN_BlendFunction);
 TLNAPI void TLN_SetLogLevel(TLN_LogLevel log_level);
 TLNAPI bool TLN_OpenResourcePack(const char* filename, const char* key);
 TLNAPI void TLN_CloseResourcePack(void);
-
 /**@}*/
 
 /**
@@ -430,7 +441,6 @@ TLNAPI void TLN_Delay (uint32_t msecs);
 TLNAPI uint32_t TLN_GetTicks (void);
 TLNAPI int TLN_GetWindowWidth(void);
 TLNAPI int TLN_GetWindowHeight(void);
-
 /**@}*/
 
 /**
@@ -548,8 +558,6 @@ TLNAPI bool TLN_DisableLayerMosaic (int nlayer);
 TLNAPI bool TLN_ResetLayerMode (int nlayer);
 TLNAPI bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Tileset tileset);
 TLNAPI bool TLN_SetLayerPriority(int nlayer, bool enable);
-TLNAPI bool TLN_SetLayerParent(int nlayer, int parent);
-TLNAPI bool TLN_DisableLayerParent(int nlayer);
 TLNAPI bool TLN_DisableLayer (int nlayer);
 TLNAPI TLN_Palette TLN_GetLayerPalette (int nlayer);
 TLNAPI bool TLN_GetLayerTile (int nlayer, int x, int y, TLN_TileInfo* info);
@@ -624,6 +632,24 @@ TLNAPI bool TLN_GetAnimationState (int index);
 TLNAPI bool TLN_SetAnimationDelay (int index, int frame, int delay);
 TLNAPI int  TLN_GetAvailableAnimation (void);
 TLNAPI bool TLN_DisablePaletteAnimation(int index);
+/**@}*/
+
+/**
+ * \defgroup world
+ * \brief World management
+* @{ */
+TLNAPI bool TLN_LoadWorld(const char* tmxfile, int first_layer);
+TLNAPI void TLN_SetWorldPosition(int x, int y);
+TLNAPI bool TLN_SetLayerParallaxFactor(int nlayer, float x, float y);
+TLNAPI bool TLN_SetSpriteWorldPosition(int nsprite, int x, int y);
+/**@}*/
+
+/**
+ * \defgroup text
+ * \brief Tiled font rendering
+* @{ */
+TLNAPI void TLN_DefineFont(TLN_Font* font, TLN_Tileset tileset, int firstgid, char firstchar, int charwidth, int charheight);
+TLNAPI bool TLN_WriteText(int nlayer, TLN_Font* font, int row, int col, const char* text, ...);
 /**@}*/
 
 #ifdef __cplusplus
