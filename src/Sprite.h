@@ -37,8 +37,9 @@ typedef struct Sprite
 	int				pitch;
 	int				num;
 	int				index;
-	int				x,y;
+	int				x,y;			/* screen space location (TLN_SetSpritePosition) */
 	int				dx,dy;
+	int				xworld, yworld;	/* world space location (TLN_SetSpriteWorldPosition) */
 	float			sx,sy;
 	rect_t			srcrect;
 	rect_t			dstrect;
@@ -50,10 +51,14 @@ typedef struct Sprite
 	bool			ok;
 	bool			do_collision;
 	bool			collision;
+	bool			world_space;	/* valid position is world space, false = screen space */
+	bool			dirty;			/* requires call to UpdatePosition() before drawing */
 	TLN_Bitmap		rotation_bitmap;
 	ListNode		list_node;
 	Animation		animation;
 }
 Sprite;
+
+extern void UpdateSprite(Sprite* sprite);
 
 #endif

@@ -276,46 +276,15 @@ bool TLN_SetLayerPriority(int nlayer, bool enable)
 	return true;
 }
 
-/*!
- * \brief Sets parent layer index to scroll in sync
- * 
- * \param nlayer Layer index [0, num_layers - 1]
- * \param parent Index of layer to attach to
- * \remarks A layer with a parent gets scroll position from its parent, so they scroll together
- */
-bool TLN_SetLayerParent(int nlayer, int parent)
+/* removed, keep for ABI compatibility  */
+TLNAPI bool TLN_SetLayerParent(int nlayer, int parent)
 {
-	Layer *layer;
-	if (nlayer >= engine->numlayers || parent >= engine->numlayers)
-	{
-		TLN_SetLastError(TLN_ERR_IDX_LAYER);
-		return false;
-	}
-
-	layer = &engine->layers[nlayer];
-	layer->parent = &engine->layers[parent];
-	TLN_SetLastError(TLN_ERR_OK);
 	return true;
 }
 
-/*!
- * \brief Disables layer parent
- * 
- * \param nlayer Layer index [0, num_layers - 1]
- * \see TLN_SetLayerParent()
- */
-bool TLN_DisableLayerParent(int nlayer)
+/* removed, keep for ABI compatibility  */
+TLNAPI bool TLN_DisableLayerParent(int nlayer)
 {
-	Layer *layer;
-	if (nlayer >= engine->numlayers)
-	{
-		TLN_SetLastError(TLN_ERR_IDX_LAYER);
-		return false;
-	}
-
-	layer = &engine->layers[nlayer];
-	layer->parent = NULL;
-	TLN_SetLastError(TLN_ERR_OK);
 	return true;
 }
 
@@ -501,10 +470,9 @@ bool TLN_SetLayerPosition (int nlayer, int hstart, int vstart)
 		return false;
 	}
 
+	/* wrapping */
 	layer->hstart = hstart % layer->width;
 	layer->vstart = vstart % layer->height;
-
-	/* warping por la izquierda */
 	if (layer->hstart < 0)
 		layer->hstart += layer->width;
 	if (layer->vstart < 0)
@@ -1003,6 +971,20 @@ bool TLN_DisableLayerMosaic (int nlayer)
 	layer->mosaic.h = 0;
 	TLN_SetLastError (TLN_ERR_OK);
 	return true;
+}
+
+Layer* GetLayer(int index)
+{
+	return &engine->layers[index];
+}
+
+/* updates layer from world position, accounting offset and parallax */
+void UpdateLayer(int nlayer)
+{
+	Layer* layer = GetLayer(nlayer);
+	const int lx = (int)(engine->xworld*layer->world.xfactor) - layer->world.offsetx;
+	const int ly = (int)(engine->yworld*layer->world.yfactor) - layer->world.offsety;
+	TLN_SetLayerPosition(nlayer, lx, ly);
 }
 
 static void SelectBlitter (Layer* layer)

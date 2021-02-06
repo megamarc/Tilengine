@@ -24,7 +24,6 @@
 #endif
 
 static void SelectBlitter (Sprite* sprite);
-static void UpdateSprite (Sprite* sprite);
 
 /*!
  * \deprecated use \ref TLN_SetSpriteSet and \ref TLN_EnableSpriteFlag
@@ -825,7 +824,7 @@ void TLN_SetSpritesMaskRegion(int top_line, int bottom_line)
 }
 
 /* actualiza datos internos */
-static void UpdateSprite (Sprite* sprite)
+void UpdateSprite (Sprite* sprite)
 {
 	int w,h;
 

@@ -50,6 +50,8 @@ typedef struct Engine
 	List list_animations;		/* linked list active of animations */
 	int sprite_mask_top;		/* top scanline for sprite masking */
 	int sprite_mask_bottom;		/* bottom scanline for sprite masking */
+	int xworld, yworld;			/* world coordinates with TLN_SetWorldPosition() */
+	bool dirty;					/* world position updated since last draw */
 
 	struct
 	{

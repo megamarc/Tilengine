@@ -22,8 +22,8 @@ struct Tilemap
 	int		cols;		/* columns */
 	int		maxindex;	/* highest tile index */
 	int		bgcolor;	/* background color */
-	int id;				/* id property */
-	bool visible;		/* visible property */
+	int		id;			/* id property */
+	bool	visible;	/* visible property */
 	struct Tileset* tileset; /* attached tileset (if any) */
 	Tile	tiles[];
 };

@@ -39,8 +39,16 @@ typedef struct Layer
 	uint8_t*		blend;		/* puntero a tabla de transparencia (NULL = no hay) */
 	TLN_PixelMap*	pixel_map;	/* puntero a tabla de pixel map (NULL = no hay) */
 	draw_t			mode;
-	struct Layer*	parent;		/* optional link layer */
 	bool			priority;	/* whole layer in front of regular sprites */
+
+	/* world mode related data */
+	struct
+	{
+		int offsetx, offsety;
+		float xfactor, yfactor;
+	}
+	world;
+	bool dirty;					/* requires UpdateLayer() before draw */
 	
 	/* */
 	int				hstart;		/* offset de inicio horizontal */
@@ -53,7 +61,7 @@ typedef struct Layer
 	}
 	clip;
 
-	/* mosaico */
+	/* mosaic */
 	struct
 	{
 		int w,h;			/* tamaño del pixel */
@@ -62,5 +70,8 @@ typedef struct Layer
 	mosaic;
 }
 Layer;
+
+Layer* GetLayer(int index);
+void UpdateLayer(int nlayer);
 
 #endif

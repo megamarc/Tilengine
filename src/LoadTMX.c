@@ -4,75 +4,103 @@
 #include "LoadTMX.h"
 #include "LoadFile.h"
 #include "simplexml.h"
+#include "Layer.h"
 
-static TMXInfo* tmxinfo = NULL;
+static TMXInfo tmxinfo;
+
+static void init_current_layer(LayerType type)
+{
+	TMXLayer* layer = &tmxinfo.layers[tmxinfo.num_layers];
+	memset(layer, 0, sizeof(TMXLayer));
+	layer->type = type;
+	layer->visible = true;
+	layer->parallaxx = layer->parallaxy = 1.0f;
+}
 
 /* XML parser callback */
 static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 	const char* szName, const char* szAttribute, const char* szValue)
 {
 	int intvalue = 0;
+	float floatvalue = 0;
+
 	switch (evt)
 	{
 	case ADD_SUBTAG:
 		if (!strcasecmp(szName, "layer"))
-		{
-			TMXLayer* layer = &tmxinfo->layers[tmxinfo->num_layers];
-			memset(layer, 0, sizeof(TMXLayer));
-			layer->type = LAYER_TILE;
-			layer->visible = true;
-		}
+			init_current_layer(LAYER_TILE);
 		else if (!strcasecmp(szName, "objectgroup"))
-		{
-			TMXLayer* layer = &tmxinfo->layers[tmxinfo->num_layers];
-			memset(layer, 0, sizeof(TMXLayer));
-			layer->type = LAYER_OBJECT;
-			layer->visible = true;
-		}
+			init_current_layer(LAYER_OBJECT);
+		else if (!strcasecmp(szName, "imagelayer"))
+			init_current_layer(LAYER_BITMAP);
 		else if (!strcasecmp(szName, "tileset"))
 		{
-			TMXTileset* tileset = &tmxinfo->tilesets[tmxinfo->num_tilesets];
+			TMXTileset* tileset = &tmxinfo.tilesets[tmxinfo.num_tilesets];
 			memset(tileset, 0, sizeof(TMXTileset));
 		}
 		break;
 
 	case ADD_ATTRIBUTE:
 		intvalue = atoi(szValue);
+		floatvalue = (float)atof(szValue);
 		if (!strcasecmp(szName, "map"))
 		{
 			if (!strcasecmp(szAttribute, "width"))
-				tmxinfo->width = intvalue;
+				tmxinfo.width = intvalue;
 			else if (!strcasecmp(szAttribute, "height"))
-				tmxinfo->height = intvalue;
+				tmxinfo.height = intvalue;
 			else if (!strcasecmp(szAttribute, "tilewidth"))
-				tmxinfo->tilewidth = intvalue;
+				tmxinfo.tilewidth = intvalue;
 			else if (!strcasecmp(szAttribute, "tileheight"))
-				tmxinfo->tileheight = intvalue;
+				tmxinfo.tileheight = intvalue;
 			else if (!strcasecmp(szAttribute, "backgroundcolor"))
 			{
-				sscanf(&szValue[1], "%x", &tmxinfo->bgcolor);
-				tmxinfo->bgcolor += 0xFF000000;
+				sscanf(&szValue[1], "%x", &tmxinfo.bgcolor);
+				tmxinfo.bgcolor += 0xFF000000;
 			}
 		}
 
 		else if (!strcasecmp(szName, "tileset"))
 		{
-			TMXTileset* tileset = &tmxinfo->tilesets[tmxinfo->num_tilesets];
+			TMXTileset* tileset = &tmxinfo.tilesets[tmxinfo.num_tilesets];
 			if (!strcasecmp(szAttribute, "firstgid"))
 				tileset->firstgid = intvalue;
 			else if (!strcasecmp(szAttribute, "source"))
 				strncpy(tileset->source, szValue, sizeof(tileset->source));
 		}
 
-		else if (!strcasecmp(szName, "layer") || !strcasecmp(szName, "objectgroup"))
+		else if (!strcasecmp(szName, "layer") || !strcasecmp(szName, "objectgroup") || !strcasecmp(szName, "imagelayer"))
 		{
-			TMXLayer* layer = &tmxinfo->layers[tmxinfo->num_layers];
+			TMXLayer* layer = &tmxinfo.layers[tmxinfo.num_layers];
 			if (!strcasecmp(szAttribute, "name"))
-				strncpy(layer->name, szValue, 64);
+				strncpy(layer->name, szValue, sizeof(layer->name));
 			else if (!strcasecmp(szAttribute, "id"))
 				layer->id = intvalue;
 			else if (!strcasecmp(szAttribute, "visible"))
 				layer->visible = (bool)intvalue;
+			else if (!strcasecmp(szAttribute, "width"))
+				layer->width = intvalue;
+			else if (!strcasecmp(szAttribute, "height"))
+				layer->height = intvalue;
+			else if (!strcasecmp(szAttribute, "parallaxx"))
+				layer->parallaxx = floatvalue;
+			else if (!strcasecmp(szAttribute, "parallaxy"))
+				layer->parallaxy = floatvalue;
+			else if (!strcasecmp(szAttribute, "offsetx"))
+				layer->offsetx = floatvalue;
+			else if (!strcasecmp(szAttribute, "offsety"))
+				layer->offsety = floatvalue;
+			else if (!strcasecmp(szAttribute, "opacity"))
+				layer->opacity = floatvalue;
+			else if (!strcasecmp(szAttribute, "tintcolor"))
+				sscanf(&szValue[1], "%x", &layer->tintcolor);
+		}
+
+		else if (!strcasecmp(szName, "image"))
+		{
+			TMXLayer* layer = &tmxinfo.layers[tmxinfo.num_layers];
+			if (!strcasecmp(szAttribute, "source"))
+				strncpy(layer->image, szValue, sizeof(layer->name));
 			else if (!strcasecmp(szAttribute, "width"))
 				layer->width = intvalue;
 			else if (!strcasecmp(szAttribute, "height"))
@@ -87,14 +115,16 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 		break;
 
 	case FINISH_TAG:
-		if (!strcasecmp(szName, "tileset") && tmxinfo->num_tilesets < TMX_MAX_TILESET - 1)
-			tmxinfo->num_tilesets += 1;
-		else if (!strcasecmp(szName, "layer") && tmxinfo->num_layers < TMX_MAX_LAYER - 1)
-			tmxinfo->num_layers += 1;
-		else if (!strcasecmp(szName, "objectgroup") && tmxinfo->num_layers < TMX_MAX_LAYER - 1)
-			tmxinfo->num_layers += 1;
+		if (!strcasecmp(szName, "tileset") && tmxinfo.num_tilesets < TMX_MAX_TILESET - 1)
+			tmxinfo.num_tilesets += 1;
+		else if (!strcasecmp(szName, "layer") && tmxinfo.num_layers < TMX_MAX_LAYER - 1)
+			tmxinfo.num_layers += 1;
+		else if (!strcasecmp(szName, "objectgroup") && tmxinfo.num_layers < TMX_MAX_LAYER - 1)
+			tmxinfo.num_layers += 1;
+		else if (!strcasecmp(szName, "imagelayer") && tmxinfo.num_layers < TMX_MAX_LAYER - 1)
+			tmxinfo.num_layers += 1;
 		else if (!strcasecmp(szName, "object"))
-			tmxinfo->layers[tmxinfo->num_layers].num_objects += 1;
+			tmxinfo.layers[tmxinfo.num_layers].num_objects += 1;
 		break;
 	}
 	return handler;
@@ -109,6 +139,13 @@ bool TMXLoad(const char* filename, TMXInfo* info)
 	TLN_Tilemap tilemap = NULL;
 	bool retval = false;
 
+	/* already cached: return as is */
+	if (!strcasecmp(filename, tmxinfo.filename))
+	{
+		memcpy(info, &tmxinfo, sizeof(TMXInfo));
+		return true;
+	}
+
 	/* load file */
 	data = (uint8_t*)LoadFile(filename, &size);
 	if (!data)
@@ -121,8 +158,7 @@ bool TMXLoad(const char* filename, TMXInfo* info)
 	}
 
 	/* parse */
-	tmxinfo = info;
-	memset(info, 0, sizeof(TMXInfo));
+	memset(&tmxinfo, 0, sizeof(TMXInfo));
 	parser = simpleXmlCreateParser((char*)data, (long)size);
 	if (parser != NULL)
 	{
@@ -133,6 +169,7 @@ bool TMXLoad(const char* filename, TMXInfo* info)
 		}
 		else
 		{
+			strncpy(tmxinfo.filename, filename, sizeof(tmxinfo.filename));
 			TLN_SetLastError(TLN_ERR_OK);
 			retval = true;
 		}
@@ -142,6 +179,8 @@ bool TMXLoad(const char* filename, TMXInfo* info)
 
 	simpleXmlDestroyParser(parser);
 	free(data);
+	if (retval)
+		memcpy(info, &tmxinfo, sizeof(TMXInfo));
 	return retval;
 }
 

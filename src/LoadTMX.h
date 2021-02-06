@@ -13,6 +13,7 @@ typedef enum
 	LAYER_NONE,
 	LAYER_TILE,
 	LAYER_OBJECT,
+	LAYER_BITMAP,
 }
 LayerType;
 
@@ -20,11 +21,19 @@ typedef struct
 {
 	LayerType type;
 	char name[64];
-	int width;			/* layer width (tiles) */
-	int height;			/* layer height (tiles) */
-	int num_objects;	/* */
+	char image[100];	/* bitmap name for bitmap layers */
+	int width;			/* layer width (tiles or pixels) */
+	int height;			/* layer height (tiles or pixels) */
+	int num_objects;	/* number of objects for object layers */
 	int id;
 	bool visible;
+	bool locked;
+	float parallaxx;
+	float parallaxy;
+	float offsetx;
+	float offsety;
+	float opacity;
+	uint32_t tintcolor;
 }
 TMXLayer;
 
@@ -38,6 +47,7 @@ TMXTileset;
 /* general TMX info */
 typedef struct
 {
+	char filename[100];		/* cached tmx file */
 	int width;				/* map width (tiles) */
 	int height;				/* map height (tiles) */
 	int tilewidth;			/* */

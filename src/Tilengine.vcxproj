@@ -243,10 +243,12 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <ClCompile Include="Sprite.c" />
     <ClCompile Include="Spriteset.c" />
     <ClCompile Include="Tables.c" />
+    <ClCompile Include="Text.c" />
     <ClCompile Include="Tilemap.c" />
     <ClCompile Include="Tilengine.c" />
     <ClCompile Include="Tileset.c" />
     <ClCompile Include="Window.c" />
+    <ClCompile Include="World.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Tilengine.h" />
