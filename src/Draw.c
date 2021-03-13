@@ -100,6 +100,8 @@ bool DrawScanline(void)
 		/* update if dirty */
 		if (sprite->world_space && (sprite->dirty || engine->dirty))
 		{
+			sprite->x = sprite->xworld - engine->xworld;
+			sprite->y = sprite->yworld - engine->yworld;
 			UpdateSprite(sprite);
 			sprite->dirty = false;
 		}

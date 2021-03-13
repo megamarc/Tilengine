@@ -277,13 +277,13 @@ bool TLN_SetLayerPriority(int nlayer, bool enable)
 }
 
 /* removed, keep for ABI compatibility  */
-TLNAPI bool TLN_SetLayerParent(int nlayer, int parent)
+bool TLN_SetLayerParent(int nlayer, int parent)
 {
 	return true;
 }
 
 /* removed, keep for ABI compatibility  */
-TLNAPI bool TLN_DisableLayerParent(int nlayer)
+bool TLN_DisableLayerParent(int nlayer)
 {
 	return true;
 }
