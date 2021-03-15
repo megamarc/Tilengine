@@ -6,14 +6,15 @@
 
 #define MAX_TMX_ITEM	100
 
-union Color
+typedef union
 {
 	uint32_t value;
 	struct
 	{
 		uint8_t b, g, r, a;
 	};
-};
+}
+Color;
 
 /* info for current world */
 static TMXInfo tmxinfo;
