@@ -17,6 +17,7 @@
 #include "Tilemap.h"
 #include "Tables.h"
 #include "ObjectList.h"
+#include "Bitmap.h"
 
 static void SelectBlitter (Layer* layer);
 

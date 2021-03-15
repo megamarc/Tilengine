@@ -3,6 +3,9 @@
 #include "Layer.h"
 #include "Sprite.h"
 #include "LoadTMX.h"
+#include "Tilemap.h"
+#include "ObjectList.h"
+#include "Bitmap.h"
 
 #define MAX_TMX_ITEM	100
 
