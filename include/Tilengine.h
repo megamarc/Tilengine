@@ -258,18 +258,6 @@ typedef struct
 }
 TLN_SpriteState;
 
-/*! Tiled font descriptor */
-typedef struct
-{
-	int firstgid;		/*!< gid with first character */
-	char firstchar;		/*!< first ASCII character */
-	int glyph_width;	/*!< width of glyph in tiles */
-	int glyph_height;	/*!< height of glyph in tiles */
-	int glyphs_row;		/*!< num of glyps on each row */
-	int glyph_pitch;	/*!< num of tiles */
-}
-TLN_Font;
-
 /* callbacks */
 typedef union SDL_Event SDL_Event;
 typedef void(*TLN_VideoCallback)(int scanline);
@@ -644,14 +632,7 @@ TLNAPI bool TLN_LoadWorld(const char* tmxfile, int first_layer);
 TLNAPI void TLN_SetWorldPosition(int x, int y);
 TLNAPI bool TLN_SetLayerParallaxFactor(int nlayer, float x, float y);
 TLNAPI bool TLN_SetSpriteWorldPosition(int nsprite, int x, int y);
-/**@}*/
-
-/**
- * \defgroup text
- * \brief Tiled font rendering
-* @{ */
-TLNAPI void TLN_DefineFont(TLN_Font* font, TLN_Tileset tileset, int firstgid, char firstchar, int charwidth, int charheight);
-TLNAPI bool TLN_WriteText(int nlayer, TLN_Font* font, int row, int col, const char* text, ...);
+TLNAPI void TLN_ReleaseWorld(void);
 /**@}*/
 
 #ifdef __cplusplus

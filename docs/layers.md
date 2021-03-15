@@ -174,16 +174,6 @@ To disable the clipping rectangle, call \ref TLN_DisableLayerClip passing the la
 TLN_DisableLayerClip (0);
 ```
 
-### Layer linking
-
-Layers can have their positions linked, so when a layer is moved with \ref TLN_SetLayerPosition, any layer linked to it will move to the same position. This is useful with object layers that are overlaid on top if tiled layers, residing in the same plane. To link a layer, use \ref TLN_SetLayerParent passing the layer index to link, and the layer index that will be linked to.
-
-```C
-TLN_SetLayerParent(0, 1);
-TLN_SetLayerPosition(1, 320,160);
-/* layer 0 is also moved to 320,160 */
-```
-
 ### Disabling
 
 Layers can be disabled when they're not needed anymore with \ref TLN_DisableLayer, passing the layer index. A disabled layer cannot be re-enabled, it must be configured again.
@@ -363,7 +353,6 @@ This is a quick reference of related functions in this chapter:
 |\ref TLN_SetLayerClip           |Enables clipping rectangle
 |\ref TLN_DisableLayerClip       |Disables clipping rectangle
 |\ref TLN_SetLayerBlendMode      |Sets the blending mode (transparency effect)
-|\ref TLN_SetLayerParent         |Enables layer position linking
 |\ref TLN_SetLayerPriority       |Sets layer to be drawn on top of sprites
 |\ref TLN_SetLayerScaling        |Enables layer scaling
 |\ref TLN_SetLayerTransform      |Sets affine transform matrix to enable rotating and scaling

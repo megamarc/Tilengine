@@ -1,18 +1,9 @@
 /******************************************************************************
 *
 * Tilengine sample
-* 2019 Marc Palacios
+* 2021 Marc Palacios
 * http://www.tilengine.org
-*
-* This example demosntrates features introduced in Tilengine 2.4.0: 
-* layer objects, named sprite animations, layer priorities and sync'd 
-* layer movement. It's partially ported from Ansimuz "Sunny Land Forest" 
-* asset pack demo.
-*
-* This code uses two layers of objects for "pops" (or decorations), one in 
-* front of sprites and another behind sprites synched to the main layer, 
-* a tile-based foreground layer, and two bitmap-based background layers. 
-* It also defines two sprite-based named animations.
+
 *
 ******************************************************************************/
 
@@ -39,8 +30,6 @@ int main(int argc, char* argv[])
 	int xplayer, yplayer;
 	int oldx = -1;
 	int width, height;
-	TLN_ObjectInfo info = {0};
-	bool ok;
 	char* respack = NULL;
 	char* passkey = NULL;
 	
@@ -56,7 +45,7 @@ int main(int argc, char* argv[])
 	TLN_SetLogLevel(TLN_LOG_ERRORS);
 	if (respack != NULL)
 	{
-		ok = TLN_OpenResourcePack(respack, passkey);
+		bool ok = TLN_OpenResourcePack(respack, passkey);
 		if (!ok)
 		{
 			printf("Cannot open resource pack!\n");
@@ -68,7 +57,7 @@ int main(int argc, char* argv[])
 	else
 		TLN_SetLoadPath("assets/forest");
 	
-	/* load world and get dimensions */ 
+	/* load world starting at layer 0 and get dimensions */ 
 	TLN_LoadWorld("map.tmx", 0);
 	width = TLN_GetLayerWidth(LAYER_FOREGROUND);
 	height = TLN_GetLayerHeight(LAYER_FOREGROUND);
@@ -106,6 +95,7 @@ int main(int argc, char* argv[])
 	}
 
 	/* release resources */
+	TLN_ReleaseWorld();
 	TLN_DeleteWindow();
 	TLN_Deinit();
 	return 0;

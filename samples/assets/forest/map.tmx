@@ -2,10 +2,10 @@
 <map version="1.4" tiledversion="2021.01.13" orientation="orthogonal" renderorder="right-down" width="160" height="25" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="57">
  <tileset firstgid="1" source="tileset.tsx"/>
  <tileset firstgid="241" source="props.tsx"/>
- <imagelayer id="4" name="bottom" parallaxx="0.25" parallaxy="0.25">
+ <imagelayer id="4" name="bottom" parallaxx="0.25" parallaxy="0">
   <image source="background.png" width="192" height="240"/>
  </imagelayer>
- <imagelayer id="5" name="middle" parallaxx="0.5" parallaxy="0.5">
+ <imagelayer id="5" name="middle" parallaxx="0.5" parallaxy="0">
   <image source="middleground.png" width="384" height="240"/>
  </imagelayer>
  <layer id="1" name="Main Layer" width="160" height="25" offsetx="0" offsety="-32">

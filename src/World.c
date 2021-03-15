@@ -11,9 +11,13 @@ union Color
 	uint32_t value;
 	struct
 	{
-		uint8_t r, g, b, a;
+		uint8_t b, g, r, a;
 	};
 };
+
+/* info for current world */
+static TMXInfo tmxinfo;
+static int first;
 
 /*!
  * \brief Loads and assigns complete TMX file
@@ -22,7 +26,6 @@ union Color
  */
 bool TLN_LoadWorld(const char* filename, int first_layer)
 {
-	TMXInfo tmxinfo;
 	int c;
 
 	if (!TMXLoad(filename, &tmxinfo))
@@ -32,10 +35,11 @@ bool TLN_LoadWorld(const char* filename, int first_layer)
 		tmxinfo.num_layers = MAX_TMX_ITEM;
 
 	/* load and assign each layer type */
+	first = first_layer;
 	for (c = 0; c < tmxinfo.num_layers; c += 1)
 	{
 		TMXLayer* tmxlayer = &tmxinfo.layers[c];
-		const int layerindex = tmxinfo.num_layers - c - 1 + first_layer;
+		const int layerindex = tmxinfo.num_layers - c - 1 + first;
 		switch (tmxlayer->type)
 		{
 		case LAYER_TILE:
@@ -84,11 +88,47 @@ bool TLN_LoadWorld(const char* filename, int first_layer)
 			TLN_DisableLayer(layerindex);
 	}
 
-	/* sets background color */
-	Color bgcolor;
-	bgcolor.value = tmxinfo.bgcolor;
-	TLN_SetBGColor(bgcolor.r, bgcolor.g, bgcolor.b);
+	/* sets background color if defined */
+	if (tmxinfo.bgcolor != 0)
+	{
+		Color bgcolor;
+		bgcolor.value = tmxinfo.bgcolor;
+		TLN_SetBGColor(bgcolor.r, bgcolor.g, bgcolor.b);
+	}
+	else
+		TLN_DisableBGColor();
 	return true;
+}
+
+/*! 
+ * \brief Releases world resources loaded with TLN_LoadWorld 
+ */
+void TLN_ReleaseWorld(void)
+{
+	int c;
+
+	for (c = 0; c < tmxinfo.num_layers; c += 1)
+	{
+		TMXLayer* tmxlayer = &tmxinfo.layers[c];
+		const int layerindex = tmxinfo.num_layers - c - 1 + first;
+		
+		Layer* layer = GetLayer(layerindex);
+		layer->ok = false;
+		switch (tmxlayer->type)
+		{
+		case LAYER_TILE:
+			TLN_DeleteTilemap(layer->tilemap);
+			break;
+
+		case LAYER_OBJECT:
+			TLN_DeleteObjectList(layer->objects);
+			break;
+
+		case LAYER_BITMAP:
+			TLN_DeleteBitmap(layer->bitmap);
+			break;
+		}
+	}
 }
 
 /*!
