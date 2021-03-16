@@ -3,9 +3,6 @@
 #include "Layer.h"
 #include "Sprite.h"
 #include "LoadTMX.h"
-#include "Tilemap.h"
-#include "ObjectList.h"
-#include "Bitmap.h"
 
 #define MAX_TMX_ITEM	100
 
@@ -48,21 +45,21 @@ bool TLN_LoadWorld(const char* filename, int first_layer)
 		{
 		case LAYER_TILE:
 		{
-			Tilemap* tilemap = TLN_LoadTilemap(filename, tmxlayer->name);
+			TLN_Tilemap tilemap = TLN_LoadTilemap(filename, tmxlayer->name);
 			TLN_SetLayerTilemap(layerindex, tilemap);
 		}
 		break;
 
 		case LAYER_OBJECT:
 		{
-			ObjectList* objectlist = TLN_LoadObjectList(filename, tmxlayer->name);
+			TLN_ObjectList objectlist = TLN_LoadObjectList(filename, tmxlayer->name);
 			TLN_SetLayerObjects(layerindex, objectlist, NULL);
 		}
 		break;
 
 		case LAYER_BITMAP:
 		{
-			Bitmap* bitmap = TLN_LoadBitmap(tmxlayer->image);
+			TLN_Bitmap bitmap = TLN_LoadBitmap(tmxlayer->image);
 			TLN_SetLayerBitmap(layerindex, bitmap);
 		}
 		break;

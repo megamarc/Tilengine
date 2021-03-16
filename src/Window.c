@@ -513,7 +513,7 @@ void TLN_DeleteWindow (void)
 
 	DeleteWindow ();
 	SDL_Quit ();
-	printf("");
+	printf(" ");
 }
 
 /* marks input as pressed */
