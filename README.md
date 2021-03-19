@@ -124,7 +124,6 @@ void main(void) {
     TLN_Tilemap foreground;
 
     TLN_Init (400, 240, 1, 0, 0);
-    TLN_SetLoadPath ("assets/sonic");
     foreground = TLN_LoadTilemap ("assets/sonic/Sonic_md_fg1.tmx", NULL);
     TLN_SetLayerTilemap (0, foreground);
 
