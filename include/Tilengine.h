@@ -60,7 +60,7 @@
 /* version */
 #define TILENGINE_VER_MAJ	2
 #define TILENGINE_VER_MIN	9
-#define TILENGINE_VER_REV	0
+#define TILENGINE_VER_REV	1
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -549,6 +549,7 @@ TLNAPI bool TLN_SetLayerPriority(int nlayer, bool enable);
 TLNAPI bool TLN_SetLayerParent(int nlayer, int parent);
 TLNAPI bool TLN_DisableLayerParent(int nlayer);
 TLNAPI bool TLN_DisableLayer (int nlayer);
+TLNAPI bool TLN_EnableLayer(int nlayer);
 TLNAPI TLN_Palette TLN_GetLayerPalette (int nlayer);
 TLNAPI bool TLN_GetLayerTile (int nlayer, int x, int y, TLN_TileInfo* info);
 TLNAPI int  TLN_GetLayerWidth (int nlayer);
@@ -564,6 +565,7 @@ TLNAPI bool TLN_ConfigSprite (int nsprite, TLN_Spriteset spriteset, uint32_t fla
 TLNAPI bool TLN_SetSpriteSet (int nsprite, TLN_Spriteset spriteset);
 TLNAPI bool TLN_SetSpriteFlags (int nsprite, uint32_t flags);
 TLNAPI bool TLN_EnableSpriteFlag(int nsprite, uint32_t flag, bool enable);
+TLNAPI bool TLN_SetSpritePivot(int nsprite, float px, float py);
 TLNAPI bool TLN_SetSpritePosition (int nsprite, int x, int y);
 TLNAPI bool TLN_SetSpritePicture (int nsprite, int entry);
 TLNAPI bool TLN_SetSpritePalette (int nsprite, TLN_Palette palette);

@@ -614,6 +614,34 @@ bool TLN_SetLayerColumnOffset (int nlayer, int* offset)
 	return true;
 }
 
+/*! \brief Enables a layer previously disabled with \ref TLN_DisableLayer 
+ * \param nlayer Layer index [0, num_layers - 1]
+ * \remarks The layer must have been previously configured. A layer without a prior configuration can't be enabled 
+ */
+bool TLN_EnableLayer(int nlayer)
+{
+	Layer* layer = NULL;
+
+	if (nlayer >= engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_LAYER);
+		return false;
+	}
+
+	layer = &engine->layers[nlayer];
+
+	/* check proper config */
+	if (layer->palette && ((layer->tilemap && layer->tileset) || (layer->objects && layer->tileset) || layer->bitmap))
+	{
+		layer->ok = true;
+		TLN_SetLastError(TLN_ERR_IDX_LAYER);
+		return true;
+	}
+
+	TLN_SetLastError(TLN_ERR_NULL_POINTER);
+	return false;
+}
+
 /*!
  * \brief
  * Disables the specified layer so it is not drawn

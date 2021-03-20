@@ -170,8 +170,9 @@ void TLN_SetWorldPosition(int x, int y)
 /*!
  * \brief Sets the sprite position in world space coordinates
  * \param nsprite Id of the sprite [0, num_sprites - 1]
- * \param x Horizontal world position (0 = left margin)
- * \param y Vertical world position (0 = top margin)
+ * \param x Horizontal world position of pivot (0 = left margin)
+ * \param y Vertical world position of pivot (0 = top margin)
+ * \sa TLN_SetSpritePivot
  */
 bool TLN_SetSpriteWorldPosition(int nsprite, int x, int y)
 {

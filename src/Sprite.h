@@ -41,6 +41,7 @@ typedef struct Sprite
 	int				dx,dy;
 	int				xworld, yworld;	/* world space location (TLN_SetSpriteWorldPosition) */
 	float			sx,sy;
+	float			ptx, pty;		/* normalized pivot position inside sprite (default = 0,0) */
 	rect_t			srcrect;
 	rect_t			dstrect;
 	draw_t			mode;
