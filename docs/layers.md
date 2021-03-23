@@ -176,10 +176,18 @@ TLN_DisableLayerClip (0);
 
 ### Disabling
 
-Layers can be disabled when they're not needed anymore with \ref TLN_DisableLayer, passing the layer index. A disabled layer cannot be re-enabled, it must be configured again.
+Layers can be disabled when they're not needed anymore with \ref TLN_DisableLayer, passing the layer index.
 
 ```C
 TLN_DisableLayer(0);
+```
+
+### Enabling
+
+A disabled layer with \ref TLN_DisableLayer can be re-enabled again, as long as it was previously configured and contains valid data. To enable a layer use \ref TLN_EnableLayer passing the index to the layer to enable:
+
+```C
+TLN_EnableLayer(0);
 ```
 
 ## Special effects

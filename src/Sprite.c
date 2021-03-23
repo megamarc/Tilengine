@@ -825,6 +825,7 @@ static void nclamp(float* v)
 
 /*!
  * \brief Sets sprite pivot point. By default is at (0,0) = top left corner
+ * \param nsprite Id of the sprite [0, num_sprites - 1]
  * \param px horizontal normalized value (0.0 = full left, 1.0 = full right)
  * \param py vertical normalized value (0.0 = full top, 1.0 = full bottom)
  * \remarks Sprite pivot is reset automatically to default position after changing the spriteset
