@@ -14,7 +14,7 @@
 #include "Spriteset.h"
 #include "Palette.h"
 #include "Bitmap.h"
-#include "Hash.h"
+#include "crc32.h"
 
 static void set_sprite_entry (TLN_Spriteset spriteset, int entry, TLN_SpriteData* data)
 {
@@ -23,7 +23,7 @@ static void set_sprite_entry (TLN_Spriteset spriteset, int entry, TLN_SpriteData
 	dst_data->h = data->h;
 	dst_data->offset = data->y*spriteset->bitmap->pitch + data->x;
 	if (data->name[0] != 0)
-		dst_data->hash = hash(0, data->name, strlen(data->name));
+		dst_data->hash = _crc32(0, data->name, strlen(data->name));
 	else
 		dst_data->hash = 0;
 }
@@ -252,7 +252,7 @@ TLN_Palette TLN_GetSpritesetPalette (TLN_Spriteset spriteset)
  */
 int TLN_FindSpritesetSprite (TLN_Spriteset spriteset, const char* name)
 {
-	hash_t find;
+	uint32_t find;
 	int entry = -1;
 	int c = 0;
 
@@ -263,7 +263,7 @@ int TLN_FindSpritesetSprite (TLN_Spriteset spriteset, const char* name)
 		return false;
 
 	/* search by name hash */
-	find = hash(0, name, strlen(name));
+	find = _crc32(0, name, strlen(name));
 	for (c=0; c < spriteset->entries; c++)
 	{
 		const SpriteEntry* info = &spriteset->data[c];

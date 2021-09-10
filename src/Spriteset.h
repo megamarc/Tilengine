@@ -13,12 +13,12 @@
 
 #include "Object.h"
 #include "Tilengine.h"
-#include "Hash.h"
+#include "crc32.h"
 
 /* registro de sprite */
 typedef struct
 {
-	hash_t hash;
+	uint32_t hash;
 	int w,h;
 	int offset;
 }

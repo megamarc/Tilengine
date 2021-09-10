@@ -12,7 +12,7 @@
 #define _SEQUENCE_H
 
 #include "Object.h"
-#include "Hash.h"
+#include "crc32.h"
 
 /* ciclo de color */
 struct Strip
@@ -30,7 +30,7 @@ struct Strip
 struct Sequence
 {
 	DEFINE_OBJECT;
-	hash_t hash;
+	uint32_t hash;
 	int count;
 	int target;
 	char name[32];
