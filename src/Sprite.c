@@ -764,7 +764,7 @@ bool TLN_SetFirstSprite(int nsprite)
 }
 
 /*!
- * \brief Sets the next sprite to draw for a given sprite, builds list
+ * \brief Sets the next sprite to draw after a given sprite, builds list
  * \param nsprite Id of the sprite [0, num_sprites - 1]. Must be enabled (visible)
  * \param next Id of the sprite to draw after Id [0, num_sprites - 1]. Must be enabled (visible)
  */
@@ -785,7 +785,7 @@ bool TLN_SetNextSprite(int nsprite, int next)
 	}
 	list = &engine->list_sprites;
 
-	/* cut points inside the list te rejoin */
+	/* cut points inside the list to rejoin */
 	cut1 = ListGetNext(list, nsprite);
 	cut2 = ListGetPrev(list, next);
 	cut3 = ListGetNext(list, next);
@@ -796,6 +796,8 @@ bool TLN_SetNextSprite(int nsprite, int next)
 	ListLinkNodes(list, cut2, cut3);
 	if (list->first == next)
 		list->first = cut3;
+	if (list->last == nsprite)
+		list->last = next;
 
 	debugmsg("%s(%d,%d)\t", __FUNCTION__, nsprite, next);
 	ListPrint(list);
