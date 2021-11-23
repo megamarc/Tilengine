@@ -8,7 +8,7 @@
 
 static TMXInfo tmxinfo;
 
-static void init_current_layer(LayerType type)
+static void init_current_layer(TLN_LayerType type)
 {
 	TMXLayer* layer = &tmxinfo.layers[tmxinfo.num_layers];
 	memset(layer, 0, sizeof(TMXLayer));
@@ -197,7 +197,7 @@ TMXTileset* TMXGetSuitableTileset(TMXInfo* info, int gid)
 }
 
 /*returns first layer of requested type */
-TMXLayer* TMXGetFirstLayer(TMXInfo* info, LayerType type)
+TMXLayer* TMXGetFirstLayer(TMXInfo* info, TLN_LayerType type)
 {
 	int c;
 	for (c = 0; c < info->num_layers; c += 1)

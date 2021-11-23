@@ -60,7 +60,7 @@
 /* version */
 #define TILENGINE_VER_MAJ	2
 #define TILENGINE_VER_MIN	9
-#define TILENGINE_VER_REV	3
+#define TILENGINE_VER_REV	4
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -94,6 +94,18 @@ typedef enum
 	BLEND_MIX = BLEND_MIX50
 }
 TLN_Blend;
+
+/*!
+ * layer type retrieved by \ref TLN_GetLayerType
+ */
+typedef enum
+{
+	LAYER_NONE,		/*!< undefined */
+	LAYER_TILE,		/*!< tilemap-based layer */
+	LAYER_OBJECT,	/*!< objects layer */
+	LAYER_BITMAP,	/*!< bitmapped layer */
+}
+TLN_LayerType;
 
 /*! Affine transformation parameters */
 typedef struct
@@ -550,7 +562,12 @@ TLNAPI bool TLN_SetLayerParent(int nlayer, int parent);
 TLNAPI bool TLN_DisableLayerParent(int nlayer);
 TLNAPI bool TLN_DisableLayer (int nlayer);
 TLNAPI bool TLN_EnableLayer(int nlayer);
+TLNAPI TLN_LayerType TLN_GetLayerType(int nlayer);
 TLNAPI TLN_Palette TLN_GetLayerPalette (int nlayer);
+TLNAPI TLN_Tileset TLN_GetLayerTileset(int nlayer);
+TLNAPI TLN_Tilemap TLN_GetLayerTilemap(int nlayer);
+TLNAPI TLN_Bitmap TLN_GetLayerBitmap(int nlayer);
+TLNAPI TLN_ObjectList TLN_GetLayerObjects(int nlayer);
 TLNAPI bool TLN_GetLayerTile (int nlayer, int x, int y, TLN_TileInfo* info);
 TLNAPI int  TLN_GetLayerWidth (int nlayer);
 TLNAPI int  TLN_GetLayerHeight (int nlayer);

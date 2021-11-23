@@ -18,3 +18,4 @@ tcc %flags% Benchmark.c -o benchmark.exe
 tcc %flags% SuperMarioClone.c -o supermarioclone.exe
 tcc %flags% TestMouse.c -I"../src/sdl" -o testmouse.exe
 tcc %flags% Forest.c -o forest.exe
+tcc %flags% QueryLayer.c -o querylayer.exe
