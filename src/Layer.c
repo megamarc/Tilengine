@@ -429,7 +429,7 @@ TLN_Palette TLN_GetLayerPalette (int nlayer)
 /*!
  * \brief Returns the type of the layer
  * \param nlayer Layer index [0, num_layers - 1]
- * \returns TLN_LayerType enumeration
+ * \returns \ref TLN_LayerType enumeration
  * \see TLN_SetLayerTilemap(), TLN_SetLayerObjects(), TLN_SetLayerBitmap()
  */
 TLN_LayerType TLN_GetLayerType(int nlayer)
@@ -445,10 +445,10 @@ TLN_LayerType TLN_GetLayerType(int nlayer)
 }
 
 /*!
- * \brief Returns the active tileset on a LAYER_TILE or LAYER_OBJECT layer type
+ * \brief Returns the active tileset on a \ref LAYER_TILE or \ref LAYER_OBJECT layer type
  * \param nlayer Layer index [0, num_layers - 1]
  * \returns Reference to the active tileset
- * \see TLN_SetLayerTilemap(), TLN_SetLayerObjects(), TLN_SetLayerBitmap()
+ * \see TLN_SetLayerTilemap(), TLN_SetLayerObjects()
  */
 TLN_Tileset TLN_GetLayerTileset(int nlayer)
 {
@@ -463,7 +463,7 @@ TLN_Tileset TLN_GetLayerTileset(int nlayer)
 }
 
 /*!
- * \brief Returns the active tilemap on a LAYER_TILE layer type
+ * \brief Returns the active tilemap on a \ref LAYER_TILE layer type
  * \param nlayer Layer index [0, num_layers - 1]
  * \returns Reference to the active tilemap
  * \see TLN_SetLayerTilemap()
@@ -481,7 +481,7 @@ TLN_Tilemap TLN_GetLayerTilemap(int nlayer)
 }
 
 /*!
- * \brief Returns the active bitmap on a LAYER_BITMAP layer type
+ * \brief Returns the active bitmap on a \ref LAYER_BITMAP layer type
  * \param nlayer Layer index [0, num_layers - 1]
  * \returns Reference to the active bitmap
  * \see TLN_SetLayerBitmap()
@@ -499,7 +499,7 @@ TLN_Bitmap TLN_GetLayerBitmap(int nlayer)
 }
 
 /*!
- * \brief Returns the active object list on a LAYER_OBJECT layer type
+ * \brief Returns the active object list on a \ref LAYER_OBJECT layer type
  * \param nlayer Layer index [0, num_layers - 1]
  * \returns Reference to the active objects list
  * \see TLN_SetLayerObjects(), TLN_GetListObject()

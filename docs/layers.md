@@ -123,12 +123,6 @@ TLN_Palette palette = TLN_LoadPalette("palette.act");
 TLN_SetLayerPalette(0, palette);
 ```
 
-It's also possible to retrieve the current palette of a layer with \ref TLN_GetLayerPalette, passing the layer index, and returning a handle to a \ref TLN_Palette object:
-
-```C
-TLN_Palette palette = TLN_GetLayerPalette(0);
-```
-
 ### Blending
 
 Blending allows to combine the color of a layer with the underlying color already present. There are several predefined blending modes, read chapter.
@@ -324,7 +318,22 @@ Affine       | yes   | yes    | -
 Per-pixel map| yes   | yes    | -
 Mosaic       | yes   | yes    | -
 
-## Gameplay support: getting layer data
+## Gameplay support
+
+### Retrieving active assets
+
+Sometimes there's needed to get what assets are used by a given layer, especially when the layers have been automatically populated with \ref TLN_LoadWorld
+
+Query                    | Returns
+-------------------------|-------------------------------
+\ref TLN_GetLayerType    | Returns layer type, \ref TLN_LayerType enumeration
+\ref TLN_GetLayerTilemap | Returns active tilemap on tiled layers
+\ref TLN_GetLayerTileset | Returns active tileset on tiled an object layers
+\ref TLN_GetLayerBitmap  | Returns active bitmap on bitmapped layers
+\ref TLN_GetLayerPalette | Returns active palette if the layer uses one
+\ref TLN_GetLayerObjects | Returns active object list on object layers 
+
+### Getting Tile data
 
 Gameplay using layers for character interaction will require gathering information about it:
 
@@ -370,7 +379,6 @@ This is a quick reference of related functions in this chapter:
 |\ref TLN_SetLayerMosaic         |Enables mosaic effect
 |\ref TLN_DisableLayerMosaic     |Disables mosaic effect
 |\ref TLN_DisableLayer           |Disables the specified layer so it is not drawn
-|\ref TLN_GetLayerPalette        |Returns the current palette of a layer
 |\ref TLN_GetLayerWidth          |Returns the layer width in pixels
 |\ref TLN_GetLayerHeight         |Returns the layer height in pixels
 |\ref TLN_GetLayerTile           |Gets info about the tile located in tilemap space
