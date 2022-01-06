@@ -68,7 +68,7 @@ bool TLN_SoundInit(int nsounds, char **filenames)
  * Free resurces occupied by sound subsys
  * 
  */
-bool TLN_SoundDeinit()
+void TLN_SoundDeinit()
 {
 	for(int i = 0; i < 8; i++)
     {

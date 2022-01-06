@@ -642,7 +642,7 @@ TLNAPI void TLN_ReleaseWorld(void);
  * \brief Sound manipulation
 * @{ */
 bool TLN_SoundInit(int nsounds, char **filenames);
-bool TLN_SoundDeinit();
+void TLN_SoundDeinit();
 void TLN_PlaySound(int nsound);
 /**@}*/
 
