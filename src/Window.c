@@ -406,7 +406,7 @@ bool TLN_CreateWindow (const char* overlay, int flags)
 		return true;
 	}
 
-	if (SDL_Init (SDL_INIT_VIDEO|SDL_INIT_JOYSTICK) != 0)
+	if (SDL_Init (SDL_INIT_VIDEO|SDL_INIT_JOYSTICK|SDL_INIT_AUDIO) != 0)
 		return false;
 
 	/* fill parameters for window creation */
@@ -462,7 +462,7 @@ bool TLN_CreateWindowThread (const char* overlay, int flags)
 		return true;
 	}
 
-	if (SDL_Init (SDL_INIT_VIDEO|SDL_INIT_JOYSTICK) != 0)
+	if (SDL_Init (SDL_INIT_VIDEO|SDL_INIT_JOYSTICK|SDL_INIT_AUDIO) != 0)
 		return false;
 
 	/* fill parameters for window creation */
@@ -1184,7 +1184,7 @@ static void hblur (uint8_t* scan, int width, int height, int pitch)
 	}
 }
 
-/* resample rápido dividio 2 */
+/* resample rï¿½pido dividio 2 */
 static void Downsample2 (uint8_t* src, uint8_t* dst, int width, int height, int src_pitch, int dst_pitch)
 {
 	uint8_t* src_pixel;

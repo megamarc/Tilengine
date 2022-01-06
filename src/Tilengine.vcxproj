@@ -241,6 +241,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <ClCompile Include="Sequence.c" />
     <ClCompile Include="SequencePack.c" />
     <ClCompile Include="simplexml.c" />
+    <ClCompile Include="Sound.c" />
     <ClCompile Include="Sprite.c" />
     <ClCompile Include="Spriteset.c" />
     <ClCompile Include="Tables.c" />
