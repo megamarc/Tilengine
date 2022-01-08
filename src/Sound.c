@@ -19,6 +19,7 @@
 
 #define MAX_PATH	300
 Mix_Chunk* _sample[8];
+Mix_Music* _music;
 
 bool _mixAudioOpened = false;
 bool _mixChannelsAllocated = false;
@@ -45,9 +46,6 @@ bool TLN_AudioSybsysInit()
 /*!
  * \brief
  * Preload sounds
- * 
- * \param nsprite
- * Id of the sprite [0, num_sprites - 1]
  * 
  * \param nsounds
  * Count of preloaded sound files, max 8
@@ -77,6 +75,26 @@ bool TLN_SoundInit(int nsounds, char **filenames)
 
 /*!
  * \brief
+ * Preload music
+ * 
+ * \param filename
+ * Filename of melody
+ * 
+ */
+bool TLN_MusicInit(char *filename)
+{
+	if(!TLN_AudioSybsysInit())
+		return false;
+
+	_music = Mix_LoadMUS(filename);
+	if (_music==NULL)
+		return false;
+
+	return true;
+}
+
+/*!
+ * \brief
  * Free resurces occupied by sound subsys
  * 
  */
@@ -87,6 +105,8 @@ void TLN_SoundDeinit()
 		if (_sample[i] != NULL)
 			Mix_FreeChunk(_sample[i]);
 	}
+	Mix_HaltMusic();
+	Mix_FreeMusic(_music);
 	Mix_CloseAudio();
 }
 
@@ -102,4 +122,30 @@ void TLN_PlaySound(int nsound)
 {
 	if (_sample[nsound] != NULL)
 		Mix_PlayChannel(-1, _sample[nsound], 0);
+}
+
+/*!
+ * \brief
+ * Play preloaded music
+ * 
+ */
+void TLN_PlayMusic()
+{
+	if (_music == NULL)
+		return;
+
+	if (Mix_PlayingMusic())
+		Mix_HaltMusic();
+
+	Mix_PlayMusic(_music, -1);
+}
+
+/*!
+ * \brief
+ * Stop playing preloaded music
+ * 
+ */
+void TLN_StopMusic()
+{
+	Mix_HaltMusic();
 }
