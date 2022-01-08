@@ -149,3 +149,17 @@ void TLN_StopMusic()
 {
 	Mix_HaltMusic();
 }
+
+/*!
+ * \brief
+ * Change music volume
+ * 
+ * \param volume
+ * Sound volume [0..128]
+ * 
+ */
+void TLN_MusicVolume(int volume)
+{
+	
+	Mix_VolumeMusic(volume);
+}
