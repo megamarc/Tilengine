@@ -53,6 +53,16 @@ void TLN_SetLoadPath (const char* path)
 }
 
 /*!
+ * \brief
+ * Gets base path for TLN_LoadXXX functions.
+ * 
+ */
+char* TLN_GetLoadPath ()
+{
+	return localpath;
+}
+
+/*!
  * \brief Open the resource package with optional aes-128 key and binds it
  * \param filename file with the resource package (.dat extension)
  * \param key optional null-terminated ASCII string with aes decryption key

@@ -56,6 +56,7 @@ bool TLN_AudioSybsysInit()
  */
 bool TLN_SoundInit(int nsounds, char **filenames)
 {
+	char path[MAX_PATH + 1];
 	memset(_sample, 0, sizeof(Mix_Chunk*) * 8);
 	if (!TLN_AudioSybsysInit())
 		return false;
@@ -63,7 +64,12 @@ bool TLN_SoundInit(int nsounds, char **filenames)
 	// Load waveforms
 	for(int i = 0; i < nsounds; i++)
 	{
-		_sample[i] = Mix_LoadWAV(filenames[i]);
+#if (_MSC_VER) && (_MSC_VER < 1900)
+		sprintf (path, "%s/%s", TLN_GetLoadPath(), filenames[i]);
+#else
+		snprintf (path, sizeof(path), "%s/%s", TLN_GetLoadPath(), filenames[i]);
+#endif
+		_sample[i] = Mix_LoadWAV(path);
 		if( _sample[i] == NULL )
 		{
 			return false;
@@ -83,10 +89,16 @@ bool TLN_SoundInit(int nsounds, char **filenames)
  */
 bool TLN_MusicInit(char *filename)
 {
+	char path[MAX_PATH + 1];
 	if(!TLN_AudioSybsysInit())
 		return false;
 
-	_music = Mix_LoadMUS(filename);
+#if (_MSC_VER) && (_MSC_VER < 1900)
+		sprintf (path, "%s/%s", TLN_GetLoadPath(), filename);
+#else
+		snprintf (path, sizeof(path), "%s/%s", TLN_GetLoadPath(), filename);
+#endif
+	_music = Mix_LoadMUS(path);
 	if (_music==NULL)
 		return false;
 
