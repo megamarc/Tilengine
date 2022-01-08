@@ -641,12 +641,13 @@ TLNAPI void TLN_ReleaseWorld(void);
  * \defgroup sound
  * \brief Sound manipulation
 * @{ */
-bool TLN_SoundInit(int nsounds, char **filenames); 
-bool TLN_MusicInit(char *filename);
-void TLN_SoundDeinit();
-void TLN_PlaySound(int nsound);
-void TLN_PlayMusic();
-void TLN_StopMusic();
+TLNAPI bool TLN_SoundInit(int nsounds, char **filenames); 
+TLNAPI bool TLN_MusicInit(char *filename);
+TLNAPI void TLN_SoundDeinit();
+TLNAPI void TLN_PlaySound(int nsound);
+TLNAPI void TLN_PlayMusic();
+TLNAPI void TLN_StopMusic();
+TLNAPI void TLN_MusicVolume(int volume);
 
 /**@}*/
 
