@@ -1,7 +1,7 @@
 CC       = gcc
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
-TARGETS  = barrel mode7 platformer racer scaling shadow shooter tutorial wobble colorcycle benchmark supermarioclone test_mouse forest
+TARGETS  = barrel mode7 platformer racer scaling shadow shooter tutorial wobble colorcycle benchmark supermarioclone test_mouse forest querylayer
 
 # Windows specific flags
 ifeq ($(OS),Windows_NT)
@@ -79,6 +79,9 @@ test_mouse: TestMouse.o
 	
 forest: Forest.o
 	$(CC) Forest.o -o forest $(LDFLAGS)
+	
+querylayer: QueryLayer.o
+	$(CC) QueryLayer.o -o querylayer $(LDFLAGS)
 	
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@

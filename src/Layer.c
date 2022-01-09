@@ -74,6 +74,7 @@ bool TLN_SetLayer(int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap)
 	}
 	layer->bitmap = NULL;
 	layer->objects = NULL;
+	layer->type = LAYER_TILE;
 
 	/* apply priority attribute */
 	if (tileset->attributes != NULL)
@@ -175,6 +176,7 @@ bool TLN_SetLayerBitmap(int nlayer, TLN_Bitmap bitmap)
 	/* require palette */
 	if (layer->palette)
 	{
+		layer->type = LAYER_BITMAP;
 		layer->ok = true;
 		layer->draw = GetLayerDraw(layer);
 		SelectBlitter(layer);
@@ -230,6 +232,7 @@ bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Tileset tileset
 	layer->objects = objects;
 	layer->width = objects->width;
 	layer->height = objects->height;
+	layer->type = LAYER_OBJECT;
 	
 	/* link objects to actual bitmaps */
 	item = objects->list;
@@ -406,28 +409,111 @@ bool TLN_SetLayerPalette (int nlayer, TLN_Palette palette)
 }
 
 /*!
- * \brief
- * Gets the attached palette of a layer
- * 
- * \param nlayer
- * Layer index [0, num_layers - 1]
- * 
- * \returns
- * Reference of the palette assigned to the layer
- * 
- * \see
- * TLN_SetLayerPalette()
+ * \brief Returns the active palette of a layer
+ * \param nlayer Layer index [0, num_layers - 1]
+ * \returns Reference of the palette assigned to the layer
+ * \see TLN_SetLayerPalette()
  */
 TLN_Palette TLN_GetLayerPalette (int nlayer)
 {
-	if (nlayer >= engine->numlayers)
+	if (nlayer < engine->numlayers)
 	{
-		TLN_SetLastError (TLN_ERR_IDX_LAYER);
-		return NULL;
+		TLN_SetLastError(TLN_ERR_OK);
+		return engine->layers[nlayer].palette;
 	}
 
-	TLN_SetLastError (TLN_ERR_OK);
-	return engine->layers[nlayer].palette;
+	TLN_SetLastError(TLN_ERR_IDX_LAYER);
+	return NULL;
+}
+
+/*!
+ * \brief Returns the type of the layer
+ * \param nlayer Layer index [0, num_layers - 1]
+ * \returns \ref TLN_LayerType enumeration
+ * \see TLN_SetLayerTilemap(), TLN_SetLayerObjects(), TLN_SetLayerBitmap()
+ */
+TLN_LayerType TLN_GetLayerType(int nlayer)
+{
+	if (nlayer < engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_OK);
+		return engine->layers[nlayer].type;
+	}
+
+	TLN_SetLastError(TLN_ERR_IDX_LAYER);
+	return LAYER_NONE;
+}
+
+/*!
+ * \brief Returns the active tileset on a \ref LAYER_TILE or \ref LAYER_OBJECT layer type
+ * \param nlayer Layer index [0, num_layers - 1]
+ * \returns Reference to the active tileset
+ * \see TLN_SetLayerTilemap(), TLN_SetLayerObjects()
+ */
+TLN_Tileset TLN_GetLayerTileset(int nlayer)
+{
+	if (nlayer < engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_OK);
+		return engine->layers[nlayer].tileset;
+	}
+
+	TLN_SetLastError(TLN_ERR_IDX_LAYER);
+	return NULL;
+}
+
+/*!
+ * \brief Returns the active tilemap on a \ref LAYER_TILE layer type
+ * \param nlayer Layer index [0, num_layers - 1]
+ * \returns Reference to the active tilemap
+ * \see TLN_SetLayerTilemap()
+ */
+TLN_Tilemap TLN_GetLayerTilemap(int nlayer)
+{
+	if (nlayer < engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_OK);
+		return engine->layers[nlayer].tilemap;
+	}
+
+	TLN_SetLastError(TLN_ERR_IDX_LAYER);
+	return NULL;
+}
+
+/*!
+ * \brief Returns the active bitmap on a \ref LAYER_BITMAP layer type
+ * \param nlayer Layer index [0, num_layers - 1]
+ * \returns Reference to the active bitmap
+ * \see TLN_SetLayerBitmap()
+ */
+TLN_Bitmap TLN_GetLayerBitmap(int nlayer)
+{
+	if (nlayer < engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_OK);
+		return engine->layers[nlayer].bitmap;
+	}
+
+	TLN_SetLastError(TLN_ERR_IDX_LAYER);
+	return NULL;
+}
+
+/*!
+ * \brief Returns the active object list on a \ref LAYER_OBJECT layer type
+ * \param nlayer Layer index [0, num_layers - 1]
+ * \returns Reference to the active objects list
+ * \see TLN_SetLayerObjects(), TLN_GetListObject()
+ */
+TLN_ObjectList TLN_GetLayerObjects(int nlayer)
+{
+	if (nlayer < engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_OK);
+		return engine->layers[nlayer].objects;
+	}
+
+	TLN_SetLastError(TLN_ERR_IDX_LAYER);
+	return NULL;
 }
 
 /*!

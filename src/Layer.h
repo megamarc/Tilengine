@@ -19,25 +19,25 @@
 /* capa */
 typedef struct Layer
 {
-	/* configuración */
+	TLN_LayerType	type;		/* layer type */
 	TLN_Tileset		tileset;	/* pointer to tileset */
 	TLN_Tilemap		tilemap;	/* pointer to tilemap */
-	TLN_Palette		palette;	/* pointer to current pcolor alette */
+	TLN_Palette		palette;	/* pointer to current color alette */
 	TLN_Bitmap		bitmap;		/* pointer to bitmap (bitmap layer mode) */
 	TLN_ObjectList	objects;	/* pointer to object list (objects layer mode) */
-	int				width;		/* anchura total en píxeles */
-	int				height;		/* altura total en píxeles */
+	int				width;		/* layer width in pixels */
+	int				height;		/* layer height in pixels */
 	bool			ok;
 	bool			affine;
 	ScanDrawPtr		draw;
 	ScanBlitPtr		blitters[2];
 	Matrix3			transform;
-	int*			column;		/* offset de columna (opcional) */
+	int*			column;		/* column offset (optional) */
 	fix_t			xfactor;
 	fix_t			dx;
 	fix_t			dy;
-	uint8_t*		blend;		/* puntero a tabla de transparencia (NULL = no hay) */
-	TLN_PixelMap*	pixel_map;	/* puntero a tabla de pixel map (NULL = no hay) */
+	uint8_t*		blend;		/* pointer to blend table */
+	TLN_PixelMap*	pixel_map;	/* pointer to pixel mapping table */
 	draw_t			mode;
 	bool			priority;	/* whole layer in front of regular sprites */
 

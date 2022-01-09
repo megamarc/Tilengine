@@ -8,18 +8,9 @@
 #define TMX_MAX_LAYER		64
 #define TMX_MAX_TILESET		64
 
-typedef enum
-{
-	LAYER_NONE,
-	LAYER_TILE,
-	LAYER_OBJECT,
-	LAYER_BITMAP,
-}
-LayerType;
-
 typedef struct
 {
-	LayerType type;
+	TLN_LayerType type;
 	char name[64];
 	char image[100];	/* bitmap name for bitmap layers */
 	int width;			/* layer width (tiles or pixels) */
@@ -62,7 +53,7 @@ TMXInfo;
 
 bool TMXLoad(const char* filename, TMXInfo* info);
 TMXTileset* TMXGetSuitableTileset(TMXInfo* info, int gid);
-TMXLayer* TMXGetFirstLayer(TMXInfo* info, LayerType type);
+TMXLayer* TMXGetFirstLayer(TMXInfo* info, TLN_LayerType type);
 TMXLayer* TMXGetLayer(TMXInfo* info, const char* name);
 
 #endif
