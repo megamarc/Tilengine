@@ -18,7 +18,8 @@
 #endif
 
 #define MAX_PATH	300
-Mix_Chunk* _sample[8];
+#define MAX_SOUNDS	8
+Mix_Chunk* _sample[MAX_SOUNDS];
 Mix_Music* _music;
 
 bool _mixAudioOpened = false;
@@ -57,10 +58,13 @@ bool TLN_AudioSybsysInit()
 bool TLN_SoundInit(int nsounds, char **filenames)
 {
 	char path[MAX_PATH + 1];
-	memset(_sample, 0, sizeof(Mix_Chunk*) * 8);
+	memset(_sample, 0, sizeof(Mix_Chunk*) * MAX_SOUNDS);
 	if (!TLN_AudioSybsysInit())
 		return false;
-
+	
+	if (nsounds > MAX_SOUNDS)
+		nsounds = MAX_SOUNDS;
+	
 	// Load waveforms
 	for(int i = 0; i < nsounds; i++)
 	{
