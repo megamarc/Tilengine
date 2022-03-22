@@ -22,12 +22,17 @@ x64_Debug/
 x64_Release/
 *.pyc
 *.exe
+*.dll
 
 docs/screens/
 samples/assets/mslug/
 samples/assets/sunny_land/
 samples/c/*.dll
 samples/csharp/*.dll
+
+src/libpng
+src/sdl
+src/x64_Release
 
 # deploy packages
 *.zip
