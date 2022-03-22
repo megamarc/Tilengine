@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "Tilengine.h"
+#include "../src/sdl/SDL2/SDL_timer.h"
 
 #define WIDTH	400
 #define HEIGHT	240
@@ -45,13 +46,26 @@ int main (int argc, char* argv[])
 
 	/* main loop */
 	TLN_CreateWindow (NULL, 0);
+
+	// We will cap the FPS to 60 for people having a screen with a refresh rate greater than 60Hz
+	int timeStart = 0;
+	int timeFinish = 0;
+	float delta = 0.00;
+
 	while (TLN_ProcessWindow())
 	{
-		player_x += 1;
-		if (player_x >= WIDTH)
-			player_x = -16;
-		TLN_SetSpritePosition (0, player_x, player_y);
-		TLN_DrawFrame (0);
+		timeStart = SDL_GetTicks();
+		delta = timeStart - timeFinish;
+		if(delta > 1000 / 60.00) // Capping
+		{
+			player_x += 1;
+			if (player_x >= WIDTH)
+				player_x = -16;
+			TLN_SetSpritePosition (0, player_x, player_y);
+			TLN_DrawFrame (0);
+			timeFinish = timeStart;
+		}
+		
 	}
 
 	/* deinit */

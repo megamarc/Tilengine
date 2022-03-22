@@ -16,6 +16,7 @@
 #include "Tileset.h"
 #include "Tilemap.h"
 #include "ObjectList.h"
+#include "Sprite.h"
 
 /* private prototypes */
 static void DrawSpriteCollision (int nsprite, uint8_t *srcpixel, uint16_t *dstpixel, int width, int dx);
@@ -41,8 +42,8 @@ bool DrawScanline(void)
 	int size = engine->framebuffer.width;
 	int c;
 	int index;
-	bool background_priority = false;
-	bool sprite_priority = false;
+	bool background_priority = false;	/* at least one tile in priority layer */
+	bool sprite_priority = false;		/* at least one sprite in priority layer */
 	List* list;
 
 	/* call raster effect callback */
@@ -71,17 +72,21 @@ bool DrawScanline(void)
 	{
 		Layer* layer = &engine->layers[c];
 
-		/* link layer */
-		if (layer->parent != NULL)
+		if (layer->ok)
 		{
-			layer->hstart = layer->parent->hstart;
-			layer->vstart = layer->parent->vstart;
-		}
+			/* update if dirty */
+			if (engine->dirty || layer->dirty)
+			{
+				UpdateLayer(c);
+				layer->dirty = false;
+			}
 
-		if (layer->ok && !layer->priority && line >= layer->clip.y1 && line <= layer->clip.y2)
-		{
-			if (layer->draw(c, line) == true)
-				background_priority = true;
+			/* draw */
+			if (!layer->priority && line >= layer->clip.y1 && line <= layer->clip.y2)
+			{
+				if (layer->draw(c, line) == true)
+					background_priority = true;
+			}
 		}
 	}
 
@@ -91,6 +96,16 @@ bool DrawScanline(void)
 	while (index != -1)
 	{
 		Sprite* sprite = &engine->sprites[index];
+
+		/* update if dirty */
+		if (sprite->world_space && (sprite->dirty || engine->dirty))
+		{
+			sprite->x = sprite->xworld - engine->xworld;
+			sprite->y = sprite->yworld - engine->yworld;
+			UpdateSprite(sprite);
+			sprite->dirty = false;
+		}
+
 		if (check_sprite_coverage(sprite, line))
 		{
 			if (!(sprite->flags & FLAG_PRIORITY))
@@ -137,6 +152,7 @@ bool DrawScanline(void)
 	}
 
 	/* next scanline */
+	engine->dirty = false;
 	engine->line++;
 	return engine->line < engine->framebuffer.height;
 }

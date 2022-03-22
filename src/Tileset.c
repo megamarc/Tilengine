@@ -100,13 +100,13 @@ TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette 
 	tileset->attributes = (TLN_TileAttributes*)malloc(size_attributes);
 	if (attributes != NULL)
 		memcpy (tileset->attributes, attributes, size_attributes);
-	tileset->tiles = calloc(numtiles, sizeof(uint16_t));
+	tileset->tiles = (uint16_t*)calloc(numtiles, sizeof(uint16_t));
 	for (c = 0; c < numtiles; c += 1)
 		tileset->tiles[c] = c;
 
 	/* create animations */
 	if (sp != NULL)
-		tileset->animations = calloc(sp->num_sequences, sizeof(Animation));
+		tileset->animations = (Animation*)calloc(sp->num_sequences, sizeof(Animation));
 	
 	TLN_SetLastError (TLN_ERR_OK);
 	return tileset;
@@ -132,7 +132,7 @@ TLN_Tileset TLN_CreateImageTileset(int numtiles, TLN_TileImage* images)
 	const int images_size = numtiles * sizeof(TLN_TileImage);
 	const int size = sizeof(struct Tileset) + images_size;
 
-	tileset = CreateBaseObject(OT_TILESET, size);
+	tileset = (TLN_Tileset)CreateBaseObject(OT_TILESET, size);
 	if (tileset == NULL)
 	{
 		TLN_SetLastError(TLN_ERR_OUT_OF_MEMORY);

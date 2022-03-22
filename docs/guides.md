@@ -22,6 +22,7 @@ There are specific guides for each feature
 * [Animations](animations.md) - animating layers, sprites and colors
 * [Blending](blending.md) - compositing transparency, light and shadow effects
 * [Raster effects](raster_effects.md) - create advanced FX
+* [World](world.md) - assisted parallax scroll and object position in world space
 
 **Working with assets**
 

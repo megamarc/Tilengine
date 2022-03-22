@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include "Racer.h"
 #include "Tree.h"
+#include "../src/sdl/SDL2/SDL_timer.h"
 
 #define MAX_SPEED	6
 #define MAX_STEER	58
@@ -77,42 +78,54 @@ int main (int argc, char* argv[])
 
 	CreateActors (MAX_ACTOR);
 
+	// We will cap the FPS to 60 for people having a screen with a refresh rate greater than 60Hz
+	int timeStart = 0;
+	int timeFinish = 0;
+	float delta = 0.00;
+
 	/* main loop */
 	while (TLN_ProcessWindow ())
 	{
-		/* timekeeper */
-		time = frame;
-
-		TLN_SetLayerPosition (LAYER_PLAYFIELD, 56,72);
-		if (pos - last_tree >= 100)
+		timeStart = SDL_GetTicks();
+		delta = timeStart - timeFinish;
+		if(delta > 1000 / 60.00) // Capping
 		{
-			CreateTree (240,184,0);
-			CreateTree (240,184,1);
-			last_tree = pos;
-		}
+			/* timekeeper */
+			time = frame;
 
-		/* input */
-		if ((time & 0x07) == 0)
-		{
-			if (TLN_GetInput (INPUT_UP) && speed < MAX_SPEED)
-				speed++;
-		}
-		else if (!TLN_GetInput (INPUT_UP) && speed > 0)
-			speed--;
+			TLN_SetLayerPosition (LAYER_PLAYFIELD, 56,72);
+			if (pos - last_tree >= 100)
+			{
+				CreateTree (240,184,0);
+				CreateTree (240,184,1);
+				last_tree = pos;
+			}
 
-		if (TLN_GetInput (INPUT_LEFT) && pan > -MAX_STEER)
-			pan-=2;
-		else if (TLN_GetInput (INPUT_RIGHT) && pan < MAX_STEER)
-			pan+=2;
+			/* input */
+			if ((time & 0x07) == 0)
+			{
+				if (TLN_GetInput (INPUT_UP) && speed < MAX_SPEED)
+					speed++;
+			}
+			else if (!TLN_GetInput (INPUT_UP) && speed > 0)
+				speed--;
+
+			if (TLN_GetInput (INPUT_LEFT) && pan > -MAX_STEER)
+				pan-=2;
+			else if (TLN_GetInput (INPUT_RIGHT) && pan < MAX_STEER)
+				pan+=2;
+			
+			/* actores */
+			pos += speed;
+			TasksActors (time);
+
+			/* render to window */
+			TLN_DrawFrame (time);
+
+			frame++;
+			timeFinish = timeStart;
+		}
 		
-		/* actores */
-		pos += speed;
-		TasksActors (time);
-
-		/* render to window */
-		TLN_DrawFrame (time);
-
-		frame++;
 	}
 
 	/* deinit */

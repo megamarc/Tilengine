@@ -59,8 +59,8 @@
 
 /* version */
 #define TILENGINE_VER_MAJ	2
-#define TILENGINE_VER_MIN	8
-#define TILENGINE_VER_REV	5
+#define TILENGINE_VER_MIN	9
+#define TILENGINE_VER_REV	4
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -76,14 +76,6 @@ typedef enum
 	FLAG_MASKED		= BITVAL(11),	/*!< sprite won't be drawn inside masked region */
 }
 TLN_TileFlags;
-
-/* fixed point helper */
-typedef int fix_t;
-#define FIXED_BITS	16
-#define float2fix(f)	(fix_t)(f*(1 << FIXED_BITS))
-#define int2fix(i)		((int)(i) << FIXED_BITS)
-#define fix2int(f)		((int)(f) >> FIXED_BITS)
-#define fix2float(f)	(float)(f)/(1 << FIXED_BITS)
 
 /*!
  * layer blend modes. Must be one of these and are mutually exclusive:
@@ -102,6 +94,18 @@ typedef enum
 	BLEND_MIX = BLEND_MIX50
 }
 TLN_Blend;
+
+/*!
+ * layer type retrieved by \ref TLN_GetLayerType
+ */
+typedef enum
+{
+	LAYER_NONE,		/*!< undefined */
+	LAYER_TILE,		/*!< tilemap-based layer */
+	LAYER_OBJECT,	/*!< objects layer */
+	LAYER_BITMAP,	/*!< bitmapped layer */
+}
+TLN_LayerType;
 
 /*! Affine transformation parameters */
 typedef struct
@@ -257,7 +261,7 @@ typedef struct
 	int y;						/*!< Screen position y */
 	int w;						/*!< Actual width in screen (after scaling) */
 	int h;						/*!< Actual height in screen (after scaling) */
-	TLN_TileFlags flags;		/*!< flags */
+	uint32_t flags;				/*!< flags */
 	TLN_Palette palette;		/*!< assigned palette */	 
 	TLN_Spriteset spriteset;	/*!< assigned spriteset */	
 	int index;					/*!< graphic index inside spriteset */
@@ -401,7 +405,6 @@ TLNAPI void TLN_SetCustomBlendFunction (TLN_BlendFunction);
 TLNAPI void TLN_SetLogLevel(TLN_LogLevel log_level);
 TLNAPI bool TLN_OpenResourcePack(const char* filename, const char* key);
 TLNAPI void TLN_CloseResourcePack(void);
-
 /**@}*/
 
 /**
@@ -438,7 +441,6 @@ TLNAPI void TLN_Delay (uint32_t msecs);
 TLNAPI uint32_t TLN_GetTicks (void);
 TLNAPI int TLN_GetWindowWidth(void);
 TLNAPI int TLN_GetWindowHeight(void);
-
 /**@}*/
 
 /**
@@ -559,7 +561,13 @@ TLNAPI bool TLN_SetLayerPriority(int nlayer, bool enable);
 TLNAPI bool TLN_SetLayerParent(int nlayer, int parent);
 TLNAPI bool TLN_DisableLayerParent(int nlayer);
 TLNAPI bool TLN_DisableLayer (int nlayer);
+TLNAPI bool TLN_EnableLayer(int nlayer);
+TLNAPI TLN_LayerType TLN_GetLayerType(int nlayer);
 TLNAPI TLN_Palette TLN_GetLayerPalette (int nlayer);
+TLNAPI TLN_Tileset TLN_GetLayerTileset(int nlayer);
+TLNAPI TLN_Tilemap TLN_GetLayerTilemap(int nlayer);
+TLNAPI TLN_Bitmap TLN_GetLayerBitmap(int nlayer);
+TLNAPI TLN_ObjectList TLN_GetLayerObjects(int nlayer);
 TLNAPI bool TLN_GetLayerTile (int nlayer, int x, int y, TLN_TileInfo* info);
 TLNAPI int  TLN_GetLayerWidth (int nlayer);
 TLNAPI int  TLN_GetLayerHeight (int nlayer);
@@ -570,10 +578,11 @@ TLNAPI int  TLN_GetLayerHeight (int nlayer);
  * \defgroup sprite
  * \brief Sprites management
 * @{ */
-TLNAPI bool TLN_ConfigSprite (int nsprite, TLN_Spriteset spriteset, TLN_TileFlags flags);
+TLNAPI bool TLN_ConfigSprite (int nsprite, TLN_Spriteset spriteset, uint32_t flags);
 TLNAPI bool TLN_SetSpriteSet (int nsprite, TLN_Spriteset spriteset);
-TLNAPI bool TLN_SetSpriteFlags (int nsprite, TLN_TileFlags flags);
-TLNAPI bool TLN_EnableSpriteFlag(int nsprite, TLN_TileFlags flag, bool enable);
+TLNAPI bool TLN_SetSpriteFlags (int nsprite, uint32_t flags);
+TLNAPI bool TLN_EnableSpriteFlag(int nsprite, uint32_t flag, bool enable);
+TLNAPI bool TLN_SetSpritePivot(int nsprite, float px, float py);
 TLNAPI bool TLN_SetSpritePosition (int nsprite, int x, int y);
 TLNAPI bool TLN_SetSpritePicture (int nsprite, int entry);
 TLNAPI bool TLN_SetSpritePalette (int nsprite, TLN_Palette palette);
@@ -632,6 +641,17 @@ TLNAPI bool TLN_GetAnimationState (int index);
 TLNAPI bool TLN_SetAnimationDelay (int index, int frame, int delay);
 TLNAPI int  TLN_GetAvailableAnimation (void);
 TLNAPI bool TLN_DisablePaletteAnimation(int index);
+/**@}*/
+
+/**
+ * \defgroup world
+ * \brief World management
+* @{ */
+TLNAPI bool TLN_LoadWorld(const char* tmxfile, int first_layer);
+TLNAPI void TLN_SetWorldPosition(int x, int y);
+TLNAPI bool TLN_SetLayerParallaxFactor(int nlayer, float x, float y);
+TLNAPI bool TLN_SetSpriteWorldPosition(int nsprite, int x, int y);
+TLNAPI void TLN_ReleaseWorld(void);
 /**@}*/
 
 #ifdef __cplusplus

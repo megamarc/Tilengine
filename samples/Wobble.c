@@ -14,6 +14,7 @@
 #include <string.h>
 #include "Tilengine.h"
 #include "Sin.h"
+#include "../src/sdl/SDL2/SDL_timer.h"
 
 #define WIDTH	320
 #define HEIGHT	192
@@ -59,19 +60,32 @@ int main (int argc, char *argv[])
 
 	/* main loop */
 	TLN_CreateWindow (NULL, 0);
+
+	// We will cap the FPS to 60 for people having a screen with a refresh rate greater than 60Hz
+	int timeStart = 0;
+	int timeFinish = 0;
+	float delta = 0.00;
+
 	while (TLN_ProcessWindow ())
 	{
-		/* scroll */
-		TLN_SetLayerPosition (LAYER_FOREGROUND, frame*3, 0);
-		TLN_SetLayerPosition (LAYER_BACKGROUND, frame, 0);
+		timeStart = SDL_GetTicks();
+		delta = timeStart - timeFinish;
+		if(delta > 1000 / 60.00) // Capping
+		{
+			/* scroll */
+			TLN_SetLayerPosition (LAYER_FOREGROUND, frame*3, 0);
+			TLN_SetLayerPosition (LAYER_BACKGROUND, frame, 0);
 
-		/* update column offset table */
-		for (c=0; c<COLUMNS; c++)
-			column[c] = CalcSin (frame*5 + c*20, 3);		
+			/* update column offset table */
+			for (c=0; c<COLUMNS; c++)
+				column[c] = CalcSin (frame*5 + c*20, 3);		
 
-		/* render to window */
-		TLN_DrawFrame (frame);
-		frame++;
+			/* render to window */
+			TLN_DrawFrame (frame);
+			frame++;
+			timeFinish = timeStart;
+		}
+		
 	}
 
 	/* deinit */

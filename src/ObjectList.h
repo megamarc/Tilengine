@@ -13,7 +13,7 @@
 
 #include "Tilengine.h"
 #include "Object.h"
-#include "Hash.h"
+#include "crc32.h"
 #include "Spriteset.h"
 
 typedef struct _Object

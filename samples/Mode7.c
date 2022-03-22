@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include "Tilengine.h"
 #include "Sin.h"
+#include "../src/sdl/SDL2/SDL_timer.h"
 
 #define WIDTH	400
 #define HEIGHT	240
@@ -73,49 +74,61 @@ int main (int argc, char* argv[])
 	angle = 0;
 	BuildSinTable ();
 
+	// We will cap the FPS to 60 for people having a screen with a refresh rate greater than 60Hz
+	int timeStart = 0;
+	int timeFinish = 0;
+	float delta = 0.00;
+
 	/* main loop */
 	while (TLN_ProcessWindow ())
 	{
-		TLN_SetLayerTilemap (LAYER_FOREGROUND, horizon);
-		TLN_SetLayerTilemap (LAYER_BACKGROUND, horizon);
-		TLN_SetLayerPosition (LAYER_FOREGROUND, lerp(angle*2, 0,360, 0,256), 24);
-		TLN_SetLayerPosition (LAYER_BACKGROUND, lerp(angle, 0,360, 0,256), 0);
-		TLN_ResetLayerMode (LAYER_BACKGROUND);
-
-		/* input */		
-		if (TLN_GetInput (INPUT_LEFT))
-			angle-=2;
-		else if (TLN_GetInput (INPUT_RIGHT))
-			angle+=2;
-		if (TLN_GetInput (INPUT_UP))
+		timeStart = SDL_GetTicks();
+		delta = timeStart - timeFinish;
+		if(delta > 1000 / 60.00) // Capping
 		{
-			s += a;
-			if (s > int2fix(2))
-				s = int2fix(2);
-		}
-		else if (s >= a)
-			s -= a;
-		if (TLN_GetInput (INPUT_DOWN))
-		{
-			s -= a;
-			if (s < -int2fix(2))
-				s = -int2fix(2);
-		}
-		else if (s <= -a)
-			s += a;
+			TLN_SetLayerTilemap (LAYER_FOREGROUND, horizon);
+			TLN_SetLayerTilemap (LAYER_BACKGROUND, horizon);
+			TLN_SetLayerPosition (LAYER_FOREGROUND, lerp(angle*2, 0,360, 0,256), 24);
+			TLN_SetLayerPosition (LAYER_BACKGROUND, lerp(angle, 0,360, 0,256), 0);
+			TLN_ResetLayerMode (LAYER_BACKGROUND);
 
-		if (s != 0)
-		{
-			angle = angle%360;
-			if (angle < 0)
-				angle += 360;
+			/* input */		
+			if (TLN_GetInput (INPUT_LEFT))
+				angle-=2;
+			else if (TLN_GetInput (INPUT_RIGHT))
+				angle+=2;
+			if (TLN_GetInput (INPUT_UP))
+			{
+				s += a;
+				if (s > int2fix(2))
+					s = int2fix(2);
+			}
+			else if (s >= a)
+				s -= a;
+			if (TLN_GetInput (INPUT_DOWN))
+			{
+				s -= a;
+				if (s < -int2fix(2))
+					s = -int2fix(2);
+			}
+			else if (s <= -a)
+				s += a;
 
-			x += CalcSin (angle, s);
-			y -= CalcCos (angle, s);
+			if (s != 0)
+			{
+				angle = angle%360;
+				if (angle < 0)
+					angle += 360;
+
+				x += CalcSin (angle, s);
+				y -= CalcCos (angle, s);
+			}
+
+			/* render to window */
+			TLN_DrawFrame (0);
+			timeFinish = timeStart;
 		}
-
-		/* render to window */
-		TLN_DrawFrame (0);
+		
 	}
 
 	/* deinit */

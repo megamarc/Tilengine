@@ -22,8 +22,7 @@ Tilengine supports three types of layers:
 
 Tiled layers are composed of **tilemaps**, a rectangular, grid-like arrangement of square pieces called **tiles**. These tiles are located inside a **tileset**, a collection of related square pieces that are assembled to form a level.
 
-![Tiled layer graph](img/graph_tiled_layer.png)
-
+![Tiled layer graph](img/graph_tiled_layer.png)<br>
 *Block diagram of a tiled layer*
 
 Tiled layers are loaded from `.tmx` files with the \ref TLN_LoadTilemap function, that gets a filename and an optional layer name, and returns a \ref TLN_Tilemap handler.
@@ -44,12 +43,18 @@ Once a tilemap is loaded, it must be assigned to a layer with \ref TLN_SetLayerT
 TLN_SetLayerTilemap(0, tilemap);
 ```
 
+![A tilemap](img/tilemap.png)<br>
+*A tilemap in Tiled editor*
+
 Explicit tileset is hardly ever user, because when a tilemap is loaded from a `.tmx` file, it already contains its associated tileset that is used by default. However it can be loaded with \ref TLN_LoadTileset from a `.tsx` file and explicitly set with \ref TLN_SetLayer:
 
 ```C
 TLN_Tileset tileset = TLN_LoadTileset("level.tsx")
 TLN_SetLayer(0, tileset, tilemap);
 ```
+
+![A tileset](img/tileset.png)<br>
+*A tileset in Tiled editor*
 
 ### Bitmap layers
 
@@ -65,16 +70,14 @@ Once a bitmap is loaded, it must be assigned to a layer with \ref TLN_SetLayerBi
 TLN_SetLayerBitmap(0, bitmap);
 ```
 
-![Bitmap layer graph](img/graph_bitmap_layer.png)
-
+![Bitmap layer graph](img/graph_bitmap_layer.png)<br>
 *Block diagram of a bitmap layer*
 
 ### Object layers
 
 Object layers have a list of different items freely scattered across the playfield. Each item is a bitmap inside a bitmap-based tileset.
 
-![Object layer graph](img/graph_object_layer.png)
-
+![Object layer graph](img/graph_object_layer.png)<br>
 *Block diagram of an object layer*
 
 Object list are loaded from `.tmx` files too, with the \ref TLN_LoadObjectList function that takes a filename and an optional layer name, and returns a \ref TLN_ObjectList handle. Just like tiled layers, if no layer name is specified, it loads the first object layer inside the `.tmx` file:
@@ -118,12 +121,6 @@ When a layer is configured, it automatically gets the palette of the attached as
 ```C
 TLN_Palette palette = TLN_LoadPalette("palette.act");
 TLN_SetLayerPalette(0, palette);
-```
-
-It's also possible to retrieve the current palette of a layer with \ref TLN_GetLayerPalette, passing the layer index, and returning a handle to a \ref TLN_Palette object:
-
-```C
-TLN_Palette palette = TLN_GetLayerPalette(0);
 ```
 
 ### Blending
@@ -171,22 +168,20 @@ To disable the clipping rectangle, call \ref TLN_DisableLayerClip passing the la
 TLN_DisableLayerClip (0);
 ```
 
-### Layer linking
-
-Layers can have their positions linked, so when a layer is moved with \ref TLN_SetLayerPosition, any layer linked to it will move to the same position. This is useful with object layers that are overlaid on top if tiled layers, residing in the same plane. To link a layer, use \ref TLN_SetLayerParent passing the layer index to link, and the layer index that will be linked to.
-
-```C
-TLN_SetLayerParent(0, 1);
-TLN_SetLayerPosition(1, 320,160);
-/* layer 0 is also moved to 320,160 */
-```
-
 ### Disabling
 
-Layers can be disabled when they're not needed anymore with \ref TLN_DisableLayer, passing the layer index. A disabled layer cannot be re-enabled, it must be configured again.
+Layers can be disabled when they're not needed anymore with \ref TLN_DisableLayer, passing the layer index.
 
 ```C
 TLN_DisableLayer(0);
+```
+
+### Enabling
+
+A disabled layer with \ref TLN_DisableLayer can be re-enabled again, as long as it was previously configured and contains valid data. To enable a layer use \ref TLN_EnableLayer passing the index to the layer to enable:
+
+```C
+TLN_EnableLayer(0);
 ```
 
 ## Special effects
@@ -323,7 +318,22 @@ Affine       | yes   | yes    | -
 Per-pixel map| yes   | yes    | -
 Mosaic       | yes   | yes    | -
 
-## Gameplay support: getting layer data
+## Gameplay support
+
+### Retrieving active assets
+
+Sometimes there's needed to get what assets are used by a given layer, especially when the layers have been automatically populated with \ref TLN_LoadWorld
+
+Query                    | Returns
+-------------------------|-------------------------------
+\ref TLN_GetLayerType    | Returns layer type, \ref TLN_LayerType enumeration
+\ref TLN_GetLayerTilemap | Returns active tilemap on tiled layers
+\ref TLN_GetLayerTileset | Returns active tileset on tiled an object layers
+\ref TLN_GetLayerBitmap  | Returns active bitmap on bitmapped layers
+\ref TLN_GetLayerPalette | Returns active palette if the layer uses one
+\ref TLN_GetLayerObjects | Returns active object list on object layers 
+
+### Getting Tile data
 
 Gameplay using layers for character interaction will require gathering information about it:
 
@@ -360,7 +370,6 @@ This is a quick reference of related functions in this chapter:
 |\ref TLN_SetLayerClip           |Enables clipping rectangle
 |\ref TLN_DisableLayerClip       |Disables clipping rectangle
 |\ref TLN_SetLayerBlendMode      |Sets the blending mode (transparency effect)
-|\ref TLN_SetLayerParent         |Enables layer position linking
 |\ref TLN_SetLayerPriority       |Sets layer to be drawn on top of sprites
 |\ref TLN_SetLayerScaling        |Enables layer scaling
 |\ref TLN_SetLayerTransform      |Sets affine transform matrix to enable rotating and scaling
@@ -370,7 +379,6 @@ This is a quick reference of related functions in this chapter:
 |\ref TLN_SetLayerMosaic         |Enables mosaic effect
 |\ref TLN_DisableLayerMosaic     |Disables mosaic effect
 |\ref TLN_DisableLayer           |Disables the specified layer so it is not drawn
-|\ref TLN_GetLayerPalette        |Returns the current palette of a layer
 |\ref TLN_GetLayerWidth          |Returns the layer width in pixels
 |\ref TLN_GetLayerHeight         |Returns the layer height in pixels
 |\ref TLN_GetLayerTile           |Gets info about the tile located in tilemap space

@@ -29,9 +29,6 @@
     <ClCompile Include="GaussianBlur.c">
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
-    <ClCompile Include="Hash.c">
-      <Filter>Archivos de código fuente</Filter>
-    </ClCompile>
     <ClCompile Include="Layer.c">
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
@@ -113,6 +110,15 @@
     <ClCompile Include="List.c">
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
+    <ClCompile Include="World.c">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="md5.c">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="crc32.c">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h">
@@ -131,9 +137,6 @@
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="Engine.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Hash.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="Layer.h">
@@ -200,6 +203,12 @@
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="List.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="crc32.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="md5.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>

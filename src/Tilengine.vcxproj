@@ -22,26 +22,26 @@
     <ProjectGuid>{9F321D8F-F164-4CAC-A45A-29A583C4F69D}</ProjectGuid>
     <RootNamespace>TilengineLib</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -89,23 +89,22 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>libpng;sdl;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;LIB_EXPORTS;ZLIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libpng.lib;SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>libpng\$(Platform);sdl\lib\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <ModuleDefinitionFile />
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
+      <IgnoreSpecificDefaultLibraries>MSVCRT</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
       <Command>copy $(TargetPath) $(SolutionDir)samples
@@ -121,23 +120,22 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>libpng;sdl;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;LIB_EXPORTS;ZLIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libpng.lib;SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>libpng\$(Platform);sdl\lib\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <ModuleDefinitionFile />
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
+      <IgnoreSpecificDefaultLibraries>MSVCRT</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
       <Command>copy $(TargetPath) $(SolutionDir)samples
@@ -155,12 +153,11 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat />
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libpng.lib;SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>libpng\$(Platform);sdl\lib\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <ModuleDefinitionFile />
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -191,12 +188,11 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat />
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libpng.lib;SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>libpng\$(Platform);sdl\lib\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <ModuleDefinitionFile />
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -223,9 +219,9 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <ClCompile Include="Bitmap.c" />
     <ClCompile Include="Blitters.c" />
     <ClCompile Include="cJSON.c" />
+    <ClCompile Include="crc32.c" />
     <ClCompile Include="Draw.c" />
     <ClCompile Include="GaussianBlur.c" />
-    <ClCompile Include="Hash.c" />
     <ClCompile Include="Layer.c" />
     <ClCompile Include="List.c" />
     <ClCompile Include="LoadBitmap.c" />
@@ -237,6 +233,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <ClCompile Include="LoadTileset.c" />
     <ClCompile Include="LoadTMX.c" />
     <ClCompile Include="Math2D.c" />
+    <ClCompile Include="md5.c" />
     <ClCompile Include="Object.c" />
     <ClCompile Include="ObjectList.c" />
     <ClCompile Include="Palette.c" />
@@ -251,6 +248,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <ClCompile Include="Tilengine.c" />
     <ClCompile Include="Tileset.c" />
     <ClCompile Include="Window.c" />
+    <ClCompile Include="World.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Tilengine.h" />
@@ -260,16 +258,17 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <ClInclude Include="Bitmap.h" />
     <ClInclude Include="Blitters.h" />
     <ClInclude Include="cJSON.h" />
+    <ClInclude Include="crc32.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="DIB.h" />
     <ClInclude Include="Draw.h" />
     <ClInclude Include="Engine.h" />
-    <ClInclude Include="Hash.h" />
     <ClInclude Include="Layer.h" />
     <ClInclude Include="List.h" />
     <ClInclude Include="LoadFile.h" />
     <ClInclude Include="LoadTMX.h" />
     <ClInclude Include="Math2D.h" />
+    <ClInclude Include="md5.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ObjectList.h" />
     <ClInclude Include="Palette.h" />

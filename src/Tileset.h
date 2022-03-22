@@ -39,6 +39,7 @@ struct Tileset
 	int		hmask;			 /* horizontal bitmask */
 	int		vmask;			 /* vertical bitmask */
 	int		size_tiles;		 /* size of tiles collection section */
+	int		tiles_per_row;	 /* number of tiles per row */
 	TLN_Palette palette;	 /* palette */
 	TLN_SequencePack sp;	 /* associated sequences (if any) */
 	Animation* animations;	 /* active tile animations */

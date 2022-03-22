@@ -34,6 +34,23 @@ if (index != -1)
 
 This searches de index of graphic with name "ship4" inside spriteset, and if found, assigns it to sprite 0.
 
+## Pivot position
+
+By default the pivot position of the sprite is located at its top-left corner. This pivot point is the "anchor" that determines the exact location when positioning, and the scaling origin. Depending on gameplay it's more natural to have the pivot on another position. For example in games with pseudo-3D graphics, like 3/4 perspective or 3D roads, it's more natural to have the pivot at the bottom, at the "floor" level.
+
+This can be accomplished with the \ref TLN_SetSpritePivot function, that takes normalized coordinates in the range 0.0 (top/left) and 1.0 (bottom/right).
+
+For example to set sprite 3 pivot to 50% horizontal and full bottom:
+
+```C
+TLN_SetSpritePivot (3, 0.5f, 1.0f);
+```
+
+![Sprite pivot](img/sprite_pivot.png)
+
+* left image: pivot by default at 0,0 (top left)
+* right image: pivot at 0.5, 1.0
+
 ## Moving around
 To move the sprite to a different location, call the \ref TLN_SetSpritePosition, passing the sprite index, and the x,y coordinates. These values are absolute screen coordinates. For example to move sprite 3 to 160,120:
 ```c
@@ -200,6 +217,7 @@ This is a quick reference of related functions in this chapter:
 |\ref TLN_SetSpriteSet           |Assigns the spriteset and its palette to a given sprite
 |\ref TLN_EnableSpriteFlag       |Sets flags for a given sprite
 |\ref TLN_SetSpritePosition      |Sets the sprite position inside the viewport
+|\ref TLN_SetSpritePivot         |Sets the pivot of the sprite
 |\ref TLN_SetSpritePicture       |Sets the actual graphic to the sprite
 |\ref TLN_SetSpritePalette       |Assigns a palette to a sprite
 |\ref TLN_SetSpriteBlendMode     |Sets the blending mode (transparency effect)

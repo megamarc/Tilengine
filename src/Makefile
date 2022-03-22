@@ -36,6 +36,7 @@ endif
 
 # common flags
 CFLAGS += -I$(INCPATH) -std=c99 -O2 -fpic -DLIB_EXPORTS
+CFLAGS += -Wno-unused-result -Wno-format-truncation
 
 .PHONY: all all-before all-after clean clean-custom
 

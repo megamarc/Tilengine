@@ -14,6 +14,7 @@
 #include "Tilengine.h"
 #include "simplexml.h"
 #include "LoadFile.h"
+#include "Tileset.h"
 
 /* properties */
 typedef enum
@@ -208,7 +209,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 
 /* cache section: keeps already loaded tilesets so it doesnt spawn multiple instances of the same */
 #define CACHE_SIZE	16
-static cache_entries = 0;
+static int cache_entries = 0;
 struct
 {
 	char name[200];
@@ -341,6 +342,7 @@ TLN_Tileset TLN_LoadTileset (const char* filename)
 				TLN_SetTilesetPixels(tileset, id, srcptr, pitch);
 			}
 		}
+		tileset->tiles_per_row = htiles;
 		TLN_DeleteBitmap(bitmap);
 	}
 

@@ -16,6 +16,7 @@
 #include <math.h>
 #include "Tilengine.h"
 #include "Simon.h"
+#include "../src/sdl/SDL2/SDL.h"
 
 #define WIDTH	400
 #define HEIGHT	240
@@ -81,20 +82,35 @@ int main (int argc, char *argv[])
 	
 	/* main loop */
 	TLN_CreateWindow (NULL, 0);
+
+	// We will cap the FPS to 60 for people having a screen with a refresh rate greater than 60Hz
+	int timeStart = 0;
+	int timeFinish = 0;
+	float delta = 0.00;
+
 	while (TLN_ProcessWindow ())
 	{
-		ypos++;
-		SimonTasks ();
+		// Calculating the Delta
+		timeStart = SDL_GetTicks();
+		delta = timeStart - timeFinish;
 
-		/* input */
-		xpos = SimonGetPosition ();
+		if(delta > 1000 / 60.00) // Capping
+		{
+			ypos++;
+			SimonTasks ();
 
-		/* scroll */
-		TLN_SetLayerPosition (LAYER_BACKGROUND, xpos/2, -(ypos>>1));
-		TLN_SetLayerPosition (LAYER_FOREGROUND, xpos, 0);
+			/* input */
+			xpos = SimonGetPosition ();
 
-		/* render to window */
-		TLN_DrawFrame (0);
+			/* scroll */
+			TLN_SetLayerPosition (LAYER_BACKGROUND, xpos/2, -(ypos>>1));
+			TLN_SetLayerPosition (LAYER_FOREGROUND, xpos, 0);
+
+			/* render to window */
+			TLN_DrawFrame (0);
+			timeFinish = timeStart;
+		}
+		
 	}
 
 	/* deinit */

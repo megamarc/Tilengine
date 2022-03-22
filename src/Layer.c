@@ -17,6 +17,7 @@
 #include "Tilemap.h"
 #include "Tables.h"
 #include "ObjectList.h"
+#include "Bitmap.h"
 
 static void SelectBlitter (Layer* layer);
 
@@ -73,6 +74,7 @@ bool TLN_SetLayer(int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap)
 	}
 	layer->bitmap = NULL;
 	layer->objects = NULL;
+	layer->type = LAYER_TILE;
 
 	/* apply priority attribute */
 	if (tileset->attributes != NULL)
@@ -174,6 +176,7 @@ bool TLN_SetLayerBitmap(int nlayer, TLN_Bitmap bitmap)
 	/* require palette */
 	if (layer->palette)
 	{
+		layer->type = LAYER_BITMAP;
 		layer->ok = true;
 		layer->draw = GetLayerDraw(layer);
 		SelectBlitter(layer);
@@ -229,6 +232,7 @@ bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Tileset tileset
 	layer->objects = objects;
 	layer->width = objects->width;
 	layer->height = objects->height;
+	layer->type = LAYER_OBJECT;
 	
 	/* link objects to actual bitmaps */
 	item = objects->list;
@@ -276,46 +280,15 @@ bool TLN_SetLayerPriority(int nlayer, bool enable)
 	return true;
 }
 
-/*!
- * \brief Sets parent layer index to scroll in sync
- * 
- * \param nlayer Layer index [0, num_layers - 1]
- * \param parent Index of layer to attach to
- * \remarks A layer with a parent gets scroll position from its parent, so they scroll together
- */
+/* removed, keep for ABI compatibility  */
 bool TLN_SetLayerParent(int nlayer, int parent)
 {
-	Layer *layer;
-	if (nlayer >= engine->numlayers || parent >= engine->numlayers)
-	{
-		TLN_SetLastError(TLN_ERR_IDX_LAYER);
-		return false;
-	}
-
-	layer = &engine->layers[nlayer];
-	layer->parent = &engine->layers[parent];
-	TLN_SetLastError(TLN_ERR_OK);
 	return true;
 }
 
-/*!
- * \brief Disables layer parent
- * 
- * \param nlayer Layer index [0, num_layers - 1]
- * \see TLN_SetLayerParent()
- */
+/* removed, keep for ABI compatibility  */
 bool TLN_DisableLayerParent(int nlayer)
 {
-	Layer *layer;
-	if (nlayer >= engine->numlayers)
-	{
-		TLN_SetLastError(TLN_ERR_IDX_LAYER);
-		return false;
-	}
-
-	layer = &engine->layers[nlayer];
-	layer->parent = NULL;
-	TLN_SetLastError(TLN_ERR_OK);
 	return true;
 }
 
@@ -436,28 +409,111 @@ bool TLN_SetLayerPalette (int nlayer, TLN_Palette palette)
 }
 
 /*!
- * \brief
- * Gets the attached palette of a layer
- * 
- * \param nlayer
- * Layer index [0, num_layers - 1]
- * 
- * \returns
- * Reference of the palette assigned to the layer
- * 
- * \see
- * TLN_SetLayerPalette()
+ * \brief Returns the active palette of a layer
+ * \param nlayer Layer index [0, num_layers - 1]
+ * \returns Reference of the palette assigned to the layer
+ * \see TLN_SetLayerPalette()
  */
 TLN_Palette TLN_GetLayerPalette (int nlayer)
 {
-	if (nlayer >= engine->numlayers)
+	if (nlayer < engine->numlayers)
 	{
-		TLN_SetLastError (TLN_ERR_IDX_LAYER);
-		return NULL;
+		TLN_SetLastError(TLN_ERR_OK);
+		return engine->layers[nlayer].palette;
 	}
 
-	TLN_SetLastError (TLN_ERR_OK);
-	return engine->layers[nlayer].palette;
+	TLN_SetLastError(TLN_ERR_IDX_LAYER);
+	return NULL;
+}
+
+/*!
+ * \brief Returns the type of the layer
+ * \param nlayer Layer index [0, num_layers - 1]
+ * \returns \ref TLN_LayerType enumeration
+ * \see TLN_SetLayerTilemap(), TLN_SetLayerObjects(), TLN_SetLayerBitmap()
+ */
+TLN_LayerType TLN_GetLayerType(int nlayer)
+{
+	if (nlayer < engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_OK);
+		return engine->layers[nlayer].type;
+	}
+
+	TLN_SetLastError(TLN_ERR_IDX_LAYER);
+	return LAYER_NONE;
+}
+
+/*!
+ * \brief Returns the active tileset on a \ref LAYER_TILE or \ref LAYER_OBJECT layer type
+ * \param nlayer Layer index [0, num_layers - 1]
+ * \returns Reference to the active tileset
+ * \see TLN_SetLayerTilemap(), TLN_SetLayerObjects()
+ */
+TLN_Tileset TLN_GetLayerTileset(int nlayer)
+{
+	if (nlayer < engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_OK);
+		return engine->layers[nlayer].tileset;
+	}
+
+	TLN_SetLastError(TLN_ERR_IDX_LAYER);
+	return NULL;
+}
+
+/*!
+ * \brief Returns the active tilemap on a \ref LAYER_TILE layer type
+ * \param nlayer Layer index [0, num_layers - 1]
+ * \returns Reference to the active tilemap
+ * \see TLN_SetLayerTilemap()
+ */
+TLN_Tilemap TLN_GetLayerTilemap(int nlayer)
+{
+	if (nlayer < engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_OK);
+		return engine->layers[nlayer].tilemap;
+	}
+
+	TLN_SetLastError(TLN_ERR_IDX_LAYER);
+	return NULL;
+}
+
+/*!
+ * \brief Returns the active bitmap on a \ref LAYER_BITMAP layer type
+ * \param nlayer Layer index [0, num_layers - 1]
+ * \returns Reference to the active bitmap
+ * \see TLN_SetLayerBitmap()
+ */
+TLN_Bitmap TLN_GetLayerBitmap(int nlayer)
+{
+	if (nlayer < engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_OK);
+		return engine->layers[nlayer].bitmap;
+	}
+
+	TLN_SetLastError(TLN_ERR_IDX_LAYER);
+	return NULL;
+}
+
+/*!
+ * \brief Returns the active object list on a \ref LAYER_OBJECT layer type
+ * \param nlayer Layer index [0, num_layers - 1]
+ * \returns Reference to the active objects list
+ * \see TLN_SetLayerObjects(), TLN_GetListObject()
+ */
+TLN_ObjectList TLN_GetLayerObjects(int nlayer)
+{
+	if (nlayer < engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_OK);
+		return engine->layers[nlayer].objects;
+	}
+
+	TLN_SetLastError(TLN_ERR_IDX_LAYER);
+	return NULL;
 }
 
 /*!
@@ -501,10 +557,9 @@ bool TLN_SetLayerPosition (int nlayer, int hstart, int vstart)
 		return false;
 	}
 
+	/* wrapping */
 	layer->hstart = hstart % layer->width;
 	layer->vstart = vstart % layer->height;
-
-	/* warping por la izquierda */
 	if (layer->hstart < 0)
 		layer->hstart += layer->width;
 	if (layer->vstart < 0)
@@ -643,6 +698,34 @@ bool TLN_SetLayerColumnOffset (int nlayer, int* offset)
 	engine->layers[nlayer].column = offset;
 	TLN_SetLastError (TLN_ERR_OK);
 	return true;
+}
+
+/*! \brief Enables a layer previously disabled with \ref TLN_DisableLayer 
+ * \param nlayer Layer index [0, num_layers - 1]
+ * \remarks The layer must have been previously configured. A layer without a prior configuration can't be enabled 
+ */
+bool TLN_EnableLayer(int nlayer)
+{
+	Layer* layer = NULL;
+
+	if (nlayer >= engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_LAYER);
+		return false;
+	}
+
+	layer = &engine->layers[nlayer];
+
+	/* check proper config */
+	if (layer->palette && ((layer->tilemap && layer->tileset) || (layer->objects && layer->tileset) || layer->bitmap))
+	{
+		layer->ok = true;
+		TLN_SetLastError(TLN_ERR_IDX_LAYER);
+		return true;
+	}
+
+	TLN_SetLastError(TLN_ERR_NULL_POINTER);
+	return false;
 }
 
 /*!
@@ -1003,6 +1086,20 @@ bool TLN_DisableLayerMosaic (int nlayer)
 	layer->mosaic.h = 0;
 	TLN_SetLastError (TLN_ERR_OK);
 	return true;
+}
+
+Layer* GetLayer(int index)
+{
+	return &engine->layers[index];
+}
+
+/* updates layer from world position, accounting offset and parallax */
+void UpdateLayer(int nlayer)
+{
+	Layer* layer = GetLayer(nlayer);
+	const int lx = (int)(engine->xworld*layer->world.xfactor) - layer->world.offsetx;
+	const int ly = (int)(engine->yworld*layer->world.yfactor) - layer->world.offsety;
+	TLN_SetLayerPosition(nlayer, lx, ly);
 }
 
 static void SelectBlitter (Layer* layer)

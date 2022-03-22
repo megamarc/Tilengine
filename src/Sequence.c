@@ -18,7 +18,7 @@
 #include "Sequence.h"
 #include "Tilengine.h"
 #include "Object.h"
-#include "Hash.h"
+#include "crc32.h"
 
 /*!
  * \brief
@@ -58,7 +58,7 @@ TLN_Sequence TLN_CreateSequence (const char* name, int target, int count, TLN_Se
 
 	if (name)
 	{
-		sequence->hash = hash(0, name, strlen(name));
+		sequence->hash = _crc32(0, name, strlen(name));
 		strncpy (sequence->name, name, sizeof(sequence->name));
 		sequence->name[sizeof(sequence->name) - 1] = '\0';
 	}
@@ -108,7 +108,7 @@ TLN_Sequence TLN_CreateCycle (const char* name, int count, TLN_ColorStrip* strip
 
 	if (name)
 	{
-		sequence->hash = hash(0, name, strlen(name));
+		sequence->hash = _crc32(0, name, strlen(name));
 		strncpy (sequence->name, name, sizeof(sequence->name));
 		sequence->name[sizeof(sequence->name) - 1] = '\0';
 	}
@@ -179,7 +179,7 @@ TLN_Sequence TLN_CreateSpriteSequence(const char* name, TLN_Spriteset spriteset,
 
 	if (name)
 	{
-		sequence->hash = hash(0, name, strlen(name));
+		sequence->hash = _crc32(0, name, strlen(name));
 		strncpy(sequence->name, name, sizeof(sequence->name));
 		sequence->name[sizeof(sequence->name) - 1] = '\0';
 	}

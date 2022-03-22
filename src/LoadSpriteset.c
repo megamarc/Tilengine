@@ -32,7 +32,7 @@ static TLN_SpriteData* load_txt_csv(const char* filename, int* num_entries)
 		*num_entries += 1;
 	fseek(pf, 0, SEEK_SET);
 
-	data = calloc(*num_entries, sizeof(TLN_SpriteData));
+	data = (TLN_SpriteData*)calloc(*num_entries, sizeof(TLN_SpriteData));
 	entry = data;
 	while (fgets(line, sizeof(line), pf))
 	{
@@ -82,7 +82,7 @@ static TLN_SpriteData* load_json(const char* filename, int* num_entries)
 	cJSON* root;
 	cJSON* frames;
 	cJSON* item;
-	char* buffer = LoadFile(filename, &file_size);
+	char* buffer = (char*)LoadFile(filename, &file_size);
 	if (!buffer)
 		return NULL;
 
@@ -95,7 +95,7 @@ static TLN_SpriteData* load_json(const char* filename, int* num_entries)
 	if (frames)
 	{
 		int array_size = cJSON_GetArraySize(frames);
-		data = calloc(array_size, sizeof(TLN_SpriteData));
+		data = (TLN_SpriteData*)calloc(array_size, sizeof(TLN_SpriteData));
 
 		entry = data;
 		cJSON_ArrayForEach(item, frames)

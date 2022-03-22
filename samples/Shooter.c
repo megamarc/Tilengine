@@ -19,6 +19,7 @@
 #include "Explosion.h"
 #include "Enemy.h"
 #include "Ship.h"
+#include "../src/sdl/SDL2/SDL_timer.h"
 
 #define PAL_T0	120
 #define PAL_T1	1000
@@ -135,57 +136,69 @@ int main (int argc, char *argv[])
 	/* startup display */
 	TLN_CreateWindow (NULL, 0);
 
+	// We will cap the FPS to 60 for people having a screen with a refresh rate greater than 60Hz
+	int timeStart = 0;
+	int timeFinish = 0;
+	float delta = 0.00;
+
 	/* main loop */
 	while (TLN_ProcessWindow ())
 	{
-		/* timekeeper */
-		time = frame;
-
-		/* bg color (sky) */
-		if (time>=PAL_T0 && time<=PAL_T1 && (time&0x07)==0)
+		timeStart = SDL_GetTicks();
+		delta = timeStart - timeFinish;
+		if(delta > 1000 / 60.00) // Capping
 		{
-			/* sky color */
+			/* timekeeper */
+			time = frame;
+
+			/* bg color (sky) */
+			if (time>=PAL_T0 && time<=PAL_T1 && (time&0x07)==0)
+			{
+				/* sky color */
+				for (c=0; c<3; c++)
+				{
+					sky_hi[c] = lerp(time, PAL_T0,PAL_T1, sky1[c], sky3[c]);
+					sky_lo[c] = lerp(time, PAL_T0,PAL_T1, sky2[c], sky4[c]);
+				}
+
+				for (c=0; c<MAX_LAYER; c++)
+				{
+					if (palettes[c])
+						TLN_DeletePalette (palettes[c]);
+					palettes[c] = TLN_ClonePalette (TLN_GetTilesetPalette (layers[c].tileset));
+				}
+			}
+
+			/* scroll */
 			for (c=0; c<3; c++)
-			{
-				sky_hi[c] = lerp(time, PAL_T0,PAL_T1, sky1[c], sky3[c]);
-				sky_lo[c] = lerp(time, PAL_T0,PAL_T1, sky2[c], sky4[c]);
-			}
+				pos_background[c] += inc_background[c];
 
-			for (c=0; c<MAX_LAYER; c++)
+			/* layers */
+			TLN_SetLayer (LAYER_BACKGROUND, layers[LAYER_FOREGROUND].tileset, layers[LAYER_FOREGROUND].tilemap);
+			TLN_SetLayer (LAYER_FOREGROUND, layers[LAYER_BACKGROUND].tileset, layers[LAYER_BACKGROUND].tilemap);
+			TLN_SetLayerPosition (LAYER_BACKGROUND, time/3, 160);
+			TLN_SetLayerPosition (LAYER_FOREGROUND, fix2int (pos_background[0]), 64);
+			TLN_SetLayerPalette (LAYER_FOREGROUND, palettes[LAYER_BACKGROUND]);
+			TLN_SetLayerPalette (LAYER_BACKGROUND, palettes[LAYER_FOREGROUND]);
+			
+			if (time < 500)
 			{
-				if (palettes[c])
-					TLN_DeletePalette (palettes[c]);
-				palettes[c] = TLN_ClonePalette (TLN_GetTilesetPalette (layers[c].tileset));
+				if (rand()%30 == 1)
+					CreateEnemy ();
 			}
+			else if (time==600)
+				CreateBoss ();
+
+			/* actors */
+			TasksActors (time);
+
+			/* render to window */
+			TLN_DrawFrame (time);
+
+			frame++;
+			timeFinish = timeStart;
 		}
-
-		/* scroll */
-		for (c=0; c<3; c++)
-			pos_background[c] += inc_background[c];
-
-		/* layers */
-		TLN_SetLayer (LAYER_BACKGROUND, layers[LAYER_FOREGROUND].tileset, layers[LAYER_FOREGROUND].tilemap);
-		TLN_SetLayer (LAYER_FOREGROUND, layers[LAYER_BACKGROUND].tileset, layers[LAYER_BACKGROUND].tilemap);
-		TLN_SetLayerPosition (LAYER_BACKGROUND, time/3, 160);
-		TLN_SetLayerPosition (LAYER_FOREGROUND, fix2int (pos_background[0]), 64);
-		TLN_SetLayerPalette (LAYER_FOREGROUND, palettes[LAYER_BACKGROUND]);
-		TLN_SetLayerPalette (LAYER_BACKGROUND, palettes[LAYER_FOREGROUND]);
 		
-		if (time < 500)
-		{
-			if (rand()%30 == 1)
-				CreateEnemy ();
-		}
-		else if (time==600)
-			CreateBoss ();
-
-		/* actors */
-		TasksActors (time);
-
-		/* render to window */
-		TLN_DrawFrame (time);
-
-		frame++;
 	}
 
 	/* deinit */

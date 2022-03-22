@@ -216,10 +216,10 @@ bool CheckFile (const char* filename)
 void SplitFilename(const char* filename, FileInfo* fileinfo)
 {
 	int len = 0;
-	char* block1 = strrchr(filename, SLASH);
-	char* block2 = strrchr(filename, '.');
+	char* block1 = (char*)strrchr(filename, SLASH);
+	char* block2 = (char*)strrchr(filename, '.');
 	if (block1 == NULL)
-		block1 = strrchr(filename, BACKSLASH);
+		block1 = (char*)strrchr(filename, BACKSLASH);
 	
 	memset(fileinfo, 0, sizeof(FileInfo));
 

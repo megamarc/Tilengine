@@ -17,6 +17,7 @@
 ******************************************************************************/
 
 #include "Tilengine.h"
+#include "../src/sdl/SDL2/SDL_timer.h"
 
 #define HRES	424
 #define VRES	240
@@ -112,25 +113,39 @@ int main(int argc, char* argv[])
 
 	/* create window & main loop */
 	TLN_CreateWindow(NULL, 0);
+
+	// We will cap the FPS to 60 for people having a screen with a refresh rate greater than 60Hz
+	int timeStart = 0;
+	int timeFinish = 0;
+	float delta = 0.00;
+
 	while (TLN_ProcessWindow())
 	{
-		TLN_DrawFrame(0);
-
-		/* move 3 pixels right/left main layer */
-		if (TLN_GetInput(INPUT_LEFT) && xworld > 0)
-			xworld -= 3;
-		else if (TLN_GetInput(INPUT_RIGHT) && xworld < width - HRES)
-			xworld += 3;
-
-		/* update on change */
-		if (xworld != oldx)
+		// Calculating the Delta
+		timeStart = SDL_GetTicks();
+		delta = timeStart - timeFinish;
+		if(delta > 1000 / 60.00) // Capping
 		{
-			TLN_SetLayerPosition(LAYER_FOREGROUND, xworld, 32);
-			TLN_SetLayerPosition(LAYER_MIDDLEGROUND, xworld / 2, 0);
-			TLN_SetLayerPosition(LAYER_BACKGROUND, xworld / 3, 0);
-			TLN_SetSpritePosition(0, xplayer - xworld, yplayer);
-			oldx = xworld;
+			TLN_DrawFrame(0);
+
+			/* move 3 pixels right/left main layer */
+			if (TLN_GetInput(INPUT_LEFT) && xworld > 0)
+				xworld -= 3;
+			else if (TLN_GetInput(INPUT_RIGHT) && xworld < width - HRES)
+				xworld += 3;
+
+			/* update on change */
+			if (xworld != oldx)
+			{
+				TLN_SetLayerPosition(LAYER_FOREGROUND, xworld, 32);
+				TLN_SetLayerPosition(LAYER_MIDDLEGROUND, xworld / 2, 0);
+				TLN_SetLayerPosition(LAYER_BACKGROUND, xworld / 3, 0);
+				TLN_SetSpritePosition(0, xplayer - xworld, yplayer);
+				oldx = xworld;
+			}
+			timeFinish = timeStart;
 		}
+		
 	}
 
 	/* release resources */
