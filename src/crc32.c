@@ -40,9 +40,9 @@
  * CRC32 code derived from work by Gary S. Brown.
  */
 
-#include "Hash.h"
+#include "crc32.h"
 
-static const unsigned int crc32_tab[] =
+static const unsigned int _crc32_tab[] = 
 {
 	0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f,
 	0xe963a535, 0x9e6495a3,	0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988,
@@ -89,7 +89,7 @@ static const unsigned int crc32_tab[] =
 	0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
 };
 
-hash_t hash (unsigned int crc, const void *buf, size_t size)
+unsigned int _crc32 (unsigned int crc, const void *buf, size_t size)
 {
 	unsigned char* p;
 
@@ -97,7 +97,7 @@ hash_t hash (unsigned int crc, const void *buf, size_t size)
 	crc = crc ^ ~0U;
 
 	while (size--)
-		crc = crc32_tab[(crc ^ *p++) & 0xFF] ^ (crc >> 8);
+		crc = _crc32_tab[(crc ^ *p++) & 0xFF] ^ (crc >> 8);
 
 	crc ^= ~0U;
 	return crc;

@@ -124,7 +124,6 @@ void main(void) {
     TLN_Tilemap foreground;
 
     TLN_Init (400, 240, 1, 0, 0);
-    TLN_SetLoadPath ("assets/sonic");
     foreground = TLN_LoadTilemap ("assets/sonic/Sonic_md_fg1.tmx", NULL);
     TLN_SetLayerTilemap (0, foreground);
 
@@ -181,6 +180,9 @@ C#        | [CsTilengine](https://github.com/megamarc/CsTilengine)
 Pascal    | [PascalTileEngine](https://github.com/turric4n/PascalTileEngine)
 FreeBasic | [FBTilengine](https://github.com/megamarc/FBTilengine)
 Java	    | [JTilengine](https://github.com/megamarc/JTilengine)
+Rust      | [tilengine-sys](https://crates.io/crates/tilengine-sys)
+LuaJIT    | [tilengine_libretro](https://github.com/megamarc/Tilengine/tree/libretro) ([libretro](https://www.libretro.com) core)
+Ring      | [RingTilengine](https://github.com/ring-lang/ring/tree/master/extensions/ringtilengine)
 
 # Contributors
 These people contributed to tilengine:

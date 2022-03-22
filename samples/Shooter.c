@@ -21,6 +21,14 @@
 #include "Ship.h"
 #include "../src/sdl/SDL2/SDL_timer.h"
 
+/* fixed point helper */
+typedef int fix_t;
+#define FIXED_BITS	16
+#define float2fix(f)	(fix_t)(f*(1 << FIXED_BITS))
+#define int2fix(i)		((int)(i) << FIXED_BITS)
+#define fix2int(f)		((int)(f) >> FIXED_BITS)
+#define fix2float(f)	(float)(f)/(1 << FIXED_BITS)
+
 #define PAL_T0	120
 #define PAL_T1	1000
 
