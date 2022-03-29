@@ -399,7 +399,7 @@ static void BeginFrame (int frame)
 	{
 		Sprite* sprite = &engine->sprites[index];
 		sprite->collision = false;
-		if (sprite->animation.enabled)
+		if (sprite->animation.enabled && !sprite->animation.paused)
 			UpdateAnimation(&sprite->animation, engine->frame);
 		index = sprite->list_node.next;
 	}
