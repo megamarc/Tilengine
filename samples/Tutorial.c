@@ -1,5 +1,5 @@
 #include "Tilengine.h"
-#include "../src/sdl/SDL2/SDL_timer.h"
+// #include "../src/sdl/SDL2/SDL_timer.h"
 
 #define WIDTH	400
 #define HEIGHT	240
@@ -30,7 +30,7 @@ int main (int argc, char* argv[])
 
 	while (TLN_ProcessWindow ())
 	{
-		timeStart = SDL_GetTicks();
+		timeStart = TLN_GetTicks();
 		delta = timeStart - timeFinish;
 		if(delta > 1000 / 60.00) // Capping
 		{

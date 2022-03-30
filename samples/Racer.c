@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include "Racer.h"
 #include "Tree.h"
-#include "../src/sdl/SDL2/SDL_timer.h"
+// #include "../src/sdl/SDL2/SDL_timer.h"
 
 #define MAX_SPEED	6
 #define MAX_STEER	58
@@ -86,7 +86,7 @@ int main (int argc, char* argv[])
 	/* main loop */
 	while (TLN_ProcessWindow ())
 	{
-		timeStart = SDL_GetTicks();
+		timeStart = TLN_GetTicks();
 		delta = timeStart - timeFinish;
 		if(delta > 1000 / 60.00) // Capping
 		{
