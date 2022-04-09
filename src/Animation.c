@@ -383,7 +383,7 @@ bool TLN_DisablePaletteAnimation (int index)
 }
 
 /*!
- * \brief Disables animation for the given sprite
+ * \brief Pauses animation for the given sprite
  *
  * \param index Id of the sprite to pause animation (0 <= id < num_sprites)
  * \see Animations TLN_ResumeSpriteAnimation
