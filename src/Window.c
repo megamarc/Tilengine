@@ -412,7 +412,7 @@ bool TLN_CreateWindow (const char* overlay, int flags)
 	/* fill parameters for window creation */
 	wnd_params.width = TLN_GetWidth ();
 	wnd_params.height = TLN_GetHeight ();
-	wnd_params.flags = flags|CWF_VSYNC;
+	wnd_params.flags = flags;
 	if (overlay)
 	{
 		strncpy (wnd_params.file_overlay, overlay, MAX_PATH);
@@ -469,7 +469,7 @@ bool TLN_CreateWindowThread (const char* overlay, int flags)
 	wnd_params.retval = 0;
 	wnd_params.width = TLN_GetWidth ();
 	wnd_params.height = TLN_GetHeight ();
-	wnd_params.flags = flags|CWF_VSYNC;
+	wnd_params.flags = flags;
 	if (overlay)
 	{
 		strncpy (wnd_params.file_overlay, overlay, MAX_PATH);
