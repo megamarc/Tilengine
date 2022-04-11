@@ -988,3 +988,17 @@ void MakeRect(rect_t* rect, int x, int y, int w, int h)
 	rect->x2 = x + w;
 	rect->y2 = y + h;
 }
+
+int TLN_GetSpritePosX(int nsprite)
+{
+	Sprite* sprite;
+	sprite = &engine->sprites[nsprite];
+	return sprite->x;
+}
+
+int TLN_GetSpritePosY(int nsprite)
+{
+	Sprite* sprite;
+	sprite = &engine->sprites[nsprite];
+	return sprite->y;
+}

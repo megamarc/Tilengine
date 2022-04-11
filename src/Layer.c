@@ -1124,3 +1124,17 @@ static void SelectBlitter (Layer* layer)
 	layer->blitters[0] = GetBlitter (bpp, false, scaling, blend);
 	layer->blitters[1] = GetBlitter (bpp, true, scaling, blend);
 }
+
+int TLN_GetLayerPosX(int nlayer)
+{
+	Layer* layer;
+	layer = &engine->layers[nlayer];
+	return layer->hstart;
+}
+
+int TLN_GetLayerPosY(int nlayer)
+{
+	Layer* layer;
+	layer = &engine->layers[nlayer];
+	return layer->vstart;
+}

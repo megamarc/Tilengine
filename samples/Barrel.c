@@ -47,6 +47,24 @@ int xpos, ypos;
 
 static void raster_callback (int line);
 
+// do a function that caps FPS to 60
+// if delta > 1000/60, then we return true
+// if delta < 1000/60, then we return false
+//
+// this is used to cap the FPS to 60
+static int cap_fps()
+{
+	static int last_time = 0;
+	int now = SDL_GetTicks();
+	static delta_time = now - last_time;
+	if (delta_time > 1000/60)
+	{
+		last_time = now;
+		return 1;
+	}
+	return 0;
+}
+
 /* entry point */
 int main (int argc, char *argv[])
 {
