@@ -363,7 +363,7 @@ bool TLN_SetLayerBlendMode (int nlayer, TLN_Blend mode, uint8_t factor)
 	layer->blend = SelectBlendTable (mode);
 	SelectBlitter (layer);
 	TLN_SetLastError (TLN_ERR_OK);
-	return true;
+	printf("%i\n", mode);
 }
 
 /*!
@@ -1138,3 +1138,12 @@ int TLN_GetLayerPosY(int nlayer)
 	layer = &engine->layers[nlayer];
 	return layer->vstart;
 }
+
+//bool TLN_SwapLayers(int nlayerA, int nlayerB)
+//{
+//	Layer* tmplayer;
+//	tmplayer = &engine->layers[nlayerA];
+//	&engine->layers[nlayerA] = &engine->layers[nlayerB];
+//	&engine->layers[nlayerB] = tmplayer;
+//	return true;
+//}

@@ -89,6 +89,11 @@ typedef enum
 	BLEND_ADD,		/*!< color is always brighter (simulate light effects) */
 	BLEND_SUB,		/*!< color is always darker (simulate shadow effects) */
 	BLEND_MOD,		/*!< color is always darker (simulate shadow effects) */
+	BLEND_OR,		/*!< Logical OR */
+	BLEND_XOR,		/*!< Logical XOR */
+	BLEND_NOR,		/*!< Logical NOR */
+	BLEND_AND,		/*!< Logical AND */
+	BLEND_NAND,		/*!< Logical NAND */
 	BLEND_CUSTOM,	/*!< user provided blend function with TLN_SetCustomBlendFunction() */
 	MAX_BLEND,
 	BLEND_MIX = BLEND_MIX50
@@ -405,6 +410,7 @@ TLNAPI void TLN_SetCustomBlendFunction (TLN_BlendFunction);
 TLNAPI void TLN_SetLogLevel(TLN_LogLevel log_level);
 TLNAPI bool TLN_OpenResourcePack(const char* filename, const char* key);
 TLNAPI void TLN_CloseResourcePack(void);
+TLNAPI int TLN_GetScanline();
 /**@}*/
 
 /**

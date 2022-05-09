@@ -40,13 +40,18 @@ bool CreateBlendTables (void)
 		for (b=0; b<256; b++)
 		{
 			const int offset = (a<<8) + b;
-			_blend_tables[BLEND_MIX25 ][offset] = (a + b + b) / 3;
-			_blend_tables[BLEND_MIX50 ][offset] = (a + b) >> 1;
-			_blend_tables[BLEND_MIX75 ][offset] = (a + a + b) / 3;
-			_blend_tables[BLEND_ADD   ][offset] = (a+b) > 255? 255 : (a+b);
-			_blend_tables[BLEND_SUB   ][offset] = (a-b) < 0? 0 : (a-b);
-			_blend_tables[BLEND_MOD   ][offset] = (a*b)/255;
-			_blend_tables[BLEND_CUSTOM][offset] = a;
+			_blend_tables[BLEND_MIX25	][offset] = (a + b + b) / 3;
+			_blend_tables[BLEND_MIX50	][offset] = (a + b) >> 1;
+			_blend_tables[BLEND_MIX75	][offset] = (a + a + b) / 3;
+			_blend_tables[BLEND_ADD		][offset] = (a+b) > 255? 255 : (a+b);
+			_blend_tables[BLEND_SUB		][offset] = (a-b) < 0? 0 : (a-b);
+			_blend_tables[BLEND_MOD		][offset] = (a*b)/255;
+			_blend_tables[BLEND_OR		][offset] = (a | b);
+			_blend_tables[BLEND_XOR		][offset] = (a^b);
+			_blend_tables[BLEND_NOR		][offset] = !(a | b);
+			_blend_tables[BLEND_AND		][offset] = (a & b);
+			_blend_tables[BLEND_NAND	][offset] = !(a & b);
+			_blend_tables[BLEND_CUSTOM	][offset] = a;
 		}
 	}
 	return true;

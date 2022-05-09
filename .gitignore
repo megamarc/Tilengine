@@ -57,3 +57,4 @@ bindings/csharp/*.exe
 bindings/csharp/bin
 bindings/csharp/Properties
 bindings/java/bin
+/include/nimbledeps
