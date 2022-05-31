@@ -22,6 +22,10 @@
 /* linear interploation */
 #define lerp(x, x0,x1, fx0,fx1) \
 	(fx0) + ((fx1) - (fx0))*((x) - (x0))/((x1) - (x0))
+
+#define FPS	60
+
+const DELAY = 1000.0f/FPS;
 	
 typedef struct
 {
@@ -79,8 +83,8 @@ int main (int argc, char* argv[])
 	CreateActors (MAX_ACTOR);
 
 	// We will cap the FPS to 60 for people having a screen with a refresh rate greater than 60Hz
-	int timeStart = 0;
-	int timeFinish = 0;
+	float timeStart = 0.00;
+	float timeFinish = 0.00;
 	float delta = 0.00;
 
 	/* main loop */
@@ -88,43 +92,45 @@ int main (int argc, char* argv[])
 	{
 		timeStart = TLN_GetTicks();
 		delta = timeStart - timeFinish;
-		if(delta > 1000 / 60.00) // Capping
+		/* timekeeper */
+		time = frame;
+
+		TLN_SetLayerPosition (LAYER_PLAYFIELD, 56,72);
+		if (pos - last_tree >= 100)
 		{
-			/* timekeeper */
-			time = frame;
-
-			TLN_SetLayerPosition (LAYER_PLAYFIELD, 56,72);
-			if (pos - last_tree >= 100)
-			{
-				CreateTree (240,184,0);
-				CreateTree (240,184,1);
-				last_tree = pos;
-			}
-
-			/* input */
-			if ((time & 0x07) == 0)
-			{
-				if (TLN_GetInput (INPUT_UP) && speed < MAX_SPEED)
-					speed++;
-			}
-			else if (!TLN_GetInput (INPUT_UP) && speed > 0)
-				speed--;
-
-			if (TLN_GetInput (INPUT_LEFT) && pan > -MAX_STEER)
-				pan-=2;
-			else if (TLN_GetInput (INPUT_RIGHT) && pan < MAX_STEER)
-				pan+=2;
-			
-			/* actores */
-			pos += speed;
-			TasksActors (time);
-
-			/* render to window */
-			TLN_DrawFrame (time);
-
-			frame++;
-			timeFinish = timeStart;
+			CreateTree (240,184,0);
+			CreateTree (240,184,1);
+			last_tree = pos;
 		}
+
+		/* input */
+		if ((time & 0x07) == 0)
+		{
+			if (TLN_GetInput (INPUT_UP) && speed < MAX_SPEED)
+				speed++;
+		}
+		else if (!TLN_GetInput (INPUT_UP) && speed > 0)
+			speed--;
+
+		if (TLN_GetInput (INPUT_LEFT) && pan > -MAX_STEER)
+			pan-=2;
+		else if (TLN_GetInput (INPUT_RIGHT) && pan < MAX_STEER)
+			pan+=2;
+			
+		/* actores */
+		pos += speed;
+		TasksActors (time);
+
+		/* render to window */
+		TLN_DrawFrame (time);
+
+		frame++;
+		timeFinish = TLN_GetTicks();
+
+		delta = timeFinish - timeStart;
+		// Capping FPS to 60
+		if(delta < DELAY)
+			TLN_Delay(DELAY - delta);
 		
 	}
 

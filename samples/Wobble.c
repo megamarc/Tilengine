@@ -24,6 +24,10 @@
 #define lerp(x, x0,x1, fx0,fx1) \
 	(fx0) + ((fx1) - (fx0))*((x) - (x0))/((x1) - (x0))
 
+#define FPS	60
+
+const DELAY = 1000.0f/FPS;
+
 /* layers */
 enum
 {
@@ -62,30 +66,30 @@ int main (int argc, char *argv[])
 	TLN_CreateWindow (NULL, 0);
 
 	// We will cap the FPS to 60 for people having a screen with a refresh rate greater than 60Hz
-	int timeStart = 0;
-	int timeFinish = 0;
+	float timeStart = 0.00;
+	float timeFinish = 0.00;
 	float delta = 0.00;
 
 	while (TLN_ProcessWindow ())
 	{
 		timeStart = TLN_GetTicks();
 		delta = timeStart - timeFinish;
-		if(delta > 1000 / 60.00) // Capping
-		{
-			/* scroll */
-			TLN_SetLayerPosition (LAYER_FOREGROUND, frame*3, 0);
-			TLN_SetLayerPosition (LAYER_BACKGROUND, frame, 0);
+		/* scroll */
+		TLN_SetLayerPosition (LAYER_FOREGROUND, frame*3, 0);
+		TLN_SetLayerPosition (LAYER_BACKGROUND, frame, 0);
 
-			/* update column offset table */
-			for (c=0; c<COLUMNS; c++)
-				column[c] = CalcSin (frame*5 + c*20, 3);		
+		/* update column offset table */
+		for (c=0; c<COLUMNS; c++)
+			column[c] = CalcSin (frame*5 + c*20, 3);		
 
-			/* render to window */
-			TLN_DrawFrame (frame);
-			frame++;
-			timeFinish = timeStart;
-		}
-		
+		/* render to window */
+		TLN_DrawFrame (frame);
+		frame++;
+		timeFinish = TLN_GetTicks();
+		delta = timeFinish - timeStart;
+		// Capping FPS to 60
+		if(delta < DELAY)
+			TLN_Delay(DELAY - delta);
 	}
 
 	/* deinit */

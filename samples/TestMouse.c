@@ -134,14 +134,7 @@ int main(int argc, char* argv[])
 
 	while (TLN_ProcessWindow())
 	{
-		timeStart = TLN_GetTicks();
-		delta = timeStart - timeFinish;
-		if(delta > 1000 / 60.00) // Capping
-		{
 			TLN_DrawFrame(frame++);
-			timeFinish = timeStart;
-		}
-
 	}
 
 	TLN_Deinit();

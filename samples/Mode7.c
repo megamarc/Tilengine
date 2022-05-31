@@ -32,6 +32,10 @@ typedef int fix_t;
 #define fix2int(f)		((int)(f) >> FIXED_BITS)
 #define fix2float(f)	(float)(f)/(1 << FIXED_BITS)
 
+#define FPS	60
+
+const DELAY = 1000.0f/FPS;
+
 /*
 /* layers */
 enum
@@ -83,8 +87,8 @@ int main (int argc, char* argv[])
 	BuildSinTable ();
 
 	// We will cap the FPS to 60 for people having a screen with a refresh rate greater than 60Hz
-	int timeStart = 0;
-	int timeFinish = 0;
+	float timeStart = 0.00;
+	float timeFinish = 0.00;
 	float delta = 0.00;
 
 	/* main loop */
@@ -92,49 +96,51 @@ int main (int argc, char* argv[])
 	{
 		timeStart = TLN_GetTicks();
 		delta = timeStart - timeFinish;
-		if(delta > 1000 / 60.00) // Capping
+		TLN_SetLayerTilemap (LAYER_FOREGROUND, horizon);
+		TLN_SetLayerTilemap (LAYER_BACKGROUND, horizon);
+		TLN_SetLayerPosition (LAYER_FOREGROUND, lerp(angle*2, 0,360, 0,256), 24);
+		TLN_SetLayerPosition (LAYER_BACKGROUND, lerp(angle, 0,360, 0,256), 0);
+		TLN_ResetLayerMode (LAYER_BACKGROUND);
+
+		/* input */		
+		if (TLN_GetInput (INPUT_LEFT))
+			angle-=2;
+		else if (TLN_GetInput (INPUT_RIGHT))
+			angle+=2;
+		if (TLN_GetInput (INPUT_UP))
 		{
-			TLN_SetLayerTilemap (LAYER_FOREGROUND, horizon);
-			TLN_SetLayerTilemap (LAYER_BACKGROUND, horizon);
-			TLN_SetLayerPosition (LAYER_FOREGROUND, lerp(angle*2, 0,360, 0,256), 24);
-			TLN_SetLayerPosition (LAYER_BACKGROUND, lerp(angle, 0,360, 0,256), 0);
-			TLN_ResetLayerMode (LAYER_BACKGROUND);
+			s += a;
+			if (s > int2fix(2))
+				s = int2fix(2);
+		}
+		else if (s >= a)
+			s -= a;
+		if (TLN_GetInput (INPUT_DOWN))
+		{
+			s -= a;
+			if (s < -int2fix(2))
+				s = -int2fix(2);
+		}
+		else if (s <= -a)
+			s += a;
 
-			/* input */		
-			if (TLN_GetInput (INPUT_LEFT))
-				angle-=2;
-			else if (TLN_GetInput (INPUT_RIGHT))
-				angle+=2;
-			if (TLN_GetInput (INPUT_UP))
-			{
-				s += a;
-				if (s > int2fix(2))
-					s = int2fix(2);
-			}
-			else if (s >= a)
-				s -= a;
-			if (TLN_GetInput (INPUT_DOWN))
-			{
-				s -= a;
-				if (s < -int2fix(2))
-					s = -int2fix(2);
-			}
-			else if (s <= -a)
-				s += a;
+		if (s != 0)
+		{
+			angle = angle%360;
+			if (angle < 0)
+				angle += 360;
+			x += CalcSin (angle, s);
+			y -= CalcCos (angle, s);
+		}
 
-			if (s != 0)
-			{
-				angle = angle%360;
-				if (angle < 0)
-					angle += 360;
+		/* render to window */
+		TLN_DrawFrame (0);
+		timeFinish = TLN_GetTicks();
 
-				x += CalcSin (angle, s);
-				y -= CalcCos (angle, s);
-			}
-
-			/* render to window */
-			TLN_DrawFrame (0);
-			timeFinish = timeStart;
+		delta = timeFinish - timeStart;
+		// Capping FPS to 60
+		if(delta < DELAY)
+			TLN_Delay(DELAY - delta);
 		}
 		
 	}

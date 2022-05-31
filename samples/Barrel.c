@@ -32,6 +32,10 @@
 #define lerp(x, x0,x1, fx0,fx1) \
 	(fx0) + ((fx1) - (fx0))*((x) - (x0))/((x1) - (x0))
 
+#define FPS	60
+
+const DELAY = 1000.0f/FPS;
+
 /* layers */
 enum
 {
@@ -102,8 +106,8 @@ int main (int argc, char *argv[])
 	TLN_CreateWindow (NULL, 0);
 
 	// We will cap the FPS to 60 for people having a screen with a refresh rate greater than 60Hz
-	int timeStart = 0;
-	int timeFinish = 0;
+	float timeStart = 0.00;
+	float timeFinish = 0.00;
 	float delta = 0.00;
 
 	while (TLN_ProcessWindow ())
@@ -111,25 +115,27 @@ int main (int argc, char *argv[])
 		// Calculating the Delta
 		timeStart = TLN_GetTicks();
 		delta = timeStart - timeFinish;
-
-		if(delta > 1000 / 60.00) // Capping
-		{
-			ypos++;
-			SimonTasks ();
+		ypos++;
+		SimonTasks ();
 
 			/* input */
-			xpos = SimonGetPosition ();
+		xpos = SimonGetPosition ();
 
 			/* scroll */
-			TLN_SetLayerPosition (LAYER_BACKGROUND, xpos/2, -(ypos>>1));
-			TLN_SetLayerPosition (LAYER_FOREGROUND, xpos, 0);
+		TLN_SetLayerPosition (LAYER_BACKGROUND, xpos/2, -(ypos>>1));
+		TLN_SetLayerPosition (LAYER_FOREGROUND, xpos, 0);
 
 			/* render to window */
-			TLN_DrawFrame (0);
-			timeFinish = timeStart;
-		}
-		
+		TLN_DrawFrame (0);
+		timeFinish = TLN_GetTicks();
+
+		delta = timeFinish - timeStart;
+		// Capping FPS to 60
+		if(delta < DELAY)
+			TLN_Delay(DELAY - delta);
 	}
+		
+
 
 	/* deinit */
 	SimonDeinit ();

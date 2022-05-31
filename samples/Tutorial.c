@@ -4,6 +4,10 @@
 #define WIDTH	400
 #define HEIGHT	240
 
+#define FPS	60
+
+const DELAY = 1000.0f/FPS;
+
 /* entry point */
 int main (int argc, char* argv[])
 {
@@ -24,24 +28,25 @@ int main (int argc, char* argv[])
 	TLN_CreateWindow (NULL, 0);
 
 	// We will cap the FPS to 60 for people having a screen with a refresh rate greater than 60Hz
-	int timeStart = 0;
-	int timeFinish = 0;
+	float timeStart = 0.00;
+	float timeFinish = 0.00;
 	float delta = 0.00;
 
 	while (TLN_ProcessWindow ())
 	{
 		timeStart = TLN_GetTicks();
 		delta = timeStart - timeFinish;
-		if(delta > 1000 / 60.00) // Capping
-		{
-			/* scroll the layer, one pixel per frame */
-			TLN_SetLayerPosition (0, frame, 0);
+		/* scroll the layer, one pixel per frame */
+		TLN_SetLayerPosition (0, frame, 0);
 			
-			/* render to the window */
-			TLN_DrawFrame (0);
-			frame++;
-			timeFinish = timeStart;
-		}
+		/* render to the window */
+		TLN_DrawFrame (0);
+		frame++;
+		timeFinish = TLN_GetTicks();
+		delta = timeFinish - timeStart;
+		// Capping FPS to 60
+		if(delta < DELAY)
+			TLN_Delay(DELAY - delta);
 		
 	}
 

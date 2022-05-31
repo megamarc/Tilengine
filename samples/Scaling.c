@@ -11,6 +11,10 @@
 /* linear interploation */
 #define lerp(x, x0,x1, fx0,fx1) \
 	(fx0) + ((fx1) - (fx0))*((x) - (x0))/((x1) - (x0))
+
+#define FPS	60
+
+const DELAY = 1000.0f/FPS;
 	
 typedef struct
 {
@@ -64,8 +68,8 @@ int main (int argc, char* argv[])
 	TLN_CreateWindow (NULL, 0);
 
 	// We will cap the FPS to 60 for people having a screen with a refresh rate greater than 60Hz
-	int timeStart = 0;
-	int timeFinish = 0;
+	float timeStart = 0.00;
+	float timeFinish = 0.00;
 	float delta = 0.00;
 
 	while (TLN_ProcessWindow ())
@@ -73,47 +77,49 @@ int main (int argc, char* argv[])
 
 		timeStart = TLN_GetTicks();
 		delta = timeStart - timeFinish;
-		if(delta > 1000 / 60.00) // Capping
-		{
-			float fgscale;
-			float bgscale;
-			int bgypos;
-			int maxy;
+		float fgscale;
+		float bgscale;
+		int bgypos;
+		int maxy;
 
-			/* user input */
-			if (TLN_GetInput (INPUT_LEFT))
-				xpos--;
-			if (TLN_GetInput (INPUT_RIGHT))
-				xpos++;
-			if (TLN_GetInput (INPUT_UP) && ypos > 0)
-				ypos--;
-			if (TLN_GetInput (INPUT_DOWN))
-				ypos++;
-			if (TLN_GetInput (INPUT_A) && scale < MAX_SCALE)
-				scale += 1;
-			if (TLN_GetInput (INPUT_B) && scale > MIN_SCALE)
-				scale -= 1;
+		/* user input */
+		if (TLN_GetInput (INPUT_LEFT))
+			xpos--;
+		if (TLN_GetInput (INPUT_RIGHT))
+			xpos++;
+		if (TLN_GetInput (INPUT_UP) && ypos > 0)
+			ypos--;
+		if (TLN_GetInput (INPUT_DOWN))
+			ypos++;
+		if (TLN_GetInput (INPUT_A) && scale < MAX_SCALE)
+			scale += 1;
+		if (TLN_GetInput (INPUT_B) && scale > MIN_SCALE)
+			scale -= 1;
 
-			/* calculate scale factor from fixed point base */
-			fgscale = (float)scale/100.0f;
-			bgscale = lerp((float)scale, MIN_SCALE,MAX_SCALE, 0.75f,1.5f);
+		/* calculate scale factor from fixed point base */
+		fgscale = (float)scale/100.0f;
+		bgscale = lerp((float)scale, MIN_SCALE,MAX_SCALE, 0.75f,1.5f);
 
-			/* scale dependant lower clipping */
-			maxy = 640 - (240*100/scale);
-			if (ypos > maxy)
-				ypos = maxy;
+		/* scale dependant lower clipping */
+		maxy = 640 - (240*100/scale);
+		if (ypos > maxy)
+			ypos = maxy;
 			
-			/* update position */
-			bgypos = lerp(scale,MIN_SCALE,MAX_SCALE, 0,80);
-			TLN_SetLayerPosition (LAYER_FOREGROUND, xpos*2, ypos);
-			TLN_SetLayerPosition (LAYER_BACKGROUND, xpos, bgypos);
-			TLN_SetLayerScaling (LAYER_FOREGROUND, fgscale, fgscale);
-			TLN_SetLayerScaling (LAYER_BACKGROUND, bgscale, bgscale);
+		/* update position */
+		bgypos = lerp(scale,MIN_SCALE,MAX_SCALE, 0,80);
+		TLN_SetLayerPosition (LAYER_FOREGROUND, xpos*2, ypos);
+		TLN_SetLayerPosition (LAYER_BACKGROUND, xpos, bgypos);
+		TLN_SetLayerScaling (LAYER_FOREGROUND, fgscale, fgscale);
+		TLN_SetLayerScaling (LAYER_BACKGROUND, bgscale, bgscale);
 
-			/* render to the window */
-			TLN_DrawFrame (0);
-			timeFinish = timeStart;
-		}
+		/* render to the window */
+		TLN_DrawFrame (0);
+		timeFinish = TLN_GetTicks();
+
+		delta = timeFinish - timeStart;
+		// Capping FPS to 60
+		if(delta < DELAY)
+			TLN_Delay(DELAY - delta);
 		
 	}
 

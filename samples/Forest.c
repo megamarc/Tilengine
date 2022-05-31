@@ -13,6 +13,10 @@
 #define HRES	424
 #define VRES	240
 
+#define FPS	60
+
+const DELAY = 1000.0f/FPS;
+
 /* layers, must mach "map.tmx" layer structure! */
 enum
 {
@@ -79,8 +83,8 @@ int main(int argc, char* argv[])
 	TLN_CreateWindow(NULL, 0);
 
 	// We will cap the FPS to 60 for people having a screen with a refresh rate greater than 60Hz
-	int timeStart = 0;
-	int timeFinish = 0;
+	float timeStart = 0.00;
+	float timeFinish = 0.00;
 	float delta = 0.00;
 
 	while (TLN_ProcessWindow())
@@ -88,25 +92,27 @@ int main(int argc, char* argv[])
 		// Calculating the Delta
 		timeStart = TLN_GetTicks();
 		delta = timeStart - timeFinish;
-		if(delta > 1000 / 60.00) // Capping
+
+		/* move 3 pixels right/left main layer */
+		if (TLN_GetInput(INPUT_LEFT) && xworld > 0)
+			xworld -= 3;
+		else if (TLN_GetInput(INPUT_RIGHT) && xworld < width - HRES)
+			xworld += 3;
+
+		/* update on change */
+		if (xworld != oldx)
 		{
-			TLN_DrawFrame(0);
-
-			/* move 3 pixels right/left main layer */
-			if (TLN_GetInput(INPUT_LEFT) && xworld > 0)
-				xworld -= 3;
-			else if (TLN_GetInput(INPUT_RIGHT) && xworld < width - HRES)
-				xworld += 3;
-
-			/* update on change */
-			if (xworld != oldx)
-			{
-				TLN_SetWorldPosition(xworld, 0);
-				oldx = xworld;
-			}
-			timeFinish = timeStart;
-
+			TLN_SetWorldPosition(xworld, 0);
+			oldx = xworld;
 		}
+		
+		TLN_DrawFrame(0);
+		timeFinish = TLN_GetTicks();
+		delta = timeFinish - timeStart;
+		// Capping FPS to 60
+		if(delta < DELAY)
+			TLN_Delay(DELAY - delta);
+
 		
 	}
 
