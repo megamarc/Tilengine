@@ -679,6 +679,7 @@ const char* const errornames[] =
 	"Resource file has invalid format",
 	"A width or height parameter is invalid",
 	"Unsupported function",
+	"Invalid ObjectList reference"
 };
 
 /*!
