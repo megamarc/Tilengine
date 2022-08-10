@@ -494,6 +494,7 @@ TLNAPI bool TLN_GetTilemapTile (TLN_Tilemap tilemap, int row, int col, TLN_Tile 
 TLNAPI bool TLN_SetTilemapTile (TLN_Tilemap tilemap, int row, int col, TLN_Tile tile);
 TLNAPI bool TLN_CopyTiles (TLN_Tilemap src, int srcrow, int srccol, int rows, int cols, TLN_Tilemap dst, int dstrow, int dstcol);
 TLNAPI bool TLN_DeleteTilemap (TLN_Tilemap tilemap);
+TLNAPI int TLN_GetTilemapTileID(TLN_Tilemap tilemap, int row, int col);
 /**@}*/
 
 /**

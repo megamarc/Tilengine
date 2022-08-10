@@ -212,6 +212,20 @@ bool TLN_GetTilemapTile (TLN_Tilemap tilemap, int row, int col, TLN_Tile tile)
 		return false;
 }
 
+int TLN_GetTilemapTileID(TLN_Tilemap tilemap, int row, int col)
+{
+	if (CheckBaseObject(tilemap, OT_TILEMAP))
+	{
+		TLN_Tile tile = GetTilemapPtr(tilemap, row, col);
+		if (tile)
+			return tile->index;
+		else
+			return -1;
+	}
+	else
+		return -1;
+}
+
 /*!
  * \brief
  * Sets a tile of a tilemap
