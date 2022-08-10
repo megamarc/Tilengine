@@ -114,7 +114,7 @@ bool TLN_DeletePalette (TLN_Palette palette)
  */
 bool TLN_SetPaletteColor (TLN_Palette palette, int index, uint8_t r, uint8_t g, uint8_t b)
 {
-	if (CheckBaseObject (palette, OT_PALETTE))
+	if (CheckBaseObject (palette, OT_PALETTE) && index < palette->entries)
 	{
 		uint32_t* data = (uint32_t*)GetPaletteData (palette, index);
 		*data = PackRGB32(r,g,b);

@@ -383,6 +383,54 @@ bool TLN_DisablePaletteAnimation (int index)
 }
 
 /*!
+ * \brief Pauses animation for the given sprite
+ *
+ * \param index Id of the sprite to pause animation (0 <= id < num_sprites)
+ * \see Animations TLN_ResumeSpriteAnimation
+ */
+bool TLN_PauseSpriteAnimation(int index)
+{
+	Sprite* sprite;
+	Animation* animation;
+
+	if (index >= engine->numsprites)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
+		return false;
+	}
+
+	sprite = &engine->sprites[index];
+	animation = &sprite->animation;
+	animation->paused = true;
+	TLN_SetLastError(TLN_ERR_OK);
+	return true;
+}
+
+/*!
+ * \brief Restores animation for the given sprite
+ *
+ * \param index Id of the sprite to resume animation (0 <= id < num_sprites)
+ * \see Animations TLN_PauseSpriteAnimation
+ */
+bool TLN_ResumeSpriteAnimation(int index)
+{
+	Sprite* sprite;
+	Animation* animation;
+
+	if (index >= engine->numsprites)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
+		return false;
+	}
+
+	sprite = &engine->sprites[index];
+	animation = &sprite->animation;
+	animation->paused = false;
+	TLN_SetLastError(TLN_ERR_OK);
+	return false;
+}
+
+/*!
  * \brief
  * Disables animation for the given sprite
  *
