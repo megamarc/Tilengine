@@ -177,6 +177,7 @@ Language  |Binding
 C/C++     | Native support, no binding required
 Python    | [PyTilengine](https://github.com/megamarc/PyTilengine)
 C#        | [CsTilengine](https://github.com/megamarc/CsTilengine)
+C#        | [CsTilenginePure](https://github.com/vonhoff/CsTilenginePure)
 Pascal    | [PascalTileEngine](https://github.com/turric4n/PascalTileEngine)
 FreeBasic | [FBTilengine](https://github.com/megamarc/FBTilengine)
 Java	    | [JTilengine](https://github.com/megamarc/JTilengine)
@@ -185,7 +186,7 @@ LuaJIT    | [tilengine_libretro](https://github.com/megamarc/Tilengine/tree/libr
 Ring      | [RingTilengine](https://github.com/ring-lang/ring/tree/master/extensions/ringtilengine)
 
 # Contributors
-These people contributed to tilengine:
+These kind users contributed to tilengine:
 
 @turric4an - the Pascal wrapper<br>
 @davideGiovannini - help with the Linux-x86_64 port<br>
@@ -193,3 +194,4 @@ These people contributed to tilengine:
 @adtennant - provided cmake and pkg-config support<br>
 @tvasenin - improved C# binding<br>
 @tyoungjr - LUA/FFI binding<br>
+@vonhoff - provided CsTilenginePure binding<br>
