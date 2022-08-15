@@ -33,6 +33,7 @@ typedef struct
 	TLN_Sequence sequence;
 	TLN_Tileset tileset;	/* tileset for tileset animations */
 	bool enabled;
+	bool paused;			/* animation paused */
 	int loop;
 	int pos;
 	int timer;

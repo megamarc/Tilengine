@@ -137,7 +137,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 				else
 					loader.tile.property = PROPERTY_NONE;
 			}
-			else if (!strcasecmp(szAttribute, "value"))
+			else if (!strcasecmp(szAttribute, "value") && loader.tilecount != 0)
 			{
 				if (loader.tile.property == PROPERTY_TYPE)
 					loader.attributes[loader.tile.id].type = atoi(szValue);
@@ -162,7 +162,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		break;
 
 	case FINISH_ATTRIBUTES:
-		if (!strcasecmp(szName, "tileset"))
+		if (!strcasecmp(szName, "tileset") && loader.tilecount != 0)
 		{
 			loader.attributes = (TLN_TileAttributes*)calloc(loader.tilecount, sizeof(TLN_TileAttributes));
 			loader.images = (TLN_TileImage*)calloc(loader.tilecount, sizeof(TLN_TileImage));
@@ -176,7 +176,7 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 	case FINISH_TAG:
 		if (!strcasecmp(szName, "frame"))
 			loader.frame_count++;
-		else if (!strcasecmp(szName, "tile"))
+		else if (!strcasecmp(szName, "tile") && loader.tilecount != 0)
 		{
 			if (loader.context == CONTEXT_TILESET)
 			{

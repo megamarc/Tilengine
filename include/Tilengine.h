@@ -60,7 +60,7 @@
 /* version */
 #define TILENGINE_VER_MAJ	2
 #define TILENGINE_VER_MIN	9
-#define TILENGINE_VER_REV	4
+#define TILENGINE_VER_REV	7
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -602,6 +602,8 @@ TLNAPI bool TLN_EnableSpriteMasking(int nsprite, bool enable);
 TLNAPI void TLN_SetSpritesMaskRegion(int top_line, int bottom_line);
 TLNAPI bool TLN_SetSpriteAnimation (int nsprite, TLN_Sequence sequence, int loop);
 TLNAPI bool TLN_DisableSpriteAnimation(int nsprite);
+TLNAPI bool TLN_PauseSpriteAnimation(int index);
+TLNAPI bool TLN_ResumeSpriteAnimation(int index);
 TLNAPI bool TLN_DisableSprite (int nsprite);
 TLNAPI TLN_Palette TLN_GetSpritePalette (int nsprite);
 /**@}*/
