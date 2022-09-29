@@ -26,6 +26,7 @@ static SDL_mutex*	 lock;
 static SDL_cond*	 cond;
 static SDL_Joystick* joy;
 static CRTHandler	 crt;
+static SDL_Rect		 dstrect;
 
 static bool			 init;
 static bool			 done;
@@ -117,6 +118,11 @@ static bool CreateWindow(void)
 
 		wnd_width = wnd_params.width*factor;
 		wnd_height = wnd_params.height*factor;
+
+		dstrect.x = 0;
+		dstrect.y = 0;
+		dstrect.w = wnd_width;
+		dstrect.h = wnd_height;
 	}
 	else
 	{
@@ -132,6 +138,11 @@ static bool CreateWindow(void)
 			wnd_width = wnd_height * wnd_params.width / wnd_params.height;
 		}
 		factor = wnd_height / wnd_params.height;
+
+		dstrect.x = (mode.w - wnd_width) >> 1;
+		dstrect.y = (mode.h - wnd_height) >> 1;
+		dstrect.w = wnd_width;
+		dstrect.h = wnd_height;
 	}
 
 	/* create window */
@@ -367,7 +378,7 @@ bool TLN_CreateWindowThread (const char* overlay, int flags)
 	wnd_params.retval = 0;
 	wnd_params.width = TLN_GetWidth ();
 	wnd_params.height = TLN_GetHeight ();
-	wnd_params.flags = flags|CWF_VSYNC;
+	wnd_params.flags = flags | CWF_VSYNC;
 
 	crt_params.enable = (wnd_params.flags & CWF_NEAREST) == 0;
 	lock = SDL_CreateMutex ();
@@ -637,14 +648,29 @@ void TLN_WaitRedraw (void)
  * Enables or disables optional horizontal blur in CRT effect
  * 
  * \param mode
- * Enable or disable effect
+ * Enables or disables RF emulation on CRT effect
  */
-void TLN_EnableBlur (bool mode)
+void TLN_EnableRFBlur (bool mode)
 {
 	CRTSetBlur(crt, mode);
 }
 
-void TLN_SetCRTEffect(TLN_CRT type, bool blur)
+/*!
+ * \deprecated Use TLN_ConfigCRTEffect()
+ */
+void TLN_EnableBlur(bool mode)
+{
+}
+
+/*!
+  * \brief
+ * Enables CRT simulation post-processing effect to give true retro appeareance
+ *
+ * \param type One possible value of \ref TLN_CRT enumeration
+ * \param blur Optional RF (horizontal) blur, increases CPU usage
+ */
+
+void TLN_ConfigCRTEffect(TLN_CRT type, bool blur)
 {
 	if (crt != NULL)
 		CRTDelete(crt);
@@ -657,11 +683,11 @@ void TLN_SetCRTEffect(TLN_CRT type, bool blur)
 }
 
 /*!
- * \deprecated Use \ref TLN_SetCRTEffect instead
+ * \deprecated Use TLN_ConfigCRTEffect() instead
  * \brief
  * Enables CRT simulation post-processing effect to give true retro appeareance
  * 
- * \remarks Parameters have no effect, they're kept for backwards API/ABI compatibility. Default values are always used.
+ * \remarks Parameters have no effect, they're kept for backwards API/ABI compatibility. Original default values are always used.
  */ 
 void TLN_EnableCRTEffect (int overlay, uint8_t overlay_factor, uint8_t threshold, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, bool blur, uint8_t glow_factor)
 {
@@ -680,7 +706,7 @@ void TLN_EnableCRTEffect (int overlay, uint8_t overlay_factor, uint8_t threshold
  * Disables the CRT post-processing effect
  * 
  * \see
- * TLN_EnableCRTEffect()
+ * TLN_ConfigCRTEffect
  */ 
 void TLN_DisableCRTEffect (void)
 {
@@ -822,13 +848,13 @@ static void BeginWindowFrame (void)
 static void EndWindowFrame (void)
 {
 	if (crt_params.enable && crt != NULL)
-		CRTDraw(crt, rt_pixels, rt_pitch);
+		CRTDraw(crt, rt_pixels, rt_pitch, &dstrect);
 
 	else
 	{
 		SDL_UnlockTexture(backbuffer);
 		SDL_SetTextureBlendMode(backbuffer, SDL_BLENDMODE_NONE);
-		SDL_RenderCopy(renderer, backbuffer, NULL, NULL);
+		SDL_RenderCopy(renderer, backbuffer, NULL, &dstrect);
 	}
 	SDL_RenderPresent(renderer);
 }

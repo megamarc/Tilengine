@@ -4,7 +4,7 @@
 #include "crt.h"
 
 #define ZERO	0x10
-#define SCAN	0x40
+#define SCAN	0x20
 #define RED		0xFF,ZERO,ZERO,0xFF
 #define GREEN	ZERO,0xFF,ZERO,0xFF
 #define BLUE	ZERO,ZERO,0xFF,0xFF
@@ -49,8 +49,8 @@ Pattern;
 static Pattern patterns[] = 
 {
 	{pattern_slot, 6, 4, 140},
-	{pattern_aperture, 3, 1, 192},
-	{pattern_shadow, 3, 3, 192},
+	{pattern_aperture, 3, 1, 204},
+	{pattern_shadow, 3, 3, 204},
 };
 
 typedef struct
@@ -89,7 +89,6 @@ CRTHandler CRTCreate(SDL_Renderer* renderer, SDL_Texture* framebuffer, CRTType t
 	Uint32 format = 0;
 	int access = 0;	
 	SDL_QueryTexture(framebuffer, &format, &access, &crt->size_fb.width, &crt->size_fb.height);
-	printf("window: %d x %d\n", wnd_width, wnd_height);
 
 	/* build composed overlay with RGB mask + scanlines */
 	Pattern* pattern = &patterns[type];
@@ -114,7 +113,7 @@ CRTHandler CRTCreate(SDL_Renderer* renderer, SDL_Texture* framebuffer, CRTType t
 }
 
 /* draws effect, gets locked texture data */
-void CRTDraw(CRTHandler crt, void* pixels, int pitch)
+void CRTDraw(CRTHandler crt, void* pixels, int pitch, SDL_Rect* dstrect)
 {
 	/* RF blur */
 	if (crt->blur)
@@ -123,17 +122,17 @@ void CRTDraw(CRTHandler crt, void* pixels, int pitch)
 
 	/* base image */
 	SDL_SetTextureBlendMode(crt->framebuffer, SDL_BLENDMODE_NONE);
-	SDL_RenderCopy(crt->renderer, crt->framebuffer, NULL, NULL);
+	SDL_RenderCopy(crt->renderer, crt->framebuffer, NULL, dstrect);
 
 	/* rgb + scanline overlay */
-	SDL_RenderCopy(crt->renderer, crt->overlay, NULL, NULL);
+	SDL_RenderCopy(crt->renderer, crt->overlay, NULL, dstrect);
 
 	/* glow overlay */
 	if (crt->glow != 0)
 	{
 		SDL_SetTextureBlendMode(crt->framebuffer, SDL_BLENDMODE_ADD);
 		SDL_SetTextureColorMod(crt->framebuffer, crt->glow, crt->glow, crt->glow);
-		SDL_RenderCopy(crt->renderer, crt->framebuffer, NULL, NULL);
+		SDL_RenderCopy(crt->renderer, crt->framebuffer, NULL, dstrect);
 	}
 }
 

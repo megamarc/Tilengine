@@ -145,10 +145,22 @@ The same output but with default CRT enabled:<br>
 
 By default the CRT effect is enabled when the window is created, but it can be disabled with the \ref TLN_DisableCRTEffect function. It can be toggled pressing the <kbd>Escape</kbd> key, too.
 
-The effect is highly configurable with the \ref TLN_EnableCRTEffect function. It takes many parameters to customize its appearance and strength. The default parameters are:
-```c
-TLN_EnableCRTEffect (TLN_OVERLAY_APERTURE, 128, 192, 0,64, 64,128, false, 255);
-```
+There are some variations of the effect. There's a choice between three types of rgb subpixels, and optional RF blur. To configure or enable the effect, use the function \ref TLN_ConfigCRTEffect.
+
+This function takes two parameters:
+
+* type of RGB emulation
+* optional RF (horizontal) blur
+
+Possible types of RGB emulation are the following constants of \ref TLN_CRT enum:
+
+|Value            |Effect
+|-----------------|------------------------------------------------------
+|TLN_CRT_SLOT     |Slot mask without scanlines, similar to legacy (pre 2.10) effect
+|TLN_CRT_APERTURE |Aperture grille with scanlines, matrix-like dot arrangement. Similar to arcade monitors
+|TLN_CRT_SHADOW   |Shadow mask with scanlines, diagonal subpixel arrangement. Similar to TV sets
+
+The optional `blur` parameter applies an horizontal blur that blends adjacent pixels. This blur on actual systems was extensively exploited by Sega megadrive/genesis developers, that interleaved vertical strips of different color to simulate more colors and/or transparency blending, knowing that the discrete colors would be mixed on the RF signal.
 
 ## Summary
 This is a quick reference of related functions in this chapter:
@@ -168,7 +180,7 @@ This is a quick reference of related functions in this chapter:
 |\ref TLN_DrawFrame             |Renders a new frame to the window
 |\ref TLN_WaitRedraw            |Syncs to redraw in multi-threaded window
 |\ref TLN_DeleteWindow          |Destroys the window
-|\ref TLN_EnableCRTEffect       |Configures the CRT/RF video effect
+|\ref TLN_ConfigCRTEffect       |Configures the CRT/RF video effect
 |\ref TLN_DisableCRTEffect      |Disables the CRT/RF video effect
 |\ref TLN_SetSDLCallback        |Sets function to call when SDL input events happen
 |\ref TLN_Delay                 |Waits for the specified amount of milliseconds

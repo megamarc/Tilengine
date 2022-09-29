@@ -59,8 +59,8 @@
 
 /* version */
 #define TILENGINE_VER_MAJ	2
-#define TILENGINE_VER_MIN	9
-#define TILENGINE_VER_REV	7
+#define TILENGINE_VER_MIN	10
+#define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -214,26 +214,27 @@ typedef struct
 }
 TLN_TileAttributes;
 
+/* kept for backwards compatibility with pre-2.10 release */
 #define TLN_OVERLAY_NONE		0
 #define TLN_OVERLAY_SHADOWMASK	0
 #define TLN_OVERLAY_APERTURE	0
 #define TLN_OVERLAY_SCANLINES	0
 #define TLN_OVERLAY_CUSTOM		0
 
-/*! types of built-in CRT effect */
+/*! types of built-in CRT effect for \ref TLN_ConfigCRTEffect */
 typedef enum
 {
-	TLN_CRT_SLOT,
-	TLN_CRT_APERTURE,
-	TLN_CRT_SHADOW,
+	TLN_CRT_SLOT,		/*!< slot mask without scanlines, similar to legacy effect */
+	TLN_CRT_APERTURE,	/*!< aperture grille with scanlines (matrix-like dot arrangement) */
+	TLN_CRT_SHADOW,		/*!< shadow mask with scanlines, diagonal subpixel arrangement */
 }
 TLN_CRT;
 
 /*! pixel mapping for TLN_SetLayerPixelMapping() */
 typedef struct
 {
-	int16_t dx;		/*! horizontal pixel displacement */
-	int16_t dy;		/*! vertical pixel displacement */
+	int16_t dx;		/*!< horizontal pixel displacement */
+	int16_t dy;		/*!< vertical pixel displacement */
 }
 TLN_PixelMap;
 
@@ -437,7 +438,7 @@ TLNAPI void TLN_DrawFrame (int frame);
 TLNAPI void TLN_WaitRedraw (void);
 TLNAPI void TLN_DeleteWindow (void);
 TLNAPI void TLN_EnableBlur (bool mode);
-TLNAPI void TLN_SetCRTEffect(TLN_CRT type, bool blur);
+TLNAPI void TLN_ConfigCRTEffect(TLN_CRT type, bool blur);
 TLNAPI void TLN_EnableCRTEffect (int overlay, uint8_t overlay_factor, uint8_t threshold, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, bool blur, uint8_t glow_factor);
 TLNAPI void TLN_DisableCRTEffect (void);
 TLNAPI void TLN_SetSDLCallback(TLN_SDLCallback);
