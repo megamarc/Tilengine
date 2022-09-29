@@ -12,17 +12,6 @@ typedef enum
 }
 CRTType;
 
-#ifndef _SDL_rect_h
-
-typedef struct SDL_Rect
-{
-	int x, y;
-	int w, h;
-}
-SDL_Rect;
-
-#endif
-
 typedef struct _CRTHandler* CRTHandler;
 
 #ifdef __cplusplus
