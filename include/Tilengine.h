@@ -60,7 +60,7 @@
 /* version */
 #define TILENGINE_VER_MAJ	2
 #define TILENGINE_VER_MIN	10
-#define TILENGINE_VER_REV	0
+#define TILENGINE_VER_REV	1
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -609,6 +609,7 @@ TLNAPI bool TLN_SetSpriteAnimation (int nsprite, TLN_Sequence sequence, int loop
 TLNAPI bool TLN_DisableSpriteAnimation(int nsprite);
 TLNAPI bool TLN_PauseSpriteAnimation(int index);
 TLNAPI bool TLN_ResumeSpriteAnimation(int index);
+TLNAPI bool TLN_DisableAnimation(int index);
 TLNAPI bool TLN_DisableSprite (int nsprite);
 TLNAPI TLN_Palette TLN_GetSpritePalette (int nsprite);
 /**@}*/

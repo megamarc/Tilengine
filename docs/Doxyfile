@@ -901,7 +901,8 @@ EXCLUDE_SYMBOLS        = TLNAPI \
                          engine \
                          WndParams \
                          TLN_SetLayerParent \
-                         TLN_DisableLayerParent
+                         TLN_DisableLayerParent \
+						 TLN_DisableAnimation
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or directories
 # that contain example code fragments that are included (see the \include
