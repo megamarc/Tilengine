@@ -20,8 +20,6 @@
 #include "LoadTMX.h"
 #include "Tilemap.h"
 
-#define MAX_TILESETS	8
-
 static int csvdecode (const char* in, int numtiles, uint32_t* data);
 static int decompress (uint8_t* in, int in_size, uint8_t* out, int out_size);
 
@@ -135,6 +133,21 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 	return handler;
 }
 
+static TLN_Tileset load_tileset(TMXInfo* info, const char* filename, int index)
+{
+	FileInfo fi = { 0 };
+	char tsxpath[200];
+
+	/* composite tsx filename with relative path of parent tmx */
+	TMXTileset* tmxtileset = &info->tilesets[index];
+	SplitFilename(filename, &fi);
+	if (fi.path[0] != 0)
+		snprintf(tsxpath, sizeof(tsxpath), "%s/%s", fi.path, tmxtileset->source);
+	else
+		strncpy(tsxpath, tmxtileset->source, sizeof(tsxpath));
+	return TLN_LoadTileset(tsxpath);
+}
+
 /*!
  * \brief
  * Loads a tilemap layer from a Tiled .tmx file
@@ -202,46 +215,51 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 
 	if (loader.data != NULL)
 	{
-		TLN_Tileset tileset = NULL;
-		TMXTileset* tmxtileset;
 		Tile* tile;
 		uint32_t c;
-		int gid = 0;
 
-		/* find suitable tileset */
+		/* build list of used tilesets */
+		bool _tilesets[MAX_TILESETS] = { 0 };
 		tile = (Tile*)loader.data;
-		for (c = 0; c < loader.numtiles && gid == 0; c += 1, tile += 1)
+		for (c = 0; c < loader.numtiles; c += 1, tile += 1)
 		{
 			if (tile->index > 0)
-				gid = tile->index;
+			{
+				int index = TMXGetSuitableTileset(&tmxinfo, tile->index);
+				_tilesets[index] = true;
+			}
 		}
-		tmxtileset = TMXGetSuitableTileset(&tmxinfo, gid);
-		if (tmxtileset != NULL)
+
+		TLN_Tileset tilesets[MAX_TILESETS] = { 0 };
+		int used_tilesets[MAX_TILESETS] = { 0 };
+		uint32_t used_index = 0;
+		for (c = 0; c < MAX_TILESETS; c += 1)
 		{
-			FileInfo fi = { 0 };
-			char tsxpath[200];
-
-			/* composite tsx filename with relative path of parent tmx */
-			SplitFilename(filename, &fi);
-			if (fi.path[0] != 0)
-				snprintf(tsxpath, sizeof(tsxpath), "%s/%s", fi.path, tmxtileset->source);
-			else
-				strncpy(tsxpath, tmxtileset->source, sizeof(tsxpath));
-			tileset = TLN_LoadTileset(tsxpath);
+			if (_tilesets[c])
+			{
+				tilesets[used_index] = load_tileset(&tmxinfo, filename, c);
+				used_tilesets[used_index] = c;
+				used_index += 1;
+			}
 		}
 
-		/* correct with firstgid */
+		/* TODO correct with firstgid */
 		tile = (Tile*)loader.data;
-		for (c = 0; c < loader.numtiles; c+=1,tile+=1)
+		for (c = 0; c < loader.numtiles; c += 1, tile += 1)
 		{
 			if (tile->index > 0)
-				tile->index = tile->index - tmxtileset->firstgid + 1;
+			{
+				tile->tileset = TMXGetSuitableTileset(&tmxinfo, tile->index);
+				tile->index = tile->index - tmxinfo.tilesets[tile->tileset].firstgid + 1;
+			}
 		}
 
 		/* create */
-		tilemap = TLN_CreateTilemap(loader.layer->height, loader.layer->width, (Tile*)loader.data, tmxinfo.bgcolor, tileset);
+		tilemap = TLN_CreateTilemap(loader.layer->height, loader.layer->width, (Tile*)loader.data, tmxinfo.bgcolor, NULL);
 		tilemap->id = loader.layer->id;
 		tilemap->visible = loader.layer->visible;
+		for (c = 0; c < used_index; c += 1)
+			tilemap->tilesets[c] = tilesets[c];
 	}
 	return tilemap;
 }

@@ -184,16 +184,16 @@ bool TMXLoad(const char* filename, TMXInfo* info)
 	return retval;
 }
 
-/* loads suitable tileset acoording to gid range */
-TMXTileset* TMXGetSuitableTileset(TMXInfo* info, int gid)
+/* returns index of suitable tileset acoording to gid range */
+int TMXGetSuitableTileset(TMXInfo* info, int gid)
 {
 	int c;
 	for (c = 0; c < info->num_tilesets - 1; c += 1)
 	{
 		if (gid >= info->tilesets[c].firstgid && gid < info->tilesets[c + 1].firstgid)
-			return &info->tilesets[c];
+			return c;
 	}
-	return &info->tilesets[c];
+	return c;
 }
 
 /*returns first layer of requested type */

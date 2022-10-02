@@ -59,8 +59,8 @@
 
 /* version */
 #define TILENGINE_VER_MAJ	2
-#define TILENGINE_VER_MIN	10
-#define TILENGINE_VER_REV	1
+#define TILENGINE_VER_MIN	11
+#define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -74,6 +74,7 @@ typedef enum
 	FLAG_ROTATE		= BITVAL(13),	/*!< row/column flip (unsupported, Tiled compatibility) */
 	FLAG_PRIORITY	= BITVAL(12),	/*!< tile goes in front of sprite layer */
 	FLAG_MASKED		= BITVAL(11),	/*!< sprite won't be drawn inside masked region */
+	FLAG_TILESET    = (7 << 8),		/*!< tileset index */
 }
 TLN_TileFlags;
 
@@ -125,7 +126,20 @@ typedef union Tile
 	struct
 	{
 		uint16_t index;		/*!< tile index */
-		uint16_t flags;		/*!< attributes (FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY) */
+		union
+		{
+			uint16_t flags;	/*!< attributes (FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY) */
+			struct
+			{
+				uint8_t unused : 8;
+				uint8_t tileset : 3;
+				bool masked : 1;
+				bool priority : 1;
+				bool rotated : 1;
+				bool flipy : 1;
+				bool flipx : 1;
+			};
+		};
 	};
 }
 Tile;
@@ -488,7 +502,10 @@ TLNAPI TLN_Tilemap TLN_LoadTilemap (const char* filename, const char* layername)
 TLNAPI TLN_Tilemap TLN_CloneTilemap (TLN_Tilemap src);
 TLNAPI int TLN_GetTilemapRows (TLN_Tilemap tilemap);
 TLNAPI int TLN_GetTilemapCols (TLN_Tilemap tilemap);
+TLNAPI bool TLN_SetTilemapTileset(TLN_Tilemap tilemap, TLN_Tileset tileset);
 TLNAPI TLN_Tileset TLN_GetTilemapTileset (TLN_Tilemap tilemap);
+TLNAPI bool TLN_SetTilemapTileset2(TLN_Tilemap tilemap, TLN_Tileset tileset, int index);
+TLNAPI TLN_Tileset TLN_GetTilemapTileset2(TLN_Tilemap tilemap, int index);
 TLNAPI bool TLN_GetTilemapTile (TLN_Tilemap tilemap, int row, int col, TLN_Tile tile);
 TLNAPI bool TLN_SetTilemapTile (TLN_Tilemap tilemap, int row, int col, TLN_Tile tile);
 TLNAPI bool TLN_CopyTiles (TLN_Tilemap src, int srcrow, int srccol, int rows, int cols, TLN_Tilemap dst, int dstrow, int dstcol);

@@ -58,7 +58,7 @@ bool TLN_SetLayer(int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap)
 
 	/* select tilemsp's own tileset */
 	if (tileset == NULL)
-		tileset = tilemap->tileset;
+		tileset = tilemap->tilesets[0];
 
 	if (!CheckBaseObject(tileset, OT_TILESET))
 		return false;

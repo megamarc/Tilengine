@@ -235,6 +235,7 @@ static bool DrawLayerScanline (int nlayer, int nscan)
 		/* paint if not empty tile */
 		if (tile->index)
 		{
+			const TLN_Tileset tileset = tilemap->tilesets[tile->tileset];
 			const uint16_t tile_index = tileset->tiles[tile->index];
 			
 			/* H/V flip */
@@ -261,7 +262,7 @@ static bool DrawLayerScanline (int nlayer, int nscan)
 			}
 			line = GetTilesetLine (tileset, tile_index, srcy);
 			color_key = *(tileset->color_key + line);
-			layer->blitters[color_key] (srcpixel, layer->palette, dst, width, direction, 0, layer->blend);
+			layer->blitters[color_key] (srcpixel, tileset->palette, dst, width, direction, 0, layer->blend);
 		}
 
 		/* next tile */
@@ -385,6 +386,7 @@ static bool DrawLayerScanlineScaling (int nlayer, int nscan)
 		/* paint if tile is not empty */
 		if (tile->index)
 		{
+			const TLN_Tileset tileset = tilemap->tilesets[tile->tileset];
 			const uint16_t tile_index = tileset->tiles[tile->index];
 
 			/* volteado H/V */
@@ -411,7 +413,7 @@ static bool DrawLayerScanlineScaling (int nlayer, int nscan)
 			}
 			line = GetTilesetLine (tileset, tile_index, srcy);
 			color_key = *(tileset->color_key + line);
-			layer->blitters[color_key] (srcpixel, layer->palette, dst, width, direction, 0, layer->blend);
+			layer->blitters[color_key] (srcpixel, tileset->palette, dst, width, direction, 0, layer->blend);
 		}
 
 		/* next tile */
@@ -512,6 +514,7 @@ static bool DrawLayerScanlineAffine (int nlayer, int nscan)
 		/* paint if not empty tile */
 		if (tile->index)
 		{
+			const TLN_Tileset tileset = tilemap->tilesets[tile->tileset];
 			const uint16_t tile_index = tileset->tiles[tile->index];
 
 			/* H/V flip */
@@ -540,9 +543,9 @@ draw_end:
 		int width = layer->clip.x2 - layer->clip.x1;
 
 		if (layer->blend != NULL)
-			BlitMosaicBlend (srcptr, layer->palette, dstptr, width, layer->mosaic.w, layer->blend);
+			BlitMosaicBlend (srcptr, tileset->palette, dstptr, width, layer->mosaic.w, layer->blend);
 		else
-			BlitMosaicSolid (srcptr, layer->palette, dstptr, width, layer->mosaic.w);
+			BlitMosaicSolid (srcptr, tileset->palette, dstptr, width, layer->mosaic.w);
 	}
 	else
 	{
@@ -551,7 +554,7 @@ draw_end:
 		uint8_t* dstptr = GetFramebufferLine (nscan) + offset;
 		int width = layer->clip.x2 - layer->clip.x1;
 
-		layer->blitters[1] (srcptr, layer->palette, dstptr, width, 1, 0, layer->blend);
+		layer->blitters[1] (srcptr, tileset->palette, dstptr, width, 1, 0, layer->blend);
 	}
 	return false;
 }
@@ -612,6 +615,7 @@ static bool DrawLayerScanlinePixelMapping (int nlayer, int nscan)
 		/* paint if not empty tile */
 		if (tile->index)
 		{
+			const TLN_Tileset tileset = tilemap->tilesets[tile->tileset];
 			const uint16_t tile_index = tileset->tiles[tile->index];
 
 			/* H/V flip */
@@ -639,9 +643,9 @@ draw_end:
 		int width = layer->clip.x2 - layer->clip.x1;
 
 		if (layer->blend != NULL)
-			BlitMosaicBlend (srcptr, layer->palette, dstptr, width, layer->mosaic.w, layer->blend);
+			BlitMosaicBlend (srcptr, tileset->palette, dstptr, width, layer->mosaic.w, layer->blend);
 		else
-			BlitMosaicSolid (srcptr, layer->palette, dstptr, width, layer->mosaic.w);
+			BlitMosaicSolid (srcptr, tileset->palette, dstptr, width, layer->mosaic.w);
 	}
 	else
 	{
@@ -650,7 +654,7 @@ draw_end:
 		uint8_t* dstptr = GetFramebufferLine (nscan) + offset;
 		int width = layer->clip.x2 - layer->clip.x1;
 
-		layer->blitters[1] (srcptr, layer->palette, dstptr, width, 1, 0, layer->blend);
+		layer->blitters[1] (srcptr, tileset->palette, dstptr, width, 1, 0, layer->blend);
 	}
 	return true;
 }
