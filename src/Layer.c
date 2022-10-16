@@ -404,6 +404,13 @@ bool TLN_SetLayerPalette (int nlayer, TLN_Palette palette)
 
 	layer->palette = palette;
 
+	// HACK: propagate palette to tileset so palette raster effects continue working with multiple tilesets
+	if (layer->tilemap != NULL && layer->tilemap->tilesets[0] != NULL)
+	{
+		layer->tilemap->tilesets[0]->palette = palette;
+		layer->tilemap->tilesets[0]->owner = false;
+	}
+
 	TLN_SetLastError (TLN_ERR_OK);
 	return true;
 }
