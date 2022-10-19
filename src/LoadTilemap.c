@@ -217,40 +217,39 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 	{
 		Tile* tile;
 		uint32_t c;
+		TLN_Tileset tilesets[MAX_TILESETS] = { 0 }; /* list of tilesets */
+		bool used_tilesets[MAX_TILESETS] = { 0 };   /* set of used tilesets by index in Tiled */
+		int tileset_mapping[MAX_TILESETS] = { 0 };  /* mapping from index in Tiled to index in list */
 
-		/* build list of used tilesets */
-		bool _tilesets[MAX_TILESETS] = { 0 };
 		tile = (Tile*)loader.data;
 		for (c = 0; c < loader.numtiles; c += 1, tile += 1)
 		{
 			if (tile->index > 0)
 			{
 				int index = TMXGetSuitableTileset(&tmxinfo, tile->index);
-				_tilesets[index] = true;
+				used_tilesets[index] = true;
 			}
 		}
 
-		TLN_Tileset tilesets[MAX_TILESETS] = { 0 };
-		int used_tilesets[MAX_TILESETS] = { 0 };
 		uint32_t used_index = 0;
 		for (c = 0; c < MAX_TILESETS; c += 1)
 		{
-			if (_tilesets[c])
+			if (used_tilesets[c])
 			{
 				tilesets[used_index] = load_tileset(&tmxinfo, filename, c);
-				used_tilesets[used_index] = c;
+				tileset_mapping[c] = used_index;
 				used_index += 1;
 			}
 		}
 
-		/* TODO correct with firstgid */
 		tile = (Tile*)loader.data;
 		for (c = 0; c < loader.numtiles; c += 1, tile += 1)
 		{
 			if (tile->index > 0)
 			{
-				tile->tileset = TMXGetSuitableTileset(&tmxinfo, tile->index);
-				tile->index = tile->index - tmxinfo.tilesets[tile->tileset].firstgid + 1;
+				int index = TMXGetSuitableTileset(&tmxinfo, tile->index);
+				tile->tileset = tileset_mapping[index];
+				tile->index = tile->index - tmxinfo.tilesets[index].firstgid + 1;
 			}
 		}
 
