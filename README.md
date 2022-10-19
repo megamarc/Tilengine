@@ -184,6 +184,7 @@ Java	    | [JTilengine](https://github.com/megamarc/JTilengine)
 Rust      | [tilengine-sys](https://crates.io/crates/tilengine-sys)
 LuaJIT    | [tilengine_libretro](https://github.com/megamarc/Tilengine/tree/libretro) ([libretro](https://www.libretro.com) core)
 Ring      | [RingTilengine](https://github.com/ring-lang/ring/tree/master/extensions/ringtilengine)
+Nim       | [nim-tilengine](https://git.sr.ht/~exelotl/nim-tilengine)
 
 # Contributors
 These kind users contributed to tilengine:
