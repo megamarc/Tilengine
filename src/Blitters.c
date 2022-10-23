@@ -18,73 +18,20 @@
 #define BLIT_BLEND		0
 #define BLIT_SCALING	1
 #define BLIT_KEY		2
-#define BLIT_BPP		3
 
-/* 8 to 8 BPP blitters ----------------------------------------------------- */
-
-static void blitFast_8_8 (uint8_t *srcpixel, TLN_Palette palette, void* dstptr, int width, int dx, int offset, uint8_t* blend)
+typedef union
 {
-	uint8_t* dstpixel = (uint8_t*)dstptr;
-	while (width)
+	struct
 	{
-		*dstpixel++ = *srcpixel;
-		srcpixel += dx;
-		width--;
-	}
+		uint8_t b, g, r, a;
+	};
+	uint32_t value;
 }
-
-static void blitFastScaling_8_8 (uint8_t *srcpixel, TLN_Palette palette, void* dstptr, int width, int dx, int offset, uint8_t* blend)
-{
-	uint8_t* dstpixel = (uint8_t*)dstptr;
-	while (width)
-	{
-		uint32_t src = *(srcpixel + offset/(1 << FIXED_BITS));
-		*dstpixel++ = src;
-		offset += dx;
-		width--;
-	}
-}
-
-static void blitKey_8_8 (uint8_t *srcpixel, TLN_Palette palette, void* dstptr, int width, int dx, int offset, uint8_t* blend)
-{
-	uint8_t* dstpixel = (uint8_t*)dstptr;
-	while (width)
-	{
-		if (*srcpixel)
-			*dstpixel = *srcpixel;
-		srcpixel += dx;
-		dstpixel++;
-		width--;
-	}
-}
-
-static void blitKeyScaling_8_8 (uint8_t *srcpixel, TLN_Palette palette, void* dstptr, int width, int dx, int offset, uint8_t* blend)
-{
-	uint8_t* dstpixel = (uint8_t*)dstptr;
-	while (width)
-	{
-		uint32_t src = *(srcpixel + offset/(1 << FIXED_BITS));
-		if (src)
-			*dstpixel = src;
-
-		offset += dx;
-		dstpixel++;
-		width--;
-	}
-}
+Pixel;
 
 /* 8 to 32 BPP blitters ----------------------------------------------------- */
 
-static void blitColor_8_32 (void* dstptr, uint32_t color, int width)
-{
-	uint32_t* dstpixel = (uint32_t*)dstptr;
-	while (width)
-	{
-		*dstpixel++ = color;
-		width--;
-	}
-}
-
+/* paints scanline without checking color key (always solid) */
 static void blitFast_8_32 (uint8_t *srcpixel, TLN_Palette palette, void* dstptr, int width, int dx, int offset, uint8_t* blend)
 {
 	uint32_t* dstpixel = (uint32_t*)dstptr;
@@ -97,6 +44,7 @@ static void blitFast_8_32 (uint8_t *srcpixel, TLN_Palette palette, void* dstptr,
 	}
 }
 
+/* paints scanline without checking color key (always solid) with blending */
 static void blitFastBlend_8_32 (uint8_t *srcpixel, TLN_Palette palette, void* dstptr, int width, int dx, int offset, uint8_t* blend)
 {
 	uint8_t *src, *dst;
@@ -114,6 +62,7 @@ static void blitFastBlend_8_32 (uint8_t *srcpixel, TLN_Palette palette, void* ds
 	}
 }
 
+/* paints scanline without checking color key (always solid) with scaling */
 static void blitFastScaling_8_32 (uint8_t *srcpixel, TLN_Palette palette, void* dstptr, int width, int dx, int offset, uint8_t* blend)
 {
 	uint32_t* dstpixel = (uint32_t*)dstptr;
@@ -127,6 +76,7 @@ static void blitFastScaling_8_32 (uint8_t *srcpixel, TLN_Palette palette, void* 
 	}
 }
 
+/* paints scanline without checking color key (always solid) with scaling and blending */
 static void blitFastBlendScaling_8_32 (uint8_t *srcpixel, TLN_Palette palette, void* dstptr, int width, int dx, int offset, uint8_t* blend)
 {
 	uint8_t *src, *dst;
@@ -145,6 +95,7 @@ static void blitFastBlendScaling_8_32 (uint8_t *srcpixel, TLN_Palette palette, v
 	}
 }
 
+/* paints scanline skipping empty pixels */
 static void blitKey_8_32 (uint8_t *srcpixel, TLN_Palette palette, void* dstptr, int width, int dx, int offset, uint8_t* blend)
 {
 	uint32_t* dstpixel = (uint32_t*)dstptr;
@@ -159,6 +110,7 @@ static void blitKey_8_32 (uint8_t *srcpixel, TLN_Palette palette, void* dstptr, 
 	}
 }
 
+/* paints scanline skipping empty pixels with blending */
 static void blitKeyBlend_8_32 (uint8_t *srcpixel, TLN_Palette palette, void* dstptr, int width, int dx, int offset, uint8_t* blend)
 {
 	uint8_t *src, *dst;
@@ -179,6 +131,7 @@ static void blitKeyBlend_8_32 (uint8_t *srcpixel, TLN_Palette palette, void* dst
 	}
 }
 
+/* paints scanline skipping empty pixels with scaling */
 static void blitKeyScaling_8_32 (uint8_t *srcpixel, TLN_Palette palette, void* dstptr, int width, int dx, int offset, uint8_t* blend)
 {
 	uint32_t* dstpixel = (uint32_t*)dstptr;
@@ -195,6 +148,7 @@ static void blitKeyScaling_8_32 (uint8_t *srcpixel, TLN_Palette palette, void* d
 	}
 }
 
+/* paints scanline skipping empty pixels with scaling and blending */
 static void blitKeyBlendScaling_8_32 (uint8_t *srcpixel, TLN_Palette palette, void* dstptr, int width, int dx, int offset, uint8_t* blend)
 {
 	uint8_t *src, *dst;
@@ -216,17 +170,9 @@ static void blitKeyBlendScaling_8_32 (uint8_t *srcpixel, TLN_Palette palette, vo
 	}
 }
 
+/* blitter table selector */
 static const ScanBlitPtr blitters[]=
 {
-	blitFast_8_8,
-	NULL,
-	blitFastScaling_8_8,
-	NULL,
-	blitKey_8_8,
-	NULL,
-	blitKeyScaling_8_8,
-	NULL,
-
 	blitFast_8_32,
 	blitFastBlend_8_32,
 	blitFastScaling_8_32,
@@ -237,71 +183,99 @@ static const ScanBlitPtr blitters[]=
 	blitKeyBlendScaling_8_32
 };
 
-ScanBlitPtr GetBlitter (int bpp, bool key, bool scaling, bool blend)
+/* returns suitable blitter for specified conditions */
+ScanBlitPtr SelectBlitter (bool key, bool scaling, bool blend)
 {
-	int index;
-
-	if (bpp == 32)
-		bpp = 1;
-	else
-		bpp = 0;
-
-	index = (bpp << BLIT_BPP) + (key << BLIT_KEY) + (scaling << BLIT_SCALING) + (blend << BLIT_BLEND);
+	int index = (key << BLIT_KEY) + (scaling << BLIT_SCALING) + (blend << BLIT_BLEND);
 	return blitters[index];
 }
 
-void BlitColor (void* dstptr, uint32_t color, int width)
-{
-	blitColor_8_32 (dstptr, color, width);
-}
-
-void BlitMosaicSolid (uint8_t *srcpixel, TLN_Palette palette, void* dstptr, int width, int size)
+/* paints constant color */
+void BlitColor(void* dstptr, uint32_t color, int width)
 {
 	uint32_t* dstpixel = (uint32_t*)dstptr;
-	uint32_t* color = (uint32_t*)palette->data;
 	while (width)
 	{
-		if (size > width)
-			size = width;
-
-		if (*srcpixel)
-		{
-			const uint32_t value = color[*srcpixel];
-			int c;
-			for (c=0; c<size; c++)
-				*dstpixel++ = value;
-		}
-		else
-			dstpixel += size;
-		srcpixel += size;
-		width -= size;
+		*dstpixel++ = color;
+		width--;
 	}
 }
 
-void BlitMosaicBlend (uint8_t *srcpixel, TLN_Palette palette, void* dstptr, int width, int size, uint8_t* blend)
+/* perfoms direct 32 -> 32 bpp blit with opcional blend */
+void Blit32_32(uint32_t *src, uint32_t* dst, int width, uint8_t* blend)
 {
-	uint8_t* dstpixel = (uint8_t*)dstptr;
-	uint32_t* color = (uint32_t*)palette->data;
-	while (width)
-	{
-		if (size > width)
-			size = width;
+	Pixel* srcpixel = (Pixel*)src;
+	Pixel* dstpixel = (Pixel*)dst;
 
-		if (*srcpixel)
+	/* blending */
+	if (blend != NULL)
+	{
+		while (width > 0)
 		{
-			const uint8_t* value = (uint8_t*)&color[*srcpixel];
-			int c;
-			for (c=0; c<size; c++)
+			if (srcpixel->a != 0)
 			{
-				dstpixel[0] = blendfunc(blend, value[0], dstpixel[0]);
-				dstpixel[1] = blendfunc(blend, value[1], dstpixel[1]);
-				dstpixel[2] = blendfunc(blend, value[2], dstpixel[2]);
-				dstpixel += sizeof(uint32_t);
+				dstpixel->r = blendfunc(blend, srcpixel->r, dstpixel->r);
+				dstpixel->g = blendfunc(blend, srcpixel->g, dstpixel->g);
+				dstpixel->b = blendfunc(blend, srcpixel->b, dstpixel->b);
 			}
+			srcpixel += 1;
+			dstpixel += 1;
 		}
-		else
-			dstpixel += (sizeof(uint32_t)*size);
-		srcpixel += size;
-		width -= size;
+	}
+
+	/* regular */
+	else
+	{
+		while (width > 0)
+		{
+			if (srcpixel->a != 0)
+				dstpixel->value = srcpixel->value;
+			srcpixel += 1;
+			dstpixel += 1;
+		}
+	}
+}
+
+/* performs mosaic effect with opcional blend */
+void BlitMosaic(uint32_t *src, uint32_t* dst, int width, int size, uint8_t* blend)
+{
+	Pixel* srcpixel = (Pixel*)src;
+	Pixel* dstpixel = (Pixel*)dst;
+	
+	/* blending */
+	if (blend != NULL)
+	{
+		while (width > 0)
+		{
+			if (size > width)
+				size = width;
+
+			if (srcpixel->a != 0)
+			{
+				dstpixel->r = blendfunc(blend, srcpixel->r, dstpixel->r);
+				dstpixel->g = blendfunc(blend, srcpixel->g, dstpixel->g);
+				dstpixel->b = blendfunc(blend, srcpixel->b, dstpixel->b);
+			}
+			srcpixel += 1;
+			dstpixel += 1;
+			width -= size;
+		}
+	}
+
+	/* regular */
+	else
+	{
+		while (width > 0)
+		{
+			if (size > width)
+				size = width;
+
+			if (srcpixel->a != 0)
+				dstpixel->value = srcpixel->value;
+
+			srcpixel += 1;
+			dstpixel += 1;
+			width -= size;
+		}
 	}
 }

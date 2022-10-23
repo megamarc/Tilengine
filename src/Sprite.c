@@ -978,7 +978,7 @@ static void SelectBlitter (Sprite* sprite)
 	const bool scaling = sprite->mode == MODE_SCALING;
 	const bool blend = sprite->blend != NULL;
 
-	sprite->blitter = GetBlitter (32, true, scaling, blend);
+	sprite->blitter = SelectBlitter (32, true, scaling, blend);
 }
 
 void MakeRect(rect_t* rect, int x, int y, int w, int h)

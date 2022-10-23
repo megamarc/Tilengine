@@ -13,13 +13,28 @@
 
 #include "Tilengine.h"
 
-typedef void (*ScanBlitPtr) \
+/* blitter callback signature */
+typedef void(*ScanBlitPtr) \
 	(uint8_t *srcpixel, TLN_Palette palette, void* dstptr, int width, int dx, int offset, uint8_t* blend);
 
-ScanBlitPtr GetBlitter (int bpp, bool key, bool scaling, bool blend);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void BlitColor (void* dstptr, uint32_t color, int width);
-void BlitMosaicSolid (uint8_t *srcpixel, TLN_Palette palette, void* dstptr, int width, int size);
-void BlitMosaicBlend (uint8_t *srcpixel, TLN_Palette palette, void* dstptr, int width, int size, uint8_t* blend);
+	/* returns suitable blitter for specified conditions */
+	ScanBlitPtr SelectBlitter(bool key, bool scaling, bool blend);
+
+	/* paints constant color */
+	void BlitColor(void* dstptr, uint32_t color, int width);
+
+	/* perfoms direct 32 -> 32 bpp blit with opcional blend */
+	void Blit32_32(uint32_t *src, uint32_t* dst, int width, uint8_t* blend);
+
+	/* performs mosaic blit */
+	void BlitMosaic(uint32_t *src, uint32_t* dst, int width, int size, uint8_t* blend);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

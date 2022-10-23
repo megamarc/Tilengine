@@ -51,8 +51,8 @@ typedef struct Layer
 	bool dirty;					/* requires UpdateLayer() before draw */
 	
 	/* */
-	int				hstart;		/* offset de inicio horizontal */
-	int				vstart;		/* offset de inicio vertical */
+	int				hstart;		/* horizontal start offset */
+	int				vstart;		/* vertical start offset*/
 
 	/* clip */
 	struct
@@ -64,8 +64,8 @@ typedef struct Layer
 	/* mosaic */
 	struct
 	{
-		int w,h;			/* tamaño del pixel */
-		uint8_t* buffer;	/* linea temporal */
+		int w, h;			/* virtual pixel size */
+		uint32_t* buffer;	/* line buffer */
 	}
 	mosaic;
 }

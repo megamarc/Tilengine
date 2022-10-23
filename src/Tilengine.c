@@ -89,8 +89,8 @@ static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int
 	}
 
 	/* sprite collision buffer */
-	context->collision = (uint16_t*)calloc(hres*sizeof(uint16_t), 1);
-	context->tmpindex = (uint8_t*)calloc(hres, 1);
+	context->collision = (uint16_t*)calloc(hres, sizeof(uint16_t));
+	context->linebuffer = (uint32_t*)calloc(hres, sizeof(uint32_t));
 
 	/* create static items */
 	context->numlayers = numlayers;
@@ -102,7 +102,7 @@ static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int
 		return NULL;
 	}
 	for (c=0; c<context->numlayers; c++)
-		context->layers[c].mosaic.buffer = (uint8_t*)malloc (hres);
+		context->layers[c].mosaic.buffer = (uint32_t*)calloc (hres, sizeof(uint32_t));
 
 	context->numsprites = numsprites;
 	context->sprites = (Sprite*)calloc (numsprites, sizeof(Sprite));
@@ -116,7 +116,7 @@ static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int
 	{
 		Sprite* sprite = &context->sprites[c];
 		sprite->draw = GetSpriteDraw (MODE_NORMAL);
-		sprite->blitter = GetBlitter (bpp, true, false, false);
+		sprite->blitter = SelectBlitter (bpp, true, false, false);
 		sprite->sx = sprite->sy = 1.0f;
 	}
 	ListInit(&context->list_sprites, &context->sprites[0].list_node, sizeof(Sprite), context->numsprites);
@@ -132,7 +132,7 @@ static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int
 	ListInit(&context->list_animations, &context->animations[0].list_node, sizeof(Animation), context->numanimations);
 
 	context->bgcolor = PackRGB32(0,0,0);
-	context->blit_fast = GetBlitter (bpp, false, false, false);
+	context->blit_fast = SelectBlitter (bpp, false, false, false);
 	if (!CreateBlendTables ())
 	{
 		TLN_DeleteContext(context);

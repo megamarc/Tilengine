@@ -1120,6 +1120,6 @@ static void SelectBlitter (Layer* layer)
 		bpp = 8;
 	}
 
-	layer->blitters[0] = GetBlitter (bpp, false, scaling, blend);
-	layer->blitters[1] = GetBlitter (bpp, true, scaling, blend);
+	layer->blitters[0] = SelectBlitter (bpp, false, scaling, blend);
+	layer->blitters[1] = SelectBlitter (bpp, true, scaling, blend);
 }
