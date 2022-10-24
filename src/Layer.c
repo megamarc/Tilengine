@@ -69,8 +69,6 @@ bool TLN_SetLayer(int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap)
 		layer->tilemap = tilemap;
 		layer->width = tilemap->cols*tileset->width;
 		layer->height = tilemap->rows*tileset->height;
-		if (tileset->palette)
-			TLN_SetLayerPalette(nlayer, tileset->palette);
 	}
 	layer->bitmap = NULL;
 	layer->objects = NULL;
@@ -1104,22 +1102,8 @@ void UpdateLayer(int nlayer)
 static void SelectBlitter (Layer* layer)
 {
 	bool scaling = layer->mode == MODE_SCALING;
-	bool blend;
-	int bpp;
+	bool blend = layer->blend != NULL && layer->mosaic.h == 0;
 
-	/* without mosaic effect */
-	if (layer->mosaic.h == 0)
-	{
-		blend = layer->blend != NULL;
-		bpp = 32;
-	}
-	/* with mosaic effect */
-	else
-	{
-		blend = false;
-		bpp = 8;
-	}
-
-	layer->blitters[0] = SelectBlitter (bpp, false, scaling, blend);
-	layer->blitters[1] = SelectBlitter (bpp, true, scaling, blend);
+	layer->blitters[0] = SelectBlitter (false, scaling, blend);
+	layer->blitters[1] = SelectBlitter (true, scaling, blend);
 }

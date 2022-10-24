@@ -220,23 +220,29 @@ TLN_Tileset TLN_CloneTileset (TLN_Tileset src)
 		return NULL;
 
 	tileset = (TLN_Tileset)CloneBaseObject (src);
-	if (tileset)
-	{
-		const int size_tiles = src->numtiles * sizeof(uint16_t);
-		const int size_color = src->numtiles * src->height;
-		const int size_attributes = src->numtiles * sizeof(TLN_TileAttributes);
-		
-		TLN_SetLastError (TLN_ERR_OK);
-		tileset->tiles = (uint16_t*)malloc(size_tiles);
-		memcpy(tileset->tiles, src->tiles, size_tiles);
-		tileset->color_key = (bool*)malloc(size_color);
-		memcpy(tileset->color_key, src->color_key, size_color);
-		tileset->attributes = (TLN_TileAttributes*)malloc(size_attributes);
-		memcpy(tileset->attributes, src->attributes, size_attributes);
-		return tileset;
-	}
-	else
+	if (tileset == NULL)
 		return NULL;
+
+	const int size_tiles = src->numtiles * sizeof(uint16_t);
+	const int size_color = src->numtiles * src->height;
+	const int size_attributes = src->numtiles * sizeof(TLN_TileAttributes);
+		
+	tileset->tiles = (uint16_t*)malloc(size_tiles);
+	tileset->color_key = (bool*)malloc(size_color);
+	tileset->attributes = (TLN_TileAttributes*)malloc(size_attributes);
+
+	if (tileset->tiles == NULL || tileset->color_key == NULL || tileset->attributes == NULL)
+	{
+		TLN_DeleteTileset(tileset);
+		TLN_SetLastError(TLN_ERR_OUT_OF_MEMORY);
+		return NULL;
+	}
+
+	memcpy(tileset->tiles, src->tiles, size_tiles);
+	memcpy(tileset->color_key, src->color_key, size_color);
+	memcpy(tileset->attributes, src->attributes, size_attributes);
+	TLN_SetLastError(TLN_ERR_OK);
+	return tileset;
 }
 
 /*!

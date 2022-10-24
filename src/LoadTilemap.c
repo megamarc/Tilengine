@@ -105,6 +105,8 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 		{
 			int size = loader.numtiles * sizeof(uint32_t);
 			uint32_t* data = (uint32_t*)malloc (size);
+			if (data == NULL)
+				return handler;
 			
 			memset (data, 0, size);
 			if (loader.encoding == ENCODING_CSV)

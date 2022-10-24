@@ -19,16 +19,6 @@
 #define BLIT_SCALING	1
 #define BLIT_KEY		2
 
-typedef union
-{
-	struct
-	{
-		uint8_t b, g, r, a;
-	};
-	uint32_t value;
-}
-Pixel;
-
 /* 8 to 32 BPP blitters ----------------------------------------------------- */
 
 /* paints scanline without checking color key (always solid) */
@@ -204,8 +194,8 @@ void BlitColor(void* dstptr, uint32_t color, int width)
 /* perfoms direct 32 -> 32 bpp blit with opcional blend */
 void Blit32_32(uint32_t *src, uint32_t* dst, int width, uint8_t* blend)
 {
-	Pixel* srcpixel = (Pixel*)src;
-	Pixel* dstpixel = (Pixel*)dst;
+	Color* srcpixel = (Color*)src;
+	Color* dstpixel = (Color*)dst;
 
 	/* blending */
 	if (blend != NULL)
@@ -239,8 +229,8 @@ void Blit32_32(uint32_t *src, uint32_t* dst, int width, uint8_t* blend)
 /* performs mosaic effect with opcional blend */
 void BlitMosaic(uint32_t *src, uint32_t* dst, int width, int size, uint8_t* blend)
 {
-	Pixel* srcpixel = (Pixel*)src;
-	Pixel* dstpixel = (Pixel*)dst;
+	Color* srcpixel = (Color*)src;
+	Color* dstpixel = (Color*)dst;
 	
 	/* blending */
 	if (blend != NULL)

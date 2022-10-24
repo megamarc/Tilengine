@@ -215,6 +215,9 @@ bool CheckFile (const char* filename)
 /* returns file extension in lowercase */
 void SplitFilename(const char* filename, FileInfo* fileinfo)
 {
+	if (filename == NULL || fileinfo == NULL)
+		return;
+
 	int len = 0;
 	char* block1 = (char*)strrchr(filename, SLASH);
 	char* block2 = (char*)strrchr(filename, '.');

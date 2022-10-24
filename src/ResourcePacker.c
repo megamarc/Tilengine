@@ -116,11 +116,16 @@ static void* load_asset(ResPack rp, ResEntry* entry)
 	{
 		void* cyphertext = malloc(entry->pack_size);
 		void* plaintext = malloc(entry->pack_size);
-		fread(cyphertext, entry->pack_size, 1, rp->pf);
-		aes_decrypt_cbc((uint8_t*)cyphertext, entry->pack_size, (uint8_t*)plaintext, rp->key, KEY_SIZE, iv);
-		memcpy(buffer, plaintext, entry->data_size);
-		free(plaintext);
-		free(cyphertext);
+		if (cyphertext != NULL && plaintext != NULL)
+		{
+			fread(cyphertext, entry->pack_size, 1, rp->pf);
+			aes_decrypt_cbc((uint8_t*)cyphertext, entry->pack_size, (uint8_t*)plaintext, rp->key, KEY_SIZE, iv);
+			memcpy(buffer, plaintext, entry->data_size);
+		}
+		if (plaintext != NULL)
+			free(plaintext);
+		if (cyphertext != NULL)
+			free(cyphertext);
 	}
 	else
 		fread(buffer, entry->data_size, 1, rp->pf);
@@ -173,6 +178,12 @@ ResPack ResPack_Open(const char* filename, const char* passphrase)
 	/* create object */
 	size = sizeof(struct _ResPack) + sizeof(ResEntry)*res_header.num_regs;
 	rp = (ResPack)calloc(size, 1);
+	if (rp == NULL)
+	{
+		fclose(pf);
+		return NULL;
+	}
+
 	rp->num_entries = res_header.num_regs;
 	rp->pf = pf;
 	
@@ -235,6 +246,9 @@ ResAsset ResPack_OpenAsset(ResPack rp, const char* filename)
 		return NULL;
 
 	asset = (ResAsset)malloc(sizeof(struct _ResAsset));
+	if (asset == NULL)
+		return NULL;
+	
 	sprintf(asset->filename, "_tmp%d", entry->id);
 	asset->pf = fopen(asset->filename, "wb");
 	fwrite(content, entry->data_size, 1, asset->pf);
@@ -290,6 +304,12 @@ static void* load_file(const char* filename, uint32_t* data_size)
 	fseek(pf, 0, SEEK_SET);
 
 	buffer = malloc(size);
+	if (buffer == NULL)
+	{
+		fclose(pf);
+		return NULL;
+	}
+
 	fread(buffer, size, 1, pf);
 	fclose(pf);
 

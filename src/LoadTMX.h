@@ -5,8 +5,8 @@
 #include <stdbool.h>
 #include "Tileset.h"
 
-#define TMX_MAX_LAYER		64
-#define TMX_MAX_TILESET		64
+#define TMX_MAX_LAYER		32
+#define TMX_MAX_TILESET		32
 
 typedef struct
 {

@@ -23,7 +23,7 @@
 #define inline __inline
 #endif
 
-static void SelectBlitter (Sprite* sprite);
+static void SelectSpriteBlitter (Sprite* sprite);
 
 /*!
  * \deprecated use \ref TLN_SetSpriteSet and \ref TLN_EnableSpriteFlag
@@ -303,7 +303,7 @@ bool TLN_SetSpriteBlendMode (int nsprite, TLN_Blend mode, uint8_t factor)
 
 	sprite = &engine->sprites[nsprite];
 	sprite->blend = SelectBlendTable (mode);
-	SelectBlitter (sprite);
+	SelectSpriteBlitter (sprite);
 
 	TLN_SetLastError (TLN_ERR_OK);
 	return true;
@@ -347,7 +347,7 @@ bool TLN_SetSpriteScaling (int nsprite, float sx, float sy)
 	sprite->mode = MODE_SCALING;
 	sprite->draw = GetSpriteDraw (sprite->mode);
 	UpdateSprite (sprite);
-	SelectBlitter (sprite);
+	SelectSpriteBlitter (sprite);
 	return true;
 }
 
@@ -377,7 +377,7 @@ bool TLN_ResetSpriteScaling (int nsprite)
 	UpdateSprite (sprite);
 	
 	TLN_SetLastError (TLN_ERR_OK);
-	SelectBlitter (sprite);
+	SelectSpriteBlitter (sprite);
 	return true;
 }
 
@@ -973,12 +973,12 @@ void UpdateSprite (Sprite* sprite)
 	*/
 }
 
-static void SelectBlitter (Sprite* sprite)
+static void SelectSpriteBlitter (Sprite* sprite)
 {
 	const bool scaling = sprite->mode == MODE_SCALING;
 	const bool blend = sprite->blend != NULL;
 
-	sprite->blitter = SelectBlitter (32, true, scaling, blend);
+	sprite->blitter = SelectBlitter (true, scaling, blend);
 }
 
 void MakeRect(rect_t* rect, int x, int y, int w, int h)

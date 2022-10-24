@@ -29,7 +29,7 @@
 
 TLN_Engine engine;	/* current context */
 
-static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int numsprites, int numanimations);
+static TLN_Engine create_context(int hres, int vres, int numlayers, int numsprites, int numanimations);
 
 /*!
  * \brief
@@ -56,31 +56,24 @@ static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int
 TLN_Engine TLN_Init (int hres, int vres, int numlayers, int numsprites, int numanimations)
 {
 	printf("Tilengine v%d.%d.%d %d-bit built %s %s\n", TILENGINE_VER_MAJ, TILENGINE_VER_MIN, TILENGINE_VER_REV, (int)(sizeof(UINTPTR_MAX) << 3), __DATE__, __TIME__);
-	return create_context (hres, vres, 32, numlayers, numsprites, numanimations);
+	return create_context (hres, vres, numlayers, numsprites, numanimations);
 }
 
-/*!
- * \brief
- * As of version 1.12.1, this feature has been removed. Only 32 bpp is supported. The function call has
- * been left for backwards binary compatibility but it defaults to TLN_Init() with 32 bpp.
- */
-static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int numsprites, int numanimations)
+/* creates new engine context */
+static TLN_Engine create_context(int hres, int vres, int numlayers, int numsprites, int numanimations)
 {
 	int c;
 	TLN_Engine context;
 
 	TLN_SetLastError (TLN_ERR_OK);
 
-	/* remove bpp, always 32 */
-	bpp = 32;
-
 	/* create framebuffer */
 	context = (TLN_Engine)calloc(sizeof(Engine), 1);
 	context->header = ID_CONTEXT;
 	context->framebuffer.width = hres;
 	context->framebuffer.height = vres;
-	context->framebuffer.pitch = (((hres * bpp)>>3) + 3) & ~0x03;
-	context->priority = (uint8_t*)malloc(context->framebuffer.pitch);
+	context->framebuffer.pitch = (((hres * 32)>>3) + 3) & ~0x03;
+	context->priority = (uint32_t*)malloc(context->framebuffer.pitch);
 	if (!context->priority)
 	{
 		TLN_DeleteContext (context);
@@ -116,7 +109,7 @@ static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int
 	{
 		Sprite* sprite = &context->sprites[c];
 		sprite->draw = GetSpriteDraw (MODE_NORMAL);
-		sprite->blitter = SelectBlitter (bpp, true, false, false);
+		sprite->blitter = SelectBlitter (true, false, false);
 		sprite->sx = sprite->sy = 1.0f;
 	}
 	ListInit(&context->list_sprites, &context->sprites[0].list_node, sizeof(Sprite), context->numsprites);
@@ -132,7 +125,7 @@ static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int
 	ListInit(&context->list_animations, &context->animations[0].list_node, sizeof(Animation), context->numanimations);
 
 	context->bgcolor = PackRGB32(0,0,0);
-	context->blit_fast = SelectBlitter (bpp, false, false, false);
+	context->blit_fast = SelectBlitter (false, false, false);
 	if (!CreateBlendTables ())
 	{
 		TLN_DeleteContext(context);
@@ -249,8 +242,8 @@ bool TLN_DeleteContext(TLN_Engine context)
 	if (context->collision)
 		free(context->collision);
 
-	if (context->tmpindex)
-		free(context->tmpindex);
+	if (context->linebuffer)
+		free(context->linebuffer);
 
 	free(context);
 	return true;

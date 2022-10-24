@@ -236,16 +236,15 @@ static bool DrawLayerScanline (int nlayer, int nscan)
 		{
 			const TLN_Tileset tileset = tilemap->tilesets[tile->tileset];
 			const uint16_t tile_index = tileset->tiles[tile->index];
-			int direction = 0;
+			const TLN_Palette palette = layer->palette != NULL ? layer->palette : tileset->palette;
 			
 			/* H/V flip */
+			int direction = 1;
 			if (tile->flags & FLAG_FLIPX)
 			{
 				direction = -1;
 				srcx = tilewidth - 1;
 			}
-			else
-				direction = 1;
 			if (tile->flags & FLAG_FLIPY)
 				srcy = tileset->height - srcy - 1;
 
@@ -260,7 +259,7 @@ static bool DrawLayerScanline (int nlayer, int nscan)
 
 			int line = GetTilesetLine (tileset, tile_index, srcy);
 			bool color_key = *(tileset->color_key + line);
-			layer->blitters[color_key] (srcpixel, layer->palette, dst, width, direction, 0, layer->blend);
+			layer->blitters[color_key] (srcpixel, palette, dst, width, direction, 0, layer->blend);
 		}
 
 		/* next tile */
@@ -351,16 +350,15 @@ static bool DrawLayerScanlineScaling (int nlayer, int nscan)
 		{
 			const TLN_Tileset tileset = tilemap->tilesets[tile->tileset];
 			const uint16_t tile_index = tileset->tiles[tile->index];
-			int direction = 0;
+			const TLN_Palette palette = layer->palette != NULL ? layer->palette : tileset->palette;
 
 			/* H/V flip */
+			int direction = dx;
 			if (tile->flags & FLAG_FLIPX)
 			{
 				direction = -dx;
 				srcx = tilewidth - 1;
 			}
-			else
-				direction = dx;
 			if (tile->flags & FLAG_FLIPY)
 				srcy = tileset->height - srcy - 1;
 
@@ -375,7 +373,7 @@ static bool DrawLayerScanlineScaling (int nlayer, int nscan)
 
 			int line = GetTilesetLine (tileset, tile_index, srcy);
 			bool color_key = *(tileset->color_key + line);
-			layer->blitters[color_key] (srcpixel, layer->palette, dst, width, direction, 0, layer->blend);
+			layer->blitters[color_key] (srcpixel, palette, dst, width, direction, 0, layer->blend);
 		}
 
 		/* next tile */
@@ -425,7 +423,7 @@ static bool DrawLayerScanlineAffine (int nlayer, int nscan)
 	int xpos = layer->hstart;
 	int ypos = layer->vstart + nscan;
 
-	Point2D p1, p2; 
+	Point2D p1, p2;
 	Point2DSet (&p1, (math2d_t)xpos,(math2d_t)ypos);
 	Point2DSet (&p2, (math2d_t)xpos + width, (math2d_t)ypos);
 	Point2DMultiply (&p1, (Matrix3*)&layer->transform);
@@ -464,7 +462,8 @@ static bool DrawLayerScanlineAffine (int nlayer, int nscan)
 				srcy = tileset->height - srcy - 1;
 
 			/* paint RGB value */
-			*dstpixel = layer->palette->data[GetTilesetPixel (tileset, tile_index, srcx, srcy)];
+			const TLN_Palette palette = layer->palette != NULL ? layer->palette : tileset->palette;
+			*dstpixel = palette->data[GetTilesetPixel (tileset, tile_index, srcx, srcy)];
 		}
 
 		/* next pixel */
@@ -539,7 +538,8 @@ static bool DrawLayerScanlinePixelMapping (int nlayer, int nscan)
 				srcy = tileset->height - srcy - 1;
 
 			/* paint tile scanline */
-			*dstpixel = layer->palette->data[GetTilesetPixel (tileset, tile_index, srcx, srcy)];
+			const TLN_Palette palette = layer->palette != NULL ? layer->palette : tileset->palette;
+			*dstpixel = palette->data[GetTilesetPixel (tileset, tile_index, srcx, srcy)];
 		}
 
 		/* next pixel */
@@ -559,34 +559,26 @@ draw_end:
 /* draw sprite scanline */
 static bool DrawSpriteScanline (int nsprite, int nscan)
 {
-	int w;
-	Sprite *sprite;
-	uint8_t *srcpixel;
-	uint8_t *dstscan;
-	uint32_t *dstpixel;
-	int srcx, srcy;
-	int direction;
-
-	sprite = &engine->sprites[nsprite];
-	dstscan = GetFramebufferLine(nscan);
+	Sprite* sprite = &engine->sprites[nsprite];
+	uint32_t* dstscan = GetFramebufferLine(nscan);
 		
-	srcx = sprite->srcrect.x1;
-	srcy = sprite->srcrect.y1 + (nscan - sprite->dstrect.y1);
-	w = sprite->dstrect.x2 - sprite->dstrect.x1;
+	int srcx = sprite->srcrect.x1;
+	int srcy = sprite->srcrect.y1 + (nscan - sprite->dstrect.y1);
+	int w = sprite->dstrect.x2 - sprite->dstrect.x1;
 
 	/* H/V flip */
+	int direction = 1;
 	if (sprite->flags & FLAG_FLIPX)
 	{
 		direction = -1;
 		srcx = sprite->info->w - srcx - 1;
 	}
-	else
-		direction = 1;
 	if (sprite->flags & FLAG_FLIPY)
 		srcy = sprite->info->h - srcy - 1;
 
-	srcpixel = sprite->pixels + (srcy*sprite->pitch) + srcx;
-	dstpixel = (uint32_t*)(dstscan + (sprite->dstrect.x1 << 2));
+	/* blit scanline */
+	uint8_t* srcpixel = sprite->pixels + (srcy*sprite->pitch) + srcx;
+	uint32_t *dstpixel = dstscan + sprite->dstrect.x1;
 	sprite->blitter (srcpixel, sprite->palette, dstpixel, w, direction, 0, sprite->blend);
 
 	if (sprite->do_collision)
@@ -600,22 +592,15 @@ static bool DrawSpriteScanline (int nsprite, int nscan)
 /* draw sprite scanline with scaling */
 static bool DrawScalingSpriteScanline (int nsprite, int nscan)
 {
-	Sprite *sprite;
-	uint8_t *srcpixel;
-	uint8_t *dstscan;
-	uint32_t *dstpixel;
-	int srcx, srcy;
-	int dstw,dstx,dx;
-	struct Palette* palette;
+	Sprite* sprite = &engine->sprites[nsprite];
+	uint32_t* dstscan = GetFramebufferLine(nscan);
 
-	sprite = &engine->sprites[nsprite];
-
-	dstscan = GetFramebufferLine(nscan);
-	srcx = sprite->srcrect.x1;
-	srcy = sprite->srcrect.y1 + (nscan - sprite->dstrect.y1)*sprite->dy;
-	dstw = sprite->dstrect.x2 - sprite->dstrect.x1;
+	int srcx = sprite->srcrect.x1;
+	int srcy = sprite->srcrect.y1 + (nscan - sprite->dstrect.y1)*sprite->dy;
+	int dstw = sprite->dstrect.x2 - sprite->dstrect.x1;
 
 	/* H/V flip */
+	int dstx, dx;
 	if (sprite->flags & FLAG_FLIPX)
 	{
 		srcx = int2fix(sprite->info->w) - srcx;
@@ -630,72 +615,15 @@ static bool DrawScalingSpriteScanline (int nsprite, int nscan)
 	if (sprite->flags & FLAG_FLIPY)
 		srcy = int2fix(sprite->info->h) - srcy;
 
-	palette = sprite->palette;
-	srcpixel = sprite->pixels + (fix2int(srcy)*sprite->pitch);
-	dstpixel = (uint32_t*)(dstscan + (sprite->dstrect.x1 << 2));
+	/* blit scanline */
+	uint8_t* srcpixel = sprite->pixels + (fix2int(srcy)*sprite->pitch);
+	uint32_t* dstpixel = dstscan + sprite->dstrect.x1;
 	sprite->blitter (srcpixel, sprite->palette, dstpixel, dstw, dx, srcx, sprite->blend);
 
 	if (sprite->do_collision)
 	{
 		uint16_t* dstpixel = engine->collision + sprite->dstrect.x1;
 		DrawSpriteCollisionScaling (nsprite, srcpixel, dstpixel, dstw, dx, srcx);
-	}
-	return true;
-}
-
-/* Experimental WIP: blit pre-rotated sprite */
-static bool DrawSpriteScanlineRotation(int nsprite, int nscan)
-{
-	int w;
-	Sprite *sprite;
-	uint8_t *srcpixel;
-	uint8_t *dstscan;
-	uint32_t *dstpixel;
-	int srcx, srcy;
-	int direction;
-
-	sprite = &engine->sprites[nsprite];
-
-	/* comprueba que el sprite está en este scanline y es visible */
-	/*
-	if (nscan<sprite->dstrect.y1 || nscan >= sprite->dstrect.y2)
-		return false;
-	if (sprite->dstrect.x2 < 0 || sprite->srcrect.x2 < 0)
-		return false;
-		*/
-
-	if (nscan < sprite->y || nscan > sprite->y + sprite->rotation_bitmap->height)
-		return false;
-	dstscan = GetFramebufferLine(nscan);
-
-/*
-	srcx = sprite->srcrect.x1;
-	srcy = sprite->srcrect.y1 + (nscan - sprite->dstrect.y1);
-	w = sprite->dstrect.x2 - sprite->dstrect.x1;
-	*/
-	srcx = sprite->srcrect.x1;
-	srcy = sprite->srcrect.y1 + (nscan - sprite->y);
-	w = sprite->dstrect.x2 - sprite->dstrect.x1;
-
-	/* volteado H/V */
-	if (sprite->flags & FLAG_FLIPX)
-	{
-		direction = -1;
-		srcx = sprite->rotation_bitmap->width - srcx - 1;
-	}
-	else
-		direction = 1;
-	if (sprite->flags & FLAG_FLIPY)
-		srcy = sprite->rotation_bitmap->height - srcy - 1;
-
-	srcpixel = sprite->rotation_bitmap->data + (srcy*sprite->rotation_bitmap->pitch) + srcx;
-	dstpixel = (uint32_t*)(dstscan + (sprite->dstrect.x1 << 2));
-	sprite->blitter(srcpixel, sprite->palette, dstpixel, w, direction, 0, sprite->blend);
-
-	if (sprite->do_collision)
-	{
-		uint16_t* dstpixel = engine->collision + sprite->dstrect.x1;
-		DrawSpriteCollision(nsprite, srcpixel, dstpixel, w, direction);
 	}
 	return true;
 }
@@ -715,8 +643,8 @@ static void DrawSpriteCollision (int nsprite, uint8_t *srcpixel, uint16_t *dstpi
 			*dstpixel = (uint16_t)nsprite;
 		}
 		srcpixel += dx;
-		dstpixel++;
-		width--;
+		dstpixel += 1;
+		width -= 1;
 	}
 }
 
@@ -738,8 +666,8 @@ static void DrawSpriteCollisionScaling (int nsprite, uint8_t *srcpixel, uint16_t
 
 		/* next pixel */
 		srcx += dx;
-		dstpixel++;
-		width--;
+		dstpixel += 1;
+		width -= 1;
 	}
 }
 
@@ -747,20 +675,11 @@ static void DrawSpriteCollisionScaling (int nsprite, uint8_t *srcpixel, uint16_t
 static bool DrawBitmapScanline(int nlayer, int nscan)
 {
 	const Layer *layer = &engine->layers[nlayer];
-	TLN_Bitmap bitmap = layer->bitmap;
-	TLN_Palette palette = layer->palette;
-	uint8_t *srcpixel;
-	int shift;
-	int x, x1;
-	int xpos, ypos;
-	int direction, width;
-	uint32_t *dstpixel;
-	bool color_key;
 
 	/* mosaic effect */
+	uint32_t *dstpixel;
 	if (layer->mosaic.h != 0)
 	{
-		shift = 0;
 		dstpixel = layer->mosaic.buffer;
 		if (nscan % layer->mosaic.h == 0)
 			memset(dstpixel, 0, engine->framebuffer.width);
@@ -768,50 +687,35 @@ static bool DrawBitmapScanline(int nlayer, int nscan)
 			goto draw_end;
 	}
 	else
-	{
-		shift = 2;
 		dstpixel = GetFramebufferLine(nscan);
-	}
 
 	/* target lines */
-	x = layer->clip.x1;
-	dstpixel += (x << shift);
-	ypos = (layer->vstart + nscan) % layer->height;
-	xpos = (layer->hstart + x) % layer->width;
-	direction = 1;
-	color_key = true;
+	int x = layer->clip.x1;
+	dstpixel += x;
+	int ypos = (layer->vstart + nscan) % layer->height;
+	int xpos = (layer->hstart + x) % layer->width;
 
 	/* draws bitmap scanline */
+	TLN_Bitmap bitmap = layer->bitmap;
 	while (x < layer->clip.x2)
 	{
 		/* get effective width */
-		width = layer->width - xpos;
-		x1 = x + width;
+		int width = layer->width - xpos;
+		int x1 = x + width;
 		if (x1 > layer->clip.x2)
 			x1 = layer->clip.x2;
 		width = x1 - x;
 
-		srcpixel = (uint8_t*)get_bitmap_ptr(bitmap, xpos, ypos);
-		layer->blitters[color_key](srcpixel, palette, dstpixel, width, direction, 0, layer->blend);
+		uint8_t* srcpixel = (uint8_t*)get_bitmap_ptr(bitmap, xpos, ypos);
+		layer->blitters[1](srcpixel, layer->palette, dstpixel, width, 1, 0, layer->blend);
 		x += width;
-		width <<= shift;
 		dstpixel += width;
 		xpos = 0;
 	}
 
 draw_end:
 	if (layer->mosaic.h != 0)
-	{
-		int offset = (layer->clip.x1 << shift);
-		uint8_t* srcptr = layer->mosaic.buffer + offset;
-		uint8_t* dstptr = GetFramebufferLine(nscan) + offset;
-		int width = layer->clip.x2 - layer->clip.x1;
-
-		if (layer->blend != NULL)
-			BlitMosaicBlend(srcptr, layer->palette, dstptr, width, layer->mosaic.w, layer->blend);
-		else
-			BlitMosaicSolid(srcptr, layer->palette, dstptr, width, layer->mosaic.w);
-	}
+		blit_mosaic(layer, nscan);
 
 	return false;
 }
@@ -820,21 +724,11 @@ draw_end:
 static bool DrawBitmapScanlineScaling(int nlayer, int nscan)
 {
 	const Layer *layer = &engine->layers[nlayer];
-	int shift;
-	uint8_t *srcpixel;
-	int x, x1;
-	int xpos, ypos;
-	int direction, width;
-	uint32_t *dstpixel;
-	fix_t fix_tilewidth;
-	fix_t fix_x;
-	fix_t dx;
-	bool color_key;
 
 	/* mosaic effect */
+	uint32_t *dstpixel;
 	if (layer->mosaic.h != 0)
 	{
-		shift = 0;
 		dstpixel = layer->mosaic.buffer;
 		if (nscan % layer->mosaic.h == 0)
 			memset(dstpixel, 0, engine->framebuffer.width);
@@ -842,35 +736,30 @@ static bool DrawBitmapScanlineScaling(int nlayer, int nscan)
 			goto draw_end;
 	}
 	else
-	{
-		shift = 2;
 		dstpixel = GetFramebufferLine(nscan);
-	}
 
 	/* target line */
-	x = layer->clip.x1;
-	dstpixel += (x << shift);
-	xpos = (layer->hstart + fix2int(x*layer->dx)) % layer->width;
+	int x = layer->clip.x1;
+	dstpixel += x;
+	int xpos = (layer->hstart + fix2int(x*layer->dx)) % layer->width;
 
 	/* fill whole scanline */
-	fix_x = int2fix(x);
+	fix_t fix_x = int2fix(x);
 	while (x < layer->clip.x2)
 	{
-		int tilescalewidth;
-
-		ypos = layer->vstart + fix2int(nscan*layer->dy);
+		int ypos = layer->vstart + fix2int(nscan*layer->dy);
 		if (ypos < 0)
 			ypos = layer->height + ypos;
 		else
 			ypos = ypos % layer->height;
 
 		/* get effective width */
-		width = layer->width - xpos;
-		dx = int2fix(width);
-		fix_tilewidth = width * layer->xfactor;
+		int width = layer->width - xpos;
+		fix_t dx = int2fix(width);
+		fix_t fix_tilewidth = width * layer->xfactor;
 		fix_x += fix_tilewidth;
-		x1 = fix2int(fix_x);
-		tilescalewidth = x1 - x;
+		int x1 = fix2int(fix_x);
+		int tilescalewidth = x1 - x;
 		if (tilescalewidth)
 			dx /= tilescalewidth;
 		else
@@ -882,13 +771,10 @@ static bool DrawBitmapScanlineScaling(int nlayer, int nscan)
 		width = x1 - x;
 
 		/* draw bitmap scanline */
-		direction = dx;
-		srcpixel = (uint8_t*)get_bitmap_ptr(layer->bitmap, xpos, ypos);
-		color_key = true;
-		layer->blitters[color_key](srcpixel, layer->palette, dstpixel, width, direction, 0, layer->blend);
+		uint8_t* srcpixel = (uint8_t*)get_bitmap_ptr(layer->bitmap, xpos, ypos);
+		layer->blitters[1](srcpixel, layer->palette, dstpixel, width, dx, 0, layer->blend);
 
 		/* next */
-		width <<= shift;
 		dstpixel += width;
 		x = x1;
 		xpos = 0;
@@ -896,17 +782,7 @@ static bool DrawBitmapScanlineScaling(int nlayer, int nscan)
 
 draw_end:
 	if (layer->mosaic.h != 0)
-	{
-		int offset = (layer->clip.x1 << shift);
-		uint8_t* srcptr = layer->mosaic.buffer + offset;
-		uint8_t* dstptr = GetFramebufferLine(nscan) + offset;
-		int width = layer->clip.x2 - layer->clip.x1;
-
-		if (layer->blend != NULL)
-			BlitMosaicBlend(srcptr, layer->palette, dstptr, width, layer->mosaic.w, layer->blend);
-		else
-			BlitMosaicSolid(srcptr, layer->palette, dstptr, width, layer->mosaic.w);
-	}
+		blit_mosaic(layer, nscan);
 
 	return false;
 }
@@ -914,21 +790,13 @@ draw_end:
 /* draws regular bitmap scanline for bitmap-based layer with affine transform */
 static bool DrawBitmapScanlineAffine(int nlayer, int nscan)
 {
-	Layer *layer = &engine->layers[nlayer];
-	const TLN_Palette palette = layer->palette;
-	const TLN_Bitmap bitmap = layer->bitmap;
-	int shift;
-	int x, width;
-	int x1, y1, x2, y2;
-	fix_t dx, dy;
-	int xpos, ypos;
-	uint32_t *dstpixel;
-	Point2D p1, p2;
+	const Layer *layer = &engine->layers[nlayer];
+	bool priority = false;
 
 	/* mosaic effect */
+	uint32_t *dstpixel;
 	if (layer->mosaic.h != 0)
 	{
-		shift = 0;
 		dstpixel = layer->mosaic.buffer;
 		if (nscan % layer->mosaic.h == 0)
 			memset(dstpixel, 0, engine->framebuffer.width);
@@ -937,87 +805,63 @@ static bool DrawBitmapScanlineAffine(int nlayer, int nscan)
 	}
 	else
 	{
-		shift = 2;
 		dstpixel = engine->linebuffer;
-		memset(dstpixel, 0, engine->framebuffer.width);
+		memset(dstpixel, 0, engine->framebuffer.pitch);
 	}
 
 	/* target lines */
-	x = layer->clip.x1;
-	width = layer->clip.x2;
+	int x = layer->clip.x1;
+	int width = layer->clip.x2;
 
-	xpos = layer->hstart;
-	ypos = layer->vstart + nscan;
+	int xpos = layer->hstart;
+	int ypos = layer->vstart + nscan;
 
+	Point2D p1, p2; 
 	Point2DSet(&p1, (math2d_t)xpos, (math2d_t)ypos);
 	Point2DSet(&p2, (math2d_t)xpos + width, (math2d_t)ypos);
-	Point2DMultiply(&p1, &layer->transform);
-	Point2DMultiply(&p2, &layer->transform);
+	Point2DMultiply(&p1, (Matrix3*)&layer->transform);
+	Point2DMultiply(&p2, (Matrix3*)&layer->transform);
 
-	x1 = float2fix(p1.x);
-	y1 = float2fix(p1.y);
-	x2 = float2fix(p2.x);
-	y2 = float2fix(p2.y);
+	int x1 = float2fix(p1.x);
+	int y1 = float2fix(p1.y);
+	int x2 = float2fix(p2.x);
+	int y2 = float2fix(p2.y);
 
-	dx = (x2 - x1) / width;
-	dy = (y2 - y1) / width;
+	int dx = (x2 - x1) / width;
+	int dy = (y2 - y1) / width;
 
+	const TLN_Bitmap bitmap = layer->bitmap;
 	while (x < width)
 	{
 		xpos = abs((fix2int(x1) + layer->width)) % layer->width;
 		ypos = abs((fix2int(y1) + layer->height)) % layer->height;
-		*dstpixel = *get_bitmap_ptr(bitmap, xpos, ypos);
+		*dstpixel = layer->palette->data[*get_bitmap_ptr(bitmap, xpos, ypos)];
 
 		/* next pixel */
-		x++;
+		x += 1;
 		x1 += dx;
 		y1 += dy;
-		dstpixel++;
+		dstpixel += 1;
 	}
 
 draw_end:
 	if (layer->mosaic.h != 0)
-	{
-		int offset = (layer->clip.x1 << shift);
-		uint8_t* srcptr = layer->mosaic.buffer + offset;
-		uint8_t* dstptr = GetFramebufferLine(nscan) + offset;
-		int width = layer->clip.x2 - layer->clip.x1;
-
-		if (layer->blend != NULL)
-			BlitMosaicBlend(srcptr, layer->palette, dstptr, width, layer->mosaic.w, layer->blend);
-		else
-			BlitMosaicSolid(srcptr, layer->palette, dstptr, width, layer->mosaic.w);
-	}
+		blit_mosaic(layer, nscan);
 	else
-	{
-		int offset = (layer->clip.x1 << shift);
-		uint8_t* srcptr = engine->linebuffer + offset;
-		uint8_t* dstptr = GetFramebufferLine(nscan) + offset;
-		int width = layer->clip.x2 - layer->clip.x1;
-
-		layer->blitters[1](srcptr, layer->palette, dstptr, width, 1, 0, layer->blend);
-	}
+		blit_buffer32(layer, nscan);
 	return false;
 }
 
 /* draws regular bitmap scanline for bitmap-based layer with per-pixel mapping */
 static bool DrawBitmapScanlinePixelMapping(int nlayer, int nscan)
 {
-	Layer *layer = &engine->layers[nlayer];
-	const TLN_Bitmap bitmap = layer->bitmap;
-	const TLN_Palette palette = layer->palette;
-	const int hstart = layer->hstart + layer->width;
-	const int vstart = layer->vstart + layer->height;
-	int shift;
-	int x, width;
-	int xpos, ypos;
-	uint32_t *dstpixel;
-	TLN_PixelMap* pixel_map;
+	const Layer *layer = &engine->layers[nlayer];
+	bool priority = false;
 
 	/* mosaic effect */
+	uint32_t *dstpixel;
 	if (layer->mosaic.h != 0)
 	{
-		shift = 0;
 		dstpixel = layer->mosaic.buffer;
 		if (nscan % layer->mosaic.h == 0)
 			memset(dstpixel, 0, engine->framebuffer.width);
@@ -1026,50 +870,35 @@ static bool DrawBitmapScanlinePixelMapping(int nlayer, int nscan)
 	}
 	else
 	{
-		shift = 2;
 		dstpixel = engine->linebuffer;
-		memset(dstpixel, 0, engine->framebuffer.width);
+		memset(dstpixel, 0, engine->framebuffer.pitch);
 	}
 
 	/* target lines */
-	x = layer->clip.x1;
-	width = layer->clip.x2 - layer->clip.x1;
+	int x = layer->clip.x1;
+	int width = layer->clip.x2 - layer->clip.x1;
 
-	pixel_map = &layer->pixel_map[nscan*engine->framebuffer.width + x];
+	const int hstart = layer->hstart + layer->width;
+	const int vstart = layer->vstart + layer->height;
+	const TLN_Bitmap bitmap = layer->bitmap;
+	TLN_PixelMap* pixel_map = &layer->pixel_map[nscan*engine->framebuffer.width + x];
 	while (x < width)
 	{
-		xpos = abs(hstart + pixel_map->dx) % layer->width;
-		ypos = abs(vstart + pixel_map->dy) % layer->height;
-		*dstpixel = *get_bitmap_ptr(bitmap, xpos, ypos);
+		int xpos = abs(hstart + pixel_map->dx) % layer->width;
+		int ypos = abs(vstart + pixel_map->dy) % layer->height;
+		*dstpixel = layer->palette->data[*get_bitmap_ptr(bitmap, xpos, ypos)];
 
 		/* next pixel */
-		x++;
-		dstpixel++;
-		pixel_map++;
+		x += 1;
+		dstpixel += 1;
+		pixel_map += 1;
 	}
 
 draw_end:
 	if (layer->mosaic.h != 0)
-	{
-		int offset = (layer->clip.x1 << shift);
-		uint8_t* srcptr = layer->mosaic.buffer + offset;
-		uint8_t* dstptr = GetFramebufferLine(nscan) + offset;
-		int width = layer->clip.x2 - layer->clip.x1;
-
-		if (layer->blend != NULL)
-			BlitMosaicBlend(srcptr, layer->palette, dstptr, width, layer->mosaic.w, layer->blend);
-		else
-			BlitMosaicSolid(srcptr, layer->palette, dstptr, width, layer->mosaic.w);
-	}
+		blit_mosaic(layer, nscan);
 	else
-	{
-		int offset = (layer->clip.x1 << shift);
-		uint8_t* srcptr = engine->linebuffer + offset;
-		uint8_t* dstptr = GetFramebufferLine(nscan) + offset;
-		int width = layer->clip.x2 - layer->clip.x1;
-
-		layer->blitters[1](srcptr, layer->palette, dstptr, width, 1, 0, layer->blend);
-	}
+		blit_buffer32(layer, nscan);
 	return false;
 }
 
@@ -1081,26 +910,17 @@ static bool DrawLayerObjectScanline(int nlayer, int nscan)
 	int x1 = layer->hstart + layer->clip.x1;
 	int x2 = layer->hstart + layer->clip.x2;
 	int y = layer->vstart + nscan;
-	uint8_t* dstscan = GetFramebufferLine(nscan);
+	uint32_t* dstscan = GetFramebufferLine(nscan);
 	bool priority = false;
 
 	while (object != NULL)
 	{
 		if (IsObjectInLine(object, x1, x2, y) && object->visible && object->bitmap != NULL)
 		{
-			int w;
-			uint8_t *srcpixel;
-			uint8_t *target;
-			uint32_t *dstpixel;
-			TLN_Bitmap bitmap = object->bitmap;
-			int srcx, srcy;
-			int dstx1, dstx2;
-			int direction = 1;
-
-			srcx = 0;
-			srcy = y - object->y;
-			dstx1 = object->x - x1;
-			dstx2 = dstx1 + object->width;
+			int srcx = 0;
+			int srcy = y - object->y;
+			int dstx1 = object->x - x1;
+			int dstx2 = dstx1 + object->width;
 			if (dstx1 < layer->clip.x1)
 			{
 				int w = layer->clip.x1 - dstx1;
@@ -1108,12 +928,11 @@ static bool DrawLayerObjectScanline(int nlayer, int nscan)
 				dstx1 = 0;
 			}
 			if (dstx2 > layer->clip.x2)
-			{
 				dstx2 = layer->clip.x2;
-			}
-			w = dstx2 - dstx1;
+			int w = dstx2 - dstx1;
 
 			/* H/V flip */
+			int direction = 1;
 			if (object->flags & FLAG_FLIPX)
 			{
 				direction = -1;
@@ -1123,15 +942,15 @@ static bool DrawLayerObjectScanline(int nlayer, int nscan)
 				srcy = object->height - srcy - 1;
 
 			/* paint tile scanline */
-			srcpixel = get_bitmap_ptr(bitmap, srcx, srcy);
+			TLN_Bitmap bitmap = object->bitmap;
+			uint8_t* srcpixel = get_bitmap_ptr(bitmap, srcx, srcy);
+			uint32_t *target = dstscan;
 			if (object->flags & FLAG_PRIORITY)
 			{
 				target = engine->priority;
 				priority = true;
 			}
-			else
-				target = dstscan;
-			dstpixel = (uint32_t*)(target + (dstx1 << 2));
+			uint32_t* dstpixel = target + dstx1;
 			layer->blitters[1] (srcpixel, bitmap->palette, dstpixel, w, direction, 0, layer->blend);
 		}
 		object = object->next;
@@ -1151,7 +970,7 @@ enum
 };
 
 /* table of function pointers to draw procedures */
-static const ScanDrawPtr drawers[MAX_DRAW_TYPE][MAX_DRAW_MODE] =
+static const ScanDrawPtr painters[MAX_DRAW_TYPE][MAX_DRAW_MODE] =
 {
 	{ DrawSpriteScanline, DrawScalingSpriteScanline, NULL, NULL},
 	{ DrawLayerScanline, DrawLayerScanlineScaling,	DrawLayerScanlineAffine, DrawLayerScanlinePixelMapping },
@@ -1163,11 +982,11 @@ static const ScanDrawPtr drawers[MAX_DRAW_TYPE][MAX_DRAW_MODE] =
 ScanDrawPtr GetLayerDraw(Layer* layer)
 {
 	if (layer->tilemap != NULL)
-		return drawers[DRAW_TILED_LAYER][layer->mode];
+		return painters[DRAW_TILED_LAYER][layer->mode];
 	else if (layer->bitmap != NULL)
-		return drawers[DRAW_BITMAP_LAYER][layer->mode];
+		return painters[DRAW_BITMAP_LAYER][layer->mode];
 	else if (layer->objects != NULL)
-		return drawers[DRAW_OBJECT_LAYER][layer->mode];
+		return painters[DRAW_OBJECT_LAYER][layer->mode];
 	else
 		return NULL;
 }
@@ -1175,5 +994,5 @@ ScanDrawPtr GetLayerDraw(Layer* layer)
 /* returns suitable draw procedure based on sprite configuration */
 ScanDrawPtr GetSpriteDraw (draw_t mode)
 {
-	return drawers[DRAW_SPRITE][mode];
+	return painters[DRAW_SPRITE][mode];
 }
