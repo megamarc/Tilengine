@@ -130,6 +130,13 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 	return handler;
 }
 
+static int compare(void const* d1, void const* d2)
+{
+	TMXTileset* t1 = (TMXTileset*)d1;
+	TMXTileset* t2 = (TMXTileset*)d2;
+	return t1->firstgid > t2->firstgid;
+}
+
 /* loads common info about a .tmx file */
 bool TMXLoad(const char* filename, TMXInfo* info)
 {
@@ -177,6 +184,9 @@ bool TMXLoad(const char* filename, TMXInfo* info)
 	else
 		TLN_SetLastError(TLN_ERR_OUT_OF_MEMORY);
 
+	/* sort tilesets by gid */
+	qsort(&tmxinfo.tilesets, tmxinfo.num_tilesets, sizeof(TMXTileset), compare);
+
 	simpleXmlDestroyParser(parser);
 	free(data);
 	if (retval)
@@ -185,12 +195,16 @@ bool TMXLoad(const char* filename, TMXInfo* info)
 }
 
 /* returns index of suitable tileset acoording to gid range */
-int TMXGetSuitableTileset(TMXInfo* info, int gid)
+int TMXGetSuitableTileset(TMXInfo* info, int gid, TMXTileset* tmxtilesets)
 {
+	/* if no tilesets list provided, use internal one */
+	if (tmxtilesets == NULL)
+		tmxtilesets = info->tilesets;
+
 	int c;
-	for (c = 0; c < info->num_tilesets - 1; c += 1)
+	for (c = 0; c < info->num_tilesets; c += 1, tmxtilesets += 1)
 	{
-		if (gid >= info->tilesets[c].firstgid && gid < info->tilesets[c + 1].firstgid)
+		if (gid >= tmxtilesets->firstgid && (gid < tmxtilesets[1].firstgid || tmxtilesets[1].firstgid == 0))
 			return c;
 	}
 	return c;

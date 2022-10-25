@@ -161,8 +161,8 @@ bool DrawScanline(void)
 static bool DrawLayerScanline (int nlayer, int nscan)
 {
 	const Layer *layer = &engine->layers[nlayer];
-	const TLN_Tileset tileset = layer->tileset;
 	const TLN_Tilemap tilemap = layer->tilemap;
+	const TLN_Tileset tileset = tilemap->tilesets[0];
 	int shift;
 	TLN_Tile tile;
 	uint8_t *srcpixel;
@@ -296,8 +296,8 @@ draw_end:
 static bool DrawLayerScanlineScaling (int nlayer, int nscan)
 {
 	const Layer *layer = &engine->layers[nlayer];
-	const TLN_Tileset tileset = layer->tileset;
 	const TLN_Tilemap tilemap = layer->tilemap;
+	const TLN_Tileset tileset = tilemap->tilesets[0];
 	int shift;
 	TLN_Tile tile;
 	uint8_t *srcpixel;
@@ -447,8 +447,8 @@ draw_end:
 static bool DrawLayerScanlineAffine (int nlayer, int nscan)
 {
 	Layer *layer = &engine->layers[nlayer];
-	const TLN_Tileset tileset = layer->tileset;
 	const TLN_Tilemap tilemap = layer->tilemap;
+	const TLN_Tileset tileset = tilemap->tilesets[0];
 	int shift;
 	TLN_Tile tile;
 	int x, width;
@@ -562,8 +562,8 @@ draw_end:
 static bool DrawLayerScanlinePixelMapping (int nlayer, int nscan)
 {
 	Layer *layer = &engine->layers[nlayer];
-	const TLN_Tileset tileset = layer->tileset;
 	const TLN_Tilemap tilemap = layer->tilemap;
+	const TLN_Tileset tileset = tilemap->tilesets[0];
 	const int hstart = layer->hstart + layer->width;
 	const int vstart = layer->vstart + layer->height;
 	int shift;

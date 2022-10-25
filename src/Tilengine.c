@@ -23,6 +23,7 @@
 #include "Layer.h"
 #include "Sprite.h"
 #include "Tables.h"
+#include "LoadTMX.h"
 
 /* magic number to recognize context object */
 #define ID_CONTEXT	0x7E5D0AB1
@@ -369,6 +370,37 @@ int TLN_GetRenderTargetPitch (void)
 	return engine->framebuffer.pitch;
 }
 
+/* basic reference list without duplicates */
+typedef struct
+{
+	int index;
+	void* refs[TMX_MAX_TILESET];
+}
+RefList;
+
+/* finds reference in list */
+bool ref_find(RefList* refs, void* item)
+{
+	int c;
+	for (c = 0; c < refs->index; c += 1)
+	{
+		if (refs->refs[c] == item)
+			return true;
+	}
+	return false;
+}
+
+/* adds reference to list */
+bool ref_add(RefList* refs, void* item)
+{
+	if (refs->index < TMX_MAX_TILESET - 1 && !ref_find(refs, item))
+	{
+		refs->refs[refs->index++] = item;
+		return true;
+	}
+	return false;
+}
+
 /* Starts active rendering of the current frame */
 static void BeginFrame (int frame)
 {
@@ -404,15 +436,27 @@ static void BeginFrame (int frame)
 		index = sprite->list_node.next;
 	}
 
-	/* tileset animations */
+	/* tileset animations. calls just once per globally used tileset, avoids duplicate calls */
+	RefList tilesets = { 0 };
 	for (index = 0; index < engine->numlayers; index += 1)
 	{
-		TLN_Tileset tileset = engine->layers[index].tileset;
-		if (tileset != NULL && tileset->sp != NULL)
+		Layer* layer = &engine->layers[index];
+		if (layer->tilemap != NULL)
 		{
-			int c;
-			for (c = 0; c < tileset->sp->num_sequences; c += 1)
-				UpdateAnimation(&tileset->animations[c], engine->frame);
+			int ts;
+			for (ts = 0; ts < MAX_TILESETS; ts += 1)
+			{
+				TLN_Tileset tileset = layer->tilemap->tilesets[ts];
+				if (tileset == NULL)
+					break;
+
+				if (tileset->sp != NULL && ref_add(&tilesets, tileset))
+				{
+					int c;
+					for (c = 0; c < tileset->sp->num_sequences; c += 1)
+						UpdateAnimation(&tileset->animations[c], engine->frame);
+				}
+			}
 		}
 	}
 

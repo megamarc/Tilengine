@@ -20,7 +20,6 @@
 typedef struct Layer
 {
 	TLN_LayerType	type;		/* layer type */
-	TLN_Tileset		tileset;	/* pointer to tileset */
 	TLN_Tilemap		tilemap;	/* pointer to tilemap */
 	TLN_Palette		palette;	/* pointer to current color alette */
 	TLN_Bitmap		bitmap;		/* pointer to bitmap (bitmap layer mode) */

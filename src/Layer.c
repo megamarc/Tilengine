@@ -63,50 +63,56 @@ bool TLN_SetLayer(int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap)
 	if (!CheckBaseObject(tileset, OT_TILESET))
 		return false;
 
-	if (tilemap->maxindex <= tileset->numtiles)
-	{
-		layer->tileset = tileset;
-		layer->tilemap = tilemap;
-		layer->width = tilemap->cols*tileset->width;
-		layer->height = tilemap->rows*tileset->height;
-		if (tileset->palette)
-			TLN_SetLayerPalette(nlayer, tileset->palette);
-	}
+	layer->tilemap = tilemap;
+	layer->width = tilemap->cols*tileset->width;
+	layer->height = tilemap->rows*tileset->height;
+	if (tileset->palette)
+		TLN_SetLayerPalette(nlayer, tileset->palette);
+
 	layer->bitmap = NULL;
 	layer->objects = NULL;
 	layer->type = LAYER_TILE;
 
-	/* apply priority attribute */
-	if (tileset->attributes != NULL)
+	/* common operations per tileset */
+	int ts;
+	for (ts = 0; ts < MAX_TILESETS; ts += 1)
 	{
-		const int num_tiles = tilemap->rows * tilemap->cols;
-		int c;
-		Tile* tile = tilemap->tiles;
-		for (c = 0; c < num_tiles; c++, tile++)
+		tileset = tilemap->tilesets[ts];
+		if (tileset == NULL)
+			break;
+
+		/* apply priority attribute */
+		if (tileset->attributes != NULL)
 		{
-			if (tile->index != 0)
+			const int num_tiles = tilemap->rows * tilemap->cols;
+			int c;
+			Tile* tile = tilemap->tiles;
+			for (c = 0; c < num_tiles; c++, tile++)
 			{
-				if (tileset->attributes[tile->index - 1].priority == true)
-					tile->flags |= FLAG_PRIORITY;
-				else
-					tile->flags &= ~FLAG_PRIORITY;
+				if (tile->index != 0)
+				{
+					if (tileset->attributes[tile->index - 1].priority == true)
+						tile->flags |= FLAG_PRIORITY;
+					else
+						tile->flags &= ~FLAG_PRIORITY;
+				}
 			}
 		}
-	}
 
-	/* start animations */
-	if (tileset->sp != NULL)
-	{
-		int c;
-		TLN_Sequence sequence;
-
-		c = 0;
-		sequence = tileset->sp->sequences;
-		while (sequence != NULL)
+		/* start animations */
+		if (tileset->sp != NULL)
 		{
-			SetTilesetAnimation(tileset, c, sequence);
-			sequence = sequence->next;
-			c += 1;
+			int c;
+			TLN_Sequence sequence;
+
+			c = 0;
+			sequence = tileset->sp->sequences;
+			while (sequence != NULL)
+			{
+				SetTilesetAnimation(tileset, c, sequence);
+				sequence = sequence->next;
+				c += 1;
+			}
 		}
 	}
 
@@ -164,7 +170,6 @@ bool TLN_SetLayerBitmap(int nlayer, TLN_Bitmap bitmap)
 	if (!CheckBaseObject(bitmap, OT_BITMAP))
 		return false;
 
-	layer->tileset = NULL;
 	layer->tilemap = NULL;
 	layer->bitmap = bitmap;
 	layer->objects = NULL;
@@ -226,7 +231,6 @@ bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Tileset tileset
 		return false;
 	}
 
-	layer->tileset = tileset;
 	layer->tilemap = NULL;
 	layer->bitmap = NULL;
 	layer->objects = objects;
@@ -444,17 +448,14 @@ TLN_LayerType TLN_GetLayerType(int nlayer)
 }
 
 /*!
- * \brief Returns the active tileset on a \ref LAYER_TILE or \ref LAYER_OBJECT layer type
- * \param nlayer Layer index [0, num_layers - 1]
- * \returns Reference to the active tileset
- * \see TLN_SetLayerTilemap(), TLN_SetLayerObjects()
+ * \deprecated Returns the first tilesetof the attached layer tilemap
  */
 TLN_Tileset TLN_GetLayerTileset(int nlayer)
 {
-	if (nlayer < engine->numlayers)
+	if (nlayer < engine->numlayers && engine->layers[nlayer].tilemap != NULL)
 	{
 		TLN_SetLastError(TLN_ERR_OK);
-		return engine->layers[nlayer].tileset;
+		return engine->layers[nlayer].tilemap->tilesets[0];
 	}
 
 	TLN_SetLastError(TLN_ERR_IDX_LAYER);
@@ -619,11 +620,11 @@ bool TLN_GetLayerTile (int nlayer, int x, int y, TLN_TileInfo* info)
 	}
 
 	layer = &engine->layers[nlayer];
-	if (!CheckBaseObject (layer->tileset, OT_TILESET) || !CheckBaseObject (layer->tilemap, OT_TILEMAP))
+	if (!CheckBaseObject(layer->tilemap, OT_TILEMAP) || !CheckBaseObject (layer->tilemap->tilesets[0], OT_TILESET))
 		return false;
 
-	tileset = layer->tileset;
 	tilemap = layer->tilemap;
+	tileset = tilemap->tilesets[0];
 
 	xpos = x % layer->width;
 	if (xpos < 0)
@@ -716,7 +717,7 @@ bool TLN_EnableLayer(int nlayer)
 	layer = &engine->layers[nlayer];
 
 	/* check proper config */
-	if (layer->palette && ((layer->tilemap && layer->tileset) || (layer->objects && layer->tileset) || layer->bitmap))
+	if (layer->type == LAYER_TILE && layer->tilemap != NULL || layer->type == LAYER_BITMAP && layer->bitmap != NULL || layer->type == LAYER_OBJECT && layer->objects != NULL)
 	{
 		layer->ok = true;
 		TLN_SetLastError(TLN_ERR_IDX_LAYER);

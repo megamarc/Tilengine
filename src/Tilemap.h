@@ -22,7 +22,6 @@ struct Tilemap
 	DEFINE_OBJECT;
 	int		rows;		/* rows*/
 	int		cols;		/* columns */
-	int		maxindex;	/* highest tile index */
 	int		bgcolor;	/* background color */
 	int		id;			/* id property */
 	bool	visible;	/* visible property */
