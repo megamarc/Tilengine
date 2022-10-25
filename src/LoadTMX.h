@@ -52,7 +52,7 @@ typedef struct
 TMXInfo;
 
 bool TMXLoad(const char* filename, TMXInfo* info);
-TMXTileset* TMXGetSuitableTileset(TMXInfo* info, int gid);
+int TMXGetSuitableTileset(TMXInfo* info, int gid, TMXTileset* tmxtilesets);
 TMXLayer* TMXGetFirstLayer(TMXInfo* info, TLN_LayerType type);
 TMXLayer* TMXGetLayer(TMXInfo* info, const char* name);
 

@@ -63,7 +63,7 @@ TLN_Tilemap TLN_CreateTilemap (int rows, int cols, TLN_Tile tiles, uint32_t bgco
 	tilemap->rows = rows;
 	tilemap->cols = cols;
 	tilemap->bgcolor = bgcolor;
-	tilemap->tileset = tileset;
+	tilemap->tilesets[0] = tileset;
 	tilemap->visible = true;
 
 	if (tiles)
@@ -157,13 +157,63 @@ int TLN_GetTilemapCols (TLN_Tilemap tilemap)
  */
 TLN_Tileset TLN_GetTilemapTileset (TLN_Tilemap tilemap)
 {
-	if (CheckBaseObject (tilemap, OT_TILEMAP))
+	return TLN_GetTilemapTileset2(tilemap, 0);
+}
+
+/*!
+ * \brief
+ * Returns the nth tileset associated tileset to the specified tilemap
+ *
+ * \param tilemap Reference of the tilemap to get info
+ * \param index Tileset index (0 - 7)
+ * \see
+ * TLN_CreateTilemap(), TLN_LoadTilemap()
+ */
+TLN_Tileset TLN_GetTilemapTileset2(TLN_Tilemap tilemap, int index)
+{
+	if (CheckBaseObject(tilemap, OT_TILEMAP))
 	{
-		TLN_SetLastError (TLN_ERR_OK);
-		return tilemap->tileset;
+		TLN_SetLastError(TLN_ERR_OK);
+		return tilemap->tilesets[index];
 	}
 	else
 		return NULL;
+}
+
+/*!
+* \brief Sets default tileset to specified tilemap 
+* \param tilemap Reference to the tilemap to modify
+* \param tileset Reference to the tileset being assigned
+* \see TLN_GetTilemapTileset()
+*/
+bool TLN_SetTilemapTileset(TLN_Tilemap tilemap, TLN_Tileset tileset)
+{
+	return TLN_SetTilemapTileset2(tilemap, tileset, 0);
+}
+
+/*!
+* \brief Sets default tileset to specified tilemap
+* \param tilemap Reference to the tilemap to modify
+* \param tileset Reference to the tileset being assigned
+* \param index Index of tileset to set (0 - 7)
+* \see TLN_GetTilemapTileset()
+*/
+bool TLN_SetTilemapTileset2(TLN_Tilemap tilemap, TLN_Tileset tileset, int index)
+{
+	if (!CheckBaseObject(tilemap, OT_TILEMAP))
+	{
+		TLN_SetLastError(TLN_ERR_REF_TILEMAP);
+		return false;
+	}
+	if (!CheckBaseObject(tileset, OT_TILESET))
+	{
+		TLN_SetLastError(TLN_ERR_REF_TILESET);
+		return false;
+	}
+
+	tilemap->tilesets[index] = tileset;
+	TLN_SetLastError(TLN_ERR_OK);
+	return true;
 }
 
 static TLN_Tile GetTilemapPtr (TLN_Tilemap tilemap, int row, int col)
@@ -250,17 +300,9 @@ bool TLN_SetTilemapTile (TLN_Tilemap tilemap, int row, int col, TLN_Tile tile)
 	if (CheckBaseObject (tilemap, OT_TILEMAP) && tile)
 	{
 		TLN_Tile dsttile = GetTilemapPtr (tilemap, row, col);
-		if (dsttile)
+		if (dsttile != NULL)
 		{
-			if (tile)
-			{
-				dsttile->value = tile->value;
-				if (tilemap->maxindex < tile->index)
-					tilemap->maxindex = tile->index;
-			}
-			else
-				dsttile->value = 0;
-
+			dsttile->value = tile != NULL ? tile->value : 0;
 			TLN_SetLastError (TLN_ERR_OK);
 			return true;
 		}
@@ -292,7 +334,7 @@ bool TLN_DeleteTilemap (TLN_Tilemap tilemap)
 	if (CheckBaseObject (tilemap, OT_TILEMAP))
 	{
 		if (ObjectOwner (tilemap))
-			TLN_DeleteTileset (tilemap->tileset);
+			TLN_DeleteTileset (tilemap->tilesets[0]);
 		DeleteBaseObject (tilemap);
 		TLN_SetLastError (TLN_ERR_OK);
 		return true;

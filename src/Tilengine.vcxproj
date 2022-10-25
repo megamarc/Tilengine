@@ -220,6 +220,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <ClCompile Include="Blitters.c" />
     <ClCompile Include="cJSON.c" />
     <ClCompile Include="crc32.c" />
+    <ClCompile Include="crt.c" />
     <ClCompile Include="Draw.c" />
     <ClCompile Include="GaussianBlur.c" />
     <ClCompile Include="Layer.c" />
@@ -259,6 +260,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <ClInclude Include="Blitters.h" />
     <ClInclude Include="cJSON.h" />
     <ClInclude Include="crc32.h" />
+    <ClInclude Include="crt.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="DIB.h" />
     <ClInclude Include="Draw.h" />

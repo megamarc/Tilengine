@@ -460,6 +460,11 @@ bool TLN_DisableSpriteAnimation(int index)
 	return true;
 }
 
+/* \deprecated */
+bool TLN_DisableAnimation(int index)
+{
+	return TLN_DisableSpriteAnimation(index);
+}
 
 /* animation commons */
 static void SetAnimation (Animation* animation, TLN_Sequence sequence, animation_t type)

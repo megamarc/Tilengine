@@ -14,17 +14,18 @@
 #include "Object.h"
 #include "Tileset.h"
 
+#define MAX_TILESETS	8
+
 /* mapa */
 struct Tilemap
 {
 	DEFINE_OBJECT;
 	int		rows;		/* rows*/
 	int		cols;		/* columns */
-	int		maxindex;	/* highest tile index */
 	int		bgcolor;	/* background color */
 	int		id;			/* id property */
 	bool	visible;	/* visible property */
-	struct Tileset* tileset; /* attached tileset (if any) */
+	struct Tileset* tilesets[MAX_TILESETS]; /* attached tilesets */
 	Tile	tiles[];
 };
 

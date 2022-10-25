@@ -59,8 +59,8 @@
 
 /* version */
 #define TILENGINE_VER_MAJ	2
-#define TILENGINE_VER_MIN	9
-#define TILENGINE_VER_REV	7
+#define TILENGINE_VER_MIN	11
+#define TILENGINE_VER_REV	3
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -74,6 +74,7 @@ typedef enum
 	FLAG_ROTATE		= BITVAL(13),	/*!< row/column flip (unsupported, Tiled compatibility) */
 	FLAG_PRIORITY	= BITVAL(12),	/*!< tile goes in front of sprite layer */
 	FLAG_MASKED		= BITVAL(11),	/*!< sprite won't be drawn inside masked region */
+	FLAG_TILESET    = (7 << 8),		/*!< tileset index */
 }
 TLN_TileFlags;
 
@@ -130,7 +131,20 @@ typedef union Tile
 	struct
 	{
 		uint16_t index;		/*!< tile index */
-		uint16_t flags;		/*!< attributes (FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY) */
+		union
+		{
+			uint16_t flags;	/*!< attributes (FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY) */
+			struct
+			{
+				uint8_t unused : 8;
+				uint8_t tileset : 3;
+				bool masked : 1;
+				bool priority : 1;
+				bool rotated : 1;
+				bool flipy : 1;
+				bool flipx : 1;
+			};
+		};
 	};
 }
 Tile;
@@ -219,23 +233,27 @@ typedef struct
 }
 TLN_TileAttributes;
 
-/*! overlays for CRT effect */
+/* kept for backwards compatibility with pre-2.10 release */
+#define TLN_OVERLAY_NONE		0
+#define TLN_OVERLAY_SHADOWMASK	0
+#define TLN_OVERLAY_APERTURE	0
+#define TLN_OVERLAY_SCANLINES	0
+#define TLN_OVERLAY_CUSTOM		0
+
+/*! types of built-in CRT effect for \ref TLN_ConfigCRTEffect */
 typedef enum
 {
-	TLN_OVERLAY_NONE,		/*!< no overlay */
-	TLN_OVERLAY_SHADOWMASK,	/*!< Shadow mask pattern */
-	TLN_OVERLAY_APERTURE,	/*!< Aperture grille pattern */
-	TLN_OVERLAY_SCANLINES,	/*!< Scanlines pattern */
-	TLN_OVERLAY_CUSTOM,		/*!< User-provided when calling TLN_CreateWindow() */
-	TLN_MAX_OVERLAY
+	TLN_CRT_SLOT,		/*!< slot mask without scanlines, similar to legacy effect */
+	TLN_CRT_APERTURE,	/*!< aperture grille with scanlines (matrix-like dot arrangement) */
+	TLN_CRT_SHADOW,		/*!< shadow mask with scanlines, diagonal subpixel arrangement */
 }
-TLN_Overlay;
+TLN_CRT;
 
 /*! pixel mapping for TLN_SetLayerPixelMapping() */
 typedef struct
 {
-	int16_t dx;		/*! horizontal pixel displacement */
-	int16_t dy;		/*! vertical pixel displacement */
+	int16_t dx;		/*!< horizontal pixel displacement */
+	int16_t dy;		/*!< vertical pixel displacement */
 }
 TLN_PixelMap;
 
@@ -440,7 +458,8 @@ TLNAPI void TLN_DrawFrame (int frame);
 TLNAPI void TLN_WaitRedraw (void);
 TLNAPI void TLN_DeleteWindow (void);
 TLNAPI void TLN_EnableBlur (bool mode);
-TLNAPI void TLN_EnableCRTEffect (TLN_Overlay overlay, uint8_t overlay_factor, uint8_t threshold, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, bool blur, uint8_t glow_factor);
+TLNAPI void TLN_ConfigCRTEffect(TLN_CRT type, bool blur);
+TLNAPI void TLN_EnableCRTEffect (int overlay, uint8_t overlay_factor, uint8_t threshold, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, bool blur, uint8_t glow_factor);
 TLNAPI void TLN_DisableCRTEffect (void);
 TLNAPI void TLN_SetSDLCallback(TLN_SDLCallback);
 TLNAPI void TLN_Delay (uint32_t msecs);
@@ -489,7 +508,10 @@ TLNAPI TLN_Tilemap TLN_LoadTilemap (const char* filename, const char* layername)
 TLNAPI TLN_Tilemap TLN_CloneTilemap (TLN_Tilemap src);
 TLNAPI int TLN_GetTilemapRows (TLN_Tilemap tilemap);
 TLNAPI int TLN_GetTilemapCols (TLN_Tilemap tilemap);
+TLNAPI bool TLN_SetTilemapTileset(TLN_Tilemap tilemap, TLN_Tileset tileset);
 TLNAPI TLN_Tileset TLN_GetTilemapTileset (TLN_Tilemap tilemap);
+TLNAPI bool TLN_SetTilemapTileset2(TLN_Tilemap tilemap, TLN_Tileset tileset, int index);
+TLNAPI TLN_Tileset TLN_GetTilemapTileset2(TLN_Tilemap tilemap, int index);
 TLNAPI bool TLN_GetTilemapTile (TLN_Tilemap tilemap, int row, int col, TLN_Tile tile);
 TLNAPI bool TLN_SetTilemapTile (TLN_Tilemap tilemap, int row, int col, TLN_Tile tile);
 TLNAPI bool TLN_CopyTiles (TLN_Tilemap src, int srcrow, int srccol, int rows, int cols, TLN_Tilemap dst, int dstrow, int dstcol);
@@ -615,6 +637,7 @@ TLNAPI bool TLN_SetSpriteAnimation (int nsprite, TLN_Sequence sequence, int loop
 TLNAPI bool TLN_DisableSpriteAnimation(int nsprite);
 TLNAPI bool TLN_PauseSpriteAnimation(int index);
 TLNAPI bool TLN_ResumeSpriteAnimation(int index);
+TLNAPI bool TLN_DisableAnimation(int index);
 TLNAPI bool TLN_DisableSprite (int nsprite);
 TLNAPI TLN_Palette TLN_GetSpritePalette (int nsprite);
 /**@}*/

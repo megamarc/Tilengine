@@ -161,8 +161,8 @@ bool DrawScanline(void)
 static bool DrawLayerScanline (int nlayer, int nscan)
 {
 	const Layer *layer = &engine->layers[nlayer];
-	const TLN_Tileset tileset = layer->tileset;
 	const TLN_Tilemap tilemap = layer->tilemap;
+	const TLN_Tileset tileset = tilemap->tilesets[0];
 	int shift;
 	TLN_Tile tile;
 	uint8_t *srcpixel;
@@ -235,6 +235,7 @@ static bool DrawLayerScanline (int nlayer, int nscan)
 		/* paint if not empty tile */
 		if (tile->index)
 		{
+			const TLN_Tileset tileset = tilemap->tilesets[tile->tileset];
 			const uint16_t tile_index = tileset->tiles[tile->index];
 			
 			/* H/V flip */
@@ -295,8 +296,8 @@ draw_end:
 static bool DrawLayerScanlineScaling (int nlayer, int nscan)
 {
 	const Layer *layer = &engine->layers[nlayer];
-	const TLN_Tileset tileset = layer->tileset;
 	const TLN_Tilemap tilemap = layer->tilemap;
+	const TLN_Tileset tileset = tilemap->tilesets[0];
 	int shift;
 	TLN_Tile tile;
 	uint8_t *srcpixel;
@@ -385,6 +386,7 @@ static bool DrawLayerScanlineScaling (int nlayer, int nscan)
 		/* paint if tile is not empty */
 		if (tile->index)
 		{
+			const TLN_Tileset tileset = tilemap->tilesets[tile->tileset];
 			const uint16_t tile_index = tileset->tiles[tile->index];
 
 			/* volteado H/V */
@@ -445,9 +447,8 @@ draw_end:
 static bool DrawLayerScanlineAffine (int nlayer, int nscan)
 {
 	Layer *layer = &engine->layers[nlayer];
-	const TLN_Tileset tileset = layer->tileset;
 	const TLN_Tilemap tilemap = layer->tilemap;
-	const TLN_Palette palette = layer->palette;
+	const TLN_Tileset tileset = tilemap->tilesets[0];
 	int shift;
 	TLN_Tile tile;
 	int x, width;
@@ -512,6 +513,7 @@ static bool DrawLayerScanlineAffine (int nlayer, int nscan)
 		/* paint if not empty tile */
 		if (tile->index)
 		{
+			const TLN_Tileset tileset = tilemap->tilesets[tile->tileset];
 			const uint16_t tile_index = tileset->tiles[tile->index];
 
 			/* H/V flip */
@@ -560,9 +562,8 @@ draw_end:
 static bool DrawLayerScanlinePixelMapping (int nlayer, int nscan)
 {
 	Layer *layer = &engine->layers[nlayer];
-	const TLN_Tileset tileset = layer->tileset;
 	const TLN_Tilemap tilemap = layer->tilemap;
-	const TLN_Palette palette = layer->palette;
+	const TLN_Tileset tileset = tilemap->tilesets[0];
 	const int hstart = layer->hstart + layer->width;
 	const int vstart = layer->vstart + layer->height;
 	int shift;
@@ -612,6 +613,7 @@ static bool DrawLayerScanlinePixelMapping (int nlayer, int nscan)
 		/* paint if not empty tile */
 		if (tile->index)
 		{
+			const TLN_Tileset tileset = tilemap->tilesets[tile->tileset];
 			const uint16_t tile_index = tileset->tiles[tile->index];
 
 			/* H/V flip */

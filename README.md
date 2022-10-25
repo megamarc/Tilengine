@@ -52,7 +52,7 @@ http://www.tilengine.org
 # Getting binaries
 
 ## Download from itch.io
-The recommended way to get prebuilt binaries ready to install, run and test samples is grabbing them from official [itch.io download](https://megamarc.itch.io/tilengine.account). Just download the package for your platform, they contain required dependencies to run.
+The recommended way to get prebuilt binaries ready to install, run and test samples is grabbing them from official [itch.io download](https://megamarc.itch.io/tilengine). Just download the package for your platform, they contain required dependencies to run.
 
 ## Build from source
 You can also build the library from source. Tilengine requires `SDL2` and `libpng` to build, you must provide these libraries yourself depending on your target platform.
@@ -184,6 +184,7 @@ Java	    | [JTilengine](https://github.com/megamarc/JTilengine)
 Rust      | [tilengine-sys](https://crates.io/crates/tilengine-sys)
 LuaJIT    | [tilengine_libretro](https://github.com/megamarc/Tilengine/tree/libretro) ([libretro](https://www.libretro.com) core)
 Ring      | [RingTilengine](https://github.com/ring-lang/ring/tree/master/extensions/ringtilengine)
+Nim       | [nim-tilengine](https://sr.ht/~exelotl/nim-tilengine)
 
 # Contributors
 These kind users contributed to tilengine:
