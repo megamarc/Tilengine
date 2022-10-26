@@ -302,7 +302,7 @@ TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername)
 				gid = item->gid;
 			item = item->next;
 		}
-		tmxtileset = &tmxinfo.tilesets[TMXGetSuitableTileset(&tmxinfo, gid)];
+		tmxtileset = &tmxinfo.tilesets[TMXGetSuitableTileset(&tmxinfo, gid, NULL)];
 		tileset = TLN_LoadTileset(tmxtileset->source);
 
 		/* correct with firstgid */

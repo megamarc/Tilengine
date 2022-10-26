@@ -84,10 +84,6 @@ TLN_Palette TLN_LoadPalette (const char* filename)
 		TLN_SetPaletteColor (palette, c, src[0], src[1], src[2]);
 	}
 
-	/* index 0 has always alpha 0 to work as transparent */
-	Color* color = (Color*)GetPaletteData(palette, 0);
-	color->a = 0;
-
 	FileClose (pf);
 	TLN_SetLastError (TLN_ERR_OK);
 	return palette;

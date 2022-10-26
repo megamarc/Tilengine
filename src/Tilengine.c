@@ -23,6 +23,7 @@
 #include "Layer.h"
 #include "Sprite.h"
 #include "Tables.h"
+#include "LoadTMX.h"
 
 /* magic number to recognize context object */
 #define ID_CONTEXT	0x7E5D0AB1
@@ -73,56 +74,63 @@ static TLN_Engine create_context(int hres, int vres, int numlayers, int numsprit
 	context->framebuffer.width = hres;
 	context->framebuffer.height = vres;
 	context->framebuffer.pitch = (((hres * 32)>>3) + 3) & ~0x03;
-	context->priority = (uint32_t*)malloc(context->framebuffer.pitch);
-	if (!context->priority)
+
+	/* create static layers */
+	if (numlayers > 0)
 	{
-		TLN_DeleteContext (context);
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
-		return NULL;
+		context->numlayers = numlayers;
+		context->layers = (Layer*)calloc(numlayers, sizeof(Layer));
+		if (!context->layers)
+		{
+			TLN_DeleteContext(context);
+			TLN_SetLastError(TLN_ERR_OUT_OF_MEMORY);
+			return NULL;
+		}
+		for (c = 0; c < context->numlayers; c++)
+			context->layers[c].mosaic.buffer = (uint32_t*)calloc(hres, sizeof(uint32_t));
+
+		/* buffer for intermediate scanline output */
+		context->linebuffer = (uint32_t*)calloc(hres, sizeof(uint32_t));
+		context->priority = (uint32_t*)malloc(context->framebuffer.pitch);
 	}
 
-	/* sprite collision buffer */
-	context->collision = (uint16_t*)calloc(hres, sizeof(uint16_t));
-	context->linebuffer = (uint32_t*)calloc(hres, sizeof(uint32_t));
+	/* create static sprites */
+	if (numsprites > 0)
+	{
+		context->numsprites = numsprites;
+		context->sprites = (Sprite*)calloc(numsprites, sizeof(Sprite));
+		if (!context->sprites)
+		{
+			TLN_DeleteContext(context);
+			TLN_SetLastError(TLN_ERR_OUT_OF_MEMORY);
+			return NULL;
+		}
+		for (c = 0; c < context->numsprites; c++)
+		{
+			Sprite* sprite = &context->sprites[c];
+			sprite->draw = GetSpriteDraw(MODE_NORMAL);
+			sprite->blitter = SelectBlitter(true, false, false);
+			sprite->sx = sprite->sy = 1.0f;
+		}
+		ListInit(&context->list_sprites, &context->sprites[0].list_node, sizeof(Sprite), context->numsprites);
 
-	/* create static items */
-	context->numlayers = numlayers;
-	context->layers = (Layer*)calloc (numlayers, sizeof(Layer));
-	if (!context->layers)
-	{
-		TLN_DeleteContext(context);
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
-		return NULL;
+		/* sprite collision buffer */
+		context->collision = (uint16_t*)calloc(hres, sizeof(uint16_t));
 	}
-	for (c=0; c<context->numlayers; c++)
-		context->layers[c].mosaic.buffer = (uint32_t*)calloc (hres, sizeof(uint32_t));
 
-	context->numsprites = numsprites;
-	context->sprites = (Sprite*)calloc (numsprites, sizeof(Sprite));
-	if (!context->sprites)
+	/* create static animations */
+	if (numanimations > 0)
 	{
-		TLN_DeleteContext(context);
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
-		return NULL;
+		context->numanimations = numanimations;
+		context->animations = (Animation*)calloc(numanimations, sizeof(Animation));
+		if (!context->animations)
+		{
+			TLN_DeleteContext(context);
+			TLN_SetLastError(TLN_ERR_OUT_OF_MEMORY);
+			return NULL;
+		}
+		ListInit(&context->list_animations, &context->animations[0].list_node, sizeof(Animation), context->numanimations);
 	}
-	for (c=0; c<context->numsprites; c++)
-	{
-		Sprite* sprite = &context->sprites[c];
-		sprite->draw = GetSpriteDraw (MODE_NORMAL);
-		sprite->blitter = SelectBlitter (true, false, false);
-		sprite->sx = sprite->sy = 1.0f;
-	}
-	ListInit(&context->list_sprites, &context->sprites[0].list_node, sizeof(Sprite), context->numsprites);
-
-	context->numanimations = numanimations;
-	context->animations = (Animation*)calloc (numanimations, sizeof(Animation));
-	if (!context->animations)
-	{
-		TLN_DeleteContext(context);
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
-		return NULL;
-	}
-	ListInit(&context->list_animations, &context->animations[0].list_node, sizeof(Animation), context->numanimations);
 
 	context->bgcolor = PackRGB32(0,0,0);
 	context->blit_fast = SelectBlitter (false, false, false);
@@ -362,6 +370,37 @@ int TLN_GetRenderTargetPitch (void)
 	return engine->framebuffer.pitch;
 }
 
+/* basic reference list without duplicates */
+typedef struct
+{
+	int index;
+	void* refs[TMX_MAX_TILESET];
+}
+RefList;
+
+/* finds reference in list */
+bool ref_find(RefList* refs, void* item)
+{
+	int c;
+	for (c = 0; c < refs->index; c += 1)
+	{
+		if (refs->refs[c] == item)
+			return true;
+	}
+	return false;
+}
+
+/* adds reference to list */
+bool ref_add(RefList* refs, void* item)
+{
+	if (refs->index < TMX_MAX_TILESET - 1 && !ref_find(refs, item))
+	{
+		refs->refs[refs->index++] = item;
+		return true;
+	}
+	return false;
+}
+
 /* Starts active rendering of the current frame */
 static void BeginFrame (int frame)
 {
@@ -376,36 +415,54 @@ static void BeginFrame (int frame)
 		engine->frame += 1;
 
 	/* color cycle animations */
-	list = &engine->list_animations;
-	index = list->first;
-	while (index != -1)
+	if (engine->numanimations > 0)
 	{
-		Animation* animation = &engine->animations[index];
-		UpdateAnimation(animation, engine->frame);
-		index = animation->list_node.next;
+		list = &engine->list_animations;
+		index = list->first;
+		while (index != -1)
+		{
+			Animation* animation = &engine->animations[index];
+			UpdateAnimation(animation, engine->frame);
+			index = animation->list_node.next;
+		}
 	}
 
 	/* sprite animations */
-	list = &engine->list_sprites;
-	index = list->first;
-	while (index != -1)
+	if (engine->numsprites > 0)
 	{
-		Sprite* sprite = &engine->sprites[index];
-		sprite->collision = false;
-		if (sprite->animation.enabled && !sprite->animation.paused)
-			UpdateAnimation(&sprite->animation, engine->frame);
-		index = sprite->list_node.next;
+		list = &engine->list_sprites;
+		index = list->first;
+		while (index != -1)
+		{
+			Sprite* sprite = &engine->sprites[index];
+			sprite->collision = false;
+			if (sprite->animation.enabled && !sprite->animation.paused)
+				UpdateAnimation(&sprite->animation, engine->frame);
+			index = sprite->list_node.next;
+		}
 	}
 
-	/* tileset animations */
+	/* tileset animations. calls just once per globally used tileset, avoids duplicate calls */
+	RefList tilesets = { 0 };
 	for (index = 0; index < engine->numlayers; index += 1)
 	{
-		TLN_Tileset tileset = engine->layers[index].tileset;
-		if (tileset != NULL && tileset->sp != NULL)
+		Layer* layer = &engine->layers[index];
+		if (layer->tilemap != NULL)
 		{
-			int c;
-			for (c = 0; c < tileset->sp->num_sequences; c += 1)
-				UpdateAnimation(&tileset->animations[c], engine->frame);
+			int ts;
+			for (ts = 0; ts < MAX_TILESETS; ts += 1)
+			{
+				TLN_Tileset tileset = layer->tilemap->tilesets[ts];
+				if (tileset == NULL)
+					break;
+
+				if (tileset->sp != NULL && ref_add(&tilesets, tileset))
+				{
+					int c;
+					for (c = 0; c < tileset->sp->num_sequences; c += 1)
+						UpdateAnimation(&tileset->animations[c], engine->frame);
+				}
+			}
 		}
 	}
 

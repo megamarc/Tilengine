@@ -29,12 +29,12 @@ struct Palette
 {
 	DEFINE_OBJECT;
 	int entries;		/* number of colors */
-	uint8_t data[0];	/* variable size Color array */
+	uint32_t data[0];	/* variable size Color array */
 };
 
 /* returns pointer to specified index color definition */
 #define GetPaletteData(palette,index) \
-	&palette->data[(index) << 2]
+	&palette->data[index]
 
 #define PackRGB32(r,g,b) \
 	(uint32_t)(0xFF000000 | (r << 16) | (g << 8) | b)

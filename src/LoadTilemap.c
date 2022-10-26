@@ -220,39 +220,40 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 		Tile* tile;
 		uint32_t c;
 
-		/* build list of used tilesets */
-		bool _tilesets[MAX_TILESETS] = { 0 };
+		/* build map of actually used tilesets */
+		bool _tilesets[TMX_MAX_TILESET] = { 0 };
 		tile = (Tile*)loader.data;
 		for (c = 0; c < loader.numtiles; c += 1, tile += 1)
 		{
 			if (tile->index > 0)
 			{
-				int index = TMXGetSuitableTileset(&tmxinfo, tile->index);
+				int index = TMXGetSuitableTileset(&tmxinfo, tile->index, NULL);
 				_tilesets[index] = true;
 			}
 		}
 
+		/* build list of used tilesets */
 		TLN_Tileset tilesets[MAX_TILESETS] = { 0 };
-		int used_tilesets[MAX_TILESETS] = { 0 };
+		TMXTileset used_tilesets[MAX_TILESETS] = { 0 };
 		uint32_t used_index = 0;
-		for (c = 0; c < MAX_TILESETS; c += 1)
+		for (c = 0; c < TMX_MAX_TILESET; c += 1)
 		{
-			if (_tilesets[c])
+			if (_tilesets[c] && used_index < MAX_TILESETS - 1)
 			{
 				tilesets[used_index] = load_tileset(&tmxinfo, filename, c);
-				used_tilesets[used_index] = c;
+				memcpy(&used_tilesets[used_index], &tmxinfo.tilesets[c], sizeof(TMXTileset));
 				used_index += 1;
 			}
 		}
 
-		/* TODO correct with firstgid */
+		/* correct with firstgid */
 		tile = (Tile*)loader.data;
 		for (c = 0; c < loader.numtiles; c += 1, tile += 1)
 		{
 			if (tile->index > 0)
 			{
-				tile->tileset = TMXGetSuitableTileset(&tmxinfo, tile->index);
-				tile->index = tile->index - tmxinfo.tilesets[tile->tileset].firstgid + 1;
+				tile->tileset = TMXGetSuitableTileset(&tmxinfo, tile->index, used_tilesets);
+				tile->index = tile->index - used_tilesets[tile->tileset].firstgid + 1;
 			}
 		}
 
@@ -260,8 +261,7 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 		tilemap = TLN_CreateTilemap(loader.layer->height, loader.layer->width, (Tile*)loader.data, tmxinfo.bgcolor, NULL);
 		tilemap->id = loader.layer->id;
 		tilemap->visible = loader.layer->visible;
-		for (c = 0; c < used_index; c += 1)
-			tilemap->tilesets[c] = tilesets[c];
+		memcpy(tilemap->tilesets, tilesets, sizeof(TLN_Tileset)*MAX_TILESETS);
 	}
 	return tilemap;
 }

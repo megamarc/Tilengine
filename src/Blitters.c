@@ -210,6 +210,7 @@ void Blit32_32(uint32_t *src, uint32_t* dst, int width, uint8_t* blend)
 			}
 			srcpixel += 1;
 			dstpixel += 1;
+			width -= 1;
 		}
 	}
 
@@ -222,6 +223,7 @@ void Blit32_32(uint32_t *src, uint32_t* dst, int width, uint8_t* blend)
 				dstpixel->value = srcpixel->value;
 			srcpixel += 1;
 			dstpixel += 1;
+			width -= 1;
 		}
 	}
 }

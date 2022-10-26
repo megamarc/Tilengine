@@ -116,8 +116,16 @@ bool TLN_SetPaletteColor (TLN_Palette palette, int index, uint8_t r, uint8_t g, 
 {
 	if (CheckBaseObject (palette, OT_PALETTE) && index < palette->entries)
 	{
-		uint32_t* data = (uint32_t*)GetPaletteData (palette, index);
-		*data = PackRGB32(r,g,b);
+		Color* color = (Color*)GetPaletteData (palette, index);
+		if (index == 0)
+			color->value = 0;
+		else
+		{
+			color->r = r;
+			color->g = g;
+			color->b = b;
+			color->a = 255;
+		}
 		TLN_SetLastError (TLN_ERR_OK);
 		return true;
 	}
@@ -150,7 +158,7 @@ uint8_t* TLN_GetPaletteData (TLN_Palette palette, int index)
 	else
 	{
 		TLN_SetLastError (TLN_ERR_OK);
-		return GetPaletteData (palette, index);
+		return (uint8_t*)GetPaletteData (palette, index);
 	}
 }
 

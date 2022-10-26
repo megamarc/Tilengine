@@ -63,65 +63,73 @@ bool DrawScanline(void)
 	else if (engine->bgcolor)
 		BlitColor(scan, engine->bgcolor, size);
 
-	background_priority = false;
-	memset(engine->priority, 0, engine->framebuffer.pitch);
-	memset(engine->collision, -1, engine->framebuffer.width * sizeof(uint16_t));
-
 	/* draw background layers */
-	for (c = engine->numlayers - 1; c >= 0; c--)
+	if (engine->numlayers > 0)
 	{
-		Layer* layer = &engine->layers[c];
-
-		if (layer->ok)
+		background_priority = false;
+		memset(engine->priority, 0, engine->framebuffer.pitch);
+		for (c = engine->numlayers - 1; c >= 0; c--)
 		{
-			/* update if dirty */
-			if (engine->dirty || layer->dirty)
-			{
-				UpdateLayer(c);
-				layer->dirty = false;
-			}
+			Layer* layer = &engine->layers[c];
 
-			/* draw */
-			if (!layer->priority && line >= layer->clip.y1 && line <= layer->clip.y2)
+			if (layer->ok)
 			{
-				if (layer->draw(c, line) == true)
-					background_priority = true;
+				/* update if dirty */
+				if (engine->dirty || layer->dirty)
+				{
+					UpdateLayer(c);
+					layer->dirty = false;
+				}
+
+				/* draw */
+				if (!layer->priority && line >= layer->clip.y1 && line <= layer->clip.y2)
+				{
+					if (layer->draw(c, line) == true)
+						background_priority = true;
+				}
 			}
 		}
 	}
 
 	/* draw regular sprites */
-	list = &engine->list_sprites;
-	index = list->first;
-	while (index != -1)
+	if (engine->numsprites > 0)
 	{
-		Sprite* sprite = &engine->sprites[index];
-
-		/* update if dirty */
-		if (sprite->world_space && (sprite->dirty || engine->dirty))
+		memset(engine->collision, -1, engine->framebuffer.width * sizeof(uint16_t));
+		list = &engine->list_sprites;
+		index = list->first;
+		while (index != -1)
 		{
-			sprite->x = sprite->xworld - engine->xworld;
-			sprite->y = sprite->yworld - engine->yworld;
-			UpdateSprite(sprite);
-			sprite->dirty = false;
-		}
+			Sprite* sprite = &engine->sprites[index];
 
-		if (check_sprite_coverage(sprite, line))
-		{
-			if (!(sprite->flags & FLAG_PRIORITY))
-				sprite->draw(index, line);
-			else
-				sprite_priority = true;
+			/* update if dirty */
+			if (sprite->world_space && (sprite->dirty || engine->dirty))
+			{
+				sprite->x = sprite->xworld - engine->xworld;
+				sprite->y = sprite->yworld - engine->yworld;
+				UpdateSprite(sprite);
+				sprite->dirty = false;
+			}
+
+			if (check_sprite_coverage(sprite, line))
+			{
+				if (!(sprite->flags & FLAG_PRIORITY))
+					sprite->draw(index, line);
+				else
+					sprite_priority = true;
+			}
+			index = sprite->list_node.next;
 		}
-		index = sprite->list_node.next;
 	}
 
 	/* draw background layers with priority */
-	for (c = engine->numlayers - 1; c >= 0; c--)
+	if (engine->numlayers > 0)
 	{
-		const Layer* layer = &engine->layers[c];
-		if (layer->ok && layer->priority && line >= layer->clip.y1 && line <= layer->clip.y2)
-			layer->draw(c, line);
+		for (c = engine->numlayers - 1; c >= 0; c--)
+		{
+			const Layer* layer = &engine->layers[c];
+			if (layer->ok && layer->priority && line >= layer->clip.y1 && line <= layer->clip.y2)
+				layer->draw(c, line);
+		}
 	}
 
 	/* overlay background tiles with priority */
@@ -196,10 +204,8 @@ static bool DrawLayerScanline (int nlayer, int nscan)
 
 	/* target lines */
 	int x = layer->clip.x1;
-	dstpixel += x;
-
-	const TLN_Tileset tileset = layer->tileset;
 	const TLN_Tilemap tilemap = layer->tilemap;
+	const TLN_Tileset tileset = tilemap->tilesets[0];
 	int xpos  = (layer->hstart + x) % layer->width;
 	int xtile = xpos >> tileset->hshift;
 	int srcx  = xpos & tileset->hmask;
@@ -259,13 +265,11 @@ static bool DrawLayerScanline (int nlayer, int nscan)
 
 			int line = GetTilesetLine (tileset, tile_index, srcy);
 			bool color_key = *(tileset->color_key + line);
-			layer->blitters[color_key] (srcpixel, palette, dst, width, direction, 0, layer->blend);
+			layer->blitters[color_key] (srcpixel, palette, dst + x, width, direction, 0, layer->blend);
 		}
 
 		/* next tile */
 		x += width;
-		dstpixel += width;
-		engine->priority += width;
 		xtile = (xtile + 1) % tilemap->cols;
 		srcx = 0;
 		column += 1;
@@ -299,10 +303,8 @@ static bool DrawLayerScanlineScaling (int nlayer, int nscan)
 
 	/* target lines */
 	int x = layer->clip.x1;
-	dstpixel += x;
-
-	const TLN_Tileset tileset = layer->tileset;
 	const TLN_Tilemap tilemap = layer->tilemap;
+	const TLN_Tileset tileset = tilemap->tilesets[0];
 	int xpos  = (layer->hstart + fix2int(x*layer->dx)) % layer->width;
 	int xtile = xpos >> tileset->hshift;
 	int srcx = xpos & tileset->hmask;
@@ -373,12 +375,10 @@ static bool DrawLayerScanlineScaling (int nlayer, int nscan)
 
 			int line = GetTilesetLine (tileset, tile_index, srcy);
 			bool color_key = *(tileset->color_key + line);
-			layer->blitters[color_key] (srcpixel, palette, dst, width, direction, 0, layer->blend);
+			layer->blitters[color_key] (srcpixel, palette, dst + x, width, direction, 0, layer->blend);
 		}
 
 		/* next tile */
-		dstpixel += width;
-		engine->priority += width;
 		x = x1;
 		xtile = (xtile + 1) % tilemap->cols;
 		srcx = 0;
@@ -418,8 +418,8 @@ static bool DrawLayerScanlineAffine (int nlayer, int nscan)
 	int x = layer->clip.x1;
 	int width = layer->clip.x2;
 
-	const TLN_Tileset tileset = layer->tileset;
 	const TLN_Tilemap tilemap = layer->tilemap;
+	const TLN_Tileset tileset = tilemap->tilesets[0];
 	int xpos = layer->hstart;
 	int ypos = layer->vstart + nscan;
 
@@ -507,8 +507,8 @@ static bool DrawLayerScanlinePixelMapping (int nlayer, int nscan)
 	int x = layer->clip.x1;
 	int width = layer->clip.x2 - layer->clip.x1;
 
-	const TLN_Tileset tileset = layer->tileset;
 	const TLN_Tilemap tilemap = layer->tilemap;
+	const TLN_Tileset tileset = tilemap->tilesets[0];
 	const int hstart = layer->hstart + layer->width;
 	const int vstart = layer->vstart + layer->height;
 	TLN_PixelMap* pixel_map = &layer->pixel_map[nscan*engine->framebuffer.width + x];
@@ -697,6 +697,7 @@ static bool DrawBitmapScanline(int nlayer, int nscan)
 
 	/* draws bitmap scanline */
 	TLN_Bitmap bitmap = layer->bitmap;
+	TLN_Palette palette = layer->palette != NULL ? layer->palette : bitmap->palette;
 	while (x < layer->clip.x2)
 	{
 		/* get effective width */
@@ -707,7 +708,7 @@ static bool DrawBitmapScanline(int nlayer, int nscan)
 		width = x1 - x;
 
 		uint8_t* srcpixel = (uint8_t*)get_bitmap_ptr(bitmap, xpos, ypos);
-		layer->blitters[1](srcpixel, layer->palette, dstpixel, width, 1, 0, layer->blend);
+		layer->blitters[1](srcpixel, palette, dstpixel, width, 1, 0, layer->blend);
 		x += width;
 		dstpixel += width;
 		xpos = 0;
@@ -744,6 +745,8 @@ static bool DrawBitmapScanlineScaling(int nlayer, int nscan)
 	int xpos = (layer->hstart + fix2int(x*layer->dx)) % layer->width;
 
 	/* fill whole scanline */
+	const TLN_Bitmap bitmap = layer->bitmap;
+	const TLN_Palette palette = layer->palette != NULL ? layer->palette : bitmap->palette;
 	fix_t fix_x = int2fix(x);
 	while (x < layer->clip.x2)
 	{
@@ -771,8 +774,8 @@ static bool DrawBitmapScanlineScaling(int nlayer, int nscan)
 		width = x1 - x;
 
 		/* draw bitmap scanline */
-		uint8_t* srcpixel = (uint8_t*)get_bitmap_ptr(layer->bitmap, xpos, ypos);
-		layer->blitters[1](srcpixel, layer->palette, dstpixel, width, dx, 0, layer->blend);
+		uint8_t* srcpixel = (uint8_t*)get_bitmap_ptr(bitmap, xpos, ypos);
+		layer->blitters[1](srcpixel, palette, dstpixel, width, dx, 0, layer->blend);
 
 		/* next */
 		dstpixel += width;
@@ -831,11 +834,12 @@ static bool DrawBitmapScanlineAffine(int nlayer, int nscan)
 	int dy = (y2 - y1) / width;
 
 	const TLN_Bitmap bitmap = layer->bitmap;
+	const TLN_Palette palette = layer->palette != NULL ? layer->palette : bitmap->palette;
 	while (x < width)
 	{
 		xpos = abs((fix2int(x1) + layer->width)) % layer->width;
 		ypos = abs((fix2int(y1) + layer->height)) % layer->height;
-		*dstpixel = layer->palette->data[*get_bitmap_ptr(bitmap, xpos, ypos)];
+		*dstpixel = palette->data[*get_bitmap_ptr(bitmap, xpos, ypos)];
 
 		/* next pixel */
 		x += 1;
@@ -881,7 +885,8 @@ static bool DrawBitmapScanlinePixelMapping(int nlayer, int nscan)
 	const int hstart = layer->hstart + layer->width;
 	const int vstart = layer->vstart + layer->height;
 	const TLN_Bitmap bitmap = layer->bitmap;
-	TLN_PixelMap* pixel_map = &layer->pixel_map[nscan*engine->framebuffer.width + x];
+	const TLN_Palette palette = layer->palette != NULL ? layer->palette : bitmap->palette;
+	const TLN_PixelMap* pixel_map = &layer->pixel_map[nscan*engine->framebuffer.width + x];
 	while (x < width)
 	{
 		int xpos = abs(hstart + pixel_map->dx) % layer->width;
