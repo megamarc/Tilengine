@@ -86,7 +86,7 @@ bool TLN_SetLayer(int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap)
 			Tile* tile = tilemap->tiles;
 			for (c = 0; c < num_tiles; c++, tile++)
 			{
-				if (tile->index != 0)
+				if (tile->index != 0 && tile->index < tileset->numtiles)
 				{
 					if (tileset->attributes[tile->index - 1].priority == true)
 						tile->flags |= FLAG_PRIORITY;
