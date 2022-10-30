@@ -495,6 +495,7 @@ TLNAPI int TLN_GetTileWidth (TLN_Tileset tileset);
 TLNAPI int TLN_GetTileHeight (TLN_Tileset tileset);
 TLNAPI int TLN_GetTilesetNumTiles(TLN_Tileset tileset);
 TLNAPI TLN_Palette TLN_GetTilesetPalette (TLN_Tileset tileset);
+TLNAPI bool TLN_SetTilesetPalette(TLN_Tileset tileset, TLN_Palette palette);
 TLNAPI TLN_SequencePack TLN_GetTilesetSequencePack (TLN_Tileset tileset);
 TLNAPI bool TLN_DeleteTileset (TLN_Tileset tileset);
 /**@}*/
