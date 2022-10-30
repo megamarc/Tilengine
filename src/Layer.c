@@ -19,7 +19,7 @@
 #include "ObjectList.h"
 #include "Bitmap.h"
 
-static void SelectBlitter (Layer* layer);
+static void SetBlitter (Layer* layer);
 
 /*!
  * \deprecated Use \ref TLN_SetLayerTilemap instead
@@ -117,7 +117,7 @@ bool TLN_SetLayer(int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap)
 	{
 		layer->ok = true;
 		layer->draw = GetLayerDraw(layer);
-		SelectBlitter(layer);
+		SetBlitter(layer);
 	}
 
 	TLN_SetLastError (TLN_ERR_OK);
@@ -179,7 +179,7 @@ bool TLN_SetLayerBitmap(int nlayer, TLN_Bitmap bitmap)
 		layer->type = LAYER_BITMAP;
 		layer->ok = true;
 		layer->draw = GetLayerDraw(layer);
-		SelectBlitter(layer);
+		SetBlitter(layer);
 		TLN_SetLastError(TLN_ERR_OK);
 		return true;
 	}
@@ -253,7 +253,7 @@ bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Tileset tileset
 	{
 		layer->ok = true;
 		layer->draw = GetLayerDraw(layer);
-		SelectBlitter(layer);
+		SetBlitter(layer);
 	}
 	TLN_SetLastError(TLN_ERR_OK);
 	return true;
@@ -360,7 +360,7 @@ bool TLN_SetLayerBlendMode (int nlayer, TLN_Blend mode, uint8_t factor)
 
 	layer = &engine->layers[nlayer];
 	layer->blend = SelectBlendTable (mode);
-	SelectBlitter (layer);
+	SetBlitter (layer);
 	TLN_SetLastError (TLN_ERR_OK);
 	return true;
 }
@@ -810,7 +810,7 @@ bool TLN_SetLayerAffineTransform (int nlayer, TLN_Affine *affine)
 
 		layer->mode = MODE_TRANSFORM;
 		layer->draw = GetLayerDraw (layer);
-		SelectBlitter (layer);
+		SetBlitter (layer);
 
 		/*printf ("TLN_SetLayerAffineTransform (ptr=%08Xh, a=%.02f, d=%.02f,%.02f, s=%.02f,%.02f)\n",
 			affine, affine->angle, affine->dx, affine->dy, affine->sx, affine->sy);*/
@@ -900,7 +900,7 @@ bool TLN_SetLayerScaling (int nlayer, float sx, float sy)
 	layer->dy = float2fix((1.0f/sy));
 	layer->mode = MODE_SCALING;
 	layer->draw = GetLayerDraw (layer);
-	SelectBlitter (layer);
+	SetBlitter (layer);
 	TLN_SetLastError (TLN_ERR_OK);
 	return true;
 }
@@ -960,7 +960,7 @@ bool TLN_ResetLayerMode (int nlayer)
 	layer = &engine->layers[nlayer];
 	layer->mode = MODE_NORMAL;
 	layer->draw = GetLayerDraw (layer);
-	SelectBlitter (layer);
+	SetBlitter (layer);
 	TLN_SetLastError (TLN_ERR_OK);
 	return true;
 }
@@ -1061,7 +1061,7 @@ bool TLN_SetLayerMosaic (int nlayer, int width, int height)
 	layer = &engine->layers[nlayer];
 	layer->mosaic.w = width;
 	layer->mosaic.h = height;
-	SelectBlitter (layer);
+	SetBlitter (layer);
 	TLN_SetLastError (TLN_ERR_OK);
 	return true;
 }
@@ -1105,11 +1105,11 @@ void UpdateLayer(int nlayer)
 	TLN_SetLayerPosition(nlayer, lx, ly);
 }
 
-static void SelectBlitter (Layer* layer)
+static void SetBlitter (Layer* layer)
 {
 	bool scaling = layer->mode == MODE_SCALING;
 	bool blend = layer->blend != NULL && layer->mosaic.h == 0;
 
 	layer->blitters[0] = SelectBlitter (false, scaling, blend);
-	layer->blitters[1] = SelectBlitter (true, scaling, blend);
+	layer->blitters[1] = SelectBlitter(true, scaling, blend);
 }
