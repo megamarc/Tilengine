@@ -185,43 +185,56 @@ static void blit_buffer32(const Layer* layer, int nscan)
 
 typedef struct
 {
-	int size;
+	int width, height;
 	int srcx;
 	int srcy;
 	int dx;
+	int stride;
 }
 Tilescan;
 
-/* process flip & rotation flags */
-static inline void process_flip(Tile* tile, Tilescan* scan)
+/* process flip flags */
+static inline void process_flip(uint16_t flags, Tilescan* scan)
 {
-	if (tile->flags & FLAG_ROTATE)
+	/* H/V flip */
+	if (flags & FLAG_FLIPX)
+	{
+		scan->dx = -scan->dx;
+		scan->srcx = scan->width - 1;
+	}
+	if (flags & FLAG_FLIPY)
+		scan->srcy = scan->height - scan->srcy - 1;
+}
+
+/* process flip & rotation flags */
+static inline void process_flip_rotation(uint16_t flags, Tilescan* scan)
+{
+	if (flags & FLAG_ROTATE)
 	{
 		int tmp = scan->srcx;
 		scan->srcx = scan->srcy;
 		scan->srcy = tmp;
-		scan->dx = scan->size * scan->dx;
+		scan->dx *= scan->stride;
 
 		/* H/V flip */
-		if (tile->flags & FLAG_FLIPX)
+		if (flags & FLAG_FLIPX)
 		{
 			scan->dx = -scan->dx;
-			scan->srcy = scan->size - 1;
+			scan->srcy = scan->height - 1;
 		}
-		if (tile->flags & FLAG_FLIPY)
-			scan->srcx = scan->size - scan->srcx - 1;
+		if (flags & FLAG_FLIPY)
+			scan->srcx = scan->width - scan->srcx - 1;
 	}
-
 	else
 	{
 		/* H/V flip */
-		if (tile->flags & FLAG_FLIPX)
+		if (flags & FLAG_FLIPX)
 		{
 			scan->dx = -scan->dx;
-			scan->srcx = scan->size - 1;
+			scan->srcx = scan->width - 1;
 		}
-		if (tile->flags & FLAG_FLIPY)
-			scan->srcy = scan->size - scan->srcy - 1;
+		if (flags & FLAG_FLIPY)
+			scan->srcy = scan->height - scan->srcy - 1;
 	}
 }
 
@@ -252,7 +265,7 @@ static bool DrawLayerScanline(int nlayer, int nscan)
 	int xtile = xpos >> tileset->hshift;
 
 	Tilescan scan = { 0 };
-	scan.size = tileset->width;
+	scan.width = scan.height = scan.stride = tileset->width;
 	scan.srcx = xpos & tileset->hmask;
 
 	/* fill whole scanline */
@@ -292,7 +305,7 @@ static bool DrawLayerScanline(int nlayer, int nscan)
 			/* process rotate & flip flags */
 			scan.dx = 1;
 			if ((tile->flags & (FLAG_FLIPX + FLAG_FLIPY + FLAG_ROTATE)) != 0)
-				process_flip(tile, &scan);
+				process_flip_rotation(tile->flags, &scan);
 
 			/* paint tile scanline */
 			uint8_t *srcpixel = &GetTilesetPixel(tileset, tile_index, scan.srcx, scan.srcy);
@@ -349,7 +362,7 @@ static bool DrawLayerScanlineScaling(int nlayer, int nscan)
 	int xtile = xpos >> tileset->hshift;
 
 	Tilescan scan = { 0 };
-	scan.size = tileset->width;
+	scan.width = scan.height = scan.stride = tileset->width;
 	scan.srcx = xpos & tileset->hmask;
 
 	/* fill whole scanline */
@@ -397,10 +410,10 @@ static bool DrawLayerScanlineScaling(int nlayer, int nscan)
 			const uint16_t tile_index = tileset->tiles[tile->index];
 			const TLN_Palette palette = layer->palette != NULL ? layer->palette : tileset->palette;
 
-			/* process rotate & flip flags */
+			/* process flip flags */
 			scan.dx = dx;
-			if ((tile->flags & (FLAG_FLIPX + FLAG_FLIPY + FLAG_ROTATE)) != 0)
-				process_flip(tile, &scan);
+			if ((tile->flags & (FLAG_FLIPX + FLAG_FLIPY)) != 0)
+				process_flip(tile->flags, &scan);
 
 			/* paint tile scanline */
 			uint8_t* srcpixel = &GetTilesetPixel(tileset, tile_index, scan.srcx, scan.srcy);
@@ -476,7 +489,7 @@ static bool DrawLayerScanlineAffine(int nlayer, int nscan)
 	int dy = (y2 - y1) / width;
 
 	Tilescan scan = { 0 };
-	scan.size = tileset->width;
+	scan.width = scan.height = scan.stride = tileset->width;
 
 	while (x < width)
 	{
@@ -496,9 +509,9 @@ static bool DrawLayerScanlineAffine(int nlayer, int nscan)
 			const TLN_Tileset tileset = tilemap->tilesets[tile->tileset];
 			const uint16_t tile_index = tileset->tiles[tile->index];
 
-			/* process rotate & flip flags */
-			if ((tile->flags & (FLAG_FLIPX + FLAG_FLIPY + FLAG_ROTATE)) != 0)
-				process_flip(tile, &scan);
+			/* process flip flags */
+			if ((tile->flags & (FLAG_FLIPX + FLAG_FLIPY)) != 0)
+				process_flip(tile->flags, &scan);
 
 			/* paint RGB value */
 			const TLN_Palette palette = layer->palette != NULL ? layer->palette : tileset->palette;
@@ -553,7 +566,7 @@ static bool DrawLayerScanlinePixelMapping(int nlayer, int nscan)
 	TLN_PixelMap* pixel_map = &layer->pixel_map[nscan*engine->framebuffer.width + x];
 
 	Tilescan scan = { 0 };
-	scan.size = tileset->width;
+	scan.width = scan.height = scan.stride = tileset->width;
 
 	while (x < width)
 	{
@@ -573,9 +586,9 @@ static bool DrawLayerScanlinePixelMapping(int nlayer, int nscan)
 			const TLN_Tileset tileset = tilemap->tilesets[tile->tileset];
 			const uint16_t tile_index = tileset->tiles[tile->index];
 
-			/* process rotate & flip flags */
-			if ((tile->flags & (FLAG_FLIPX + FLAG_FLIPY + FLAG_ROTATE)) != 0)
-				process_flip(tile, &scan);
+			/* process flip flags */
+			if ((tile->flags & (FLAG_FLIPX + FLAG_FLIPY)) != 0)
+				process_flip(tile->flags, &scan);
 
 			/* paint tile scanline */
 			const TLN_Palette palette = layer->palette != NULL ? layer->palette : tileset->palette;
@@ -602,29 +615,25 @@ static bool DrawSpriteScanline(int nsprite, int nscan)
 	Sprite* sprite = &engine->sprites[nsprite];
 	uint32_t* dstscan = GetFramebufferLine(nscan);
 
-	int srcx = sprite->srcrect.x1;
-	int srcy = sprite->srcrect.y1 + (nscan - sprite->dstrect.y1);
+	Tilescan scan = { 0 };
+	scan.srcx = sprite->srcrect.x1;
+	scan.srcy = sprite->srcrect.y1 + (nscan - sprite->dstrect.y1);
 	int w = sprite->dstrect.x2 - sprite->dstrect.x1;
 
-	/* H/V flip */
-	int direction = 1;
-	if (sprite->flags & FLAG_FLIPX)
-	{
-		direction = -1;
-		srcx = sprite->info->w - srcx - 1;
-	}
-	if (sprite->flags & FLAG_FLIPY)
-		srcy = sprite->info->h - srcy - 1;
+	/* process rotate & flip flags */
+	scan.dx = 1;
+	if ((sprite->flags & (FLAG_FLIPX + FLAG_FLIPY + FLAG_ROTATE)) != 0)
+		process_flip(sprite->flags, &scan);
 
 	/* blit scanline */
-	uint8_t* srcpixel = sprite->pixels + (srcy*sprite->pitch) + srcx;
+	uint8_t* srcpixel = sprite->pixels + (scan.srcy*sprite->pitch) + scan.srcx;
 	uint32_t *dstpixel = dstscan + sprite->dstrect.x1;
-	sprite->blitter(srcpixel, sprite->palette, dstpixel, w, direction, 0, sprite->blend);
+	sprite->blitter(srcpixel, sprite->palette, dstpixel, w, scan.dx, 0, sprite->blend);
 
 	if (sprite->do_collision)
 	{
 		uint16_t* dstpixel = engine->collision + sprite->dstrect.x1;
-		DrawSpriteCollision(nsprite, srcpixel, dstpixel, w, direction);
+		DrawSpriteCollision(nsprite, srcpixel, dstpixel, w, scan.dx);
 	}
 	return true;
 }
@@ -952,6 +961,8 @@ static bool DrawLayerObjectScanline(int nlayer, int nscan)
 {
 	const Layer* layer = &engine->layers[nlayer];
 	struct _Object* object = layer->objects->list;
+	struct _Object tmpobject = { 0 };
+	
 	int x1 = layer->hstart + layer->clip.x1;
 	int x2 = layer->hstart + layer->clip.x2;
 	int y = layer->vstart + nscan;
@@ -960,43 +971,52 @@ static bool DrawLayerObjectScanline(int nlayer, int nscan)
 
 	while (object != NULL)
 	{
-		if (IsObjectInLine(object, x1, x2, y) && object->visible && object->bitmap != NULL)
+		/* swap width & height for rotated objects */
+		memcpy(&tmpobject, object, sizeof(struct _Object));
+		if (tmpobject.flags & FLAG_ROTATE)
 		{
-			int srcx = 0;
-			int srcy = y - object->y;
-			int dstx1 = object->x - x1;
-			int dstx2 = dstx1 + object->width;
+			tmpobject.width = object->height;
+			tmpobject.height = object->width;
+		}
+
+		if (IsObjectInLine(&tmpobject, x1, x2, y) && tmpobject.visible && tmpobject.bitmap != NULL)
+		{
+			Tilescan scan = { 0 };
+			scan.srcx = 0;
+			scan.srcy = y - tmpobject.y;
+
+			int dstx1 = tmpobject.x - x1;
+			int dstx2 = dstx1 + tmpobject.width;
 			if (dstx1 < layer->clip.x1)
 			{
 				int w = layer->clip.x1 - dstx1;
-				srcx = w;
+				scan.srcx = w;
 				dstx1 = 0;
 			}
 			if (dstx2 > layer->clip.x2)
 				dstx2 = layer->clip.x2;
 			int w = dstx2 - dstx1;
 
-			/* H/V flip */
-			int direction = 1;
-			if (object->flags & FLAG_FLIPX)
-			{
-				direction = -1;
-				srcx = object->width - srcx - 1;
-			}
-			if (object->flags & FLAG_FLIPY)
-				srcy = object->height - srcy - 1;
+			TLN_Bitmap bitmap = tmpobject.bitmap;
+			scan.width = bitmap->width;
+			scan.height = bitmap->height;
+			scan.stride = bitmap->pitch;
+
+			/* process rotate & flip flags */
+			scan.dx = 1;
+			if ((tmpobject.flags & (FLAG_FLIPX + FLAG_FLIPY + FLAG_ROTATE)) != 0)
+				process_flip_rotation(tmpobject.flags, &scan);
 
 			/* paint tile scanline */
-			TLN_Bitmap bitmap = object->bitmap;
-			uint8_t* srcpixel = get_bitmap_ptr(bitmap, srcx, srcy);
+			uint8_t* srcpixel = get_bitmap_ptr(bitmap, scan.srcx, scan.srcy);
 			uint32_t *target = dstscan;
-			if (object->flags & FLAG_PRIORITY)
+			if (tmpobject.flags & FLAG_PRIORITY)
 			{
 				target = engine->priority;
 				priority = true;
 			}
 			uint32_t* dstpixel = target + dstx1;
-			layer->blitters[1](srcpixel, bitmap->palette, dstpixel, w, direction, 0, layer->blend);
+			layer->blitters[1](srcpixel, bitmap->palette, dstpixel, w, scan.dx, 0, layer->blend);
 		}
 		object = object->next;
 	}
