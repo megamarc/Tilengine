@@ -618,12 +618,25 @@ static bool DrawSpriteScanline(int nsprite, int nscan)
 	Tilescan scan = { 0 };
 	scan.srcx = sprite->srcrect.x1;
 	scan.srcy = sprite->srcrect.y1 + (nscan - sprite->dstrect.y1);
-	int w = sprite->dstrect.x2 - sprite->dstrect.x1;
+	scan.width = sprite->info->w;
+	scan.height = sprite->info->h;
+	scan.stride = sprite->pitch;
+
+	/* disable rotation for non-squared sprites */
+	uint16_t flags = sprite->flags;
+	if ((flags & FLAG_ROTATE) && sprite->info->w != sprite->info->h)
+		flags &= ~FLAG_ROTATE;
+
+	int w;
+	if (!(flags & FLAG_ROTATE))
+		w = sprite->dstrect.x2 - sprite->dstrect.x1;
+	else
+		w = sprite->dstrect.y2 - sprite->dstrect.y1;
 
 	/* process rotate & flip flags */
 	scan.dx = 1;
-	if ((sprite->flags & (FLAG_FLIPX + FLAG_FLIPY + FLAG_ROTATE)) != 0)
-		process_flip(sprite->flags, &scan);
+	if ((flags & (FLAG_FLIPX + FLAG_FLIPY + FLAG_ROTATE)) != 0)
+		process_flip_rotation(flags, &scan);
 
 	/* blit scanline */
 	uint8_t* srcpixel = sprite->pixels + (scan.srcy*sprite->pitch) + scan.srcx;
