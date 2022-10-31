@@ -861,7 +861,7 @@ void TLN_SetSpritesMaskRegion(int top_line, int bottom_line)
 	engine->sprite_mask_bottom = bottom_line;
 }
 
-/* actualiza datos internos */
+/* updates clipping rect cache */
 void UpdateSprite (Sprite* sprite)
 {
 	int w,h;
@@ -872,10 +872,10 @@ void UpdateSprite (Sprite* sprite)
 	if (sprite->sx > 1.0)
 		w = 0;
 
-	/* rectangulo origen (sprite) */
+	/* sprite source rectangle */
 	MakeRect(&sprite->srcrect, 0, 0, sprite->info->w, sprite->info->h);
 
-	/* clipping normal */
+	/* standard clipping */
 	if (sprite->mode == MODE_NORMAL)
 	{
 		w = sprite->info->w;
@@ -884,10 +884,10 @@ void UpdateSprite (Sprite* sprite)
 		int x = sprite->x - (int)(w * sprite->ptx);
 		int y = sprite->y - (int)(h * sprite->pty);
 
-		/* rectangulo destino (pantalla) */
+		/* screen target rectangle */
 		MakeRect(&sprite->dstrect, x, y, w, h);
 
-		/* clipping vertical */
+		/* vertical clipping */
 		if (sprite->dstrect.y1 < 0)
 		{
 			sprite->srcrect.y1 -= sprite->dstrect.y1;
@@ -899,7 +899,7 @@ void UpdateSprite (Sprite* sprite)
 			sprite->dstrect.y2 = engine->framebuffer.height;
 		}
 
-		/* clipping horizontal */
+		/* horizontal clipping */
 		if (sprite->dstrect.x1 < 0)
 		{
 			sprite->srcrect.x1 -= sprite->dstrect.x1;
@@ -918,13 +918,13 @@ void UpdateSprite (Sprite* sprite)
 		w = (int)(sprite->info->w * sprite->sx);
 		h = (int)(sprite->info->h * sprite->sy);
 
-		/* rectangulo destino (pantalla) */
+		/* screen target rectangle */
 		sprite->dstrect.x1 = sprite->x - (int)(w * sprite->ptx);
 		sprite->dstrect.y1 = sprite->y - (int)(h * sprite->pty);
 		sprite->dstrect.x2 = sprite->dstrect.x1 + w;
 		sprite->dstrect.y2 = sprite->dstrect.y1 + h;
 
-		/* coordenadas origen son fix */
+		/* source coords are 16.16 fixed point */
 		sprite->srcrect.x1 = int2fix (sprite->srcrect.x1);
 		sprite->srcrect.y1 = int2fix (sprite->srcrect.y1);
 		sprite->srcrect.x2 = int2fix (sprite->srcrect.x2);

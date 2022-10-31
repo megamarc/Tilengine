@@ -18,6 +18,9 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="test_tiles.c" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{CE31C686-C6BF-4262-8982-D858830BE967}</ProjectGuid>
     <RootNamespace>test</RootNamespace>
@@ -161,9 +164,6 @@
       <AdditionalLibraryDirectories>..\lib\$(Platform)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="test_tiles.c" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -220,7 +220,7 @@ static inline void process_flip_rotation(uint16_t flags, Tilescan* scan)
 		if (flags & FLAG_FLIPX)
 		{
 			scan->dx = -scan->dx;
-			scan->srcy = scan->height - 1;
+			scan->srcy = scan->height - scan->srcy - 1;
 		}
 		if (flags & FLAG_FLIPY)
 			scan->srcx = scan->width - scan->srcx - 1;
@@ -231,7 +231,7 @@ static inline void process_flip_rotation(uint16_t flags, Tilescan* scan)
 		if (flags & FLAG_FLIPX)
 		{
 			scan->dx = -scan->dx;
-			scan->srcx = scan->width - 1;
+			scan->srcx = scan->width - scan->srcx - 1;
 		}
 		if (flags & FLAG_FLIPY)
 			scan->srcy = scan->height - scan->srcy - 1;
@@ -509,9 +509,9 @@ static bool DrawLayerScanlineAffine(int nlayer, int nscan)
 			const TLN_Tileset tileset = tilemap->tilesets[tile->tileset];
 			const uint16_t tile_index = tileset->tiles[tile->index];
 
-			/* process flip flags */
-			if ((tile->flags & (FLAG_FLIPX + FLAG_FLIPY)) != 0)
-				process_flip(tile->flags, &scan);
+			/* process flip & rotation flags */
+			if ((tile->flags & (FLAG_FLIPX + FLAG_FLIPY + FLAG_ROTATE)) != 0)
+				process_flip_rotation(tile->flags, &scan);
 
 			/* paint RGB value */
 			const TLN_Palette palette = layer->palette != NULL ? layer->palette : tileset->palette;
@@ -586,9 +586,9 @@ static bool DrawLayerScanlinePixelMapping(int nlayer, int nscan)
 			const TLN_Tileset tileset = tilemap->tilesets[tile->tileset];
 			const uint16_t tile_index = tileset->tiles[tile->index];
 
-			/* process flip flags */
-			if ((tile->flags & (FLAG_FLIPX + FLAG_FLIPY)) != 0)
-				process_flip(tile->flags, &scan);
+			/* process flip & rotation flags */
+			if ((tile->flags & (FLAG_FLIPX + FLAG_FLIPY + FLAG_ROTATE)) != 0)
+				process_flip_rotation(tile->flags, &scan);
 
 			/* paint tile scanline */
 			const TLN_Palette palette = layer->palette != NULL ? layer->palette : tileset->palette;
@@ -627,11 +627,7 @@ static bool DrawSpriteScanline(int nsprite, int nscan)
 	if ((flags & FLAG_ROTATE) && sprite->info->w != sprite->info->h)
 		flags &= ~FLAG_ROTATE;
 
-	int w;
-	if (!(flags & FLAG_ROTATE))
-		w = sprite->dstrect.x2 - sprite->dstrect.x1;
-	else
-		w = sprite->dstrect.y2 - sprite->dstrect.y1;
+	const int w = sprite->dstrect.x2 - sprite->dstrect.x1;
 
 	/* process rotate & flip flags */
 	scan.dx = 1;
