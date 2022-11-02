@@ -302,6 +302,23 @@ bool TLN_SetTilemapTile (TLN_Tilemap tilemap, int row, int col, TLN_Tile tile)
 		return false;
 }
 
+/*!   
+ * \brief Returns pointer to internal tilemap data data
+ * \row row index
+ * \col column index
+ * \returns pointer to corresponding TLN_Tile object or NULL if error
+ *
+ * \remarks Having direct access to internal memory is convenient for performance reasons when lots of tiles 
+ * must be updated at runtime, but wrong manipulation can lead to memory corruption or crashes. Use with caution! 
+ */
+TLN_Tile TLN_GetTilemapTiles(TLN_Tilemap tilemap, int row, int col)
+{
+	if (!CheckBaseObject(tilemap, OT_TILEMAP))
+		return NULL;
+
+	return GetTilemapPtr(tilemap, row, col);
+}
+
 /*!
  * \brief
  * Deletes the specified tilemap and frees memory

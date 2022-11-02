@@ -11,6 +11,8 @@
 #ifndef _ENGINE_H
 #define _ENGINE_H
 
+#define NUM_PALETTES	8
+
 #include "Tilengine.h"
 #include "Sprite.h"
 #include "Layer.h"
@@ -39,6 +41,7 @@ typedef struct Engine
 	uint32_t	bgcolor;		/* background color */
 	TLN_Bitmap	bgbitmap;		/* background bitmap */
 	TLN_Palette	bgpalette;		/* background bitmap palette */
+	TLN_Palette palettes[NUM_PALETTES];	/* optional global palettes */
 	ScanBlitPtr	blit_fast;		/* blitter for background bitmap */
 	uint8_t*	blend_table;	/* current blending table */
 	void		(*cb_raster)(int);	/* raster callback */

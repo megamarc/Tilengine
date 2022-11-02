@@ -222,7 +222,6 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)lib\$(Platform)
     <ClCompile Include="crc32.c" />
     <ClCompile Include="crt.c" />
     <ClCompile Include="Draw.c" />
-    <ClCompile Include="GaussianBlur.c" />
     <ClCompile Include="Layer.c" />
     <ClCompile Include="List.c" />
     <ClCompile Include="LoadBitmap.c" />

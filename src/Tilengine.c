@@ -619,9 +619,9 @@ void TLN_DisableBGColor (void)
  */
 bool TLN_SetBGBitmap (TLN_Bitmap bitmap)
 {
-	if (bitmap)
+	if (bitmap != NULL)
 	{
-		if (!CheckBaseObject (bitmap, OT_BITMAP))
+		if (!CheckBaseObject(bitmap, OT_BITMAP))
 			return false;
 		engine->bgpalette = bitmap->palette;
 	}
@@ -642,11 +642,32 @@ bool TLN_SetBGBitmap (TLN_Bitmap bitmap)
  */
 bool TLN_SetBGPalette (TLN_Palette palette)
 {
-	if (!CheckBaseObject (palette, OT_PALETTE))
+	if (!CheckBaseObject(palette, OT_PALETTE))
 		return false;
 
 	engine->bgpalette = palette;
 	TLN_SetLastError (TLN_ERR_OK);
+	return true;
+}
+
+/* \brief Sets one of the eight global palettes used by tiled layers
+ * \param index Palette index [0 - 7]
+ * \param palette Reference of palette to set, or NULL to disable it
+ * \returns true if success, or false if error
+ */
+bool TLN_SetGlobalPalette(int index, TLN_Palette palette)
+{
+	if (index < 0 || index > NUM_PALETTES - 1)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_PALETTE);
+		return false;
+	}
+
+	if (palette != NULL && !CheckBaseObject(palette, OT_PALETTE))
+		return false;
+
+	engine->palettes[index] = palette;
+	TLN_SetLastError(TLN_ERR_OK);
 	return true;
 }
 

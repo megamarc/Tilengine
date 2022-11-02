@@ -26,9 +26,6 @@
     <ClCompile Include="Draw.c">
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
-    <ClCompile Include="GaussianBlur.c">
-      <Filter>Archivos de código fuente</Filter>
-    </ClCompile>
     <ClCompile Include="Layer.c">
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>

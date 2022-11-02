@@ -59,7 +59,7 @@
 
 /* version */
 #define TILENGINE_VER_MAJ	2
-#define TILENGINE_VER_MIN	12
+#define TILENGINE_VER_MIN	13
 #define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
@@ -74,7 +74,8 @@ typedef enum
 	FLAG_ROTATE		= BITVAL(13),	/*!< row/column flip (unsupported, Tiled compatibility) */
 	FLAG_PRIORITY	= BITVAL(12),	/*!< tile goes in front of sprite layer */
 	FLAG_MASKED		= BITVAL(11),	/*!< sprite won't be drawn inside masked region */
-	FLAG_TILESET    = (7 << 8),		/*!< tileset index */
+	FLAG_TILESET    = (7 << 8),		/*!< tileset index (0 - 7) */
+	FLAG_PALETTE	= (7 << 5),		/*!< palette index (0 - 7) */
 }
 TLN_TileFlags;
 
@@ -131,7 +132,8 @@ typedef union Tile
 			uint16_t flags;	/*!< attributes (FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY) */
 			struct
 			{
-				uint8_t unused : 8;
+				uint8_t unused : 5;
+				uint8_t palette : 3;
 				uint8_t tileset : 3;
 				bool masked : 1;
 				bool priority : 1;
@@ -374,6 +376,7 @@ typedef enum
 	TLN_ERR_WRONG_SIZE,		/*!< A width or height parameter is invalid */
 	TLN_ERR_UNSUPPORTED,	/*!< Unsupported function */
 	TLN_ERR_REF_LIST,		/*!< Invalid TLN_ObjectList reference */
+	TLN_ERR_IDX_PALETTE,	/*!< Palette index out of range */
 	TLN_MAX_ERR,
 }
 TLN_Error;
@@ -414,6 +417,7 @@ TLNAPI bool TLN_SetBGColorFromTilemap (TLN_Tilemap tilemap);
 TLNAPI void TLN_DisableBGColor (void);
 TLNAPI bool TLN_SetBGBitmap (TLN_Bitmap bitmap);
 TLNAPI bool TLN_SetBGPalette (TLN_Palette palette);
+TLNAPI bool TLN_SetGlobalPalette(int index, TLN_Palette palette);
 TLNAPI void TLN_SetRasterCallback (TLN_VideoCallback);
 TLNAPI void TLN_SetFrameCallback (TLN_VideoCallback);
 TLNAPI void TLN_SetRenderTarget (uint8_t* data, int pitch);
@@ -509,6 +513,7 @@ TLNAPI TLN_Tileset TLN_GetTilemapTileset2(TLN_Tilemap tilemap, int index);
 TLNAPI bool TLN_GetTilemapTile (TLN_Tilemap tilemap, int row, int col, TLN_Tile tile);
 TLNAPI bool TLN_SetTilemapTile (TLN_Tilemap tilemap, int row, int col, TLN_Tile tile);
 TLNAPI bool TLN_CopyTiles (TLN_Tilemap src, int srcrow, int srccol, int rows, int cols, TLN_Tilemap dst, int dstrow, int dstcol);
+TLNAPI TLN_Tile TLN_GetTilemapTiles(TLN_Tilemap tilemap, int row, int col);
 TLNAPI bool TLN_DeleteTilemap (TLN_Tilemap tilemap);
 /**@}*/
 

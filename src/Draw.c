@@ -300,7 +300,13 @@ static bool DrawLayerScanline(int nlayer, int nscan)
 		{
 			const TLN_Tileset tileset = tilemap->tilesets[tile->tileset];
 			const uint16_t tile_index = tileset->tiles[tile->index];
-			const TLN_Palette palette = layer->palette != NULL ? layer->palette : tileset->palette;
+
+			/* selects suitable palette */
+			TLN_Palette palette = tileset->palette;
+			if (layer->palette != NULL)
+				palette = layer->palette;
+			else if (engine->palettes[tile->palette] != NULL)
+				palette = engine->palettes[tile->palette];
 
 			/* process rotate & flip flags */
 			scan.dx = 1;
@@ -408,7 +414,13 @@ static bool DrawLayerScanlineScaling(int nlayer, int nscan)
 		{
 			const TLN_Tileset tileset = tilemap->tilesets[tile->tileset];
 			const uint16_t tile_index = tileset->tiles[tile->index];
-			const TLN_Palette palette = layer->palette != NULL ? layer->palette : tileset->palette;
+
+			/* selects suitable palette */
+			TLN_Palette palette = tileset->palette;
+			if (layer->palette != NULL)
+				palette = layer->palette;
+			else if (engine->palettes[tile->palette] != NULL)
+				palette = engine->palettes[tile->palette];
 
 			/* process flip flags */
 			scan.dx = dx;
@@ -513,7 +525,7 @@ static bool DrawLayerScanlineAffine(int nlayer, int nscan)
 			if ((tile->flags & (FLAG_FLIPX + FLAG_FLIPY + FLAG_ROTATE)) != 0)
 				process_flip_rotation(tile->flags, &scan);
 
-			/* paint RGB value */
+			/* paint RGB pixel value */
 			const TLN_Palette palette = layer->palette != NULL ? layer->palette : tileset->palette;
 			*dstpixel = palette->data[GetTilesetPixel(tileset, tile_index, scan.srcx, scan.srcy)];
 		}
@@ -590,7 +602,7 @@ static bool DrawLayerScanlinePixelMapping(int nlayer, int nscan)
 			if ((tile->flags & (FLAG_FLIPX + FLAG_FLIPY + FLAG_ROTATE)) != 0)
 				process_flip_rotation(tile->flags, &scan);
 
-			/* paint tile scanline */
+			/* paint RGB pixel value */
 			const TLN_Palette palette = layer->palette != NULL ? layer->palette : tileset->palette;
 			*dstpixel = palette->data[GetTilesetPixel(tileset, tile_index, scan.srcx, scan.srcy)];
 		}
