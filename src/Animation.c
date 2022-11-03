@@ -427,7 +427,7 @@ bool TLN_ResumeSpriteAnimation(int index)
 	animation = &sprite->animation;
 	animation->paused = false;
 	TLN_SetLastError(TLN_ERR_OK);
-	return false;
+	return true;
 }
 
 /*!
