@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include "Tilengine.h"
 #include "Sin.h"
+// #include "../src/sdl/SDL2/SDL_timer.h"
 
 #define WIDTH	400
 #define HEIGHT	240
@@ -30,6 +31,10 @@ typedef int fix_t;
 #define int2fix(i)		((int)(i) << FIXED_BITS)
 #define fix2int(f)		((int)(f) >> FIXED_BITS)
 #define fix2float(f)	(float)(f)/(1 << FIXED_BITS)
+
+#define FPS	60
+
+const DELAY = 1000.0f/FPS;
 
 /*
 /* layers */
@@ -81,9 +86,16 @@ int main (int argc, char* argv[])
 	angle = 0;
 	BuildSinTable ();
 
+	// We will cap the FPS to 60 for people having a screen with a refresh rate greater than 60Hz
+	float timeStart = 0.00;
+	float timeFinish = 0.00;
+	float delta = 0.00;
+
 	/* main loop */
 	while (TLN_ProcessWindow ())
 	{
+		timeStart = TLN_GetTicks();
+		delta = timeStart - timeFinish;
 		TLN_SetLayerTilemap (LAYER_FOREGROUND, horizon);
 		TLN_SetLayerTilemap (LAYER_BACKGROUND, horizon);
 		TLN_SetLayerPosition (LAYER_FOREGROUND, lerp(angle*2, 0,360, 0,256), 24);
@@ -117,13 +129,20 @@ int main (int argc, char* argv[])
 			angle = angle%360;
 			if (angle < 0)
 				angle += 360;
-
 			x += CalcSin (angle, s);
 			y -= CalcCos (angle, s);
 		}
 
 		/* render to window */
 		TLN_DrawFrame (0);
+		timeFinish = TLN_GetTicks();
+
+		delta = timeFinish - timeStart;
+		// Capping FPS to 60
+		if(delta < DELAY)
+			TLN_Delay(DELAY - delta);
+		}
+		
 	}
 
 	/* deinit */

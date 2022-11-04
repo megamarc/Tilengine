@@ -91,6 +91,11 @@ typedef enum
 	BLEND_ADD,		/*!< color is always brighter (simulate light effects) */
 	BLEND_SUB,		/*!< color is always darker (simulate shadow effects) */
 	BLEND_MOD,		/*!< color is always darker (simulate shadow effects) */
+	BLEND_OR,		/*!< Logical OR */
+	BLEND_XOR,		/*!< Logical XOR */
+	BLEND_NOR,		/*!< Logical NOR */
+	BLEND_AND,		/*!< Logical AND */
+	BLEND_NAND,		/*!< Logical NAND */
 	BLEND_CUSTOM,	/*!< user provided blend function with TLN_SetCustomBlendFunction() */
 	MAX_BLEND,
 	BLEND_MIX = BLEND_MIX50
@@ -427,6 +432,7 @@ TLNAPI void TLN_SetCustomBlendFunction (TLN_BlendFunction);
 TLNAPI void TLN_SetLogLevel(TLN_LogLevel log_level);
 TLNAPI bool TLN_OpenResourcePack(const char* filename, const char* key);
 TLNAPI void TLN_CloseResourcePack(void);
+TLNAPI int TLN_GetScanline();
 /**@}*/
 
 /**
@@ -493,6 +499,7 @@ TLNAPI int TLN_GetTileWidth (TLN_Tileset tileset);
 TLNAPI int TLN_GetTileHeight (TLN_Tileset tileset);
 TLNAPI int TLN_GetTilesetNumTiles(TLN_Tileset tileset);
 TLNAPI TLN_Palette TLN_GetTilesetPalette (TLN_Tileset tileset);
+TLNAPI bool TLN_SetTilesetPalette(TLN_Tileset tileset, TLN_Palette palette);
 TLNAPI TLN_SequencePack TLN_GetTilesetSequencePack (TLN_Tileset tileset);
 TLNAPI bool TLN_DeleteTileset (TLN_Tileset tileset);
 /**@}*/
@@ -515,6 +522,7 @@ TLNAPI bool TLN_SetTilemapTile (TLN_Tilemap tilemap, int row, int col, TLN_Tile 
 TLNAPI bool TLN_CopyTiles (TLN_Tilemap src, int srcrow, int srccol, int rows, int cols, TLN_Tilemap dst, int dstrow, int dstcol);
 TLNAPI TLN_Tile TLN_GetTilemapTiles(TLN_Tilemap tilemap, int row, int col);
 TLNAPI bool TLN_DeleteTilemap (TLN_Tilemap tilemap);
+TLNAPI int TLN_GetTilemapTileID(TLN_Tilemap tilemap, int row, int col);
 /**@}*/
 
 /**
@@ -572,6 +580,8 @@ TLNAPI bool TLN_SetLayerTilemap(int nlayer, TLN_Tilemap tilemap);
 TLNAPI bool TLN_SetLayerBitmap(int nlayer, TLN_Bitmap bitmap);
 TLNAPI bool TLN_SetLayerPalette (int nlayer, TLN_Palette palette);
 TLNAPI bool TLN_SetLayerPosition (int nlayer, int hstart, int vstart);
+TLNAPI int TLN_GetLayerPosX(int nlayer);
+TLNAPI int TLN_GetLayerPosY(int nlayer);
 TLNAPI bool TLN_SetLayerScaling (int nlayer, float xfactor, float yfactor);
 TLNAPI bool TLN_SetLayerAffineTransform (int nlayer, TLN_Affine *affine);
 TLNAPI bool TLN_SetLayerTransform (int layer, float angle, float dx, float dy, float sx, float sy);
@@ -610,7 +620,9 @@ TLNAPI bool TLN_SetSpriteSet (int nsprite, TLN_Spriteset spriteset);
 TLNAPI bool TLN_SetSpriteFlags (int nsprite, uint32_t flags);
 TLNAPI bool TLN_EnableSpriteFlag(int nsprite, uint32_t flag, bool enable);
 TLNAPI bool TLN_SetSpritePivot(int nsprite, float px, float py);
-TLNAPI bool TLN_SetSpritePosition (int nsprite, int x, int y);
+TLNAPI bool TLN_SetSpritePosition(int nsprite, int x, int y);
+TLNAPI int TLN_GetSpritePosX(int nsprite);
+TLNAPI int TLN_GetSpritePosY(int nsprite);
 TLNAPI bool TLN_SetSpritePicture (int nsprite, int entry);
 TLNAPI bool TLN_SetSpritePalette (int nsprite, TLN_Palette palette);
 TLNAPI bool TLN_SetSpriteBlendMode (int nsprite, TLN_Blend mode, uint8_t factor);

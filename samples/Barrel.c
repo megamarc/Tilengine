@@ -16,6 +16,7 @@
 #include <math.h>
 #include "Tilengine.h"
 #include "Simon.h"
+// #include "../src/sdl/SDL2/SDL.h"
 
 #define WIDTH	400
 #define HEIGHT	240
@@ -31,6 +32,10 @@
 #define lerp(x, x0,x1, fx0,fx1) \
 	(fx0) + ((fx1) - (fx0))*((x) - (x0))/((x1) - (x0))
 
+#define FPS	60
+
+const DELAY = 1000.0f/FPS;
+
 /* layers */
 enum
 {
@@ -45,6 +50,24 @@ TLN_Affine transform;
 int xpos, ypos;
 
 static void raster_callback (int line);
+
+// do a function that caps FPS to 60
+// if delta > 1000/60, then we return true
+// if delta < 1000/60, then we return false
+//
+// this is used to cap the FPS to 60
+static int cap_fps()
+{
+	static int last_time = 0;
+	int now = SDL_GetTicks();
+	static delta_time = now - last_time;
+	if (delta_time > 1000/60)
+	{
+		last_time = now;
+		return 1;
+	}
+	return 0;
+}
 
 /* entry point */
 int main (int argc, char *argv[])
@@ -81,21 +104,38 @@ int main (int argc, char *argv[])
 	
 	/* main loop */
 	TLN_CreateWindow (NULL, 0);
+
+	// We will cap the FPS to 60 for people having a screen with a refresh rate greater than 60Hz
+	float timeStart = 0.00;
+	float timeFinish = 0.00;
+	float delta = 0.00;
+
 	while (TLN_ProcessWindow ())
 	{
+		// Calculating the Delta
+		timeStart = TLN_GetTicks();
+		delta = timeStart - timeFinish;
 		ypos++;
 		SimonTasks ();
 
-		/* input */
+			/* input */
 		xpos = SimonGetPosition ();
 
-		/* scroll */
+			/* scroll */
 		TLN_SetLayerPosition (LAYER_BACKGROUND, xpos/2, -(ypos>>1));
 		TLN_SetLayerPosition (LAYER_FOREGROUND, xpos, 0);
 
-		/* render to window */
+			/* render to window */
 		TLN_DrawFrame (0);
+		timeFinish = TLN_GetTicks();
+
+		delta = timeFinish - timeStart;
+		// Capping FPS to 60
+		if(delta < DELAY)
+			TLN_Delay(DELAY - delta);
 	}
+		
+
 
 	/* deinit */
 	SimonDeinit ();

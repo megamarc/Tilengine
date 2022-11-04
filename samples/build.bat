@@ -2,7 +2,7 @@ rem Builds samples for Windows x64 using tiny c compiler (https://bellard.org/tc
 rem Not cross-platform, just fast builds for my own tests
 
 setlocal
-set flags=-I"../include" ../lib/x64/Tilengine.dll
+set flags=-I"../include" ../lib/x64/Tilengine.dll ../lib/x64/SDL2.dll
 
 tcc %flags% Barrel.c Simon.c -o barrel.exe
 tcc %flags% Mode7.c Sin.c -o mode7.exe

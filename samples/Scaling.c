@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "Tilengine.h"
+// #include "../src/sdl/SDL2/SDL_timer.h"
 
 #define WIDTH	400
 #define HEIGHT	240
@@ -10,6 +11,10 @@
 /* linear interploation */
 #define lerp(x, x0,x1, fx0,fx1) \
 	(fx0) + ((fx1) - (fx0))*((x) - (x0))/((x1) - (x0))
+
+#define FPS	60
+
+const DELAY = 1000.0f/FPS;
 	
 typedef struct
 {
@@ -61,8 +66,17 @@ int main (int argc, char* argv[])
 	
 	/* main loop */
 	TLN_CreateWindow (NULL, 0);
+
+	// We will cap the FPS to 60 for people having a screen with a refresh rate greater than 60Hz
+	float timeStart = 0.00;
+	float timeFinish = 0.00;
+	float delta = 0.00;
+
 	while (TLN_ProcessWindow ())
 	{
+
+		timeStart = TLN_GetTicks();
+		delta = timeStart - timeFinish;
 		float fgscale;
 		float bgscale;
 		int bgypos;
@@ -90,7 +104,7 @@ int main (int argc, char* argv[])
 		maxy = 640 - (240*100/scale);
 		if (ypos > maxy)
 			ypos = maxy;
-		
+			
 		/* update position */
 		bgypos = lerp(scale,MIN_SCALE,MAX_SCALE, 0,80);
 		TLN_SetLayerPosition (LAYER_FOREGROUND, xpos*2, ypos);
@@ -100,6 +114,13 @@ int main (int argc, char* argv[])
 
 		/* render to the window */
 		TLN_DrawFrame (0);
+		timeFinish = TLN_GetTicks();
+
+		delta = timeFinish - timeStart;
+		// Capping FPS to 60
+		if(delta < DELAY)
+			TLN_Delay(DELAY - delta);
+		
 	}
 
 	/* release resources */

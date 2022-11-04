@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "Tilengine.h"
+// #include "../src/sdl/SDL2/SDL_timer.h"
 
 #define WIDTH	400
 #define HEIGHT	240
@@ -77,37 +78,50 @@ int main (int argc, char* argv[])
 
 	/* main loop */
 	TLN_CreateWindow (NULL, 0);
+
+	// We will cap the FPS to 60 for people having a screen with a refresh rate greater than 60Hz
+	int timeStart = 0;
+	int timeFinish = 0;
+	float delta = 0.00;
+
 	while (TLN_ProcessWindow ())
 	{
-		if (xpos < max_xpos)
+		timeStart = TLN_GetTicks();
+		delta = timeStart - timeFinish;
+		if(delta > 1000 / 60.00) // Capping
 		{
-			xpos += speed;
-			if (xpos >= max_xpos)
+			if (xpos < max_xpos)
 			{
-				TLN_DisableSpriteAnimation (0);
-				TLN_SetSpritePicture (0, 0);
+				xpos += speed;
+				if (xpos >= max_xpos)
+				{
+					TLN_DisableSpriteAnimation (0);
+					TLN_SetSpritePicture (0, 0);
+				}
 			}
+				
+			/* sky gradient */
+			if (frame>=300 && frame<=900)
+			{
+				/* interpolate upper color */
+				sky_hi.r = lerp (frame, 300,900, sky[0].r, sky[2].r);
+				sky_hi.g = lerp (frame, 300,900, sky[0].g, sky[2].g);
+				sky_hi.b = lerp (frame, 300,900, sky[0].b, sky[2].b);
+
+				/* interpolate lower color */
+				sky_lo.r = lerp (frame, 300,900, sky[1].r, sky[3].r);
+				sky_lo.g = lerp (frame, 300,900, sky[1].g, sky[3].g);
+				sky_lo.b = lerp (frame, 300,900, sky[1].b, sky[3].b);
+			}
+
+			TLN_SetLayerPosition (LAYER_FOREGROUND, xpos, 0);
+
+			/* render to the window */
+			TLN_DrawFrame (frame);
+			frame++;
+			timeFinish = timeStart;
 		}
-			
-		/* sky gradient */
-		if (frame>=300 && frame<=900)
-		{
-			/* interpolate upper color */
-			sky_hi.r = lerp (frame, 300,900, sky[0].r, sky[2].r);
-			sky_hi.g = lerp (frame, 300,900, sky[0].g, sky[2].g);
-			sky_hi.b = lerp (frame, 300,900, sky[0].b, sky[2].b);
-
-			/* interpolate lower color */
-			sky_lo.r = lerp (frame, 300,900, sky[1].r, sky[3].r);
-			sky_lo.g = lerp (frame, 300,900, sky[1].g, sky[3].g);
-			sky_lo.b = lerp (frame, 300,900, sky[1].b, sky[3].b);
-		}
-
-		TLN_SetLayerPosition (LAYER_FOREGROUND, xpos, 0);
-
-		/* render to the window */
-		TLN_DrawFrame (frame);
-		frame++;
+		
 	}
 
 	/* release resources */

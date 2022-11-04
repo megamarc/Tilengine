@@ -19,6 +19,7 @@
 #include "Explosion.h"
 #include "Enemy.h"
 #include "Ship.h"
+// #include "../src/sdl/SDL2/SDL_timer.h"
 
 /* fixed point helper */
 typedef int fix_t;
@@ -30,6 +31,10 @@ typedef int fix_t;
 
 #define PAL_T0	120
 #define PAL_T1	1000
+
+#define FPS	60
+
+const DELAY = 1000.0f/FPS;
 
 /* linear interploation */
 static int lerp (int x, int x0, int x1, int fx0, int fx1)
@@ -143,9 +148,16 @@ int main (int argc, char *argv[])
 	/* startup display */
 	TLN_CreateWindow (NULL, 0);
 
+	// We will cap the FPS to 60 for people having a screen with a refresh rate greater than 60Hz
+	float timeStart = 0.00;
+	float timeFinish = 0.00;
+	float delta = 0.00;
+
 	/* main loop */
 	while (TLN_ProcessWindow ())
 	{
+		timeStart = TLN_GetTicks();
+		delta = timeStart - timeFinish;
 		/* timekeeper */
 		time = frame;
 
@@ -178,7 +190,7 @@ int main (int argc, char *argv[])
 		TLN_SetLayerPosition (LAYER_FOREGROUND, fix2int (pos_background[0]), 64);
 		TLN_SetLayerPalette (LAYER_FOREGROUND, palettes[LAYER_BACKGROUND]);
 		TLN_SetLayerPalette (LAYER_BACKGROUND, palettes[LAYER_FOREGROUND]);
-		
+			
 		if (time < 500)
 		{
 			if (rand()%30 == 1)
@@ -194,6 +206,14 @@ int main (int argc, char *argv[])
 		TLN_DrawFrame (time);
 
 		frame++;
+		timeFinish = timeStart;
+		timeFinish = TLN_GetTicks();
+
+		delta = timeFinish - timeStart;
+		// Capping FPS to 60
+		if(delta < DELAY)
+			TLN_Delay(DELAY - delta);
+		
 	}
 
 	/* deinit */

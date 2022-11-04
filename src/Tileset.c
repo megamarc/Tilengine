@@ -370,6 +370,18 @@ TLN_Palette TLN_GetTilesetPalette (TLN_Tileset tileset)
 		return NULL;
 }
 
+bool TLN_SetTilesetPalette(TLN_Tileset tileset, TLN_Palette palette)
+{
+	if (CheckBaseObject(tileset, OT_TILESET) && palette != NULL)
+	{
+		TLN_SetLastError(TLN_ERR_OK);
+		tileset->palette = palette;
+		return true;
+	}
+	else
+		return false;
+}
+
 /*!
  * \brief
  * Returns a reference to the optional sequence pack associated to the specified tileset

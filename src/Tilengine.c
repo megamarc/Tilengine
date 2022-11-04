@@ -821,3 +821,8 @@ void tln_trace(TLN_LogLevel log_level, const char* format, ...)
 		printf("Tilengine: %s\n", line);
 	}
 }
+
+int TLN_GetScanline()
+{
+	return engine->line;
+}
