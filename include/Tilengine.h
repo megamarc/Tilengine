@@ -60,7 +60,7 @@
 /* version */
 #define TILENGINE_VER_MAJ	2
 #define TILENGINE_VER_MIN	13
-#define TILENGINE_VER_REV	1
+#define TILENGINE_VER_REV	2
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -427,6 +427,7 @@ TLNAPI void TLN_SetCustomBlendFunction (TLN_BlendFunction);
 TLNAPI void TLN_SetLogLevel(TLN_LogLevel log_level);
 TLNAPI bool TLN_OpenResourcePack(const char* filename, const char* key);
 TLNAPI void TLN_CloseResourcePack(void);
+TLNAPI TLN_Palette TLN_GetGlobalPalette(int index);
 /**@}*/
 
 /**
@@ -596,8 +597,10 @@ TLNAPI TLN_Tilemap TLN_GetLayerTilemap(int nlayer);
 TLNAPI TLN_Bitmap TLN_GetLayerBitmap(int nlayer);
 TLNAPI TLN_ObjectList TLN_GetLayerObjects(int nlayer);
 TLNAPI bool TLN_GetLayerTile (int nlayer, int x, int y, TLN_TileInfo* info);
-TLNAPI int  TLN_GetLayerWidth (int nlayer);
-TLNAPI int  TLN_GetLayerHeight (int nlayer);
+TLNAPI int TLN_GetLayerWidth (int nlayer);
+TLNAPI int TLN_GetLayerHeight (int nlayer);
+TLNAPI int TLN_GetLayerX(int nlayer);
+TLNAPI int TLN_GetLayerY(int nlayer);
 
 /**@}*/
 
@@ -619,6 +622,8 @@ TLNAPI bool TLN_ResetSpriteScaling (int nsprite);
 //TLNAPI bool TLN_SetSpriteRotation (int nsprite, float angle);
 //TLNAPI bool TLN_ResetSpriteRotation (int nsprite);
 TLNAPI int  TLN_GetSpritePicture (int nsprite);
+TLNAPI int TLN_GetSpriteX(int nsprite);
+TLNAPI int TLN_GetSpriteY(int nsprite);
 TLNAPI int  TLN_GetAvailableSprite (void);
 TLNAPI bool TLN_EnableSpriteCollision (int nsprite, bool enable);
 TLNAPI bool TLN_GetSpriteCollision (int nsprite);

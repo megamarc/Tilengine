@@ -654,6 +654,7 @@ bool TLN_SetBGPalette (TLN_Palette palette)
  * \param index Palette index [0 - 7]
  * \param palette Reference of palette to set, or NULL to disable it
  * \returns true if success, or false if error
+ * \see TLN_GetGlobalPalette()
  */
 bool TLN_SetGlobalPalette(int index, TLN_Palette palette)
 {
@@ -669,6 +670,24 @@ bool TLN_SetGlobalPalette(int index, TLN_Palette palette)
 	engine->palettes[index] = palette;
 	TLN_SetLastError(TLN_ERR_OK);
 	return true;
+}
+
+/*
+* \brief Returns one of the eight global palettes
+* \param index Index of global palette to query [0 - 7]
+* \returns TLN_Palette reference or NULL if not set 
+* \see TLN_SetGlobalPalette
+*/
+TLN_Palette TLN_GetGlobalPalette(int index)
+{
+	if (index < 0 || index > NUM_PALETTES - 1)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_PALETTE);
+		return false;
+	}
+
+	TLN_SetLastError(TLN_ERR_OK);
+	return engine->palettes[index];
 }
 
 /*!

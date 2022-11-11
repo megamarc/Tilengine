@@ -276,6 +276,42 @@ TLN_Palette TLN_GetSpritePalette (int nsprite)
 	return engine->sprites[nsprite].palette;
 }
 
+/* 
+* \brief returns sprite's horizontal position 
+* \param nsprite Sprite index to query
+* \returns x position
+* \see TLN_SetSpritePosition()
+*/
+int TLN_GetSpriteX(int nsprite)
+{
+	if (nsprite >= engine->numsprites)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
+		return NULL;
+	}
+
+	TLN_SetLastError(TLN_ERR_OK);
+	return engine->sprites[nsprite].x;
+}
+
+/*
+* \brief returns sprite's vertical position
+* \param nsprite Sprite index to query
+* \returns y position
+* \see TLN_SetSpritePosition()
+*/
+int TLN_GetSpriteY(int nsprite)
+{
+	if (nsprite >= engine->numsprites)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
+		return NULL;
+	}
+
+	TLN_SetLastError(TLN_ERR_OK);
+	return engine->sprites[nsprite].y;
+}
+
 /*!
  * \brief
  * Sets the blending mode (transparency effect)

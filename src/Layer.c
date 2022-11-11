@@ -574,6 +574,42 @@ bool TLN_SetLayerPosition (int nlayer, int hstart, int vstart)
 	return true;
 }
 
+/*
+* \brief returns layer's horizontal position
+* \param nlayer Layer index to query
+* \returns x position
+* \see TLN_SetLayerPosition()
+*/
+int TLN_GetLayerX(int nlayer)
+{
+	if (nlayer >= engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_LAYER);
+		return NULL;
+	}
+
+	TLN_SetLastError(TLN_ERR_OK);
+	return engine->layers[nlayer].hstart;
+}
+
+/*
+* \brief returns layer's vertical position
+* \param nlayer Layer index to query
+* \returns y position
+* \see TLN_SetLayerPosition()
+*/
+int TLN_GetLayerY(int nlayer)
+{
+	if (nlayer >= engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_LAYER);
+		return NULL;
+	}
+
+	TLN_SetLastError(TLN_ERR_OK);
+	return engine->layers[nlayer].vstart;
+}
+
 /*!
  * \brief
  * Gets info about the tile located in tilemap space
