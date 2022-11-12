@@ -287,7 +287,7 @@ int TLN_GetSpriteX(int nsprite)
 	if (nsprite >= engine->numsprites)
 	{
 		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
-		return NULL;
+		return 0;
 	}
 
 	TLN_SetLastError(TLN_ERR_OK);
@@ -305,7 +305,7 @@ int TLN_GetSpriteY(int nsprite)
 	if (nsprite >= engine->numsprites)
 	{
 		TLN_SetLastError(TLN_ERR_IDX_SPRITE);
-		return NULL;
+		return 0;
 	}
 
 	TLN_SetLastError(TLN_ERR_OK);

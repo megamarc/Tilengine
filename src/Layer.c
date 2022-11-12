@@ -585,7 +585,7 @@ int TLN_GetLayerX(int nlayer)
 	if (nlayer >= engine->numlayers)
 	{
 		TLN_SetLastError(TLN_ERR_IDX_LAYER);
-		return NULL;
+		return 0;
 	}
 
 	TLN_SetLastError(TLN_ERR_OK);
@@ -603,7 +603,7 @@ int TLN_GetLayerY(int nlayer)
 	if (nlayer >= engine->numlayers)
 	{
 		TLN_SetLastError(TLN_ERR_IDX_LAYER);
-		return NULL;
+		return 0;
 	}
 
 	TLN_SetLastError(TLN_ERR_OK);
