@@ -75,9 +75,9 @@ Path | Files
 ### Debian-based linux
 Just install standard packages `libpng-dev` and `libsdl2-dev`
 
-### Apple OSX
-SDL2 development libraries for OSX can be download here:
-https://www.libsdl.org/download-2.0.php
+### MacOS
+
+Tilengine depends on having SDL2 in Framework format installed on your system. Homebrew port won't work. Download the latest dmg here: https://github.com/libsdl-org/SDL/releases.
 
 # Running the samples
 
