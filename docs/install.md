@@ -14,7 +14,7 @@ install
 ## Debian-based linux and OSX
 
 ```
-./sudo install
+sudo ./install
 ```
 
 **Note for MacOS users**: Tilengine depends on having SDL2 in Framework format installed on your system. Homebrew port won't work. Download the latest dmg here: https://github.com/libsdl-org/SDL/releases.
