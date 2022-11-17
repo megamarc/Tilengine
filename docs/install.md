@@ -17,13 +17,13 @@ install
 ./sudo install
 ```
 
-**Note for OS X users**: Tilengine depends on having SDL2 in Framework format installed on your system, that by default is not installed. Please download it here: https://www.libsdl.org/release/SDL2-2.0.5.dmg. Homebrew port won't work, use the official DMG file instead.
+**Note for MacOS users**: Tilengine depends on having SDL2 in Framework format installed on your system. Homebrew port won't work. Download the latest dmg here: https://github.com/libsdl-org/SDL/releases.
 
 ## Running the samples
 C samples are located in `Tilengine/samples` folder. To build them you need the gcc compiler suite, and/or Visual C++ in windows.
 * **Linux**: the GCC compiler suite is already installed by default
 * **Windows**: you must install [MinGW](http://www.mingw.org/) or [Visual Studio Community](https://www.visualstudio.com/vs/community/)
-* **Apple OS X**: You must install [Command-line tools for Xcode](https://developer.apple.com/xcode/). An Apple ID account is required.
+* **Apple MacOS**: You must install [Command-line tools for Xcode](https://developer.apple.com/xcode/). An Apple ID account is required.
 
 Once installed, open a console window in the C samples folder and type the suitable command depending on your platform:
 
@@ -31,7 +31,7 @@ Once installed, open a console window in the C samples folder and type the suita
 ```
 mingw32-make
 ```
-### Unix-like (Linux, Raspberry Pi, Apple OS X)
+### Unix-like (Linux, Raspberry Pi, MacOS)
 ```
 make
 ```
