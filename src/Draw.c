@@ -243,6 +243,7 @@ static bool DrawLayerScanline(int nlayer, int nscan)
 {
 	const Layer *layer = &engine->layers[nlayer];
 	bool priority = false;
+	Tilescan scan = { 0 };
 
 	/* mosaic effect */
 	uint32_t *dstpixel;
@@ -264,7 +265,6 @@ static bool DrawLayerScanline(int nlayer, int nscan)
 	int xpos = (layer->hstart + x) % layer->width;
 	int xtile = xpos >> tileset->hshift;
 
-	Tilescan scan = { 0 };
 	scan.width = scan.height = scan.stride = tileset->width;
 	scan.srcx = xpos & tileset->hmask;
 
@@ -346,6 +346,7 @@ static bool DrawLayerScanlineScaling(int nlayer, int nscan)
 {
 	const Layer *layer = &engine->layers[nlayer];
 	bool priority = false;
+	Tilescan scan = { 0 };
 
 	/* mosaic effect */
 	uint32_t *dstpixel;
@@ -367,7 +368,6 @@ static bool DrawLayerScanlineScaling(int nlayer, int nscan)
 	int xpos = (layer->hstart + fix2int(x*layer->dx)) % layer->width;
 	int xtile = xpos >> tileset->hshift;
 
-	Tilescan scan = { 0 };
 	scan.width = scan.height = scan.stride = tileset->width;
 	scan.srcx = xpos & tileset->hmask;
 
@@ -460,6 +460,7 @@ static bool DrawLayerScanlineAffine(int nlayer, int nscan)
 {
 	const Layer *layer = &engine->layers[nlayer];
 	bool priority = false;
+	Tilescan scan = { 0 };
 
 	/* mosaic effect */
 	uint32_t *dstpixel;
@@ -500,7 +501,6 @@ static bool DrawLayerScanlineAffine(int nlayer, int nscan)
 	int dx = (x2 - x1) / width;
 	int dy = (y2 - y1) / width;
 
-	Tilescan scan = { 0 };
 	scan.width = scan.height = scan.stride = tileset->width;
 
 	while (x < width)
@@ -550,6 +550,7 @@ static bool DrawLayerScanlinePixelMapping(int nlayer, int nscan)
 {
 	const Layer *layer = &engine->layers[nlayer];
 	bool priority = false;
+	Tilescan scan = { 0 };
 
 	/* mosaic effect */
 	uint32_t *dstpixel;
@@ -577,7 +578,6 @@ static bool DrawLayerScanlinePixelMapping(int nlayer, int nscan)
 	const int vstart = layer->vstart + layer->height;
 	TLN_PixelMap* pixel_map = &layer->pixel_map[nscan*engine->framebuffer.width + x];
 
-	Tilescan scan = { 0 };
 	scan.width = scan.height = scan.stride = tileset->width;
 
 	while (x < width)

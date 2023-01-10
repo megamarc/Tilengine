@@ -845,8 +845,14 @@ static void BeginWindowFrame (void)
 	TLN_SetRenderTarget (rt_pixels, rt_pitch);
 }
 
-static void EndWindowFrame (void)
+static void EndWindowFrame(void)
 {
+	if (wnd_params.flags & CWF_FULLSCREEN)
+	{
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+		SDL_RenderClear(renderer);
+	}
+
 	if (crt_params.enable && crt != NULL)
 		CRTDraw(crt, rt_pixels, rt_pitch, &dstrect);
 
