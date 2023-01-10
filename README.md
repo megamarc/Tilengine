@@ -24,7 +24,7 @@ http://www.tilengine.org
 - [Creating your first program](#creating-your-first-program)
   - [Windows](#windows-2)
   - [Linux](#linux)
-  - [Apple OS X](#apple-os-x)
+  - [MacOS](#apple-os-x)
 - [Documentation](#documentation)
 - [Editing assets](#editing-assets)
 - [Creating packages](#creating-packages)
@@ -34,7 +34,7 @@ http://www.tilengine.org
 # Features
 * Written in portable C (C99)
 * MPL 2.0 license: free for any project, including commercial ones, allows console development
-* Cross platform: available builds for Windows (32/64), Linux PC(32/64), Mac OS X and Raspberry Pi
+* Cross platform: available builds for Windows (32/64), Linux PC(32/64), MacOS and Raspberry Pi
 * High performance: all samples run at 60 fps with CRT emulation enabled on a Raspberry Pi 3
 * Streamlined, easy to learn API that requires very little lines of code
 * Built-in SDL-based windowing for quick tests
@@ -75,16 +75,16 @@ Path | Files
 ### Debian-based linux
 Just install standard packages `libpng-dev` and `libsdl2-dev`
 
-### Apple OSX
-SDL2 development libraries for OSX can be download here:
-https://www.libsdl.org/download-2.0.php
+### MacOS
+
+Tilengine depends on having SDL2 in Framework format installed on your system. Homebrew port won't work. Download the latest dmg here: https://github.com/libsdl-org/SDL/releases.
 
 # Running the samples
 
 C samples are located in `Tilengine/samples` folder. To build them you need the gcc compiler suite, and/or Visual C++ in windows.
 * **Linux**: the GCC compiler suite is already installed by default
 * **Windows**: you must install [MinGW](http://www.mingw.org/) or [Visual Studio Community](https://www.visualstudio.com/vs/community/)
-* **Apple OS X**: You must install [Command-line tools for Xcode](https://developer.apple.com/xcode/). An Apple ID account is required.
+* **MacOS**: You must install [Command-line tools for Xcode](https://developer.apple.com/xcode/). An Apple ID account is required.
 
 Once installed, open a console window in the C samples folder and type the suitable command depending on your platform:
 
@@ -150,7 +150,7 @@ Now the program must be built to produce an executable. Open a console window in
 > ./test
 ```
 
-## Apple OS X
+## MacOS
 ```
 > gcc test.c -o test "/usr/local/lib/Tilengine.dylib" -lm
 > ./test
