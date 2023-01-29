@@ -36,7 +36,7 @@ typedef struct Sprite
 	uint8_t*		pixels;
 	int				pitch;
 	int				num;
-	int				index;
+	int				index;			/* spriteset picture index */
 	int				x,y;			/* screen space location (TLN_SetSpritePosition) */
 	int				dx,dy;
 	int				xworld, yworld;	/* world space location (TLN_SetSpriteWorldPosition) */

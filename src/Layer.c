@@ -1025,18 +1025,17 @@ bool TLN_ResetLayerMode (int nlayer)
  */
 bool TLN_SetLayerClip (int nlayer, int x1, int y1, int x2, int y2)
 {
-	Layer *layer;
 	if (nlayer >= engine->numlayers)
 	{
 		TLN_SetLastError (TLN_ERR_IDX_LAYER);
 		return false;
 	}
 	
-	layer = &engine->layers[nlayer];
-	layer->clip.x1 = x1 >= 0 && x1 <= engine->framebuffer.width? x1 : 0;
-	layer->clip.x2 = x2 >= 0 && x2 <= engine->framebuffer.width? x2 : engine->framebuffer.width;
-	layer->clip.y1 = y1 >= 0 && y1 <= engine->framebuffer.height? y1 : 0;
-	layer->clip.y2 = y2 >= 0 && y2 <= engine->framebuffer.height? y2 : engine->framebuffer.height;
+	LayerWindow* window = &engine->layers[nlayer].window;
+	window->x1 = x1 >= 0 && x1 <= engine->framebuffer.width? x1 : 0;
+	window->x2 = x2 >= 0 && x2 <= engine->framebuffer.width? x2 : engine->framebuffer.width;
+	window->y1 = y1 >= 0 && y1 <= engine->framebuffer.height? y1 : 0;
+	window->y2 = y2 >= 0 && y2 <= engine->framebuffer.height? y2 : engine->framebuffer.height;
 	TLN_SetLastError (TLN_ERR_OK);
 	return true;
 }
@@ -1053,18 +1052,17 @@ bool TLN_SetLayerClip (int nlayer, int x1, int y1, int x2, int y2)
  */
 bool TLN_DisableLayerClip (int nlayer)
 {
-	Layer *layer;
 	if (nlayer >= engine->numlayers)
 	{
 		TLN_SetLastError (TLN_ERR_IDX_LAYER);
 		return false;
 	}
 	
-	layer = &engine->layers[nlayer];
-	layer->clip.x1 = 0;
-	layer->clip.x2 = engine->framebuffer.width;
-	layer->clip.y1 = 0;
-	layer->clip.y2 = engine->framebuffer.height;
+	LayerWindow* window = &engine->layers[nlayer].window;
+	window->x1 = 0;
+	window->x2 = engine->framebuffer.width;
+	window->y1 = 0;
+	window->y2 = engine->framebuffer.height;
 	TLN_SetLastError (TLN_ERR_OK);
 	return true;
 }
@@ -1130,15 +1128,6 @@ bool TLN_DisableLayerMosaic (int nlayer)
 Layer* GetLayer(int index)
 {
 	return &engine->layers[index];
-}
-
-/* updates layer from world position, accounting offset and parallax */
-void UpdateLayer(int nlayer)
-{
-	Layer* layer = GetLayer(nlayer);
-	const int lx = (int)(engine->xworld*layer->world.xfactor) - layer->world.offsetx;
-	const int ly = (int)(engine->yworld*layer->world.yfactor) - layer->world.offsety;
-	TLN_SetLayerPosition(nlayer, lx, ly);
 }
 
 static void SetBlitter (Layer* layer)

@@ -16,6 +16,15 @@
 #include "Blitters.h"
 #include "Math2D.h"
 
+typedef struct
+{
+	int x1, y1, x2, y2;	/* clip region */
+	bool invert;		/* false=clip outside, true=clip inside */
+	uint8_t* blend;		/* optional solid color blend function */
+	uint32_t color;		/* color for optional blend function */
+}
+LayerWindow;
+
 /* capa */
 typedef struct Layer
 {
@@ -47,18 +56,14 @@ typedef struct Layer
 		float xfactor, yfactor;
 	}
 	world;
-	bool dirty;					/* requires UpdateLayer() before draw */
+	bool dirty;					/* requires update before draw */
 	
 	/* */
 	int				hstart;		/* horizontal start offset */
 	int				vstart;		/* vertical start offset*/
 
 	/* clip */
-	struct
-	{
-		int x1, y1, x2, y2;
-	}
-	clip;
+	LayerWindow window;
 
 	/* mosaic */
 	struct
@@ -71,6 +76,5 @@ typedef struct Layer
 Layer;
 
 Layer* GetLayer(int index);
-void UpdateLayer(int nlayer);
 
 #endif

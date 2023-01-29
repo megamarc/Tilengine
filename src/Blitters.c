@@ -191,6 +191,21 @@ void BlitColor(void* dstptr, uint32_t color, int width)
 	}
 }
 
+/* solid color blit for layer clipping */
+void BlitColorBlend(void* dstptr, uint32_t color, int width, uint8_t* blend)
+{
+	uint8_t* src = (uint8_t*)&color;
+	uint8_t* dst = (uint8_t*)dstptr;
+	while (width)
+	{
+		dst[0] = blendfunc(blend, src[0], dst[0]);
+		dst[1] = blendfunc(blend, src[1], dst[1]);
+		dst[2] = blendfunc(blend, src[2], dst[2]);
+		dst += sizeof(uint32_t);
+		width--;
+	}
+}
+
 /* perfoms direct 32 -> 32 bpp blit with opcional blend */
 void Blit32_32(uint32_t *src, uint32_t* dst, int width, uint8_t* blend)
 {

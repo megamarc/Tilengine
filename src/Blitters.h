@@ -33,6 +33,9 @@ extern "C" {
 	/* performs mosaic blit */
 	void BlitMosaic(uint32_t *src, uint32_t* dst, int width, int size, uint8_t* blend);
 
+	/* solid color blit for layer clipping */
+	void BlitColorBlend(void* dstptr, uint32_t color, int width, uint8_t* blend);
+
 #ifdef __cplusplus
 }
 #endif
