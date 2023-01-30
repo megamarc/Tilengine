@@ -99,14 +99,14 @@ static bool draw_background_scanline(int nlayer, int line)
 		if (inside)
 		{
 			priority |= layer->draw(nlayer, scan, line, window->x1, window->x2);
-			if (window->blend != NULL)
+			if (window->color != 0)
 			{
-				BlitColorBlend(scan, window->color, window->x1, window->blend);
-				BlitColorBlend(scan + window->x2, window->color, framewidth - window->x2, window->blend);
+				BlitColor(scan, window->color, window->x1, window->blend);
+				BlitColor(scan + window->x2, window->color, framewidth - window->x2, window->blend);
 			}
 		}
-		else if (window->blend != NULL)
-			BlitColorBlend(scan, window->color, framewidth, window->blend);
+		else if (window->color != 0)
+			BlitColor(scan, window->color, framewidth, window->blend);
 	}
 
 	/* inverted: draw outside, color inside */
@@ -116,8 +116,8 @@ static bool draw_background_scanline(int nlayer, int line)
 		{
 			priority |= layer->draw(nlayer, scan, line, 0, layer->window.x1);
 			priority |= layer->draw(nlayer, scan, line, layer->window.x2, framewidth);
-			if (window->blend != NULL)
-				BlitColorBlend(scan + window->x1, window->color, window->x2 - window->x1, window->blend);
+			if (window->color != 0)
+				BlitColor(scan + window->x1, window->color, window->x2 - window->x1, window->blend);
 		}
 		else
 			priority |= layer->draw(nlayer, scan, line, 0, framewidth);
@@ -159,7 +159,7 @@ bool DrawScanline(void)
 
 	/* background is solid color */
 	else if (engine->bgcolor)
-		BlitColor(scan, engine->bgcolor, size);
+		BlitColor(scan, engine->bgcolor, size, NULL);
 
 	/* draw regular background layers */
 	if (engine->numlayers > 0)
@@ -470,7 +470,8 @@ static bool DrawTiledScanlineScaling(int nlayer, uint32_t* dstpixel, int nscan, 
 			/* process flip flags */
 			scan.dx = dx;
 			if ((tile->flags & (FLAG_FLIPX + FLAG_FLIPY)) != 0)
-				process_flip(tile->flags, &scan);
+				//process_flip(tile->flags, &scan);
+				process_flip_rotation(tile->flags, &scan);
 
 			/* paint tile scanline */
 			uint8_t* srcpixel = &GetTilesetPixel(tileset, tile_index, scan.srcx, scan.srcy);
@@ -523,6 +524,7 @@ static bool DrawTiledScanlineAffine(int nlayer, uint32_t* dstpixel, int nscan, i
 	const int dy = (y2 - y1) / twidth;
 
 	scan.width = scan.height = scan.stride = tileset->width;
+	dstpixel += tx1;
 
 	while (tx1 < tx2)
 	{
@@ -569,6 +571,7 @@ static bool DrawTiledScanlinePixelMapping(int nlayer, uint32_t* dstpixel, int ns
 
 	/* target lines */
 	int x = tx1;
+	dstpixel += x;
 
 	const TLN_Tilemap tilemap = layer->tilemap;
 	const TLN_Tileset tileset = tilemap->tilesets[0];
@@ -863,6 +866,7 @@ static bool DrawBitmapScanlinePixelMapping(int nlayer, uint32_t* dstpixel, int n
 
 	/* target lines */
 	int x = tx1;
+	dstpixel += x;
 
 	const int hstart = layer->hstart + layer->width;
 	const int vstart = layer->vstart + layer->height;

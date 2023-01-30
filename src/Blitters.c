@@ -181,28 +181,32 @@ ScanBlitPtr SelectBlitter (bool key, bool scaling, bool blend)
 }
 
 /* paints constant color */
-void BlitColor(void* dstptr, uint32_t color, int width)
+void BlitColor(void* dstptr, uint32_t color, int width, uint8_t* blend)
 {
-	uint32_t* dstpixel = (uint32_t*)dstptr;
-	while (width)
+	/* blend */
+	if (blend != NULL)
 	{
-		*dstpixel++ = color;
-		width--;
+		uint8_t* src = (uint8_t*)&color;
+		uint8_t* dst = (uint8_t*)dstptr;
+		while (width)
+		{
+			dst[0] = blendfunc(blend, src[0], dst[0]);
+			dst[1] = blendfunc(blend, src[1], dst[1]);
+			dst[2] = blendfunc(blend, src[2], dst[2]);
+			dst += sizeof(uint32_t);
+			width--;
+		}
 	}
-}
 
-/* solid color blit for layer clipping */
-void BlitColorBlend(void* dstptr, uint32_t color, int width, uint8_t* blend)
-{
-	uint8_t* src = (uint8_t*)&color;
-	uint8_t* dst = (uint8_t*)dstptr;
-	while (width)
+	/* regular*/
+	else
 	{
-		dst[0] = blendfunc(blend, src[0], dst[0]);
-		dst[1] = blendfunc(blend, src[1], dst[1]);
-		dst[2] = blendfunc(blend, src[2], dst[2]);
-		dst += sizeof(uint32_t);
-		width--;
+		uint32_t* dstpixel = (uint32_t*)dstptr;
+		while (width)
+		{
+			*dstpixel++ = color;
+			width--;
+		}
 	}
 }
 

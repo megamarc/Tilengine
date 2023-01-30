@@ -1068,6 +1068,82 @@ bool TLN_DisableLayerClip (int nlayer)
 }
 
 /*!
+ * \brief Enables clipping window on selected layer
+ *
+ * \param nlayer Layer index [0, num_layers - 1]
+ * \param x1 left coordinate
+ * \param y1 top coordinate
+ * \param x2 right coordinate
+ * \param y2 bottom coordinate
+ * \param invert false=clip outer region, true=clip inner region
+ *
+ * \see TLN_SetLayerWindowColor(), TLN_DisableLayerWindow()
+ */
+bool TLN_SetLayerWindow(int nlayer, int x1, int y1, int x2, int y2, bool invert)
+{
+	if (nlayer >= engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_LAYER);
+		return false;
+	}
+
+	LayerWindow* window = &engine->layers[nlayer].window;
+	window->x1 = x1 >= 0 && x1 <= engine->framebuffer.width ? x1 : 0;
+	window->x2 = x2 >= 0 && x2 <= engine->framebuffer.width ? x2 : engine->framebuffer.width;
+	window->y1 = y1 >= 0 && y1 <= engine->framebuffer.height ? y1 : 0;
+	window->y2 = y2 >= 0 && y2 <= engine->framebuffer.height ? y2 : engine->framebuffer.height;
+	window->invert = invert;
+	TLN_SetLastError(TLN_ERR_OK);
+	return true;
+}
+
+bool TLN_SetLayerWindowColor(int nlayer, uint8_t r, uint8_t g, uint8_t b, TLN_Blend blend)
+{
+	if (nlayer >= engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_LAYER);
+		return false;
+	}
+
+	LayerWindow* window = &engine->layers[nlayer].window;
+	window->color = PackRGB32(r, g, b);
+	window->blend = SelectBlendTable(blend);
+	TLN_SetLastError(TLN_ERR_OK);
+	return true;
+}
+
+bool TLN_DisableLayerWindow(int nlayer)
+{
+	if (nlayer >= engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_LAYER);
+		return false;
+	}
+
+	LayerWindow* window = &engine->layers[nlayer].window;
+	window->x1 = 0;
+	window->x2 = engine->framebuffer.width;
+	window->y1 = 0;
+	window->y2 = engine->framebuffer.height;
+	TLN_SetLastError(TLN_ERR_OK);
+	return true;
+}
+
+bool TLN_DisableLayerWindowColor(int nlayer)
+{
+	if (nlayer >= engine->numlayers)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_LAYER);
+		return false;
+	}
+
+	LayerWindow* window = &engine->layers[nlayer].window;
+	window->color = 0;
+	window->blend = NULL;
+	return true;
+}
+
+/*!
  * \brief
  * Enables mosaic effect (pixelation) for selected layer
  *
