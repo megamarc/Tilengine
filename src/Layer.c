@@ -1125,6 +1125,7 @@ bool TLN_DisableLayerWindow(int nlayer)
 	window->x2 = engine->framebuffer.width;
 	window->y1 = 0;
 	window->y2 = engine->framebuffer.height;
+	window->invert = false;
 	TLN_SetLastError(TLN_ERR_OK);
 	return true;
 }

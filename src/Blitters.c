@@ -247,7 +247,7 @@ void Blit32_32(uint32_t *src, uint32_t* dst, int width, uint8_t* blend)
 	}
 }
 
-/* performs mosaic effect with opcional blend */
+/* performs mosaic effect with optional blend */
 void BlitMosaic(uint32_t *src, uint32_t* dst, int width, int size, uint8_t* blend)
 {
 	Color* srcpixel = (Color*)src;
@@ -263,12 +263,19 @@ void BlitMosaic(uint32_t *src, uint32_t* dst, int width, int size, uint8_t* blen
 
 			if (srcpixel->a != 0)
 			{
-				dstpixel->r = blendfunc(blend, srcpixel->r, dstpixel->r);
-				dstpixel->g = blendfunc(blend, srcpixel->g, dstpixel->g);
-				dstpixel->b = blendfunc(blend, srcpixel->b, dstpixel->b);
+				int block = size;
+				while (block != 0)
+				{
+					dstpixel->r = blendfunc(blend, srcpixel->r, dstpixel->r);
+					dstpixel->g = blendfunc(blend, srcpixel->g, dstpixel->g);
+					dstpixel->b = blendfunc(blend, srcpixel->b, dstpixel->b);
+					dstpixel += 1;
+					block -= 1;
+				}
 			}
-			srcpixel += 1;
-			dstpixel += 1;
+			else
+				dstpixel += size;
+			srcpixel += size;
 			width -= size;
 		}
 	}
@@ -282,10 +289,18 @@ void BlitMosaic(uint32_t *src, uint32_t* dst, int width, int size, uint8_t* blen
 				size = width;
 
 			if (srcpixel->a != 0)
-				dstpixel->value = srcpixel->value;
-
-			srcpixel += 1;
-			dstpixel += 1;
+			{
+				int block = size;
+				while (block != 0)
+				{
+					dstpixel->value = srcpixel->value;
+					dstpixel += 1;
+					block -= 1;
+				}
+			}
+			else
+				dstpixel += size;
+			srcpixel += size;
 			width -= size;
 		}
 	}

@@ -43,7 +43,7 @@ static uint32_t* begin_mosaic(const Layer* layer, int nscan)
 	{
 		dstpixel = layer->mosaic.buffer;
 		if (nscan % layer->mosaic.h == 0)
-			memset(dstpixel, 0, engine->framebuffer.width);
+			memset(dstpixel, 0, engine->framebuffer.pitch);
 		else
 			return NULL;
 	}
@@ -61,7 +61,7 @@ static uint32_t* begin_mosaic32(const Layer* layer, int nscan)
 	{
 		dstpixel = layer->mosaic.buffer;
 		if (nscan % layer->mosaic.h == 0)
-			memset(dstpixel, 0, engine->framebuffer.width);
+			memset(dstpixel, 0, engine->framebuffer.pitch);
 		else
 			return NULL;
 	}
@@ -83,6 +83,7 @@ static bool draw_background_scanline(int nlayer, int line)
 	uint32_t* scan = NULL;
 	const bool inside = line >= window->y1 && line <= window->y2;
 	const int framewidth = engine->framebuffer.width;
+	const int windowwidth = layer->window.x2 - layer->window.x1;
 	bool priority = false;
 
 	/* begin mosaic */
@@ -90,37 +91,25 @@ static bool draw_background_scanline(int nlayer, int line)
 		scan = begin_mosaic(layer, line);
 	else
 		scan = begin_mosaic32(layer, line);
-	if (scan == NULL)
-		return false;
-
-	/* regular: draw inside, color outside */
-	if (!window->invert)
+	
+	/* regular region */
+	if (scan != NULL)
 	{
-		if (inside)
+		if (!window->invert)
 		{
-			priority |= layer->draw(nlayer, scan, line, window->x1, window->x2);
-			if (window->color != 0)
-			{
-				BlitColor(scan, window->color, window->x1, window->blend);
-				BlitColor(scan + window->x2, window->color, framewidth - window->x2, window->blend);
-			}
-		}
-		else if (window->color != 0)
-			BlitColor(scan, window->color, framewidth, window->blend);
-	}
-
-	/* inverted: draw outside, color inside */
-	else
-	{
-		if (inside)
-		{
-			priority |= layer->draw(nlayer, scan, line, 0, layer->window.x1);
-			priority |= layer->draw(nlayer, scan, line, layer->window.x2, framewidth);
-			if (window->color != 0)
-				BlitColor(scan + window->x1, window->color, window->x2 - window->x1, window->blend);
+			if (inside)
+				priority |= layer->draw(nlayer, scan, line, window->x1, window->x2);
 		}
 		else
-			priority |= layer->draw(nlayer, scan, line, 0, framewidth);
+		{
+			if (inside)
+			{
+				priority |= layer->draw(nlayer, scan, line, 0, layer->window.x1);
+				priority |= layer->draw(nlayer, scan, line, layer->window.x2, framewidth);
+			}
+			else
+				priority |= layer->draw(nlayer, scan, line, 0, framewidth);
+		}
 	}
 
 	scan = GetFramebufferLine(line);
@@ -128,6 +117,23 @@ static bool draw_background_scanline(int nlayer, int line)
 		BlitMosaic(mosaic, scan, engine->framebuffer.width, layer->mosaic.w, layer->blend);
 	else if (layer->mode >= MODE_TRANSFORM)
 		Blit32_32(engine->linebuffer, scan, engine->framebuffer.width, layer->blend);
+
+	/* clipped region */
+	if (window->color != 0)
+	{
+		if (!window->invert)
+		{
+			if (inside)
+			{
+				BlitColor(scan, window->color, window->x1, window->blend);
+				BlitColor(scan + window->x2, window->color, framewidth - window->x2, window->blend);
+			}
+			else
+				BlitColor(scan, window->color, framewidth, window->blend);
+		}
+		else if (inside)
+			BlitColor(scan + window->x1, window->color, windowwidth, window->blend);
+	}
 
 	return priority;
 }

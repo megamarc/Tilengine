@@ -3,23 +3,30 @@
 #define WIDTH	398
 #define HEIGHT	224
 
-typedef enum
+enum
 {
 	MODE_BASIC,
 	MODE_SCALING,
 	MODE_AFFINE,
 	MODE_PIXELMAP,
 	MAX_MODE
-}
-Mode;
+};
+
+enum
+{
+	WINDOW_NONE,
+	WINDOW_CLIP,
+	WINDOW_COLOR,
+	WINDOW_BLEND,
+};
 
 /* mode */
 typedef union
 {
 	struct
 	{
+		uint8_t window : 2;
 		bool invert : 1;
-		bool blend : 1;
 		bool mosaic : 1;
 		uint8_t mode : 2;
 	};
@@ -27,21 +34,36 @@ typedef union
 }
 State;
 
-TLN_PixelMap pixelmap[WIDTH * HEIGHT];
+TLN_PixelMap pixelmap[HEIGHT][WIDTH] = { 0 };
 
 /* set draw state */
 static void set_state(State state)
 {
 	char* mode_names[] = { "basic", "scaling", "affine", "pixel" };
+	char* window_names[] = { "no_window", "clip", "color", "blend" };
 
-	/* window invert */
-	TLN_SetLayerWindow(0, 30, 30, WIDTH - 30, HEIGHT - 30, state.invert);
-
-	/* window color mode */
-	if (state.blend)
-		TLN_SetLayerWindowColor(0, 0, 128, 0, BLEND_ADD);
-	else
+	/* window type */
+	switch (state.window)
+	{
+	case WINDOW_NONE:
+		TLN_DisableLayerWindow(0);
 		TLN_DisableLayerWindowColor(0);
+		break;
+
+	case WINDOW_CLIP:
+		TLN_DisableLayerWindowColor(0);
+		TLN_SetLayerWindow(0, 32, 32, WIDTH - 32, HEIGHT - 32, state.invert);
+		break;
+
+	case WINDOW_COLOR:
+		TLN_SetLayerWindowColor(0, 0, 128, 0, BLEND_NONE);
+		break;
+
+	case WINDOW_BLEND:
+		TLN_SetLayerWindow(0, 32, 32, WIDTH - 32, HEIGHT - 32, state.invert);
+		TLN_SetLayerWindowColor(0, 0, 128, 0, BLEND_ADD);
+		break;
+	}
 
 	/* mosaic */
 	if (state.mosaic)
@@ -65,15 +87,13 @@ static void set_state(State state)
 		break;
 
 	case MODE_PIXELMAP:
-		TLN_SetLayerPixelMapping(0, pixelmap);
+		TLN_SetLayerPixelMapping(0, (TLN_PixelMap*)pixelmap);
 		break;
 	}
 
-	printf("%02d: %s ", state.value, mode_names[state.mode]);
+	printf("%02d: %s %s ", state.value, mode_names[state.mode], window_names[state.window]);
 	if (state.mosaic)
 		printf("mosaic ");
-	if (state.blend)
-		printf("blend ");
 	if (state.invert)
 		printf("invert");
 	printf("\n");
@@ -99,8 +119,8 @@ int main(int argc, char* argv[])
 	{
 		for (x = 0; x < WIDTH; x += 1)
 		{
-			pixelmap[x*y].dx = WIDTH - x - 1;
-			pixelmap[x*y].dy = HEIGHT - y - 1;
+			pixelmap[y][x].dx = WIDTH - x - 1;
+			pixelmap[y][x].dy = HEIGHT - y - 1;
 		}
 	}
 
@@ -114,7 +134,7 @@ int main(int argc, char* argv[])
 		{
 			pushed = true;
 			state.value += 1;
-			if (state.value >= 32)
+			if (state.value >= 64)
 				state.value = 0;
 			set_state(state);
 		}
