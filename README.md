@@ -186,6 +186,7 @@ LuaJIT    | [tilengine_libretro](https://github.com/megamarc/Tilengine/tree/libr
 Ring      | [RingTilengine](https://github.com/ring-lang/ring/tree/master/extensions/ringtilengine)
 Nim       | [nim-tilengine](https://sr.ht/~exelotl/nim-tilengine)
 V         | [V-Tilengine](https://github.com/system64MC/V-Tilengine)
+Go        | [gotilengine](https://github.com/thechampagne/gotilengine)
 
 # Contributors
 These kind users contributed to tilengine:
