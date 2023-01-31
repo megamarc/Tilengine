@@ -34,45 +34,6 @@ static bool check_sprite_coverage(Sprite* sprite, int nscan)
 	return true;
 }
 
-/* common mosaic start: return NULL for skip draw */
-static uint32_t* begin_mosaic(const Layer* layer, int nscan)
-{
-	/* mosaic effect */
-	uint32_t *dstpixel;
-	if (layer->mosaic.h != 0)
-	{
-		dstpixel = layer->mosaic.buffer;
-		if (nscan % layer->mosaic.h == 0)
-			memset(dstpixel, 0, engine->framebuffer.pitch);
-		else
-			return NULL;
-	}
-	else
-		dstpixel = GetFramebufferLine(nscan);
-	return dstpixel;
-}
-
-/* common mosaic start: return NULL for skip draw */
-static uint32_t* begin_mosaic32(const Layer* layer, int nscan)
-{
-	/* mosaic effect */
-	uint32_t *dstpixel;
-	if (layer->mosaic.h != 0)
-	{
-		dstpixel = layer->mosaic.buffer;
-		if (nscan % layer->mosaic.h == 0)
-			memset(dstpixel, 0, engine->framebuffer.pitch);
-		else
-			return NULL;
-	}
-	else
-	{
-		dstpixel = engine->linebuffer;
-		memset(dstpixel, 0, engine->framebuffer.pitch);
-	}
-	return dstpixel;
-}
-
 /* draw background scanline taking into account mosaic and windowing effects */
 static bool draw_background_scanline(int nlayer, int line)
 {
@@ -85,13 +46,27 @@ static bool draw_background_scanline(int nlayer, int line)
 	const int framewidth = engine->framebuffer.width;
 	const int windowwidth = layer->window.x2 - layer->window.x1;
 	bool priority = false;
+	bool build_mosaic = false;
 
-	/* begin mosaic */
-	if (layer->mode < MODE_TRANSFORM)
-		scan = begin_mosaic(layer, line);
+	/* determine target buffer */
+	if (layer->mosaic.h != 0)
+	{
+		if (line % layer->mosaic.h == 0)
+		{
+			build_mosaic = true;
+			scan = engine->linebuffer;
+		}
+		else
+			scan = NULL;
+	}
+	else if (layer->mode >= MODE_TRANSFORM)
+		scan = engine->linebuffer;
 	else
-		scan = begin_mosaic32(layer, line);
-	
+		scan = GetFramebufferLine(line);
+
+	if (scan == engine->linebuffer)
+		memset(scan, 0, engine->framebuffer.pitch);
+
 	/* regular region */
 	if (scan != NULL)
 	{
@@ -111,10 +86,34 @@ static bool draw_background_scanline(int nlayer, int line)
 				priority |= layer->draw(nlayer, scan, line, 0, framewidth);
 		}
 	}
-
 	scan = GetFramebufferLine(line);
+
+	/* build mosaic to linebuffer */
+	if (build_mosaic)
+	{
+		memset(mosaic, 0, engine->framebuffer.pitch);
+		BlitMosaic(engine->linebuffer, mosaic, framewidth, layer->mosaic.w, NULL);
+	}
+
+	/* blit mosaic */
 	if (layer->mosaic.h != 0)
-		BlitMosaic(mosaic, scan, engine->framebuffer.width, layer->mosaic.w, layer->blend);
+	{
+		if (!window->invert)
+		{
+			if (inside)
+				Blit32_32(mosaic + window->x1, scan + window->x1, windowwidth, layer->blend);
+		}
+		else
+		{
+			if (inside)
+			{
+				Blit32_32(mosaic, scan, windowwidth, layer->blend);
+				Blit32_32(mosaic + window->x2, scan + window->x2, framewidth - window->x2, layer->blend);
+			}
+			else
+				Blit32_32(mosaic, scan, framewidth, layer->blend);
+		}
+	}
 	else if (layer->mode >= MODE_TRANSFORM)
 		Blit32_32(engine->linebuffer, scan, engine->framebuffer.width, layer->blend);
 
@@ -476,8 +475,8 @@ static bool DrawTiledScanlineScaling(int nlayer, uint32_t* dstpixel, int nscan, 
 			/* process flip flags */
 			scan.dx = dx;
 			if ((tile->flags & (FLAG_FLIPX + FLAG_FLIPY)) != 0)
-				//process_flip(tile->flags, &scan);
-				process_flip_rotation(tile->flags, &scan);
+				process_flip(tile->flags, &scan);
+				//process_flip_rotation(tile->flags, &scan);
 
 			/* paint tile scanline */
 			uint8_t* srcpixel = &GetTilesetPixel(tileset, tile_index, scan.srcx, scan.srcy);

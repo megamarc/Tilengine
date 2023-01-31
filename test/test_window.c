@@ -1,3 +1,4 @@
+#include <math.h>
 #include "Tilengine.h"
 
 #define WIDTH	398
@@ -35,6 +36,8 @@ typedef union
 State;
 
 TLN_PixelMap pixelmap[HEIGHT][WIDTH] = { 0 };
+int x = 0;
+float angle = 0.0f;
 
 /* set draw state */
 static void set_state(State state)
@@ -61,7 +64,7 @@ static void set_state(State state)
 
 	case WINDOW_BLEND:
 		TLN_SetLayerWindow(0, 32, 32, WIDTH - 32, HEIGHT - 32, state.invert);
-		TLN_SetLayerWindowColor(0, 0, 128, 0, BLEND_ADD);
+		TLN_SetLayerWindowColor(0, 0, 128, 0, BLEND_MIX);
 		break;
 	}
 
@@ -83,7 +86,6 @@ static void set_state(State state)
 		break;
 
 	case MODE_AFFINE:
-		TLN_SetLayerTransform(0, 30.0f, 0, 0, 1.0f, 1.0f);
 		break;
 
 	case MODE_PIXELMAP:
@@ -114,13 +116,13 @@ int main(int argc, char* argv[])
 	TLN_SetLayer(0, NULL, layer_foreground);
 	TLN_SetLayer(1, NULL, layer_background);
 
-	/* build pixelmap */
+	/* build sine wave distortion pixelmap */
 	for (y = 0; y < HEIGHT; y += 1)
 	{
 		for (x = 0; x < WIDTH; x += 1)
 		{
-			pixelmap[y][x].dx = WIDTH - x - 1;
-			pixelmap[y][x].dy = HEIGHT - y - 1;
+			pixelmap[y][x].dx = (int16_t)(x + sin(y / 2) * 3);
+			pixelmap[y][x].dy = (int16_t)(y + cos(x / 2) * 3);
 		}
 	}
 
@@ -148,6 +150,12 @@ int main(int argc, char* argv[])
 		}
 		if (!TLN_GetInput(INPUT_RIGHT) && !TLN_GetInput(INPUT_LEFT))
 			pushed = false;
+
+		x += 1;
+		angle += 0.2f;
+		TLN_SetLayerPosition(0, x, 0);
+		if (state.mode == MODE_AFFINE)
+			TLN_SetLayerTransform(0, angle, WIDTH / 2, HEIGHT / 2, 1.0f, 1.0f);
 	}
 
 	TLN_DeleteWindow();
