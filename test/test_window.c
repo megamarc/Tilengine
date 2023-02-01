@@ -1,8 +1,8 @@
 #include <math.h>
 #include "Tilengine.h"
 
-#define WIDTH	398
-#define HEIGHT	224
+#define WIDTH	(29*16)
+#define HEIGHT	(16*16)
 
 enum
 {
@@ -36,7 +36,6 @@ typedef union
 State;
 
 TLN_PixelMap pixelmap[HEIGHT][WIDTH] = { 0 };
-int x = 0;
 float angle = 0.0f;
 
 /* set draw state */
@@ -151,9 +150,7 @@ int main(int argc, char* argv[])
 		if (!TLN_GetInput(INPUT_RIGHT) && !TLN_GetInput(INPUT_LEFT))
 			pushed = false;
 
-		x += 1;
 		angle += 0.2f;
-		TLN_SetLayerPosition(0, x, 0);
 		if (state.mode == MODE_AFFINE)
 			TLN_SetLayerTransform(0, angle, WIDTH / 2, HEIGHT / 2, 1.0f, 1.0f);
 	}

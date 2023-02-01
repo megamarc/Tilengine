@@ -59,7 +59,6 @@ TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette 
 	int c;
 	int size;
 	int size_tiles;
-	int size_attributes;
 
 	for (c=0; c<=8; c++)
 	{
@@ -77,7 +76,6 @@ TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette 
 
 	numtiles++;
 	size_tiles = width * height * numtiles;
-	size_attributes = numtiles * sizeof(TLN_TileAttributes);
 	size = sizeof(struct Tileset) + size_tiles;
 	tileset = (TLN_Tileset)CreateBaseObject (OT_TILESET, size);
 	if (!tileset)
@@ -97,9 +95,9 @@ TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette 
 	tileset->palette = palette;
 	tileset->sp = sp;
 	tileset->color_key = (bool*)calloc(numtiles, height);
-	tileset->attributes = (TLN_TileAttributes*)malloc(size_attributes);
+	tileset->attributes = (TLN_TileAttributes*)calloc(numtiles, sizeof(TLN_TileAttributes));
 	if (attributes != NULL)
-		memcpy (tileset->attributes, attributes, size_attributes);
+		memcpy (tileset->attributes, attributes, numtiles * sizeof(TLN_TileAttributes));
 	tileset->tiles = (uint16_t*)calloc(numtiles, sizeof(uint16_t));
 	for (c = 0; c < numtiles; c += 1)
 		tileset->tiles[c] = c;
