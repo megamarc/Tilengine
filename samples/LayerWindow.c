@@ -55,7 +55,7 @@ int main(int arg, char* argv[])
 	update_window();
 
 	/* create window & main loop */
-	TLN_CreateWindow(NULL, CWF_S1);
+	TLN_CreateWindow(NULL, 0);
 	while (TLN_ProcessWindow())
 	{
 		TLN_Input input = get_press();

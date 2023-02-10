@@ -1,7 +1,7 @@
 CC       = gcc
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
-TARGETS  = barrel mode7 platformer racer scaling shadow shooter tutorial wobble colorcycle benchmark supermarioclone test_mouse forest querylayer
+TARGETS  = barrel mode7 platformer racer scaling shadow shooter tutorial wobble colorcycle benchmark supermarioclone test_mouse forest querylayer layerwindow layercircle
 
 # Windows specific flags
 ifeq ($(OS),Windows_NT)
@@ -82,6 +82,12 @@ forest: Forest.o
 	
 querylayer: QueryLayer.o
 	$(CC) QueryLayer.o -o querylayer $(LDFLAGS)
+
+layerwindow: LayerWindow.o
+	$(CC) LayerWindow.o -o layerwindow $(LDFLAGS)
+
+layercircle: LayerCircle.o
+	$(CC) LayerCircle.o -o layercircle $(LDFLAGS)
 	
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@
@@ -89,4 +95,3 @@ querylayer: QueryLayer.o
 # clean
 clean: clean-custom
 	$(RM) $(OBJECTS) $(TARGETS)
-	
