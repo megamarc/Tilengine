@@ -56,7 +56,18 @@ static TLN_Engine create_context(int hres, int vres, int numlayers, int numsprit
  */
 TLN_Engine TLN_Init (int hres, int vres, int numlayers, int numsprites, int numanimations)
 {
-	printf("Tilengine v%d.%d.%d %d-bit built %s %s\n", TILENGINE_VER_MAJ, TILENGINE_VER_MIN, TILENGINE_VER_REV, (int)(sizeof(UINTPTR_MAX) << 3), __DATE__, __TIME__);
+	printf("Tilengine v%d.%d.%d %d-bit %s built %s %s\n", 
+		TILENGINE_VER_MAJ, 
+		TILENGINE_VER_MIN, 
+		TILENGINE_VER_REV, 
+		(int)(sizeof(UINTPTR_MAX) << 3),
+#if defined _DEBUG
+		"debug",
+#else
+		"release",
+#endif
+		__DATE__, 
+		__TIME__);
 	return create_context (hres, vres, numlayers, numsprites, numanimations);
 }
 
