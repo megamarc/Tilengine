@@ -187,6 +187,7 @@ Ring      | [RingTilengine](https://github.com/ring-lang/ring/tree/master/extens
 Nim       | [nim-tilengine](https://sr.ht/~exelotl/nim-tilengine)
 V         | [V-Tilengine](https://github.com/system64MC/V-Tilengine)
 Go        | [gotilengine](https://github.com/thechampagne/gotilengine)
+Zig       | [zigtilengine](https://github.com/thechampagne/zigtilengine)
 
 # Contributors
 These kind users contributed to tilengine:
