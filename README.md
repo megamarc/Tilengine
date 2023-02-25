@@ -188,6 +188,7 @@ Nim       | [nim-tilengine](https://sr.ht/~exelotl/nim-tilengine)
 V         | [V-Tilengine](https://github.com/system64MC/V-Tilengine)
 Go        | [gotilengine](https://github.com/thechampagne/gotilengine)
 Zig       | [zigtilengine](https://github.com/thechampagne/zigtilengine)
+D         | [dtilengine](https://github.com/thechampagne/dtilengine)
 
 # Contributors
 These kind users contributed to tilengine:
