@@ -85,6 +85,7 @@ static TLN_Engine create_context(int hres, int vres, int numlayers, int numsprit
 	context->framebuffer.width = hres;
 	context->framebuffer.height = vres;
 	context->framebuffer.pitch = (((hres * 32)>>3) + 3) & ~0x03;
+	context->target_fps = INTERNAL_FPS;
 
 	/* create static layers */
 	if (numlayers > 0)
@@ -302,6 +303,27 @@ uint32_t TLN_GetVersion (void)
 }
 
 /*!
+ * \brief Set Target fps (default 60)
+ * \param fps Target fps
+ * \remarks The engine internally runs at 60 fps. Use this function to keep constant animation pacing at other frequencies
+ * \see TLN_GetTargetFps
+ */
+void TLN_SetTargetFps(int fps)
+{
+	engine->target_fps = fps;
+}
+
+/*!
+ * \brief Returns target fps
+ * \remarks By default the engine runs at 60 fps. This value is automatically changed to actual monitor Hz with TLN_CreateWindow, or manually with TLN_SetTargetFps
+ * \see TLN_GetTargetFps, TLN_CreateWindow
+ */
+int TLN_GetTargetFps(void)
+{
+	return engine->target_fps;
+}
+
+/*!
  * \brief
  * Returns the width in pixels of the framebuffer
  * 
@@ -419,11 +441,9 @@ static void BeginFrame (int frame)
 	List* list;
 	int index;
 
-	/* autoincrement if 0 */
-	if (frame != 0)
-		engine->frame = frame;
-	else
-		engine->frame += 1;
+	/* adjust to target fps */
+	frame = (engine->frame*INTERNAL_FPS) / engine->target_fps;
+	engine->frame += 1;
 
 	/* color cycle animations */
 	if (engine->numanimations > 0)
@@ -433,7 +453,7 @@ static void BeginFrame (int frame)
 		while (index != -1)
 		{
 			Animation* animation = &engine->animations[index];
-			UpdateAnimation(animation, engine->frame);
+			UpdateAnimation(animation, frame);
 			index = animation->list_node.next;
 		}
 	}
@@ -448,7 +468,7 @@ static void BeginFrame (int frame)
 			Sprite* sprite = &engine->sprites[index];
 			sprite->collision = false;
 			if (sprite->animation.enabled && !sprite->animation.paused)
-				UpdateAnimation(&sprite->animation, engine->frame);
+				UpdateAnimation(&sprite->animation, frame);
 			index = sprite->list_node.next;
 		}
 	}
@@ -471,7 +491,7 @@ static void BeginFrame (int frame)
 				{
 					int c;
 					for (c = 0; c < tileset->sp->num_sequences; c += 1)
-						UpdateAnimation(&tileset->animations[c], engine->frame);
+						UpdateAnimation(&tileset->animations[c], frame);
 				}
 			}
 		}

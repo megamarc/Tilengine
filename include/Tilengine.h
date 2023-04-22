@@ -59,8 +59,8 @@
 
 /* version */
 #define TILENGINE_VER_MAJ	2
-#define TILENGINE_VER_MIN	14
-#define TILENGINE_VER_REV	1
+#define TILENGINE_VER_MIN	15
+#define TILENGINE_VER_REV	0
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -352,6 +352,7 @@ enum
 	CWF_S4			= (4 << 2),	/*!< create a window 4x the size the framebuffer */
 	CWF_S5			= (5 << 2),	/*!< create a window 5x the size the framebuffer */
 	CWF_NEAREST		= (1 << 6),	/*<! unfiltered upscaling */
+	CWF_NOVSYNC		= (1 << 7)  /*<! disable default vsync */
 };
 
 /*! Error codes */
@@ -405,6 +406,8 @@ TLNAPI void TLN_Deinit (void);
 TLNAPI bool TLN_DeleteContext (TLN_Engine context);
 TLNAPI bool TLN_SetContext(TLN_Engine context);
 TLNAPI TLN_Engine TLN_GetContext(void);
+TLNAPI void TLN_SetTargetFps(int fps);
+TLNAPI int TLN_GetTargetFps(void);
 TLNAPI int TLN_GetWidth (void);
 TLNAPI int TLN_GetHeight (void);
 TLNAPI uint32_t TLN_GetNumObjects (void);

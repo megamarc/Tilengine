@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="test_window.c" />
+    <ClCompile Include="test_fps.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{CE31C686-C6BF-4262-8982-D858830BE967}</ProjectGuid>

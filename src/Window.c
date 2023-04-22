@@ -13,10 +13,14 @@
 #define MAX_INPUTS	32		/* number of inputs per player */
 #define INPUT_MASK	(MAX_INPUTS - 1)
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include <string.h>
 #include "SDL2/SDL.h"
 #include "Tilengine.h"
 #include "crt.h"
+#include "Engine.h"
 
 static SDL_Window*   window;
 static SDL_Renderer* renderer;
@@ -71,14 +75,30 @@ typedef struct
 	int height;
 	int flags;
 	volatile int retval;
+	uint32_t t0;			/* frame start time for non-vsync pacing */
+	uint32_t min_delay;		/* actual granularity of SDL_Delay() */
 }
 WndParams;
 
 static WndParams wnd_params;
 
+typedef union
+{
+	uint8_t value;
+	struct
+	{
+		bool fullscreen : 1;
+		bool vsync : 1;
+		uint8_t factor : 4;
+		bool nearest : 1;
+		bool novsync : 1;
+	};
+}
+WindowFlags;
+
 /* local prototypes */
-static bool CreateWindow (void);
-static void DeleteWindow (void);
+static bool create_window (void);
+static void delete_window (void);
 
 #ifndef _MSC_VER
 extern char* strdup(const char* s);
@@ -94,35 +114,36 @@ static void SetupBackBuffer(void)
 }
 
 /* create window delegate */
-static bool CreateWindow(void)
+static bool create_window(void)
 {
 	SDL_DisplayMode mode;
 	SDL_Surface* surface = NULL;
-	int factor;
 	int rflags;
 	char quality[2] = { 0 };
 	Uint32 format = 0;
+	WindowFlags flags;
+	flags.value = wnd_params.flags;
 
 	/*  gets desktop size and maximum window size */
 	SDL_GetDesktopDisplayMode(0, &mode);
-	if (!(wnd_params.flags & CWF_FULLSCREEN))
+	if (!flags.fullscreen)
 	{
 		rflags = 0;
-		factor = (wnd_params.flags >> 2) & 0x07;
-		if (!factor)
+		if (flags.factor == 0)
 		{
-			factor = 1;
-			while (wnd_params.width*(factor + 1) < mode.w && wnd_params.height*(factor + 1) < mode.h && factor < 3)
-				factor++;
+			flags.factor = 1;
+			while (wnd_params.width*(flags.factor + 1) < mode.w && wnd_params.height*(flags.factor + 1) < mode.h && flags.factor < 3)
+				flags.factor += 1;
 		}
 
-		wnd_width = wnd_params.width*factor;
-		wnd_height = wnd_params.height*factor;
+		wnd_width = wnd_params.width * flags.factor;
+		wnd_height = wnd_params.height * flags.factor;
 
 		dstrect.x = 0;
 		dstrect.y = 0;
 		dstrect.w = wnd_width;
 		dstrect.h = wnd_height;
+		wnd_params.flags = flags.value;
 	}
 	else
 	{
@@ -137,7 +158,6 @@ static bool CreateWindow(void)
 			wnd_height = mode.h;
 			wnd_width = wnd_height * wnd_params.width / wnd_params.height;
 		}
-		factor = wnd_height / wnd_params.height;
 
 		dstrect.x = (mode.w - wnd_width) >> 1;
 		dstrect.y = (mode.h - wnd_height) >> 1;
@@ -151,27 +171,9 @@ static bool CreateWindow(void)
 	window = SDL_CreateWindow(window_title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, wnd_width, wnd_height, rflags);
 	if (!window)
 	{
-		DeleteWindow();
+		delete_window();
 		return false;
 	}
-
-	/* create render context */
-	rflags = SDL_RENDERER_ACCELERATED;
-	if (wnd_params.flags & CWF_VSYNC)
-		rflags |= SDL_RENDERER_PRESENTVSYNC;
-	renderer = SDL_CreateRenderer(window, -1, rflags);
-	if (!renderer)
-	{
-		DeleteWindow();
-		return false;
-	}
-
-	/* setup backbuffer & crt effect */
-	SetupBackBuffer();
-	crt = CRTCreate(renderer, backbuffer, crt_params.type, wnd_width, wnd_height, crt_params.blur);
-
-	if (wnd_params.flags & CWF_FULLSCREEN)
-		SDL_ShowCursor(SDL_DISABLE);
 
 	/* one time init, avoid being forgotten in Alt+TAB */
 	if (init == false)
@@ -201,15 +203,78 @@ static bool CreateWindow(void)
 			TLN_DefineInputButton(PLAYER1, INPUT_BUTTON4, 3);
 			TLN_DefineInputButton(PLAYER1, INPUT_START, 5);
 		}
+
+		/* capture actual granularity for SDL_Delay() */
+#if defined WIN32
+		timeBeginPeriod(1);
+#endif
+		int c;
+		uint32_t delay = 0;
+		uint32_t t0;
+		SDL_Delay(1);
+		t0 = SDL_GetTicks();
+		for (c = 0; c < 8; c += 1)
+		{
+			SDL_Delay(1);
+		}
+		wnd_params.min_delay = (SDL_GetTicks() - t0) / c;
+
+		/* capture actual monitor fps */
+		SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED + SDL_RENDERER_PRESENTVSYNC);
+		if (renderer != NULL)
+		{
+			int target_fps = 0;
+			SDL_RenderPresent(renderer);
+			t0 = SDL_GetTicks();
+			for (c = 0; c < 20; c += 1)
+				SDL_RenderPresent(renderer);
+			target_fps = (c * 1000) / (SDL_GetTicks() - t0);
+			SDL_DestroyRenderer(renderer);
+
+			/* try "snapping" for common rates */
+			uint8_t rates[] = { 24,30,60,75,144,200,240 };
+			for (c = 0; c < sizeof(rates); c += 1)
+			{
+				if (abs(target_fps - (int)rates[c]) < 4)
+				{
+					target_fps = rates[c];
+					break;
+				}
+			}
+			engine->target_fps = target_fps;
+		}
+
+#if defined WIN32
+		timeEndPeriod(1);
+#endif
 		init = true;
 	}
+
+	/* create render context */
+	rflags = SDL_RENDERER_ACCELERATED;
+	if (!(wnd_params.flags & CWF_NOVSYNC))
+		rflags |= SDL_RENDERER_PRESENTVSYNC;
+	renderer = SDL_CreateRenderer(window, -1, rflags);
+	if (!renderer)
+	{
+		delete_window();
+		return false;
+	}
+
+	/* setup backbuffer & crt effect */
+	SetupBackBuffer();
+	crt = CRTCreate(renderer, backbuffer, crt_params.type, wnd_width, wnd_height, crt_params.blur);
+
+	if (wnd_params.flags & CWF_FULLSCREEN)
+		SDL_ShowCursor(SDL_DISABLE);
+
 
 	done = false;
 	return true;
 }
 
 /* destroy window delegate */
-static void DeleteWindow (void)
+static void delete_window (void)
 {
 	if (SDL_JoystickGetAttached(joy))
 		SDL_JoystickClose(joy);
@@ -261,7 +326,7 @@ static int WindowThread (void* data)
 {
 	bool ok;
 
-	ok = CreateWindow ();
+	ok = create_window ();
 	if (ok == true)
 		wnd_params.retval = 1;
 	else
@@ -326,10 +391,10 @@ bool TLN_CreateWindow (const char* overlay, int flags)
 	/* fill parameters for window creation */
 	wnd_params.width = TLN_GetWidth ();
 	wnd_params.height = TLN_GetHeight ();
-	wnd_params.flags = flags|CWF_VSYNC;
+	wnd_params.flags = flags;
 
 	crt_params.enable = (wnd_params.flags & CWF_NEAREST) == 0;
-	ok = CreateWindow ();
+	ok = create_window ();
 	if (ok)
 		instances++;
 	return ok;
@@ -378,7 +443,7 @@ bool TLN_CreateWindowThread (const char* overlay, int flags)
 	wnd_params.retval = 0;
 	wnd_params.width = TLN_GetWidth ();
 	wnd_params.height = TLN_GetHeight ();
-	wnd_params.flags = flags | CWF_VSYNC;
+	wnd_params.flags = flags;
 
 	crt_params.enable = (wnd_params.flags & CWF_NEAREST) == 0;
 	lock = SDL_CreateMutex ();
@@ -415,7 +480,7 @@ void TLN_DeleteWindow (void)
 	if (instances)
 		return;
 
-	DeleteWindow ();
+	delete_window ();
 	SDL_Quit ();
 	printf(" ");
 }
@@ -555,9 +620,27 @@ bool TLN_ProcessWindow (void)
 			}
 			else if (keybevt->keysym.sym == SDLK_RETURN && keybevt->keysym.mod & KMOD_ALT)
 			{
-				DeleteWindow();
+				delete_window();
 				wnd_params.flags ^= CWF_FULLSCREEN;
-				CreateWindow();
+				create_window();
+			}
+			
+			/* override window scale */
+			for (c = 1; c <= 5; c += 1)
+			{
+				if (keybevt->keysym.sym == (SDL_Keycode)('0' + c) && keybevt->keysym.mod & KMOD_ALT)
+				{
+					WindowFlags flags;
+					flags.value = wnd_params.flags;
+					if (c != flags.factor)
+					{
+						flags.factor = c;
+						flags.fullscreen = false;
+						wnd_params.flags = flags.value;
+						delete_window();
+						create_window();
+					}
+				}
 			}
 
 			/* regular user input */
@@ -841,19 +924,23 @@ int TLN_GetLastInput (void)
 
 static void BeginWindowFrame (void)
 {
+	wnd_params.t0 = SDL_GetTicks();
 	SDL_LockTexture (backbuffer, NULL, (void**)&rt_pixels, &rt_pitch);
 	TLN_SetRenderTarget (rt_pixels, rt_pitch);
 }
 
 static void EndWindowFrame(void)
 {
-	if (wnd_params.flags & CWF_FULLSCREEN)
+	WindowFlags flags;
+	flags.value = wnd_params.flags;
+
+	if (flags.fullscreen)
 	{
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 		SDL_RenderClear(renderer);
 	}
 
-	if (crt_params.enable && crt != NULL)
+	if (crt_params.enable && crt != NULL && flags.factor > 1)
 		CRTDraw(crt, rt_pixels, rt_pitch, &dstrect);
 
 	else
@@ -862,6 +949,27 @@ static void EndWindowFrame(void)
 		SDL_SetTextureBlendMode(backbuffer, SDL_BLENDMODE_NONE);
 		SDL_RenderCopy(renderer, backbuffer, NULL, &dstrect);
 	}
+
+	/* no vsync: timed sync */
+	if (flags.novsync)
+	{
+#if defined WIN32
+		timeBeginPeriod(1);
+#endif
+		Engine* context = TLN_GetContext();
+		uint32_t due_time = wnd_params.t0 + (1000 / context->target_fps);
+		uint32_t now = SDL_GetTicks();
+		while (now < due_time)
+		{
+			if (due_time - now > wnd_params.min_delay)
+				SDL_Delay(wnd_params.min_delay);
+			now = SDL_GetTicks();
+		}
+#if defined WIN32
+		timeEndPeriod(1);
+#endif
+	}
+
 	SDL_RenderPresent(renderer);
 }
 
