@@ -60,7 +60,7 @@
 /* version */
 #define TILENGINE_VER_MAJ	2
 #define TILENGINE_VER_MIN	15
-#define TILENGINE_VER_REV	0
+#define TILENGINE_VER_REV	1
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -466,8 +466,11 @@ TLNAPI void TLN_DisableCRTEffect (void);
 TLNAPI void TLN_SetSDLCallback(TLN_SDLCallback);
 TLNAPI void TLN_Delay (uint32_t msecs);
 TLNAPI uint32_t TLN_GetTicks (void);
+TLNAPI uint32_t TLN_GetAverageFps(void);
 TLNAPI int TLN_GetWindowWidth(void);
 TLNAPI int TLN_GetWindowHeight(void);
+TLNAPI int TLN_GetWindowScaleFactor(void);
+TLNAPI void TLN_SetWindowScaleFactor(int);
 /**@}*/
 
 /**

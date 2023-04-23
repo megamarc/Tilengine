@@ -77,6 +77,9 @@ typedef struct
 	volatile int retval;
 	uint32_t t0;			/* frame start time for non-vsync pacing */
 	uint32_t min_delay;		/* actual granularity of SDL_Delay() */
+	uint32_t fps_t0;		/* for actual FPS calc */
+	uint32_t fps_frames;
+	uint32_t fps_average;
 }
 WndParams;
 
@@ -927,6 +930,8 @@ static void BeginWindowFrame (void)
 	wnd_params.t0 = SDL_GetTicks();
 	SDL_LockTexture (backbuffer, NULL, (void**)&rt_pixels, &rt_pitch);
 	TLN_SetRenderTarget (rt_pixels, rt_pitch);
+	if (wnd_params.fps_t0 == 0)
+		wnd_params.fps_t0 = SDL_GetTicks();
 }
 
 static void EndWindowFrame(void)
@@ -971,6 +976,17 @@ static void EndWindowFrame(void)
 	}
 
 	SDL_RenderPresent(renderer);
+
+	/* update averaged fps */
+	const uint32_t now = SDL_GetTicks();
+	const uint32_t elapsed = now - wnd_params.fps_t0;
+	wnd_params.fps_frames += 1;
+	if (elapsed >= 500)
+	{
+		wnd_params.fps_average = (wnd_params.fps_frames * 1000) / elapsed;
+		wnd_params.fps_frames = 0;
+		wnd_params.fps_t0 = now;
+	}
 }
 
 /*!
@@ -1041,6 +1057,37 @@ int TLN_GetWindowHeight(void)
 void TLN_SetSDLCallback(TLN_SDLCallback callback)
 {
 	sdl_callback = callback;
+}
+
+/*!
+* \brief Returns averaged fps being rendered on the built-in window, updated each 500 ms
+*/
+uint32_t TLN_GetAverageFps(void)
+{
+	return wnd_params.fps_average;
+}
+
+/*!
+* \brief Returns current window scaling factor.
+* \remarks This value can be set during call to TLN_CreateWindow() (flags CWF_S1 to CWF_S5), 
+* calling TLN_SetWindowScaleFactor(), or pressing ALT-1 to ALT-5 at runtime
+*/
+int TLN_GetWindowScaleFactor(void)
+{
+	WindowFlags flags;
+	flags.value = wnd_params.flags;
+	return flags.factor;
+}
+
+/*!
+* \brief Sets current window scaling factor
+*/
+void TLN_SetWindowScaleFactor(int factor)
+{
+	WindowFlags flags;
+	flags.value = wnd_params.flags;
+	flags.factor = factor;
+	wnd_params.flags = flags.value;
 }
 
 #endif

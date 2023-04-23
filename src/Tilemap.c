@@ -304,8 +304,9 @@ bool TLN_SetTilemapTile (TLN_Tilemap tilemap, int row, int col, TLN_Tile tile)
 
 /*!   
  * \brief Returns pointer to internal tilemap data data
- * \row row index
- * \col column index
+ * \param tilemap Tilemap being queried
+ * \param row Row index
+ * \param col Column index
  * \returns pointer to corresponding TLN_Tile object or NULL if error
  *
  * \remarks Having direct access to internal memory is convenient for performance reasons when lots of tiles 
