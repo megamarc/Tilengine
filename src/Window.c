@@ -64,7 +64,7 @@ struct
 	bool blur;
 	bool enable;
 }
-static crt_params = { CRT_SHADOW, false, true };
+static crt_params = { CRT_SLOT, true, true };
 
 #define MAX_PATH	260
 
@@ -208,48 +208,51 @@ static bool create_window(void)
 		}
 
 		/* capture actual granularity for SDL_Delay() */
-#if defined WIN32
-		timeBeginPeriod(1);
-#endif
-		int c;
-		uint32_t delay = 0;
-		uint32_t t0;
-		SDL_Delay(1);
-		t0 = SDL_GetTicks();
-		for (c = 0; c < 8; c += 1)
+		if (flags.novsync)
 		{
+#if defined WIN32
+			timeBeginPeriod(1);
+#endif
+			int c;
+			uint32_t delay = 0;
+			uint32_t t0;
 			SDL_Delay(1);
-		}
-		wnd_params.min_delay = (SDL_GetTicks() - t0) / c;
-
-		/* capture actual monitor fps */
-		SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED + SDL_RENDERER_PRESENTVSYNC);
-		if (renderer != NULL)
-		{
-			int target_fps = 0;
-			SDL_RenderPresent(renderer);
 			t0 = SDL_GetTicks();
-			for (c = 0; c < 20; c += 1)
-				SDL_RenderPresent(renderer);
-			target_fps = (c * 1000) / (SDL_GetTicks() - t0);
-			SDL_DestroyRenderer(renderer);
-
-			/* try "snapping" for common rates */
-			uint8_t rates[] = { 24,30,60,75,144,200,240 };
-			for (c = 0; c < sizeof(rates); c += 1)
+			for (c = 0; c < 8; c += 1)
 			{
-				if (abs(target_fps - (int)rates[c]) < 4)
-				{
-					target_fps = rates[c];
-					break;
-				}
+				SDL_Delay(1);
 			}
-			engine->target_fps = target_fps;
-		}
+			wnd_params.min_delay = (SDL_GetTicks() - t0) / c;
+
+			/* capture actual monitor fps */
+			SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED + SDL_RENDERER_PRESENTVSYNC);
+			if (renderer != NULL)
+			{
+				int target_fps = 0;
+				SDL_RenderPresent(renderer);
+				t0 = SDL_GetTicks();
+				for (c = 0; c < 20; c += 1)
+					SDL_RenderPresent(renderer);
+				target_fps = (c * 1000) / (SDL_GetTicks() - t0);
+				SDL_DestroyRenderer(renderer);
+
+				/* try "snapping" for common rates */
+				uint8_t rates[] = { 24,30,60,75,144,200,240 };
+				for (c = 0; c < sizeof(rates); c += 1)
+				{
+					if (abs(target_fps - (int)rates[c]) < 4)
+					{
+						target_fps = rates[c];
+						break;
+					}
+				}
+				engine->target_fps = target_fps;
+			}
 
 #if defined WIN32
-		timeEndPeriod(1);
+			timeEndPeriod(1);
 #endif
+		}
 		init = true;
 	}
 

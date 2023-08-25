@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "crt.h"
 
-#define ZERO	0x10
+#define ZERO	0x00
 #define SCAN	0x20
 #define RED		0xFF,ZERO,ZERO,0xFF
 #define GREEN	ZERO,0xFF,ZERO,0xFF
@@ -48,7 +48,7 @@ Pattern;
 
 static Pattern patterns[] = 
 {
-	{pattern_slot, 6, 4, 140},
+	{pattern_slot, 6, 4, 192},
 	{pattern_aperture, 3, 1, 204},
 	{pattern_shadow, 3, 3, 204},
 };
