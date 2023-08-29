@@ -537,6 +537,7 @@ TLNAPI bool TLN_AddPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint
 TLNAPI bool TLN_SubPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b, uint8_t start, uint8_t num);
 TLNAPI bool TLN_ModPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b, uint8_t start, uint8_t num);
 TLNAPI uint8_t* TLN_GetPaletteData (TLN_Palette palette, int index);
+TLNAPI int TLN_GetPaletteNumColors(TLN_Palette palette);
 TLNAPI bool TLN_DeletePalette (TLN_Palette palette);
 /**@}*/
 

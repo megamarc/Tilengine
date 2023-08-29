@@ -328,3 +328,19 @@ bool TLN_ModPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b, 
 {
 	return EditPaletteColor (palette, SelectBlendTable(BLEND_MOD), r,g,b, start,num);
 }
+
+/*!
+ * \brief Returns the number of color entries in the given palette
+ * \param palette Reference to the palette to query
+ * \returns number of color entries 
+*/
+int TLN_GetPaletteNumColors(TLN_Palette palette)
+{
+	if (!CheckBaseObject(palette, OT_PALETTE))
+	{
+		TLN_SetLastError(TLN_ERR_REF_PALETTE);
+		return 0;
+	}
+	TLN_SetLastError(TLN_ERR_OK);
+	return palette->entries;
+}
