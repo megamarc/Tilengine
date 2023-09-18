@@ -83,7 +83,7 @@ Tilengine depends on having SDL2 in Framework format installed on your system. H
 
 C samples are located in `Tilengine/samples` folder. To build them you need the gcc compiler suite, and/or Visual C++ in windows.
 * **Linux**: the GCC compiler suite is already installed by default
-* **Windows**: you must install [MinGW](http://www.mingw.org/) or [Visual Studio Community](https://www.visualstudio.com/vs/community/)
+* **Windows**: you must install [MinGW](https://www.mingw-w64.org/) or [Visual Studio Community](https://www.visualstudio.com/vs/community/)
 * **MacOS**: You must install [Command-line tools for Xcode](https://developer.apple.com/xcode/). An Apple ID account is required.
 
 Once installed, open a console window in the C samples folder and type the suitable command depending on your platform:
