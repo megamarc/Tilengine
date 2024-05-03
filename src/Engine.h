@@ -12,6 +12,7 @@
 #define _ENGINE_H
 
 #define NUM_PALETTES	8
+#define INTERNAL_FPS	60
 
 #include "Tilengine.h"
 #include "Sprite.h"
@@ -46,8 +47,9 @@ typedef struct Engine
 	uint8_t*	blend_table;	/* current blending table */
 	void		(*cb_raster)(int);	/* raster callback */
 	void		(*cb_frame)(int);	/* frame callback */
-	int	frame;					/* current frame number */
-	int line;					/* current scanline */
+	int			frame;			/* current frame number */
+	int			line;			/* current scanline */
+	int			target_fps;
 
 	List list_sprites;			/* linked list active of sprites */
 	List list_animations;		/* linked list active of animations */

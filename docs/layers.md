@@ -46,16 +46,6 @@ TLN_SetLayerTilemap(0, tilemap);
 ![A tilemap](img/tilemap.png)<br>
 *A tilemap in Tiled editor*
 
-Explicit tileset is hardly ever user, because when a tilemap is loaded from a `.tmx` file, it already contains its associated tileset that is used by default. However it can be loaded with \ref TLN_LoadTileset from a `.tsx` file and explicitly set with \ref TLN_SetLayer:
-
-```C
-TLN_Tileset tileset = TLN_LoadTileset("level.tsx")
-TLN_SetLayer(0, tileset, tilemap);
-```
-
-![A tileset](img/tileset.png)<br>
-*A tileset in Tiled editor*
-
 ### Bitmap layers
 
 Bitmap layers use a single, big bitmap image that can be loaded with \ref TLN_LoadBitmap function that just takes a filename (`.bmp` and `.png` files supported):
@@ -362,7 +352,7 @@ This is a quick reference of related functions in this chapter:
 
 |Function                        | Quick description
 |--------------------------------|-------------------------------------
-|\ref TLN_SetLayer               |Configures a tiled background layer
+|\ref TLN_SetLayerTilemap        |Configures a tiled background layer
 |\ref TLN_SetLayerBitmap         |Configures a full-bitmap background layer
 |\ref TLN_SetLayerObjects        |Configures an object list background layer
 |\ref TLN_SetLayerPalette        |Sets the color palette to the layer

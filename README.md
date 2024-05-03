@@ -190,6 +190,7 @@ Go        | [gotilengine](https://github.com/thechampagne/gotilengine)
 Zig       | [zigtilengine](https://github.com/thechampagne/zigtilengine)
 D         | [dtilengine](https://github.com/thechampagne/dtilengine)
 Odin      | [odintilengine](https://github.com/thechampagne/odintilengine)
+Odin      | [odin-tilengine](https://github.com/akuspel/odin-tilengine)
 
 # Contributors
 These kind users contributed to tilengine:

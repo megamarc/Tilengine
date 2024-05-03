@@ -694,6 +694,7 @@ bool TLN_GetLayerTile (int nlayer, int x, int y, TLN_TileInfo* info)
 	info->yoffset = srcy;
 	if (tile->index != 0)
 	{
+		tileset = tilemap->tilesets[tile->tileset];
 		info->index = tile->index - 1;
 		info->flags = tile->flags;
 		info->color = GetTilesetPixel (tileset, tile->index, srcx, srcy);
