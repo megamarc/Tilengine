@@ -14,7 +14,7 @@
 #include "Object.h"
 #include "Tileset.h"
 
-#define MAX_TILESETS	8
+#define MAX_TILESETS	16
 
 /* mapa */
 struct Tilemap
@@ -26,6 +26,7 @@ struct Tilemap
 	int		id;			/* id property */
 	bool	visible;	/* visible property */
 	struct Tileset* tilesets[MAX_TILESETS]; /* attached tilesets */
+	int		num_tilesets;	/* actual amount of tilesets */
 	Tile	tiles[];
 };
 

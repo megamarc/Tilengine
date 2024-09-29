@@ -325,7 +325,8 @@ TLN_Tileset TLN_LoadTileset (const char* filename)
 		dy = loader.tileheight + loader.spacing;
 		htiles = (TLN_GetBitmapWidth(bitmap) - loader.margin * 2 + loader.spacing) / dx;
 		vtiles = (TLN_GetBitmapHeight(bitmap) - loader.margin * 2 + loader.spacing) / dy;
-		tileset = TLN_CreateTileset(htiles*vtiles, loader.tilewidth, loader.tileheight, TLN_ClonePalette(TLN_GetBitmapPalette(bitmap)), loader.sp, loader.attributes);
+		int tilecount = loader.tilecount != 0 ? loader.tilecount : htiles * vtiles;
+		tileset = TLN_CreateTileset(tilecount, loader.tilewidth, loader.tileheight, TLN_ClonePalette(TLN_GetBitmapPalette(bitmap)), loader.sp, loader.attributes);
 		if (tileset == NULL)
 		{
 			TLN_SetLastError(TLN_ERR_OUT_OF_MEMORY);
@@ -334,12 +335,13 @@ TLN_Tileset TLN_LoadTileset (const char* filename)
 
 		/* load tile data */
 		pitch = TLN_GetBitmapPitch(bitmap);
-		for (id = 1, y = 0; y < vtiles; y++)
+		for (id = 0, y = 0; y < vtiles; y++)
 		{
 			for (x = 0; x < htiles; x++, id++)
 			{
 				uint8_t *srcptr = TLN_GetBitmapPtr(bitmap, loader.margin + x * dx, loader.margin + y * dy);
-				TLN_SetTilesetPixels(tileset, id, srcptr, pitch);
+				if (id < tilecount)
+					TLN_SetTilesetPixels(tileset, id, srcptr, pitch);
 			}
 		}
 		tileset->tiles_per_row = htiles;

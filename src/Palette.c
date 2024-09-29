@@ -28,7 +28,7 @@
 TLN_Palette TLN_CreatePalette (int entries)
 {
 	TLN_Palette palette;
-	int size = sizeof(struct Palette) + (4*entries);
+	int size = sizeof(struct Palette) + 1024;	// always alloc 256 colors, to avoid crash when tileset uses more colors than the palette
 	
 	palette = (TLN_Palette)CreateBaseObject(OT_PALETTE, size);
 	if (palette)

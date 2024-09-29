@@ -175,6 +175,7 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 	uint8_t *data;
 	TLN_Tilemap tilemap = NULL;
 	TMXInfo tmxinfo = { 0 };
+	uint32_t c;
 	
 	/* load map info */
 	if (!TMXLoad(filename, &tmxinfo))
@@ -215,45 +216,27 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 	simpleXmlDestroyParser(parser);
 	free (data);
 
+	/* load referenced tilesets */
+	TLN_Tileset tilesets[TMX_MAX_TILESET] = { 0 };
+	for (c = 0; c < tmxinfo.num_tilesets; c += 1)
+		tilesets[c] = load_tileset(&tmxinfo, filename, c);
+
 	if (loader.data != NULL)
 	{
-		Tile* tile;
-		uint32_t c;
-
-		/* build map of actually used tilesets */
-		bool _tilesets[TMX_MAX_TILESET] = { 0 };
-		tile = (Tile*)loader.data;
-		for (c = 0; c < loader.numtiles; c += 1, tile += 1)
-		{
-			if (tile->index > 0)
-			{
-				int index = TMXGetSuitableTileset(&tmxinfo, tile->index, NULL);
-				_tilesets[index] = true;
-			}
-		}
-
-		/* build list of used tilesets */
-		TLN_Tileset tilesets[MAX_TILESETS] = { 0 };
-		TMXTileset used_tilesets[MAX_TILESETS] = { 0 };
-		uint32_t used_index = 0;
-		for (c = 0; c < TMX_MAX_TILESET; c += 1)
-		{
-			if (_tilesets[c] && used_index < MAX_TILESETS - 1)
-			{
-				tilesets[used_index] = load_tileset(&tmxinfo, filename, c);
-				memcpy(&used_tilesets[used_index], &tmxinfo.tilesets[c], sizeof(TMXTileset));
-				used_index += 1;
-			}
-		}
-
 		/* correct with firstgid */
-		tile = (Tile*)loader.data;
+		Tile* tile = (Tile*)loader.data;
 		for (c = 0; c < loader.numtiles; c += 1, tile += 1)
 		{
 			if (tile->index > 0)
 			{
-				tile->tileset = TMXGetSuitableTileset(&tmxinfo, tile->index, used_tilesets);
-				tile->index = tile->index - used_tilesets[tile->tileset].firstgid + 1;
+				int suitable = TMXGetSuitableTileset(&tmxinfo, tile->index, tilesets);
+				if (suitable != -1 && suitable < MAX_TILESETS)
+				{
+					tile->tileset = suitable;
+					tile->index = tile->index - tmxinfo.tilesets[suitable].firstgid + 1;
+				}
+				else
+					tile->index = 0;
 			}
 		}
 
@@ -261,8 +244,10 @@ TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 		tilemap = TLN_CreateTilemap(loader.layer->height, loader.layer->width, (Tile*)loader.data, tmxinfo.bgcolor, NULL);
 		tilemap->id = loader.layer->id;
 		tilemap->visible = loader.layer->visible;
-		memcpy(tilemap->tilesets, tilesets, sizeof(TLN_Tileset)*MAX_TILESETS);
+		tilemap->num_tilesets = tmxinfo.num_tilesets < MAX_TILESETS ? tmxinfo.num_tilesets : MAX_TILESETS;
+		memcpy(tilemap->tilesets, tilesets, sizeof(TLN_Tileset)*tilemap->num_tilesets);
 	}
+
 	return tilemap;
 }
 

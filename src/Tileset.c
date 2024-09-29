@@ -74,7 +74,6 @@ TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette 
 		return NULL;
 	}
 
-	numtiles++;
 	size_tiles = width * height * numtiles;
 	size = sizeof(struct Tileset) + size_tiles;
 	tileset = (TLN_Tileset)CreateBaseObject (OT_TILESET, size);
@@ -177,7 +176,7 @@ bool TLN_SetTilesetPixels (TLN_Tileset tileset, int entry, uint8_t* srcdata, int
 	if (!CheckBaseObject (tileset, OT_TILESET))
 		return false;
 
-	if (tileset->tstype != TILESET_TILES || entry<1 || entry>tileset->numtiles)
+	if (tileset->tstype != TILESET_TILES || entry>tileset->numtiles)
 	{
 		TLN_SetLastError(TLN_ERR_IDX_PICTURE);
 		return false;
@@ -258,7 +257,7 @@ TLN_Tileset TLN_CloneTileset (TLN_Tileset src)
  */
 bool TLN_DeleteTileset (TLN_Tileset tileset)
 {
-	// TODO fix crash on exit, only on Release build, can't be debugged
+	// TODO: implement refcount on cached tilesets, avoid deleting a cached instance
 	return true;
 
 	if (CheckBaseObject (tileset, OT_TILESET))

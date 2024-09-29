@@ -53,7 +53,7 @@ int inc_background[6] = {0};
 
 fix_t x,y,s,a;
 
-static TLN_Tileset road, horizon;
+static TLN_Tilemap road, horizon;
 static int angle;
 
 static void raster_callback (int line);

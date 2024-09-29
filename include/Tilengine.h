@@ -60,7 +60,7 @@
 /* version */
 #define TILENGINE_VER_MAJ	2
 #define TILENGINE_VER_MIN	15
-#define TILENGINE_VER_REV	2
+#define TILENGINE_VER_REV	3
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -74,8 +74,8 @@ typedef enum
 	FLAG_ROTATE		= BITVAL(13),	/*!< row/column flip (unsupported, Tiled compatibility) */
 	FLAG_PRIORITY	= BITVAL(12),	/*!< tile goes in front of sprite layer */
 	FLAG_MASKED		= BITVAL(11),	/*!< sprite won't be drawn inside masked region */
-	FLAG_TILESET    = (7 << 8),		/*!< tileset index (0 - 7) */
-	FLAG_PALETTE	= (7 << 5),		/*!< palette index (0 - 7) */
+	FLAG_TILESET	= (15 << 7),	/*!< tileset index (0 - 15) */
+	FLAG_PALETTE	= (7 << 4),		/*!< palette index (0 - 7) */
 }
 TLN_TileFlags;
 
@@ -132,14 +132,18 @@ typedef union Tile
 			uint16_t flags;	/*!< attributes (FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY) */
 			struct
 			{
-				uint8_t unused : 5;
+				uint8_t unused : 4;
 				uint8_t palette : 3;
-				uint8_t tileset : 3;
+				uint8_t tileset : 4;
+				
+				// COMPILER ERROR: although whole struct fits in 32 bits, compiler expands to 64, causing addressing errors
+				/*
 				bool masked : 1;
 				bool priority : 1;
 				bool rotated : 1;
 				bool flipy : 1;
 				bool flipx : 1;
+				*/
 			};
 		};
 	};

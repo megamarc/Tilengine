@@ -364,10 +364,10 @@ static bool DrawTiledScanline(int nlayer, uint32_t* dstpixel, int nscan, int tx1
 		int width = x1 - x;
 
 		/* paint if not empty tile */
-		if (tile->index)
+		if (tile->index != 0)
 		{
 			const TLN_Tileset tileset = tilemap->tilesets[tile->tileset];
-			const uint16_t tile_index = tileset->tiles[tile->index];
+			const uint16_t tile_index = tileset->tiles[tile->index] - 1;
 
 			/* selects suitable palette */
 			TLN_Palette palette = tileset->palette;
@@ -460,10 +460,10 @@ static bool DrawTiledScanlineScaling(int nlayer, uint32_t* dstpixel, int nscan, 
 		int width = x1 - x;
 
 		/* paint if tile is not empty */
-		if (tile->index)
+		if (tile->index != 0)
 		{
 			const TLN_Tileset tileset = tilemap->tilesets[tile->tileset];
-			const uint16_t tile_index = tileset->tiles[tile->index];
+			const uint16_t tile_index = tileset->tiles[tile->index] - 1;
 
 			/* selects suitable palette */
 			TLN_Palette palette = tileset->palette;
@@ -547,7 +547,7 @@ static bool DrawTiledScanlineAffine(int nlayer, uint32_t* dstpixel, int nscan, i
 		if (tile->index != 0)
 		{
 			const TLN_Tileset tileset = tilemap->tilesets[tile->tileset];
-			const uint16_t tile_index = tileset->tiles[tile->index];
+			const uint16_t tile_index = tileset->tiles[tile->index] - 1;
 
 			/* process flip & rotation flags */
 			if ((tile->flags & (FLAG_FLIPX + FLAG_FLIPY + FLAG_ROTATE)) != 0)
@@ -599,10 +599,10 @@ static bool DrawTiledScanlinePixelMapping(int nlayer, uint32_t* dstpixel, int ns
 		TLN_Tile tile = &tilemap->tiles[ytile*tilemap->cols + xtile];
 
 		/* paint if not empty tile */
-		if (tile->index)
+		if (tile->index != 0)
 		{
 			const TLN_Tileset tileset = tilemap->tilesets[tile->tileset];
-			const uint16_t tile_index = tileset->tiles[tile->index];
+			const uint16_t tile_index = tileset->tiles[tile->index] - 1;
 
 			/* process flip & rotation flags */
 			if ((tile->flags & (FLAG_FLIPX + FLAG_FLIPY + FLAG_ROTATE)) != 0)

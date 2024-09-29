@@ -289,31 +289,45 @@ TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername)
 
 	if (loader.objects != NULL)
 	{
-		TLN_Tileset tileset = NULL;
 		TMXTileset* tmxtileset;
 		struct _Object* item;
 		int gid = 0;
+		int c;
 
 		/* find suitable tileset */
 		item = loader.objects->list;
-		while (item && gid == 0)
+		while (item != NULL && gid == 0)
 		{
 			if (item->gid > 0)
 				gid = item->gid;
 			item = item->next;
 		}
-		tmxtileset = &tmxinfo.tilesets[TMXGetSuitableTileset(&tmxinfo, gid, NULL)];
-		tileset = TLN_LoadTileset(tmxtileset->source);
+
+		/* load referenced tilesets */
+		TLN_Tileset tilesets[TMX_MAX_TILESET] = { 0 };
+		for (c = 0; c < tmxinfo.num_tilesets; c += 1)
+			tilesets[c] = TLN_LoadTileset(tmxinfo.tilesets[c].source);
+
+		int suitable = TMXGetSuitableTileset(&tmxinfo, gid, tilesets);
+		tmxtileset = &tmxinfo.tilesets[suitable];
 
 		/* correct with firstgid */
 		item = loader.objects->list;
-		while (item)
+		while (item != NULL)
 		{
 			if (item->gid > 0)
 				item->gid = item->gid - tmxtileset->firstgid;
 			item = item->next;
 		}
 
+		/* delete unused tilesets */
+		for (c = 0; c < tmxinfo.num_tilesets; c += 1)
+		{
+			if (c != suitable)
+				TLN_DeleteTileset(tilesets[c]);
+		}
+
+		TLN_Tileset tileset = tilesets[suitable];
 		loader.objects->tileset = tileset;
 		loader.objects->width = tmxinfo.width*tmxinfo.tilewidth;
 		loader.objects->height = tmxinfo.height*tmxinfo.tileheight;
