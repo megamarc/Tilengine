@@ -61,7 +61,12 @@ endif()
 target_include_directories(${PROJECT_NAME} PRIVATE include)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -O2 -fpic -DLIB_EXPORTS")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-result -Wno-format-truncation")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-result")
+
+# gcc specific
+if (UNIX AND NOT APPLE)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-format-truncation")
+endif()
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/include/Tilengine.h
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
