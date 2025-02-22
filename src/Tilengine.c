@@ -103,7 +103,7 @@ static TLN_Engine create_context(int hres, int vres, int numlayers, int numsprit
 
 		/* buffer for intermediate scanline output */
 		context->linebuffer = (uint32_t*)calloc(hres, sizeof(uint32_t));
-		context->priority = (uint32_t*)malloc(context->framebuffer.pitch);
+		context->priority = (uint32_t*)calloc(hres, sizeof(uint32_t));
 	}
 
 	/* create static sprites */
