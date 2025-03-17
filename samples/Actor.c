@@ -6,7 +6,7 @@
 /* local variables */
 static Actor* actors;
 static int count = 0;
-static unsigned int time;
+static unsigned int actor_time;
 
 /* local prototypes */
 static void TasksActor (Actor* actor);
@@ -112,7 +112,7 @@ void TasksActors (unsigned int t)
 	if (!actors)
 		return;
 
-	time = t;
+    actor_time = t;
 
 	for (c=0; c<count; c++)
 	{
@@ -135,13 +135,13 @@ bool CheckActorCollision (Actor* actor1, Actor* actor2)
 /* sets generic timeout */
 void SetActorTimeout (Actor* actor, int timer, int timeout)
 {
-	actor->timers[timer] = time + timeout;
+	actor->timers[timer] = actor_time + timeout;
 }
 
 /* gets generic timeout ended */
 bool GetActorTimeout (Actor* actor, int timer)
 {
-	return time >= actor->timers[timer];
+	return actor_time >= actor->timers[timer];
 }
 
 /* TasksActor */

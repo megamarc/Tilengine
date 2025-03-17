@@ -60,7 +60,7 @@ int pos_foreground[3] = {0};
 int pos_background[3] = {0};
 int inc_background[3] = {0};
 unsigned int frame;
-unsigned int time;
+unsigned int racer_time;
 
 uint8_t sky1[3] = {107,205,255};
 uint8_t sky2[3] = {255,242,167};
@@ -144,16 +144,16 @@ void ShooterRun() {
     /* timekeeper */
     int c;
 
-    time = frame;
+    racer_time = frame;
 
     /* bg color (sky) */
-    if (time>=PAL_T0 && time<=PAL_T1 && (time&0x07)==0)
+    if (racer_time>=PAL_T0 && racer_time<=PAL_T1 && (racer_time&0x07)==0)
     {
         /* sky color */
         for (c=0; c<3; c++)
         {
-            sky_hi[c] = lerp(time, PAL_T0,PAL_T1, sky1[c], sky3[c]);
-            sky_lo[c] = lerp(time, PAL_T0,PAL_T1, sky2[c], sky4[c]);
+            sky_hi[c] = lerp(racer_time, PAL_T0,PAL_T1, sky1[c], sky3[c]);
+            sky_lo[c] = lerp(racer_time, PAL_T0,PAL_T1, sky2[c], sky4[c]);
         }
 
         for (c=0; c<MAX_LAYER; c++)
@@ -171,21 +171,21 @@ void ShooterRun() {
     /* layers */
     TLN_SetLayer (LAYER_BACKGROUND, layers[LAYER_FOREGROUND].tileset, layers[LAYER_FOREGROUND].tilemap);
     TLN_SetLayer (LAYER_FOREGROUND, layers[LAYER_BACKGROUND].tileset, layers[LAYER_BACKGROUND].tilemap);
-    TLN_SetLayerPosition (LAYER_BACKGROUND, time/3, 160);
+    TLN_SetLayerPosition (LAYER_BACKGROUND, racer_time/3, 160);
     TLN_SetLayerPosition (LAYER_FOREGROUND, fix2int (pos_background[0]), 64);
     TLN_SetLayerPalette (LAYER_FOREGROUND, palettes[LAYER_BACKGROUND]);
     TLN_SetLayerPalette (LAYER_BACKGROUND, palettes[LAYER_FOREGROUND]);
 
-    if (time < 500)
+    if (racer_time < 500)
     {
         if (rand()%30 == 1)
             CreateEnemy ();
     }
-    else if (time==600)
+    else if (racer_time==600)
         CreateBoss ();
 
     /* actors */
-    TasksActors (time);
+    TasksActors (racer_time);
 
     frame++;
 }
@@ -212,7 +212,7 @@ int main (int argc, char *argv[])
         ShooterRun();
 
 		/* render to window */
-		TLN_DrawFrame (time);
+		TLN_DrawFrame (racer_time);
 	}
 
     ShooterRelease();
@@ -234,7 +234,7 @@ static void raster_callback (int line)
 
 	/* foreground */
 	if (line==32)
-		TLN_SetLayerPosition (LAYER_BACKGROUND, time/4, 160);
+		TLN_SetLayerPosition (LAYER_BACKGROUND, racer_time/4, 160);
 
 	if (line==64)
 	{
