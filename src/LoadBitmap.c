@@ -19,7 +19,7 @@
 #if TLN_HAVE_PNG
 #include "png.h"
 #else
-#include "../../../src/Providers/Texture/stb_image.h"
+#include "stb_image.h"
 #endif
 
 static TLN_Bitmap LoadPNG (const char* filename);
