@@ -19,6 +19,7 @@
 #if TLN_HAVE_PNG
 #include "png.h"
 #else
+#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #endif
 
