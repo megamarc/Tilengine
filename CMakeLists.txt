@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 4.1.2)
 
 project(Tilengine)
 
@@ -18,12 +18,11 @@ elseif (UNIX AND APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE "framework")
 endif()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE "c")
-target_link_libraries(${PROJECT_NAME} PRIVATE "z")
-target_link_libraries(${PROJECT_NAME} PRIVATE "png")
+find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3)
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 
-find_package(SDL2 REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES})
+find_package(PNG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE PNG::PNG)
 
 target_include_directories(${PROJECT_NAME} PRIVATE include)
 
@@ -37,9 +36,6 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/include/Tilengine.h
 add_executable(Test src/Test.c)
 target_include_directories(Test PRIVATE include)
 target_link_libraries(Test PRIVATE "Tilengine")
-target_link_libraries(Test PRIVATE "c")
-target_link_libraries(Test PRIVATE "z")
-target_link_libraries(Test PRIVATE "png")
 target_link_libraries(Test PRIVATE "m")
 
 # samples

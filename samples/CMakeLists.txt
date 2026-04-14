@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 4.1.2)
 
 project(samples)
 
@@ -11,12 +11,12 @@ endif()
 
 include_directories(../include)
 link_libraries("Tilengine")
-link_libraries("c")
-link_libraries("z")
-link_libraries("png")
 link_libraries("m")
-find_package(SDL2 REQUIRED)
-link_libraries(${SDL2_LIBRARIES})
+find_package(SDL3 REQUIRED CONFIG COMPONENTS SDL3)
+find_package(PNG REQUIRED)
+link_libraries(SDL3::SDL3)
+link_libraries(PNG::PNG)
+
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -O2 -fpic -DLIB_EXPORTS")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-result -Wno-format-truncation")

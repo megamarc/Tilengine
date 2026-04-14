@@ -12,34 +12,35 @@
 #define MAX_PLAYERS	4		/* number of unique players */
 #define MAX_INPUTS	32		/* number of inputs per player */
 #define INPUT_MASK	(MAX_INPUTS - 1)
+#include <stdlib.h>
 
 #ifdef WIN32
 #include <Windows.h>
 #endif
 #include <string.h>
-#include "SDL2/SDL.h"
+#include "SDL3/SDL.h"
 #include "Tilengine.h"
 #include "crt.h"
 #include "Engine.h"
 
-static SDL_Window*   window;
-static SDL_Renderer* renderer;
-static SDL_Texture*	 backbuffer;
-static SDL_Thread*   thread;
-static SDL_mutex*	 lock;
-static SDL_cond*	 cond;
-static SDL_Joystick* joy;
-static CRTHandler	 crt;
-static SDL_Rect		 dstrect;
+static SDL_Window*   	window;
+static SDL_Renderer* 	renderer;
+static SDL_Texture*	 	backbuffer;
+static SDL_Thread*   	thread;
+static SDL_Mutex*	 	lock;
+static SDL_Condition*	cond;
+static SDL_Joystick* 	joy;
+static CRTHandler	 	crt;
+static SDL_FRect		dstrect;
 
-static bool			 init;
-static bool			 done;
-static int			 wnd_width;
-static int			 wnd_height;
-static int			 instances = 0;
-static uint8_t*		 rt_pixels;
-static int			 rt_pitch;
-static char*		 window_title;
+static bool			 	init;
+static bool			 	done;
+static int			 	wnd_width;
+static int			 	wnd_height;
+static int			 	instances = 0;
+static uint8_t*		 	rt_pixels;
+static int			 	rt_pitch;
+static char*		 	window_title;
 
 static int			last_key;
 static TLN_SDLCallback sdl_callback = NULL;
@@ -112,30 +113,34 @@ static void SetupBackBuffer(void)
 	/* create framebuffer texture */
 	if (backbuffer != NULL)
 		SDL_DestroyTexture(backbuffer);
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, crt_params.enable ? "1" : "0");
+
 	backbuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, wnd_params.width, wnd_params.height);
+
+	SDL_SetTextureScaleMode(backbuffer, crt_params.enable ? SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST);
 }
 
 /* create window delegate */
 static bool create_window(void)
 {
-	SDL_DisplayMode mode;
+	const SDL_DisplayMode *mode;
 	SDL_Surface* surface = NULL;
-	int rflags;
+	SDL_WindowFlags rflags;
 	char quality[2] = { 0 };
 	Uint32 format = 0;
 	WindowFlags flags;
 	flags.value = wnd_params.flags;
 
 	/*  gets desktop size and maximum window size */
-	SDL_GetDesktopDisplayMode(0, &mode);
+	mode = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
+	if (mode == NULL) { /* gerer l'erreur mais la j'ai pas le temps*/ }
+
 	if (!flags.fullscreen)
 	{
 		rflags = 0;
 		if (flags.factor == 0)
 		{
 			flags.factor = 1;
-			while (wnd_params.width*(flags.factor + 1) < mode.w && wnd_params.height*(flags.factor + 1) < mode.h && flags.factor < 3)
+			while (wnd_params.width*(flags.factor + 1) < mode->w && wnd_params.height*(flags.factor + 1) < mode->h && flags.factor < 3)
 				flags.factor += 1;
 		}
 
@@ -150,20 +155,19 @@ static bool create_window(void)
 	}
 	else
 	{
-		rflags = SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_BORDERLESS;
-#if SDL_VERSION_ATLEAST(2,0,5)
+		rflags = SDL_WINDOW_FULLSCREEN;
 		rflags |= SDL_WINDOW_ALWAYS_ON_TOP;
-#endif
-		wnd_width = mode.w;
+
+		wnd_width = mode->w;
 		wnd_height = wnd_width * wnd_params.height / wnd_params.width;
-		if (wnd_height > mode.h)
+		if (wnd_height > mode->h)
 		{
-			wnd_height = mode.h;
+			wnd_height = mode->h;
 			wnd_width = wnd_height * wnd_params.width / wnd_params.height;
 		}
 
-		dstrect.x = (mode.w - wnd_width) >> 1;
-		dstrect.y = (mode.h - wnd_height) >> 1;
+		dstrect.x = (mode->w - wnd_width) >> 1;
+		dstrect.y = (mode->h - wnd_height) >> 1;
 		dstrect.w = wnd_width;
 		dstrect.h = wnd_height;
 	}
@@ -171,7 +175,7 @@ static bool create_window(void)
 	/* create window */
 	if (window_title == NULL)
 		window_title = strdup("Tilengine window");
-	window = SDL_CreateWindow(window_title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, wnd_width, wnd_height, rflags);
+	window = SDL_CreateWindow(window_title, wnd_width, wnd_height, rflags);
 	if (!window)
 	{
 		delete_window();
@@ -187,18 +191,17 @@ static bool create_window(void)
 		TLN_DefineInputKey(PLAYER1, INPUT_DOWN, SDLK_DOWN);
 		TLN_DefineInputKey(PLAYER1, INPUT_LEFT, SDLK_LEFT);
 		TLN_DefineInputKey(PLAYER1, INPUT_RIGHT, SDLK_RIGHT);
-		TLN_DefineInputKey(PLAYER1, INPUT_BUTTON1, SDLK_z);
-		TLN_DefineInputKey(PLAYER1, INPUT_BUTTON2, SDLK_x);
-		TLN_DefineInputKey(PLAYER1, INPUT_BUTTON3, SDLK_c);
-		TLN_DefineInputKey(PLAYER1, INPUT_BUTTON4, SDLK_v);
+		TLN_DefineInputKey(PLAYER1, INPUT_BUTTON1, SDLK_Z);
+		TLN_DefineInputKey(PLAYER1, INPUT_BUTTON2, SDLK_X);
+		TLN_DefineInputKey(PLAYER1, INPUT_BUTTON3, SDLK_C);
+		TLN_DefineInputKey(PLAYER1, INPUT_BUTTON4, SDLK_V);
 		TLN_DefineInputKey(PLAYER1, INPUT_START, SDLK_RETURN);
 		TLN_DefineInputKey(PLAYER1, INPUT_QUIT, SDLK_ESCAPE);
 		TLN_DefineInputKey(PLAYER1, INPUT_CRT, SDLK_BACKSPACE);
 
 		/* joystick */
-		if (SDL_NumJoysticks() > 0)
+		if (SDL_HasJoystick())
 		{
-			SDL_JoystickEventState(SDL_ENABLE);
 			TLN_AssignInputJoystick(PLAYER1, 0);
 			TLN_DefineInputButton(PLAYER1, INPUT_BUTTON1, 1);
 			TLN_DefineInputButton(PLAYER1, INPUT_BUTTON2, 0);
@@ -225,9 +228,10 @@ static bool create_window(void)
 			wnd_params.min_delay = (SDL_GetTicks() - t0) / c;
 
 			/* capture actual monitor fps */
-			SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED + SDL_RENDERER_PRESENTVSYNC);
+			SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
 			if (renderer != NULL)
 			{
+				SDL_SetRenderVSync(renderer, 1);  // active vsync sur ce renderer temporaire
 				int target_fps = 0;
 				SDL_RenderPresent(renderer);
 				t0 = SDL_GetTicks();
@@ -257,22 +261,21 @@ static bool create_window(void)
 	}
 
 	/* create render context */
-	rflags = SDL_RENDERER_ACCELERATED;
-	if (!(wnd_params.flags & CWF_NOVSYNC))
-		rflags |= SDL_RENDERER_PRESENTVSYNC;
-	renderer = SDL_CreateRenderer(window, -1, rflags);
+	renderer = SDL_CreateRenderer(window, NULL);
 	if (!renderer)
 	{
 		delete_window();
 		return false;
 	}
+	if (!(wnd_params.flags & CWF_NOVSYNC))
+		SDL_SetRenderVSync(renderer, 1);
 
 	/* setup backbuffer & crt effect */
 	SetupBackBuffer();
 	crt = CRTCreate(renderer, backbuffer, crt_params.type, wnd_width, wnd_height, crt_params.blur);
 
 	if (wnd_params.flags & CWF_FULLSCREEN)
-		SDL_ShowCursor(SDL_DISABLE);
+		SDL_HideCursor();
 
 
 	done = false;
@@ -282,8 +285,9 @@ static bool create_window(void)
 /* destroy window delegate */
 static void delete_window (void)
 {
-	if (SDL_JoystickGetAttached(joy))
-		SDL_JoystickClose(joy);
+
+	if (joy != NULL && SDL_JoystickConnected(joy))
+		SDL_CloseJoystick(joy);
 
 	CRTDelete(crt);
 	crt = NULL;
@@ -293,6 +297,7 @@ static void delete_window (void)
 		SDL_DestroyTexture (backbuffer);
 		backbuffer = NULL;
 	}
+
 	
 	if (renderer)
 	{
@@ -305,6 +310,7 @@ static void delete_window (void)
 		SDL_DestroyWindow (window);
 		window = NULL;
 	}
+
 }
 
 /*!
@@ -346,7 +352,7 @@ static int WindowThread (void* data)
 	{
 		SDL_LockMutex (lock);
 		TLN_DrawFrame (0);
-		SDL_CondSignal (cond);
+		SDL_SignalCondition (cond);
 		SDL_UnlockMutex (lock);
 		TLN_ProcessWindow ();
 	}
@@ -382,6 +388,7 @@ static int WindowThread (void* data)
  */
 bool TLN_CreateWindow (const char* overlay, int flags)
 {
+
 	bool ok;
 
 	/* allow single instance */
@@ -391,7 +398,7 @@ bool TLN_CreateWindow (const char* overlay, int flags)
 		return true;
 	}
 
-	if (SDL_Init (SDL_INIT_VIDEO|SDL_INIT_JOYSTICK) != 0)
+	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK))
 		return false;
 
 	/* fill parameters for window creation */
@@ -453,7 +460,7 @@ bool TLN_CreateWindowThread (const char* overlay, int flags)
 
 	crt_params.enable = (wnd_params.flags & CWF_NEAREST) == 0;
 	lock = SDL_CreateMutex ();
-	cond = SDL_CreateCond ();
+	cond = SDL_CreateCondition ();
 
 	/* init thread & wait window creation result */
 	thread = SDL_CreateThread (WindowThread, "WindowThread", &wnd_params);
@@ -487,7 +494,7 @@ void TLN_DeleteWindow (void)
 		return;
 
 	delete_window ();
-	SDL_Quit ();
+	//SDL_Quit ();
 	printf(" ");
 }
 
@@ -505,7 +512,7 @@ static void ClrInput (TLN_Player player, TLN_Input input)
 }
 
 /* process keyboard input */
-static void ProcessKeycodeInput (TLN_Player player, SDL_Keycode keycode, uint8_t state)
+static void ProcessKeycodeInput (TLN_Player player, SDL_Keycode keycode, bool state)
 {
 	int c;
 	PlayerInput* player_input = &player_inputs[player];
@@ -519,13 +526,10 @@ static void ProcessKeycodeInput (TLN_Player player, SDL_Keycode keycode, uint8_t
 	}
 
 	/* update */
-	if (input != INPUT_NONE)
-	{
-		if (state == SDL_PRESSED)
-			SetInput (player, input);
-		else
-			ClrInput (player, input);
-	}
+	if (state)   // true = appuyé, false = relâché
+		SetInput(player, input);
+	else
+		ClrInput(player, input);
 }
 
 /* process joystick button input */
@@ -545,7 +549,7 @@ static void ProcessJoybuttonInput (TLN_Player player, uint8_t button, uint8_t st
 	/* update */
 	if (input != INPUT_NONE)
 	{
-		if (state == SDL_PRESSED)
+		if (state)
 			SetInput (player, input);
 		else
 			ClrInput (player, input);
@@ -606,25 +610,25 @@ bool TLN_ProcessWindow (void)
 	{
 		switch (evt.type)
 		{
-		case SDL_QUIT:
+		case SDL_EVENT_QUIT:
 			done = true;
 			break;
 
-		case SDL_KEYDOWN:
+		case SDL_EVENT_KEY_DOWN:
 			keybevt = (SDL_KeyboardEvent*)&evt;
 			if (keybevt->repeat != 0)
 				break;
 
 			/* special inputs */
-			if (keybevt->keysym.sym == player_inputs[PLAYER1].keycodes[INPUT_QUIT])
+			if (keybevt->key == player_inputs[PLAYER1].keycodes[INPUT_QUIT])
 				done = true;
-			else if (keybevt->keysym.sym == player_inputs[PLAYER1].keycodes[INPUT_CRT])
+			else if (keybevt->key == player_inputs[PLAYER1].keycodes[INPUT_CRT])
 			{
 				crt_params.enable = !crt_params.enable;
 				SetupBackBuffer();
 				CRTSetRenderTarget(crt, backbuffer);
 			}
-			else if (keybevt->keysym.sym == SDLK_RETURN && keybevt->keysym.mod & KMOD_ALT)
+			else if (keybevt->key == SDLK_RETURN && keybevt->mod & SDL_KMOD_ALT)
 			{
 				delete_window();
 				wnd_params.flags ^= CWF_FULLSCREEN;
@@ -634,7 +638,7 @@ bool TLN_ProcessWindow (void)
 			/* override window scale */
 			for (c = 1; c <= 5; c += 1)
 			{
-				if (keybevt->keysym.sym == (SDL_Keycode)('0' + c) && keybevt->keysym.mod & KMOD_ALT)
+				if (keybevt->key == (SDL_Keycode)('0' + c) && keybevt->mod & SDL_KMOD_ALT)
 				{
 					WindowFlags flags;
 					flags.value = wnd_params.flags;
@@ -653,30 +657,30 @@ bool TLN_ProcessWindow (void)
 			for (c = PLAYER1; c < MAX_PLAYERS; c++)
 			{
 				if (player_inputs[c].enabled == true)
-					ProcessKeycodeInput((TLN_Player)c, keybevt->keysym.sym, keybevt->state);
+					ProcessKeycodeInput((TLN_Player)c, keybevt->key, keybevt->down);
 			}
 			break;
 
-		case SDL_KEYUP:
+		case SDL_EVENT_KEY_UP:
 			keybevt = (SDL_KeyboardEvent*)&evt;
 			for (c = PLAYER1; c < MAX_PLAYERS; c++)
 			{
 				if (player_inputs[c].enabled == true)
-					ProcessKeycodeInput((TLN_Player)c, keybevt->keysym.sym, keybevt->state);
+					ProcessKeycodeInput((TLN_Player)c, keybevt->key, keybevt->down);
 			}
 			break;
 
-		case SDL_JOYBUTTONDOWN:
-		case SDL_JOYBUTTONUP:
+		case SDL_EVENT_JOYSTICK_BUTTON_DOWN:
+		case SDL_EVENT_JOYSTICK_BUTTON_UP:
 			joybuttonevt = (SDL_JoyButtonEvent*)&evt;
 			for (c=PLAYER1; c<MAX_PLAYERS; c++)
 			{
 				if (player_inputs[c].enabled == true && player_inputs[c].joystick_id == joybuttonevt->which)
-					ProcessJoybuttonInput ((TLN_Player)c, joybuttonevt->button, joybuttonevt->state);
+					ProcessJoybuttonInput ((TLN_Player)c, joybuttonevt->button, joybuttonevt->down);
 			}
 			break;
 
-		case SDL_JOYAXISMOTION:
+		case SDL_EVENT_JOYSTICK_AXIS_MOTION:
 			joyaxisevt = (SDL_JoyAxisEvent*)&evt;
 			for (c=PLAYER1; c<MAX_PLAYERS; c++)
 			{
@@ -727,7 +731,7 @@ void TLN_WaitRedraw (void)
 	if (lock)
 	{
 		SDL_LockMutex (lock);
-		SDL_CondWait (cond, lock);
+		SDL_WaitCondition (cond, lock);
 		SDL_UnlockMutex (lock);
 	}
 }
@@ -868,13 +872,13 @@ void TLN_AssignInputJoystick (TLN_Player player, int index)
 	PlayerInput* player_input = &player_inputs[player];
 	if (player_input->joy != NULL)
 	{
-		SDL_JoystickClose (player_input->joy);
+		SDL_CloseJoystick (player_input->joy);
 		player_input->joy = NULL;
 	}
 	if (index >= 0)
 	{
-		player_input->joy = SDL_JoystickOpen (index);
-		player_input->joystick_id = SDL_JoystickInstanceID (player_input->joy);
+		player_input->joy = SDL_OpenJoystick (index);
+		player_input->joystick_id = SDL_GetJoystickID (player_input->joy);
 	}
 }
 
@@ -955,7 +959,7 @@ static void EndWindowFrame(void)
 	{
 		SDL_UnlockTexture(backbuffer);
 		SDL_SetTextureBlendMode(backbuffer, SDL_BLENDMODE_NONE);
-		SDL_RenderCopy(renderer, backbuffer, NULL, &dstrect);
+		SDL_RenderTexture(renderer, backbuffer, NULL, &dstrect);
 	}
 
 	/* no vsync: timed sync */
