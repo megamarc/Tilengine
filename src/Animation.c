@@ -382,6 +382,51 @@ bool TLN_DisablePaletteAnimation (int index)
 	return true;
 }
 
+static bool enableTilesetAnimation(TLN_Tileset tileset, int index, bool enable)
+{
+	if (tileset == NULL)
+	{
+		TLN_SetLastError(TLN_ERR_REF_TILESET);
+		return false;
+	}
+
+	if (tileset->animations == NULL || tileset->sp == NULL)
+	{
+		TLN_SetLastError(TLN_ERR_REF_SEQUENCE);
+		return false;
+	}
+
+	if (index >= tileset->sp->num_sequences)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_ANIMATION);
+		return false;
+	}
+
+	tileset->animations[index].paused = enable;
+	TLN_SetLastError(TLN_ERR_OK);
+	return true;
+}
+
+/*! \brief Pauses animation for the given tileset
+ * \param tileset Reference of the tileset to pause animation
+ * \param index Id of the animation to pause (0 <= id < num_animations)
+ * \see Animations TLN_ResumeTilesetAnimation, TLN_GetTilesetNumAnimations
+ */
+bool TLN_PauseTilesetAnimation(TLN_Tileset tileset, int index)
+{
+	return enableTilesetAnimation(tileset, index, true);
+}
+
+/*! \brief Restores animation for the given tileset
+ * \param tileset Reference of the tileset to resume animation
+ * \param index Id of the animation to resume (0 <= id < num_animations)
+ * \see Animations TLN_PauseTilesetAnimation, TLN_GetTilesetNumAnimations
+ */
+bool TLN_ResumeTilesetAnimation(TLN_Tileset tileset, int index)
+{
+	return enableTilesetAnimation(tileset, index, false);
+}
+
 /*!
  * \brief Pauses animation for the given sprite
  *

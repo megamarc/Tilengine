@@ -388,6 +388,15 @@ TLN_SequencePack TLN_GetTilesetSequencePack (TLN_Tileset tileset)
 		return NULL;
 }
 
+/*! \brief Returns number of animations in given tileset 
+*	\param tileset Reference to the tileset to get the number of animations
+*	\returns Number of animations in the tileset, or 0 if none
+*/
+TLNAPI int TLN_GetTilesetNumAnimations(TLN_Tileset tileset)
+{
+	return CheckBaseObject(tileset, OT_TILESET) && tileset->sp != NULL ? tileset->sp->num_sequences : 0;
+}
+
 /* for image-based tilesets: returns bitmap with matching tileid */
 TLN_Bitmap GetTilesetBitmap(TLN_Tileset tileset, int tileid)
 {

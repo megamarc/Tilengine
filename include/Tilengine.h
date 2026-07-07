@@ -60,7 +60,7 @@
 /* version */
 #define TILENGINE_VER_MAJ	2
 #define TILENGINE_VER_MIN	15
-#define TILENGINE_VER_REV	3
+#define TILENGINE_VER_REV	4
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -505,6 +505,9 @@ TLNAPI int TLN_GetTileHeight (TLN_Tileset tileset);
 TLNAPI int TLN_GetTilesetNumTiles(TLN_Tileset tileset);
 TLNAPI TLN_Palette TLN_GetTilesetPalette (TLN_Tileset tileset);
 TLNAPI TLN_SequencePack TLN_GetTilesetSequencePack (TLN_Tileset tileset);
+TLNAPI int TLN_GetTilesetNumAnimations(TLN_Tileset tileset);
+TLNAPI bool TLN_PauseTilesetAnimation(TLN_Tileset tileset, int index);
+TLNAPI bool TLN_ResumeTilesetAnimation(TLN_Tileset tileset, int index);
 TLNAPI bool TLN_DeleteTileset (TLN_Tileset tileset);
 /**@}*/
 

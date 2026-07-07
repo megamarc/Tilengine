@@ -22,7 +22,14 @@ x64_Debug/
 x64_Release/
 *.pyc
 *.exe
+*.dll
+*.htm
+upload.sh
 
+docs/
+lib/
+web/
+libpng/
 docs/screens/
 samples/assets/mslug/
 samples/assets/sunny_land/

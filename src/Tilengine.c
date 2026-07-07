@@ -467,8 +467,9 @@ static void BeginFrame (int frame)
 		{
 			Sprite* sprite = &engine->sprites[index];
 			sprite->collision = false;
-			if (sprite->animation.enabled && !sprite->animation.paused)
-				UpdateAnimation(&sprite->animation, frame);
+			Animation* animation = &sprite->animation;
+			if (animation->enabled && !animation->paused)
+				UpdateAnimation(animation, frame);
 			index = sprite->list_node.next;
 		}
 	}
@@ -491,7 +492,11 @@ static void BeginFrame (int frame)
 				{
 					int c;
 					for (c = 0; c < tileset->sp->num_sequences; c += 1)
-						UpdateAnimation(&tileset->animations[c], frame);
+					{
+						Animation* animation = &tileset->animations[c];
+						if (animation->enabled && !animation->paused)
+							UpdateAnimation(animation, frame);
+					}
 				}
 			}
 		}
