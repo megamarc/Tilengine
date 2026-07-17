@@ -65,7 +65,7 @@ static bool draw_background_scanline(int nlayer, int line)
 		scan = GetFramebufferLine(line);
 
 	if (scan == engine->linebuffer)
-		memset(scan, 0, engine->framebuffer.pitch);
+		memset(scan, 0, engine->framebuffer.width * sizeof(*scan));
 
 	/* regular region */
 	if (scan != NULL)
@@ -91,7 +91,7 @@ static bool draw_background_scanline(int nlayer, int line)
 	/* build mosaic to linebuffer */
 	if (build_mosaic)
 	{
-		memset(mosaic, 0, engine->framebuffer.pitch);
+		memset(mosaic, 0, engine->framebuffer.width * sizeof(*mosaic));
 		BlitMosaic(engine->linebuffer, mosaic, framewidth, layer->mosaic.w, NULL);
 	}
 
@@ -170,7 +170,7 @@ bool DrawScanline(void)
 	if (engine->numlayers > 0)
 	{
 		background_priority = false;
-		memset(engine->priority, 0, engine->framebuffer.pitch);
+		memset(engine->priority, 0, engine->framebuffer.width * sizeof(*engine->priority));
 		for (c = engine->numlayers - 1; c >= 0; c--)
 		{
 			Layer* layer = &engine->layers[c];
