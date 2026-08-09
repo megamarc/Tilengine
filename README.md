@@ -5,6 +5,13 @@
 
 Tilengine is an open source, cross-platform 2D graphics engine for creating classic/retro games with tile maps, sprites and palettes. Its unique scanline-based rendering algorithm makes raster effects a core feature, a technique used by many games running on real 2D graphics chips.
 
+# This fork
+
+This fork, in the macos branch, 
+- allows the use of a bundled stb_image instead of libpng via -DTLN_OPTION_LIBPNG=ON
+- only uses SDL2 if the -DTLN_OPTION_SAMPLES=ON flag is set
+- fixes macOS setting issues in the CMakeLists.txt
+
 http://www.tilengine.org
 
 # Contents

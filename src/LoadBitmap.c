@@ -12,10 +12,16 @@
 #include <string.h>
 #include "Tilengine.h"
 #include "LoadFile.h"
-#include "png.h"
 #include "DIB.h"
 #include "Bitmap.h"
 #include "Palette.h"
+
+#if TLN_HAVE_PNG
+#include "png.h"
+#else
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+#endif
 
 static TLN_Bitmap LoadPNG (const char* filename);
 static TLN_Bitmap LoadBMP (const char* filename);
@@ -114,7 +120,8 @@ static TLN_Bitmap Convert24ToIndexed(TLN_Bitmap source)
 		for (x = 0; x < source->width; x += 1)
 		{
 			uint32_t value = PackRGB32(srccolor->r, srccolor->g, srccolor->b);
-			*dstcolor = set_get_index(&colors, value) + 1;
+            uint8_t idx =  set_get_index(&colors, value);
+            *dstcolor = !idx ? 0 : idx + 1;
 			srccolor += 1;
 			dstcolor += 1;
 		}
@@ -257,6 +264,34 @@ TLN_Bitmap TLN_LoadBitmap (const char* filename)
 	return bitmap;
 }
 
+#if !TLN_HAVE_PNG
+
+static TLN_Bitmap LoadPNG (const char* filename)
+{
+    TLN_Bitmap bitmap = NULL;
+    int width, height, bpp;
+    uint8_t* data = stbi_load (filename, &width, &height, &bpp, 0);
+    if (data)
+    {
+        bitmap = TLN_CreateBitmap (width, height, bpp * 8);
+        if (bitmap)
+        {
+            int pitch = TLN_GetBitmapPitch (bitmap);
+            uint8_t* dst = TLN_GetBitmapPtr (bitmap, 0, 0);
+            int y;
+            for (y=0; y<height; y++)
+            {
+                memcpy (dst, data + y * width * bpp, width * bpp);
+                dst += pitch;
+            }
+        }
+        stbi_image_free (data);
+    }
+    return bitmap;
+}
+
+#else
+
 /* Loads PNG using libpng 1.2 */
 static TLN_Bitmap LoadPNG (const char* filename)
 {
@@ -333,6 +368,8 @@ static TLN_Bitmap LoadPNG (const char* filename)
 	png_destroy_read_struct (&png, &info, NULL);
 	return bitmap;
 }
+
+#endif
 
 /* loads BMP */
 static TLN_Bitmap LoadBMP (const char* filename)

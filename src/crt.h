@@ -2,7 +2,10 @@
 #define _CRT_H
 
 #include <stdbool.h>
+
+#if TILEENGINE_HAVE_SDL2
 #include "SDL2/SDL.h"
+#endif
 
 typedef enum
 {
@@ -18,9 +21,12 @@ typedef struct _CRTHandler* CRTHandler;
 extern "C"{
 #endif
 
-	CRTHandler CRTCreate(SDL_Renderer* renderer, SDL_Texture* framebuffer, CRTType type, int wnd_width, int wnd_height, bool blur);
+#if TILEENGINE_HAVE_SDL2
+	CRTHandler CRTCreate(SDL_Renderer* renderer, SDL_Texture* framebuffer,
+                         CRTType type, int wnd_width, int wnd_height, bool blur);
 	void CRTDraw(CRTHandler crt, void* pixels, int pitch, SDL_Rect* dstrect);
 	void CRTSetRenderTarget(CRTHandler crt, SDL_Texture* framebuffer);
+#endif
 	void CRTIncreaseGlow(CRTHandler crt);
 	void CRTDecreaseGlow(CRTHandler crt);
 	void CRTSetBlur(CRTHandler crt, bool blur);

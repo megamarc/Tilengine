@@ -55,6 +55,5 @@ enum
 
 extern TLN_Sequence sequences[MAX_SEQ];
 extern TLN_Spriteset spritesets[MAX_SPRITESET];
-extern unsigned int time;
 
 #endif

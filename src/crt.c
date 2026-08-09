@@ -62,9 +62,11 @@ Size2D;
 
 struct _CRTHandler
 {
+#if TLN_HAVE_SDL2
 	SDL_Renderer* renderer;
 	SDL_Texture* framebuffer;
 	SDL_Texture* overlay;
+#endif
 	Size2D size_fb;
 	uint8_t glow;
 	bool blur;
@@ -72,6 +74,9 @@ struct _CRTHandler
 
 /* private prototypes */
 static void hblur(uint8_t* scan, int width, int height, int pitch);
+
+#if TLN_HAVE_SDL2
+
 static SDL_Texture* create_tiled_texture(SDL_Renderer* renderer, int width, int height, int tile_width, int tile_height, const uint8_t* tile_data);
 
 /* create CRT effect */
@@ -142,6 +147,8 @@ void CRTSetRenderTarget(CRTHandler crt, SDL_Texture* framebuffer)
 		crt->framebuffer = framebuffer;
 }
 
+#endif
+
 void CRTIncreaseGlow(CRTHandler crt)
 {
 	if (crt != NULL && crt->glow < 255)
@@ -162,9 +169,10 @@ void CRTSetBlur(CRTHandler crt, bool blur)
 
 void CRTDelete(CRTHandler crt)
 {
+#if TLN_HAVE_SDL2
 	if (crt != NULL)
 		SDL_DestroyTexture(crt->overlay);
-
+#endif
 	free(crt);
 }
 
@@ -200,6 +208,8 @@ static void blit(const uint8_t* srcptr, uint8_t* dstptr, int srcpitch, int lines
 	}
 }
 
+#if TLN_HAVE_SDL2
+
 static SDL_Texture* create_tiled_texture(SDL_Renderer* renderer, int width, int height, int tile_width, int tile_height, const uint8_t* tile_data)
 {
 	SDL_Surface* surface = SDL_CreateRGBSurface(0, width, height, 32, 0, 0, 0, 0);
@@ -222,3 +232,6 @@ static SDL_Texture* create_tiled_texture(SDL_Renderer* renderer, int width, int 
 	SDL_FreeSurface(surface);
 	return texture;
 }
+
+#endif
+

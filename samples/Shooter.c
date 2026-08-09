@@ -60,7 +60,7 @@ int pos_foreground[3] = {0};
 int pos_background[3] = {0};
 int inc_background[3] = {0};
 unsigned int frame;
-unsigned int time;
+unsigned int racer_time;
 
 uint8_t sky1[3] = {107,205,255};
 uint8_t sky2[3] = {255,242,167};
@@ -97,48 +97,111 @@ static void FreeLayer (int index)
 	TLN_DeleteTilemap (layer->tilemap);
 }
 
+void ShooterInit(const char* resourceRoot)
+{
+    int c;
+
+    /* setup engine */
+    TLN_Init (WIDTH,HEIGHT, MAX_LAYER, MAX_ACTOR, 0);
+    TLN_SetRasterCallback (raster_callback);
+    TLN_SetBGColor (136,238,204);
+
+    /* load resources*/
+    TLN_SetLoadPath (resourceRoot);
+    spritesets[SPRITESET_MAIN] = TLN_LoadSpriteset ("FireLeo");
+    spritesets[SPRITESET_HELLARM] = TLN_LoadSpriteset ("HellArm");
+    LoadLayer (LAYER_FOREGROUND, "TF4_fg1");
+    LoadLayer (LAYER_BACKGROUND, "TF4_bg1");
+
+    /* create sequences from sprite names */
+    sequences[SEQ_CLAW  ] = TLN_CreateSpriteSequence (NULL, spritesets[SPRITESET_MAIN], "claw", 4);
+    sequences[SEQ_BLADE1] = TLN_CreateSpriteSequence (NULL, spritesets[SPRITESET_MAIN], "bladeb", 2);
+    sequences[SEQ_BLADE2] = TLN_CreateSpriteSequence (NULL, spritesets[SPRITESET_MAIN], "blades", 2);
+    sequences[SEQ_EXPLO1] = TLN_CreateSpriteSequence (NULL, spritesets[SPRITESET_MAIN], "explb", 3);
+    sequences[SEQ_EXPLO2] = TLN_CreateSpriteSequence (NULL, spritesets[SPRITESET_MAIN], "expls", 2);
+
+    /* create actors */
+    CreateActors (MAX_ACTOR);
+    CreateShip ();
+    BuildSinTable ();
+
+    /* compute increments for background scroll*/
+    inc_background[0] = float2fix(1.0f);    /* 1.0 pixels/frame */
+    inc_background[1] = float2fix(1.2f);    /* 1.2 pixels/frame*/
+    inc_background[2] = float2fix(8.0f);    /* 8.0 pixels/frame*/
+
+    /* initial colors */
+    for (c=0; c<3; c++)
+    {
+        sky_hi[c] = sky1[c];
+        sky_lo[c] = sky2[c];
+    }
+    for (c=0; c<MAX_LAYER; c++)
+        palettes[c] = TLN_ClonePalette (TLN_GetTilesetPalette (layers[c].tileset));
+}
+
+void ShooterRun() {
+    /* timekeeper */
+    int c;
+
+    racer_time = frame;
+
+    /* bg color (sky) */
+    if (racer_time>=PAL_T0 && racer_time<=PAL_T1 && (racer_time&0x07)==0)
+    {
+        /* sky color */
+        for (c=0; c<3; c++)
+        {
+            sky_hi[c] = lerp(racer_time, PAL_T0,PAL_T1, sky1[c], sky3[c]);
+            sky_lo[c] = lerp(racer_time, PAL_T0,PAL_T1, sky2[c], sky4[c]);
+        }
+
+        for (c=0; c<MAX_LAYER; c++)
+        {
+            if (palettes[c])
+                TLN_DeletePalette (palettes[c]);
+            palettes[c] = TLN_ClonePalette (TLN_GetTilesetPalette (layers[c].tileset));
+        }
+    }
+
+    /* scroll */
+    for (c=0; c<3; c++)
+        pos_background[c] += inc_background[c];
+
+    /* layers */
+    TLN_SetLayer (LAYER_BACKGROUND, layers[LAYER_FOREGROUND].tileset, layers[LAYER_FOREGROUND].tilemap);
+    TLN_SetLayer (LAYER_FOREGROUND, layers[LAYER_BACKGROUND].tileset, layers[LAYER_BACKGROUND].tilemap);
+    TLN_SetLayerPosition (LAYER_BACKGROUND, racer_time/3, 160);
+    TLN_SetLayerPosition (LAYER_FOREGROUND, fix2int (pos_background[0]), 64);
+    TLN_SetLayerPalette (LAYER_FOREGROUND, palettes[LAYER_BACKGROUND]);
+    TLN_SetLayerPalette (LAYER_BACKGROUND, palettes[LAYER_FOREGROUND]);
+
+    if (racer_time < 500)
+    {
+        if (rand()%30 == 1)
+            CreateEnemy ();
+    }
+    else if (racer_time==600)
+        CreateBoss ();
+
+    /* actors */
+    TasksActors (racer_time);
+
+    frame++;
+}
+
+void ShooterRelease() {
+    /* deinit */
+    FreeLayer (LAYER_FOREGROUND);
+    FreeLayer (LAYER_BACKGROUND);
+    TLN_Deinit ();
+}
+
+#if TLN_HAVE_SDL2
 /* entry point */
 int main (int argc, char *argv[])
 {
-	int c;
-
-	/* setup engine */
-	TLN_Init (WIDTH,HEIGHT, MAX_LAYER, MAX_ACTOR, 0);
-	TLN_SetRasterCallback (raster_callback);
-	TLN_SetBGColor (136,238,204);
-
-	/* load resources*/
-	TLN_SetLoadPath ("assets/tf4");
-	spritesets[SPRITESET_MAIN] = TLN_LoadSpriteset ("FireLeo");
-	spritesets[SPRITESET_HELLARM] = TLN_LoadSpriteset ("HellArm");
-	LoadLayer (LAYER_FOREGROUND, "TF4_fg1");
-	LoadLayer (LAYER_BACKGROUND, "TF4_bg1");
-
-	/* create sequences from sprite names */
-	sequences[SEQ_CLAW  ] = TLN_CreateSpriteSequence (NULL, spritesets[SPRITESET_MAIN], "claw", 4);
-	sequences[SEQ_BLADE1] = TLN_CreateSpriteSequence (NULL, spritesets[SPRITESET_MAIN], "bladeb", 2);
-	sequences[SEQ_BLADE2] = TLN_CreateSpriteSequence (NULL, spritesets[SPRITESET_MAIN], "blades", 2);
-	sequences[SEQ_EXPLO1] = TLN_CreateSpriteSequence (NULL, spritesets[SPRITESET_MAIN], "explb", 3);
-	sequences[SEQ_EXPLO2] = TLN_CreateSpriteSequence (NULL, spritesets[SPRITESET_MAIN], "expls", 2);
-
-	/* create actors */
-	CreateActors (MAX_ACTOR);
-	CreateShip ();
-	BuildSinTable ();
-
-	/* compute increments for background scroll*/
-	inc_background[0] = float2fix(1.0f);	/* 1.0 pixels/frame */
-	inc_background[1] = float2fix(1.2f);	/* 1.2 pixels/frame*/
-	inc_background[2] = float2fix(8.0f);	/* 8.0 pixels/frame*/
-
-	/* initial colors */
-	for (c=0; c<3; c++)
-	{
-		sky_hi[c] = sky1[c];
-		sky_lo[c] = sky2[c];
-	}
-	for (c=0; c<MAX_LAYER; c++)
-		palettes[c] = TLN_ClonePalette (TLN_GetTilesetPalette (layers[c].tileset));
+    ShooterInit("assets/tf4");
 
 	/* startup display */
 	TLN_CreateWindow (NULL, 0);
@@ -146,63 +209,16 @@ int main (int argc, char *argv[])
 	/* main loop */
 	while (TLN_ProcessWindow ())
 	{
-		/* timekeeper */
-		time = frame;
-
-		/* bg color (sky) */
-		if (time>=PAL_T0 && time<=PAL_T1 && (time&0x07)==0)
-		{
-			/* sky color */
-			for (c=0; c<3; c++)
-			{
-				sky_hi[c] = lerp(time, PAL_T0,PAL_T1, sky1[c], sky3[c]);
-				sky_lo[c] = lerp(time, PAL_T0,PAL_T1, sky2[c], sky4[c]);
-			}
-
-			for (c=0; c<MAX_LAYER; c++)
-			{
-				if (palettes[c])
-					TLN_DeletePalette (palettes[c]);
-				palettes[c] = TLN_ClonePalette (TLN_GetTilesetPalette (layers[c].tileset));
-			}
-		}
-
-		/* scroll */
-		for (c=0; c<3; c++)
-			pos_background[c] += inc_background[c];
-
-		/* layers */
-		TLN_SetLayer (LAYER_BACKGROUND, layers[LAYER_FOREGROUND].tileset, layers[LAYER_FOREGROUND].tilemap);
-		TLN_SetLayer (LAYER_FOREGROUND, layers[LAYER_BACKGROUND].tileset, layers[LAYER_BACKGROUND].tilemap);
-		TLN_SetLayerPosition (LAYER_BACKGROUND, time/3, 160);
-		TLN_SetLayerPosition (LAYER_FOREGROUND, fix2int (pos_background[0]), 64);
-		TLN_SetLayerPalette (LAYER_FOREGROUND, palettes[LAYER_BACKGROUND]);
-		TLN_SetLayerPalette (LAYER_BACKGROUND, palettes[LAYER_FOREGROUND]);
-		
-		if (time < 500)
-		{
-			if (rand()%30 == 1)
-				CreateEnemy ();
-		}
-		else if (time==600)
-			CreateBoss ();
-
-		/* actors */
-		TasksActors (time);
+        ShooterRun();
 
 		/* render to window */
-		TLN_DrawFrame (time);
-
-		frame++;
+		TLN_DrawFrame (racer_time);
 	}
 
-	/* deinit */
-	FreeLayer (LAYER_FOREGROUND);
-	FreeLayer (LAYER_BACKGROUND);
-	TLN_Deinit ();
-
+    ShooterRelease();
 	return 0;
 }
+#endif
 
 /* raster callback (virtual HBLANK) */
 static void raster_callback (int line)
@@ -218,7 +234,7 @@ static void raster_callback (int line)
 
 	/* foreground */
 	if (line==32)
-		TLN_SetLayerPosition (LAYER_BACKGROUND, time/4, 160);
+		TLN_SetLayerPosition (LAYER_BACKGROUND, racer_time/4, 160);
 
 	if (line==64)
 	{

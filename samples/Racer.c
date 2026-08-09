@@ -50,7 +50,7 @@ int pos;
 int speed;
 int last_tree;
 unsigned int frame;
-unsigned int time;
+unsigned int racer_time;
 int pan = 0;
 
 static void raster_callback (int line);
@@ -81,7 +81,7 @@ int main (int argc, char* argv[])
 	while (TLN_ProcessWindow ())
 	{
 		/* timekeeper */
-		time = frame;
+		racer_time = frame;
 
 		TLN_SetLayerPosition (LAYER_PLAYFIELD, 56,72);
 		if (pos - last_tree >= 100)
@@ -92,7 +92,7 @@ int main (int argc, char* argv[])
 		}
 
 		/* input */
-		if ((time & 0x07) == 0)
+		if ((racer_time & 0x07) == 0)
 		{
 			if (TLN_GetInput (INPUT_UP) && speed < MAX_SPEED)
 				speed++;
@@ -107,10 +107,10 @@ int main (int argc, char* argv[])
 		
 		/* actores */
 		pos += speed;
-		TasksActors (time);
+		TasksActors (racer_time);
 
 		/* render to window */
-		TLN_DrawFrame (time);
+		TLN_DrawFrame (racer_time);
 
 		frame++;
 	}
