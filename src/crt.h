@@ -2,7 +2,7 @@
 #define _CRT_H
 
 #include <stdbool.h>
-#include "SDL2/SDL.h"
+#include "SDL3/SDL.h"
 
 typedef enum
 {
@@ -19,7 +19,7 @@ extern "C"{
 #endif
 
 	CRTHandler CRTCreate(SDL_Renderer* renderer, SDL_Texture* framebuffer, CRTType type, int wnd_width, int wnd_height, bool blur);
-	void CRTDraw(CRTHandler crt, void* pixels, int pitch, SDL_Rect* dstrect);
+	void CRTDraw(CRTHandler crt, void* pixels, int pitch, SDL_FRect* dstrect);
 	void CRTSetRenderTarget(CRTHandler crt, SDL_Texture* framebuffer);
 	void CRTIncreaseGlow(CRTHandler crt);
 	void CRTDecreaseGlow(CRTHandler crt);
