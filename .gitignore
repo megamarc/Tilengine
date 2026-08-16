@@ -41,6 +41,7 @@ samples/csharp/*.dll
 *.gz
 *.bz2
 *.dylib
+*.a
 
 # Visual Studio specific
 Debug/
