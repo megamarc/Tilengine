@@ -28,7 +28,7 @@
 TLN_Palette TLN_CreatePalette (int entries)
 {
 	TLN_Palette palette;
-	int size = sizeof(struct Palette) + (4*entries);
+	int size = sizeof(struct Palette) + 1024;	// always alloc 256 colors, to avoid crash when tileset uses more colors than the palette
 	
 	palette = (TLN_Palette)CreateBaseObject(OT_PALETTE, size);
 	if (palette)
@@ -114,10 +114,18 @@ bool TLN_DeletePalette (TLN_Palette palette)
  */
 bool TLN_SetPaletteColor (TLN_Palette palette, int index, uint8_t r, uint8_t g, uint8_t b)
 {
-	if (CheckBaseObject (palette, OT_PALETTE))
+	if (CheckBaseObject (palette, OT_PALETTE) && index < palette->entries)
 	{
-		uint32_t* data = (uint32_t*)GetPaletteData (palette, index);
-		*data = PackRGB32(r,g,b);
+		Color* color = (Color*)GetPaletteData (palette, index);
+		if (index == 0)
+			color->value = 0;
+		else
+		{
+			color->r = r;
+			color->g = g;
+			color->b = b;
+			color->a = 255;
+		}
 		TLN_SetLastError (TLN_ERR_OK);
 		return true;
 	}
@@ -150,7 +158,7 @@ uint8_t* TLN_GetPaletteData (TLN_Palette palette, int index)
 	else
 	{
 		TLN_SetLastError (TLN_ERR_OK);
-		return GetPaletteData (palette, index);
+		return (uint8_t*)GetPaletteData (palette, index);
 	}
 }
 
@@ -174,7 +182,7 @@ bool TLN_MixPalettes (TLN_Palette src1, TLN_Palette src2, TLN_Palette dst, uint8
 {
 	int c;
 	const uint8_t invfactor = 255 - factor;
-	const uint8_t* mod_table = engine->mod_table;
+	const uint8_t* blend_table = engine->blend_table;
 	uint8_t* src1ptr;
 	uint8_t* src2ptr;
 	uint8_t* dstptr;
@@ -186,7 +194,7 @@ bool TLN_MixPalettes (TLN_Palette src1, TLN_Palette src2, TLN_Palette dst, uint8
 	src1ptr = TLN_GetPaletteData (src1, 0);
 	src2ptr = TLN_GetPaletteData (src2, 0);
 	dstptr  = TLN_GetPaletteData (dst, 0);
-	mod_table = SelectBlendTable (BLEND_MOD);
+	blend_table = SelectBlendTable (BLEND_MOD);
 
 	if (src1->entries > src2->entries)
 		count = src1->entries;
@@ -195,9 +203,9 @@ bool TLN_MixPalettes (TLN_Palette src1, TLN_Palette src2, TLN_Palette dst, uint8
 
 	for (c=0; c<count; c++)
 	{
-		dstptr[0] = blendfunc(mod_table,src2ptr[0],factor) + blendfunc(mod_table,src1ptr[0],invfactor);
-		dstptr[1] = blendfunc(mod_table,src2ptr[1],factor) + blendfunc(mod_table,src1ptr[1],invfactor);
-		dstptr[2] = blendfunc(mod_table,src2ptr[2],factor) + blendfunc(mod_table,src1ptr[2],invfactor);
+		dstptr[0] = blendfunc(blend_table,src2ptr[0],factor) + blendfunc(blend_table,src1ptr[0],invfactor);
+		dstptr[1] = blendfunc(blend_table,src2ptr[1],factor) + blendfunc(blend_table,src1ptr[1],invfactor);
+		dstptr[2] = blendfunc(blend_table,src2ptr[2],factor) + blendfunc(blend_table,src1ptr[2],invfactor);
 		src1ptr += sizeof(uint32_t);
 		src2ptr += sizeof(uint32_t);
 		dstptr  += sizeof(uint32_t);
@@ -319,4 +327,20 @@ bool TLN_SubPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b, 
 bool TLN_ModPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b, uint8_t start, uint8_t num)
 {
 	return EditPaletteColor (palette, SelectBlendTable(BLEND_MOD), r,g,b, start,num);
+}
+
+/*!
+ * \brief Returns the number of color entries in the given palette
+ * \param palette Reference to the palette to query
+ * \returns number of color entries 
+*/
+int TLN_GetPaletteNumColors(TLN_Palette palette)
+{
+	if (!CheckBaseObject(palette, OT_PALETTE))
+	{
+		TLN_SetLastError(TLN_ERR_REF_PALETTE);
+		return 0;
+	}
+	TLN_SetLastError(TLN_ERR_OK);
+	return palette->entries;
 }

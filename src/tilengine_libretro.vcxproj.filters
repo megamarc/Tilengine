@@ -30,13 +30,22 @@
     <ClCompile Include="Blitters.c">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
+    <ClCompile Include="cJSON.c">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="crc32.c">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
     <ClCompile Include="Draw.c">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="Hash.c">
+    <ClCompile Include="Layer.c">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="Layer.c">
+    <ClCompile Include="libretro\libretro.c">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="List.c">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
     <ClCompile Include="LoadBitmap.c">
@@ -60,7 +69,13 @@
     <ClCompile Include="LoadTileset.c">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
+    <ClCompile Include="LoadTMX.c">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
     <ClCompile Include="Math2D.c">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="md5.c">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
     <ClCompile Include="Object.c">
@@ -105,11 +120,14 @@
     <ClCompile Include="Tileset.c">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="libretro\libretro.c">
+    <ClCompile Include="World.c">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\Tilengine.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
     <ClInclude Include="aes.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
@@ -125,6 +143,15 @@
     <ClInclude Include="Blitters.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="cJSON.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="crc32.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
     <ClInclude Include="DIB.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
@@ -134,16 +161,25 @@
     <ClInclude Include="Engine.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="Hash.h">
+    <ClInclude Include="Layer.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="Layer.h">
+    <ClInclude Include="libretro\libretro.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="List.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="LoadFile.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="LoadTMX.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
     <ClInclude Include="Math2D.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="md5.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="Object.h">
@@ -180,12 +216,6 @@
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="Tileset.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="libretro\libretro.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Tilengine.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>

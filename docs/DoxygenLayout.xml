@@ -3,8 +3,11 @@
   <!-- Navigation index tabs for HTML output -->
   <navindex>
     <tab type="mainpage" visible="yes" title="Introduction"/>
-    <tab type="pages" visible="yes" title="Guides" intro=""/>
+	<tab type="user" url="md_quick_guide.html" title="Tutorial"/>
+	<tab type="user" url="md_guides.html" title="Guides"/>
+    <tab type="pages" visible="no" title="" intro=""/>
     <tab type="modules" visible="yes" title="Reference" intro=""/>
+	<tab type="user" url="deprecated.html" title="Deprecated"/>
     <tab type="namespaces" visible="no" title="">
       <tab type="namespacelist" visible="yes" title="" intro=""/>
       <tab type="namespacemembers" visible="yes" title="" intro=""/>

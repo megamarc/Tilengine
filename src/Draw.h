@@ -22,10 +22,12 @@ typedef enum
 }
 draw_t;
 
-typedef bool (*ScanDrawPtr)(int,int);
+typedef bool (*ScanDrawPtr)(int,uint32_t*,int,int,int);
 typedef struct Layer Layer;
 
 ScanDrawPtr GetLayerDraw (Layer* layer);
 ScanDrawPtr GetSpriteDraw (draw_t mode);
+
+extern bool DrawScanline(void);
 
 #endif

@@ -14,25 +14,40 @@
 #include "Object.h"
 #include "Palette.h"
 #include "SequencePack.h"
+#include "Bitmap.h"
+#include "Animation.h"
 
-/* set de tiles */
+/* types of tilesets */
+typedef enum
+{
+	TILESET_NONE,
+	TILESET_TILES,
+	TILESET_IMAGES,
+}
+TilesetType;
+
+/* Tileset definition */
 struct Tileset
 {
 	DEFINE_OBJECT;
-	int		numtiles;		 /* nº de tiles en el set */
-	int		width;			 /* tamaño horizontal de un tile */
-	int		height;			 /* tamaño vertical de un tile */
-	int		hshift;			 /* tipo horizontal */
-	int		vshift;			 /* tipo vertical */
-	int		hmask;			 /* mascara horizontal */
-	int		vmask;			 /* mascara vertical */
-	int		size_tiles;		 /* tamaño de la sección de tiles */
-	int		size_color;		 /* tamaño de la sección de color key */
-	struct Palette* palette; /* paleta original */
-	struct SequencePack* sp; /* secuencias asociadas (si hay) */
-	bool*	color_key;		 /* puntero a array indicando si cada línea tiene color key */
-	TLN_TileAttributes* attributes;	/* puntero a array de atributos, uno por tile */
-	uint8_t	data[];
+	TilesetType tstype;		 /* tileset type */
+	int		numtiles;		 /* number of tiles */
+	int		width;			 /* horizontal tile size */
+	int		height;			 /* vertical tile size */
+	int		hshift;			 /* horizontal shift */
+	int		vshift;			 /* vertical shift */
+	int		hmask;			 /* horizontal bitmask */
+	int		vmask;			 /* vertical bitmask */
+	int		size_tiles;		 /* size of tiles collection section */
+	int		tiles_per_row;	 /* number of tiles per row */
+	TLN_Palette palette;	 /* palette */
+	TLN_SequencePack sp;	 /* associated sequences (if any) */
+	Animation* animations;	 /* active tile animations */
+	TLN_TileImage* images;	/* image tiles array */
+	TLN_TileAttributes* attributes;	/* attribute array */
+	bool* color_key;		 /* array telling if each line has color key or is solid */
+	uint16_t* tiles;		/* tile indexes for animation */
+	uint8_t	data[];			 /* variable size data for images[], attributes[], color_key[] and pixels */
 };
 
 #define GetTilesetLine(tileset,index,y) \
@@ -40,5 +55,7 @@ struct Tileset
 
 #define GetTilesetPixel(tileset,index,x,y) \
 	tileset->data[(((index << tileset->vshift) + y) << tileset->hshift) + x]
+
+TLN_Bitmap GetTilesetBitmap(TLN_Tileset tileset, int tileid);
 
 #endif

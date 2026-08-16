@@ -13,16 +13,28 @@
 
 #include "Object.h"
 
-/* entrada de paleta */
+/* color definition */
+typedef union
+{
+	struct
+	{
+		uint8_t b, g, r, a;
+	};
+	uint32_t value;
+}
+Color;
+
+/* palette object */
 struct Palette
 {
 	DEFINE_OBJECT;
-	int entries;
-	uint8_t data[0];
+	int entries;		/* number of colors */
+	uint32_t data[0];	/* variable size Color array */
 };
 
+/* returns pointer to specified index color definition */
 #define GetPaletteData(palette,index) \
-	&palette->data[(index) << 2]
+	&palette->data[index]
 
 #define PackRGB32(r,g,b) \
 	(uint32_t)(0xFF000000 | (r << 16) | (g << 8) | b)

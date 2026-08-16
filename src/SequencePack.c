@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include "SequencePack.h"
 #include "Object.h"
-#include "Hash.h"
+#include "crc32.h"
 
 /*!
  * \brief
@@ -139,7 +139,7 @@ TLN_Sequence TLN_GetSequence (TLN_SequencePack sp, int index)
 TLN_Sequence TLN_FindSequence (TLN_SequencePack sp, const char* name)
 {
 	TLN_Sequence sequence;
-	hash_t find;
+	uint32_t find;
 
 	if (!CheckBaseObject (sp, OT_SEQPACK))
 		return NULL;
@@ -151,7 +151,7 @@ TLN_Sequence TLN_FindSequence (TLN_SequencePack sp, const char* name)
 	}
 
 	/* recorre lista */
-	find = hash(0, name, strlen(name));
+	find = _crc32(0, name, strlen(name));
 	sequence = sp->sequences;
 	while (sequence != NULL)
 	{

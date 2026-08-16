@@ -23,17 +23,18 @@
 #include "Layer.h"
 #include "Sprite.h"
 #include "Tables.h"
+#include "LoadTMX.h"
 
 /* magic number to recognize context object */
 #define ID_CONTEXT	0x7E5D0AB1
 
 TLN_Engine engine;	/* current context */
 
-static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int numsprites, int numanimations);
+static TLN_Engine create_context(int hres, int vres, int numlayers, int numsprites, int numanimations);
 
 /*!
  * \brief
- * Initializes the graphic engine in 32 bpp pixel format
+ * Initializes the graphic engine
  * 
  * \param hres
  * horizontal resolution in pixels
@@ -48,95 +49,110 @@ static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int
  * number of sprites
  * 
  * \param numanimations
- * number of animations
+ * number of palette animation slots
  * 
  * Performs initialisation of the main engine, creates the viewport with the specified dimensions
  * and allocates the number of layers, sprites and animation slots
  */
 TLN_Engine TLN_Init (int hres, int vres, int numlayers, int numsprites, int numanimations)
 {
-	printf("Tilengine v%d.%d.%d %d-bit built %s %s\n", TILENGINE_VER_MAJ, TILENGINE_VER_MIN, TILENGINE_VER_REV, (int)(sizeof(UINTPTR_MAX) << 3), __DATE__, __TIME__);
-	return create_context (hres, vres, 32, numlayers, numsprites, numanimations);
+	printf("Tilengine v%d.%d.%d %d-bit %s built %s %s\n", 
+		TILENGINE_VER_MAJ, 
+		TILENGINE_VER_MIN, 
+		TILENGINE_VER_REV, 
+		(int)(sizeof(UINTPTR_MAX) << 3),
+#if defined _DEBUG
+		"debug",
+#else
+		"release",
+#endif
+		__DATE__, 
+		__TIME__);
+	return create_context (hres, vres, numlayers, numsprites, numanimations);
 }
 
-/*!
- * \brief
- * As of version 1.12.1, this feature has been removed. Only 32 bpp is supported. The function call has
- * been left for backwards binary compatibility but it defaults to TLN_Init() with 32 bpp.
- */
-static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int numsprites, int numanimations)
+/* creates new engine context */
+static TLN_Engine create_context(int hres, int vres, int numlayers, int numsprites, int numanimations)
 {
 	int c;
 	TLN_Engine context;
 
 	TLN_SetLastError (TLN_ERR_OK);
 
-	/* remove bpp, always 32 */
-	bpp = 32;
-
 	/* create framebuffer */
 	context = (TLN_Engine)calloc(sizeof(Engine), 1);
 	context->header = ID_CONTEXT;
 	context->framebuffer.width = hres;
 	context->framebuffer.height = vres;
-	context->framebuffer.pitch = (((hres * bpp)>>3) + 3) & ~0x03;
-	context->priority = (uint8_t*)malloc(context->framebuffer.pitch);
-	if (!context->priority)
+	context->framebuffer.pitch = (((hres * 32)>>3) + 3) & ~0x03;
+	context->target_fps = INTERNAL_FPS;
+
+	/* create static layers */
+	if (numlayers > 0)
 	{
-		TLN_DeleteContext (context);
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
-		return NULL;
+		context->numlayers = numlayers;
+		context->layers = (Layer*)calloc(numlayers, sizeof(Layer));
+		if (!context->layers)
+		{
+			TLN_DeleteContext(context);
+			TLN_SetLastError(TLN_ERR_OUT_OF_MEMORY);
+			return NULL;
+		}
+		for (c = 0; c < context->numlayers; c++)
+			context->layers[c].mosaic.buffer = (uint32_t*)calloc(hres, sizeof(uint32_t));
+
+		/* buffer for intermediate scanline output */
+		context->linebuffer = (uint32_t*)calloc(hres, sizeof(uint32_t));
+		context->priority = (uint32_t*)malloc(context->framebuffer.pitch);
 	}
 
-	/* sprite collision buffer */
-	context->collision = (uint16_t*)calloc(hres*sizeof(uint16_t), 1);
-	context->tmpindex = (uint8_t*)calloc(hres, 1);
+	/* create static sprites */
+	if (numsprites > 0)
+	{
+		context->numsprites = numsprites;
+		context->sprites = (Sprite*)calloc(numsprites, sizeof(Sprite));
+		if (!context->sprites)
+		{
+			TLN_DeleteContext(context);
+			TLN_SetLastError(TLN_ERR_OUT_OF_MEMORY);
+			return NULL;
+		}
+		for (c = 0; c < context->numsprites; c++)
+		{
+			Sprite* sprite = &context->sprites[c];
+			sprite->draw = GetSpriteDraw(MODE_NORMAL);
+			sprite->blitter = SelectBlitter(true, false, false);
+			sprite->sx = sprite->sy = 1.0f;
+		}
+		ListInit(&context->list_sprites, &context->sprites[0].list_node, sizeof(Sprite), context->numsprites);
 
-	/* create static items */
-	context->numlayers = numlayers;
-	context->layers = (Layer*)calloc (numlayers, sizeof(Layer));
-	if (!context->layers)
-	{
-		TLN_DeleteContext(context);
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
-		return NULL;
-	}
-	for (c=0; c<context->numlayers; c++)
-		context->layers[c].mosaic.buffer = (uint8_t*)malloc (hres);
-
-	context->numsprites = numsprites;
-	context->sprites = (Sprite*)calloc (numsprites, sizeof(Sprite));
-	if (!context->sprites)
-	{
-		TLN_DeleteContext(context);
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
-		return NULL;
-	}
-	for (c=0; c<context->numsprites; c++)
-	{
-		context->sprites[c].draw = GetSpriteDraw (MODE_NORMAL);
-		context->sprites[c].blitter = GetBlitter (bpp, true, false, false);
-		context->sprites[c].sx = context->sprites[c].sy = 1.0f;
+		/* sprite collision buffer */
+		context->collision = (uint16_t*)calloc(hres, sizeof(uint16_t));
 	}
 
-	context->numanimations = numanimations;
-	context->animations = (Animation*)calloc (numanimations, sizeof(Animation));
-	if (!context->animations)
+	/* create static animations */
+	if (numanimations > 0)
 	{
-		TLN_DeleteContext(context);
-		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
-		return NULL;
+		context->numanimations = numanimations;
+		context->animations = (Animation*)calloc(numanimations, sizeof(Animation));
+		if (!context->animations)
+		{
+			TLN_DeleteContext(context);
+			TLN_SetLastError(TLN_ERR_OUT_OF_MEMORY);
+			return NULL;
+		}
+		ListInit(&context->list_animations, &context->animations[0].list_node, sizeof(Animation), context->numanimations);
 	}
 
 	context->bgcolor = PackRGB32(0,0,0);
-	context->blit_fast = GetBlitter (bpp, false, false, false);
+	context->blit_fast = SelectBlitter (false, false, false);
 	if (!CreateBlendTables ())
 	{
 		TLN_DeleteContext(context);
 		TLN_SetLastError (TLN_ERR_OUT_OF_MEMORY);
 		return NULL;
 	}
-	context->mod_table = SelectBlendTable (BLEND_MOD);
+	context->blend_table = SelectBlendTable (BLEND_MOD);
 
 	/* set as default context if it's the first one */
 	if (engine == NULL)
@@ -144,6 +160,10 @@ static TLN_Engine create_context(int hres, int vres, int bpp, int numlayers, int
 
 	for (c = 0; c<context->numlayers; c++)
 		TLN_DisableLayerClip(c);
+
+#ifdef _DEBUG
+	TLN_SetLogLevel(TLN_LOG_ERRORS);
+#endif
 
 	return context;
 }
@@ -242,8 +262,8 @@ bool TLN_DeleteContext(TLN_Engine context)
 	if (context->collision)
 		free(context->collision);
 
-	if (context->tmpindex)
-		free(context->tmpindex);
+	if (context->linebuffer)
+		free(context->linebuffer);
 
 	free(context);
 	return true;
@@ -283,6 +303,27 @@ uint32_t TLN_GetVersion (void)
 }
 
 /*!
+ * \brief Set Target fps (default 60)
+ * \param fps Target fps
+ * \remarks The engine internally runs at 60 fps. Use this function to keep constant animation pacing at other frequencies
+ * \see TLN_GetTargetFps
+ */
+void TLN_SetTargetFps(int fps)
+{
+	engine->target_fps = fps;
+}
+
+/*!
+ * \brief Returns target fps
+ * \remarks By default the engine runs at 60 fps. This value is automatically changed to actual monitor Hz with TLN_CreateWindow, or manually with TLN_SetTargetFps
+ * \see TLN_GetTargetFps, TLN_CreateWindow
+ */
+int TLN_GetTargetFps(void)
+{
+	return engine->target_fps;
+}
+
+/*!
  * \brief
  * Returns the width in pixels of the framebuffer
  * 
@@ -306,19 +347,6 @@ int TLN_GetHeight (void)
 {
 	TLN_SetLastError (TLN_ERR_OK);
 	return engine->framebuffer.height;
-}
-
-/*!
- * \brief
- * Returns the pixel format of the framebuffer
- * 
- * \see
- * TLN_InitBPP()
- */
-int TLN_GetBPP (void)
-{
-	TLN_SetLastError (TLN_ERR_OK);
-	return 32;
 }
 
 /*!
@@ -375,46 +403,125 @@ int TLN_GetRenderTargetPitch (void)
 	return engine->framebuffer.pitch;
 }
 
-/*!
- * \brief
- * Draws the frame to the previously specified render target
- * 
- * \param time
- * timestamp for animation control
- * 
- * \remarks
- * the timestamp value meaning is application defined, but its units must match the same used
- * in the sequences xml file. It usually is the frame number or millisecond count
- * 
- * \see
- * TLN_SetRenderTarget()
- */
-void TLN_UpdateFrame (int time)
+/* basic reference list without duplicates */
+typedef struct
 {
-	TLN_BeginFrame (time);
-	while (TLN_DrawNextScanline ()){}
-	TLN_SetLastError (TLN_ERR_OK);
+	int index;
+	void* refs[TMX_MAX_TILESET];
+}
+RefList;
+
+/* finds reference in list */
+bool ref_find(RefList* refs, void* item)
+{
+	int c;
+	for (c = 0; c < refs->index; c += 1)
+	{
+		if (refs->refs[c] == item)
+			return true;
+	}
+	return false;
+}
+
+/* adds reference to list */
+bool ref_add(RefList* refs, void* item)
+{
+	if (refs->index < TMX_MAX_TILESET - 1 && !ref_find(refs, item))
+	{
+		refs->refs[refs->index++] = item;
+		return true;
+	}
+	return false;
+}
+
+/* Starts active rendering of the current frame */
+static void BeginFrame (int frame)
+{
+	/* update active animations */
+	List* list;
+	int index;
+
+	/* adjust to target fps */
+	frame = (engine->frame*INTERNAL_FPS) / engine->target_fps;
+	engine->frame += 1;
+
+	/* color cycle animations */
+	if (engine->numanimations > 0)
+	{
+		list = &engine->list_animations;
+		index = list->first;
+		while (index != -1)
+		{
+			Animation* animation = &engine->animations[index];
+			UpdateAnimation(animation, frame);
+			index = animation->list_node.next;
+		}
+	}
+
+	/* sprite animations */
+	if (engine->numsprites > 0)
+	{
+		list = &engine->list_sprites;
+		index = list->first;
+		while (index != -1)
+		{
+			Sprite* sprite = &engine->sprites[index];
+			sprite->collision = false;
+			Animation* animation = &sprite->animation;
+			if (animation->enabled && !animation->paused)
+				UpdateAnimation(animation, frame);
+			index = sprite->list_node.next;
+		}
+	}
+
+	/* tileset animations. calls just once per globally used tileset, avoids duplicate calls */
+	RefList tilesets = { 0 };
+	for (index = 0; index < engine->numlayers; index += 1)
+	{
+		Layer* layer = &engine->layers[index];
+		if (layer->tilemap != NULL)
+		{
+			int ts;
+			for (ts = 0; ts < MAX_TILESETS; ts += 1)
+			{
+				TLN_Tileset tileset = layer->tilemap->tilesets[ts];
+				if (tileset == NULL)
+					break;
+
+				if (tileset->sp != NULL && ref_add(&tilesets, tileset))
+				{
+					int c;
+					for (c = 0; c < tileset->sp->num_sequences; c += 1)
+					{
+						Animation* animation = &tileset->animations[c];
+						if (animation->enabled && !animation->paused)
+							UpdateAnimation(animation, frame);
+					}
+				}
+			}
+		}
+	}
+
+	/* frame callback */
+	engine->line = 0;
+	if (engine->cb_frame)
+		engine->cb_frame (engine->frame);
 }
 
 /*!
- * \brief Starts active rendering of the current frame
- * \param time Timestamp value
- * \see TLN_DrawNextScanline(), TLN_BeginWindowFrame(), TLN_EndWindowFrame()
+ * \brief
+ * Draws the frame to the previously specified render target
+ *
+ * \param frame Optional frame number. Set to 0 to autoincrement from previous value
+ *
+ * \see
+ * TLN_SetRenderTarget()
  */
-void TLN_BeginFrame (int time)
+void TLN_UpdateFrame(int frame)
 {
-	int c;
-
-	UpdateAnimations (time);
-	engine->line = 0;
-
-	/* limpia colisiones de sprites */
-	for (c=0; c<engine->numsprites; c++)
-		engine->sprites[c].collision = 0;
-
-	/* frame callback */
-	if (engine->frame)
-		engine->frame (time);
+	BeginFrame(frame);
+	while (DrawScanline()) {}
+	TLN_SetLastError(TLN_ERR_OK);
 }
 
 /*!
@@ -462,7 +569,7 @@ int TLN_GetNumSprites (void)
 void TLN_SetRasterCallback (void (*callback)(int))
 {
 	TLN_SetLastError (TLN_ERR_OK);
-	engine->raster = callback;
+	engine->cb_raster = callback;
 }
 
 /*!
@@ -475,7 +582,7 @@ void TLN_SetRasterCallback (void (*callback)(int))
 void TLN_SetFrameCallback (void (*callback)(int))
 {
 	TLN_SetLastError (TLN_ERR_OK);
-	engine->frame = callback;
+	engine->cb_frame = callback;
 }
 
 /*!
@@ -548,9 +655,9 @@ void TLN_DisableBGColor (void)
  */
 bool TLN_SetBGBitmap (TLN_Bitmap bitmap)
 {
-	if (bitmap)
+	if (bitmap != NULL)
 	{
-		if (!CheckBaseObject (bitmap, OT_BITMAP))
+		if (!CheckBaseObject(bitmap, OT_BITMAP))
 			return false;
 		engine->bgpalette = bitmap->palette;
 	}
@@ -571,12 +678,52 @@ bool TLN_SetBGBitmap (TLN_Bitmap bitmap)
  */
 bool TLN_SetBGPalette (TLN_Palette palette)
 {
-	if (!CheckBaseObject (palette, OT_PALETTE))
+	if (!CheckBaseObject(palette, OT_PALETTE))
 		return false;
 
 	engine->bgpalette = palette;
 	TLN_SetLastError (TLN_ERR_OK);
 	return true;
+}
+
+/* \brief Sets one of the eight global palettes used by tiled layers
+ * \param index Palette index [0 - 7]
+ * \param palette Reference of palette to set, or NULL to disable it
+ * \returns true if success, or false if error
+ * \see TLN_GetGlobalPalette()
+ */
+bool TLN_SetGlobalPalette(int index, TLN_Palette palette)
+{
+	if (index < 0 || index > NUM_PALETTES - 1)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_PALETTE);
+		return false;
+	}
+
+	if (palette != NULL && !CheckBaseObject(palette, OT_PALETTE))
+		return false;
+
+	engine->palettes[index] = palette;
+	TLN_SetLastError(TLN_ERR_OK);
+	return true;
+}
+
+/*
+* \brief Returns one of the eight global palettes
+* \param index Index of global palette to query [0 - 7]
+* \returns TLN_Palette reference or NULL if not set 
+* \see TLN_SetGlobalPalette
+*/
+TLN_Palette TLN_GetGlobalPalette(int index)
+{
+	if (index < 0 || index > NUM_PALETTES - 1)
+	{
+		TLN_SetLastError(TLN_ERR_IDX_PALETTE);
+		return false;
+	}
+
+	TLN_SetLastError(TLN_ERR_OK);
+	return engine->palettes[index];
 }
 
 /*!
@@ -658,6 +805,8 @@ const char* const errornames[] =
 	"Resource file has invalid format",
 	"A width or height parameter is invalid",
 	"Unsupported function",
+	"Invalid ObjectList reference",
+	"Palette index out of range"
 };
 
 /*!

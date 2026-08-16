@@ -102,7 +102,7 @@ bool TLN_DeleteBitmap (TLN_Bitmap bitmap)
 {
 	if (CheckBaseObject (bitmap, OT_BITMAP))
 	{
-		if (ObjectOwner (bitmap))
+		if (ObjectOwner (bitmap) && bitmap->palette)
 			TLN_DeletePalette (bitmap->palette);
 		DeleteBaseObject (bitmap);
 		TLN_SetLastError (TLN_ERR_OK);

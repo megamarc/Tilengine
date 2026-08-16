@@ -12,6 +12,7 @@
 #include <string.h>
 #include "Tilengine.h"
 #include "LoadFile.h"
+#include "Palette.h"
 
 #define SWAP(w) ((w)&0xFF)<<8 | ((w)>>8)
 

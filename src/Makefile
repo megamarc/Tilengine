@@ -17,13 +17,12 @@ else
 		LIBS = -lc -lz -lpng
 		BIN  = $(TARGET).so
 		LDFLAGS = -shared -s
+		LIBPATH = ../lib/linux_$(arch)
 		ifeq ($(arch),i686)
 			CFLAGS = -m32 -msse2
-			LIBPATH = ../lib/linux_i686
 		endif
 		ifeq ($(arch),x86_64)
 			CFLAGS = -m64 -msse2
-			LIBPATH = ../lib/linux_x86_64
 		endif
 		ifeq ($(arch),armv7l)
 			LIBPATH = ../lib/linux_arm
@@ -41,6 +40,7 @@ endif
 
 # common flags
 CFLAGS += -I$(INCPATH) -std=c99 -O2 -fpic -DLIB_EXPORTS
+CFLAGS += -Wno-unused-result -Wno-format-truncation
 
 .PHONY: all all-before all-after clean clean-custom
 
