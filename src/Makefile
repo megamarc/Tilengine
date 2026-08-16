@@ -29,12 +29,24 @@ else
 		endif
 	endif
 	
-	# OSX specific flags
+	# macOS specific flags (x86_64 and arm64)
 	ifeq ($(name),Darwin)
-		LIBS = -lpng -lz -lc
 		BIN  = $(TARGET).dylib
-		LDFLAGS = -dynamiclib
-		LIBPATH = ../lib/darwin_x86_64
+		LDFLAGS = -dynamiclib -arch $(arch)
+		LIBPATH = ../lib/darwin_$(arch)
+		CFLAGS = -arch $(arch)
+		ifeq ($(arch),arm64)
+			BREW_PREFIX = /opt/homebrew
+		endif
+		ifeq ($(arch),x86_64)
+			BREW_PREFIX = /usr/local
+		endif
+		ifneq ($(wildcard $(BREW_PREFIX)/include),)
+			CFLAGS += -I$(BREW_PREFIX)/include
+			LIBS = -L$(BREW_PREFIX)/lib -lpng -lz -lc
+		else
+			LIBS = -lpng -lz -lc
+		endif
 	endif
 endif
 
@@ -50,7 +62,7 @@ clean: clean-custom
 	${RM} $(OBJECTS) $(BIN)
 
 $(BIN): $(OBJECTS)
-	$(CC) -shared $(OBJECTS) -o $(BIN) $(LIBS) -fvisibility=hidden
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $(BIN) $(LIBS) -fvisibility=hidden
 	mkdir -p $(LIBPATH)
 	cp $(BIN) $(LIBPATH)
 
