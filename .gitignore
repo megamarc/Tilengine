@@ -42,6 +42,7 @@ samples/csharp/*.dll
 *.bz2
 *.dylib
 *.a
+.luajit-src/
 
 # Visual Studio specific
 Debug/
