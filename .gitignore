@@ -20,10 +20,14 @@ Win32_Debug/
 Win32_Release/
 x64_Debug/
 x64_Release/
+build/
 *.pyc
 *.exe
 *.dll
 *.htm
+*.so
+*.dylib
+*.a
 upload.sh
 
 docs/
@@ -40,8 +44,6 @@ samples/csharp/*.dll
 *.zip
 *.gz
 *.bz2
-*.dylib
-*.a
 .luajit-src/
 
 # Visual Studio specific

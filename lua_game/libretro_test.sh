@@ -3,16 +3,42 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 GAME="$ROOT/lua_game"
-CORE="$GAME/tilengine_libretro.dylib"
+
+case "$(uname -s)" in
+    Darwin)
+        CORE="$GAME/tilengine_libretro.dylib"
+        [[ -f "$CORE" ]] || CORE="$ROOT/src/tilengine_libretro.dylib"
+
+        RETROARCH=(
+            /Applications/RetroArch.app/Contents/MacOS/RetroArch
+        )
+        ;;
+
+    Linux)
+        CORE="$GAME/tilengine_libretro.so"
+        [[ -f "$CORE" ]] || CORE="$ROOT/src/tilengine_libretro.so"
+
+        RETROARCH=(
+            flatpak run org.libretro.RetroArch
+        )
+
+        flatpak override --user \
+            --filesystem="$ROOT" \
+            org.libretro.RetroArch
+        ;;
+
+    *)
+        echo "Unsupported platform: $(uname -s)" >&2
+        exit 1
+        ;;
+esac
 
 if [[ ! -f "$CORE" ]]; then
-	CORE="$ROOT/src/tilengine_libretro.dylib"
-fi
-
-if [[ ! -f "$CORE" ]]; then
-	echo "Core not found. Build it first: make -C src" >&2
-	exit 1
+    echo "Core not found: $CORE" >&2
+    echo "Build it first: make -C src" >&2
+    exit 1
 fi
 
 cd "$GAME"
-exec /Applications/RetroArch.app/Contents/MacOS/RetroArch -L "$CORE" "$GAME" -v
+
+exec "${RETROARCH[@]}" -L "$CORE" "$GAME" -v

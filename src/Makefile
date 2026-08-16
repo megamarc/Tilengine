@@ -11,12 +11,12 @@ else
 	RM = rm -f
 	name := $(shell uname -s)
 	arch := $(shell uname -m)
-	
+
 	# Linux specific flags (i686, x64 and arm)
 	ifeq ($(name),Linux)
 		LIBS = -lc -lz -lpng -llua5.1 -lm -ldl
 		BIN  = $(TARGET).so
-		LDFLAGS = -shared -s
+		LDFLAGS = -shared -s -Wl,-rpath,'$$ORIGIN'
 		LIBPATH = ../lib/linux_$(arch)
 		ifeq ($(arch),i686)
 			CFLAGS = -m32 -msse2
@@ -27,8 +27,24 @@ else
 		ifeq ($(arch),armv7l)
 			LIBPATH = ../lib/linux_arm
 		endif
+
+		# LuaJIT is required because game.lua uses ffi.
+		#
+		# Prefer a local LuaJIT build, then system LuaJIT.
+		ifneq ($(wildcard lua/libluajit-5.1.so*),)
+			LIBS = -Llua -lluajit-5.1
+		else ifneq ($(wildcard lua/libluajit.a),)
+			LIBS = lua/libluajit.a
+		else ifneq ($(wildcard /usr/lib/libluajit-5.1.so*),)
+			CFLAGS += -I/usr/include/luajit-2.1
+			LIBS = -lluajit-5.1
+		else
+			$(error LuaJIT not found. Install luajit or build it in lua/)
+		endif
+
+		LIBS += -lc -lz -lpng -lm -ldl
 	endif
-	
+
 	# macOS specific flags (x86_64 and arm64)
 	ifeq ($(name),Darwin)
 		BIN  = $(TARGET).dylib
