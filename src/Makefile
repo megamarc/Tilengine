@@ -1,5 +1,5 @@
 CC       = gcc
-SOURCES  = $(filter-out Test.c,$(wildcard *.c))
+SOURCES  = $(filter-out Test.c,$(wildcard *.c)) libretro/libretro.c
 OBJECTS  = $(SOURCES:.c=.o)
 INCPATH  = ../include
 TARGET   = tilengine_libretro
@@ -14,7 +14,7 @@ else
 	
 	# Linux specific flags (i686, x64 and arm)
 	ifeq ($(name),Linux)
-		LIBS = -lc -lz -lpng
+		LIBS = -lc -lz -lpng -llua5.1 -lm -ldl
 		BIN  = $(TARGET).so
 		LDFLAGS = -shared -s
 		LIBPATH = ../lib/linux_$(arch)
@@ -43,15 +43,27 @@ else
 		endif
 		ifneq ($(wildcard $(BREW_PREFIX)/include),)
 			CFLAGS += -I$(BREW_PREFIX)/include
-			LIBS = -L$(BREW_PREFIX)/lib -lpng -lz -lc
+			LIBS = -L$(BREW_PREFIX)/lib -lpng -lz -lc -lm
 		else
-			LIBS = -lpng -lz -lc
+			LIBS = -lpng -lz -lc -lm
+		endif
+		# LuaJIT (required for ffi in game.lua), then Lua 5.1
+		ifneq ($(wildcard $(BREW_PREFIX)/opt/luajit/lib/libluajit-5.1.dylib),)
+			LIBS += -L$(BREW_PREFIX)/opt/luajit/lib -lluajit-5.1
+		else ifneq ($(wildcard lua/libluajit.a),)
+			LIBS += lua/libluajit.a
+		else ifneq ($(wildcard $(BREW_PREFIX)/opt/lua@5.1/lib/liblua.5.1.dylib),)
+			LIBS += -L$(BREW_PREFIX)/opt/lua@5.1/lib -llua.5.1
+		else ifneq ($(wildcard lua/liblua.a),)
+			LIBS += lua/liblua.a
+		else
+			LIBS += -llua5.1
 		endif
 	endif
 endif
 
 # common flags
-CFLAGS += -I$(INCPATH) -std=c99 -O2 -fpic -DLIB_EXPORTS
+CFLAGS += -I$(INCPATH) -Ilua -Ilibretro -std=c99 -O2 -fpic -DLIB_EXPORTS
 CFLAGS += -Wno-unused-result -Wno-format-truncation
 
 .PHONY: all all-before all-after clean clean-custom
@@ -65,6 +77,8 @@ $(BIN): $(OBJECTS)
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $(BIN) $(LIBS) -fvisibility=hidden
 	mkdir -p $(LIBPATH)
 	cp $(BIN) $(LIBPATH)
+	cp $(BIN) ../lua_game/
+	cd ../lua_game && ln -sf $(BIN) lib$(BIN)
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@

@@ -2,7 +2,13 @@
 
 require("tilengine_libretro")
 local ffi = require("ffi")
-local tln = ffi.load 'tilengine_libretro'
+local tln
+if ffi.os == "Windows" then
+	tln = ffi.load("tilengine_libretro")
+else
+	-- same file RetroArch already loaded (cwd is lua_game)
+	tln = ffi.load("./tilengine_libretro.dylib")
+end
 
 x = 0
 inputs = {0, 0}

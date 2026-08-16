@@ -15,6 +15,8 @@
 #ifdef WIN32
 #include <Windows.h>
 #define chdir SetCurrentDirectoryA
+#else
+#include <unistd.h>
 #endif
 
 static int VIDEO_WIDTH = 480;
@@ -246,15 +248,30 @@ bool retro_load_game(const struct retro_game_info *info)
 	check_variables();
 
 	/* load "game.lua" and parse */
-	if (info)
+	if (info && info->path)
 		chdir(info->path);
 	retval = luaL_loadfile(L, "game.lua");
 	log_cb(RETRO_LOG_INFO, "loading game.lua: %d\n", retval);
+	if (retval != 0)
+	{
+		log_cb(RETRO_LOG_ERROR, "%s\n", lua_tostring(L, -1));
+		return false;
+	}
 	retval = lua_pcall(L, 0, 0, 0);
 	log_cb(RETRO_LOG_INFO, "init script: %d\n", retval);
-	
+	if (retval != 0)
+	{
+		log_cb(RETRO_LOG_ERROR, "%s\n", lua_tostring(L, -1));
+		return false;
+	}
+
 	/* get config{} struct from lua */
 	lua_getglobal(L, "config");
+	if (!lua_istable(L, -1))
+	{
+		log_cb(RETRO_LOG_ERROR, "game.lua did not define config{}\n");
+		return false;
+	}
 	VIDEO_WIDTH = getIntField(L, "hres");
 	VIDEO_HEIGHT = getIntField(L, "vres");
 	numlayers = getIntField(L, "numlayers");
