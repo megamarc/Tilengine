@@ -141,7 +141,7 @@ int main (int argc, char *argv[])
 		palettes[c] = TLN_ClonePalette (TLN_GetTilesetPalette (layers[c].tileset));
 
 	/* startup display */
-	TLN_CreateWindow (NULL, 0);
+	TLN_CreateWindow (NULL, CWF_FULLSCREEN);
 
 	/* main loop */
 	while (TLN_ProcessWindow ())

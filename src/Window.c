@@ -64,7 +64,7 @@ struct
 	bool blur;
 	bool enable;
 }
-static crt_params = { CRT_SLOT, true, true };
+static crt_params = { CRT_APERTURE, false, true };
 
 #define MAX_PATH	260
 
@@ -187,10 +187,10 @@ static bool create_window(void)
 		TLN_DefineInputKey(PLAYER1, INPUT_DOWN, SDLK_DOWN);
 		TLN_DefineInputKey(PLAYER1, INPUT_LEFT, SDLK_LEFT);
 		TLN_DefineInputKey(PLAYER1, INPUT_RIGHT, SDLK_RIGHT);
-		TLN_DefineInputKey(PLAYER1, INPUT_BUTTON1, SDLK_z);
-		TLN_DefineInputKey(PLAYER1, INPUT_BUTTON2, SDLK_x);
-		TLN_DefineInputKey(PLAYER1, INPUT_BUTTON3, SDLK_c);
-		TLN_DefineInputKey(PLAYER1, INPUT_BUTTON4, SDLK_v);
+		TLN_DefineInputKey(PLAYER1, INPUT_X, SDLK_z);
+		TLN_DefineInputKey(PLAYER1, INPUT_A, SDLK_x);
+		TLN_DefineInputKey(PLAYER1, INPUT_Y, SDLK_c);
+		TLN_DefineInputKey(PLAYER1, INPUT_B, SDLK_v);
 		TLN_DefineInputKey(PLAYER1, INPUT_START, SDLK_RETURN);
 		TLN_DefineInputKey(PLAYER1, INPUT_QUIT, SDLK_ESCAPE);
 		TLN_DefineInputKey(PLAYER1, INPUT_CRT, SDLK_BACKSPACE);
@@ -200,11 +200,10 @@ static bool create_window(void)
 		{
 			SDL_JoystickEventState(SDL_ENABLE);
 			TLN_AssignInputJoystick(PLAYER1, 0);
-			TLN_DefineInputButton(PLAYER1, INPUT_BUTTON1, 1);
-			TLN_DefineInputButton(PLAYER1, INPUT_BUTTON2, 0);
-			TLN_DefineInputButton(PLAYER1, INPUT_BUTTON3, 2);
-			TLN_DefineInputButton(PLAYER1, INPUT_BUTTON4, 3);
-			TLN_DefineInputButton(PLAYER1, INPUT_START, 5);
+			
+			/* default for X-Input */
+			for (int c = 0; c < 12; c += 1)
+				TLN_DefineInputButton(PLAYER1, (TLN_Input)(INPUT_BUTTON1 + c), c);
 		}
 
 		/* capture actual granularity for SDL_Delay() */
@@ -783,8 +782,6 @@ void TLN_EnableCRTEffect (int overlay, uint8_t overlay_factor, uint8_t threshold
 	if (crt != NULL)
 		CRTDelete(crt);
 
-	crt_params.type = CRT_SLOT;
-	crt_params.blur = true;
 	crt_params.enable = true;
 	SetupBackBuffer();
 	crt = CRTCreate(renderer, backbuffer, crt_params.type, wnd_width, wnd_height, crt_params.blur);
@@ -948,7 +945,7 @@ static void EndWindowFrame(void)
 		SDL_RenderClear(renderer);
 	}
 
-	if (crt_params.enable && crt != NULL && flags.factor > 1)
+	if (crt_params.enable && crt != NULL && (flags.factor > 1 || flags.fullscreen))
 		CRTDraw(crt, rt_pixels, rt_pitch, &dstrect);
 
 	else

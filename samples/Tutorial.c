@@ -20,7 +20,7 @@ int main (int argc, char* argv[])
 	TLN_SetBGColor (32,32,128);
 
 	/* main loop */
-	TLN_CreateWindow (NULL, 0);
+	TLN_CreateWindow (NULL, CWF_FULLSCREEN);
 	while (TLN_ProcessWindow ())
 	{
 		/* scroll the layer, one pixel per frame */

@@ -80,7 +80,7 @@ int main (int argc, char *argv[])
 	SimonInit ();
 	
 	/* main loop */
-	TLN_CreateWindow (NULL, 0);
+	TLN_CreateWindow (NULL, CWF_FULLSCREEN);
 	while (TLN_ProcessWindow ())
 	{
 		ypos++;

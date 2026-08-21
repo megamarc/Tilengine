@@ -72,7 +72,7 @@ int main (int argc, char* argv[])
 	horizon = TLN_LoadTilemap ("track1_bg.tmx", NULL);
 
 	/* startup display */
-	TLN_CreateWindow (NULL, 0);
+	TLN_CreateWindow (NULL, CWF_FULLSCREEN);
 
 	x = int2fix(-136);
 	y = int2fix(336);

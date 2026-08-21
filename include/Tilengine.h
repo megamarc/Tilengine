@@ -60,7 +60,7 @@
 /* version */
 #define TILENGINE_VER_MAJ	2
 #define TILENGINE_VER_MIN	15
-#define TILENGINE_VER_REV	4
+#define TILENGINE_VER_REV	5
 #define TILENGINE_HEADER_VERSION ((TILENGINE_VER_MAJ << 16) | (TILENGINE_VER_MIN << 8) | TILENGINE_VER_REV)
 
 #define BITVAL(n) (1<<(n))
@@ -324,24 +324,29 @@ typedef enum
 	INPUT_BUTTON4,	/*!< 4th action button */
 	INPUT_BUTTON5,	/*!< 5th action button */
 	INPUT_BUTTON6,	/*!< 6th action button */
-	INPUT_START,	/*!< Start button */
-	INPUT_QUIT,		/*!< Window close (only Player 1 keyboard) */
-	INPUT_CRT,		/*!< CRT toggle (only Player 1 keyboard) */
 
 	/* ... up to 32 unique inputs */
+	INPUT_QUIT = 30,/*!< Window close (only Player 1 keyboard) */
+	INPUT_CRT,		/*!< CRT toggle (only Player 1 keyboard) */
 
 	INPUT_P1 = (PLAYER1 << 5), 	/*!< request player 1 input (default) */
 	INPUT_P2 = (PLAYER2 << 5),	/*!< request player 2 input */
 	INPUT_P3 = (PLAYER3 << 5),	/*!< request player 3 input */
 	INPUT_P4 = (PLAYER4 << 5),	/*!< request player 4 input */
 
-	/* compatibility symbols for pre-1.18 input model */
+	/* X-Input button names */
 	INPUT_A = INPUT_BUTTON1,
-	INPUT_B = INPUT_BUTTON2,
-	INPUT_C = INPUT_BUTTON3,
-	INPUT_D = INPUT_BUTTON4,
-	INPUT_E = INPUT_BUTTON5,
-	INPUT_F = INPUT_BUTTON6,
+	INPUT_B,
+	INPUT_X,
+	INPUT_Y,
+	INPUT_LB,
+	INPUT_RB,
+	INPUT_LT,
+	INPUT_RT,
+	INPUT_SELECT,
+	INPUT_START,
+	INPUT_L3,
+	INPUT_R3,
 }
 TLN_Input;
 

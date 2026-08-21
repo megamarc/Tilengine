@@ -48,7 +48,7 @@ void update_window(void);
 int main(int arg, char* argv[])
 {
 	/* init & load assets */ 
-	TLN_Init(HRES, VRES, NUM_LAYERS, 0, 0);
+	TLN_Init(HRES, VRES, NUM_LAYERS, 0, CWF_FULLSCREEN);
 	TLN_SetLoadPath("assets/shots");
 	TLN_SetLayerBitmap(LAYER_FOREGROUND, TLN_LoadBitmap("zss1.png"));
 	TLN_SetLayerBitmap(LAYER_BACKGROUND, TLN_LoadBitmap("zss2.png"));

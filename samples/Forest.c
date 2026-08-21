@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 	TLN_SetSpriteWorldPosition(0, xplayer, yplayer);
 
 	/* create window & main loop */
-	TLN_CreateWindow(NULL, 0);
+	TLN_CreateWindow(NULL, CWF_FULLSCREEN);
 	while (TLN_ProcessWindow())
 	{
 		TLN_DrawFrame(0);

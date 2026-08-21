@@ -24,7 +24,7 @@ int main (int argc, char* argv[])
 	TLN_SetPaletteAnimation (0, palette, sequence, true);
 
 	/* main loop */
-	TLN_CreateWindow (NULL, 0);
+	TLN_CreateWindow (NULL, CWF_FULLSCREEN);
 	while (TLN_ProcessWindow ())
 		TLN_DrawFrame (0);
 

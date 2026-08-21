@@ -58,7 +58,7 @@ int main (int argc, char *argv[])
 	TLN_SetLayerColumnOffset (LAYER_BACKGROUND, column);
 
 	/* main loop */
-	TLN_CreateWindow (NULL, 0);
+	TLN_CreateWindow (NULL, CWF_FULLSCREEN);
 	while (TLN_ProcessWindow ())
 	{
 		/* scroll */

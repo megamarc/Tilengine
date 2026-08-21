@@ -60,7 +60,7 @@ int main (int argc, char* argv[])
 	scale = 100;
 	
 	/* main loop */
-	TLN_CreateWindow (NULL, 0);
+	TLN_CreateWindow (NULL, CWF_FULLSCREEN);
 	while (TLN_ProcessWindow ())
 	{
 		float fgscale;

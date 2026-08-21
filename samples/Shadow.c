@@ -76,7 +76,7 @@ int main (int argc, char* argv[])
 	sky_lo.b = sky[1].b;
 
 	/* main loop */
-	TLN_CreateWindow (NULL, 0);
+	TLN_CreateWindow (NULL, CWF_FULLSCREEN);
 	while (TLN_ProcessWindow ())
 	{
 		if (xpos < max_xpos)
