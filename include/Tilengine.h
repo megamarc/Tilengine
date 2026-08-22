@@ -12,8 +12,7 @@
 #define _TILENGINE_H
 
 /**
- * \defgroup types
- * \brief Common data types
+ * \defgroup types Common data types
  * @{ */
 
 /* Tilengine shared */
@@ -409,8 +408,7 @@ extern "C"{
 #endif
 
 /**
- * \defgroup setup
- * \brief Basic setup and management
+ * \defgroup setup Basic setup and management
  * @{ */
 
  /*!
@@ -577,13 +575,13 @@ TLNAPI TLN_Palette TLN_GetGlobalPalette(int index);
 
 	\remarks Setting a raster callback is optional, but much of the fun of using Tilengine comes from the use of raster effects
 */
-TLNAPI void TLN_SetRasterCallback (TLN_VideoCallback);
+TLNAPI void TLN_SetRasterCallback (TLN_VideoCallback callback);
 
 /*!
 	\brief Specifies the address of the funcion to call for each drawn frame
 	\param callback Address of the function to call
 */
-TLNAPI void TLN_SetFrameCallback (TLN_VideoCallback);
+TLNAPI void TLN_SetFrameCallback (TLN_VideoCallback callback);
 
 /*!
 	\brief Sets the output surface for rendering
@@ -619,8 +617,7 @@ TLNAPI void TLN_SetLoadPath (const char* path);
 	\remarks This function is not called in realtime, but its result is precomputed into a look-up table when TLN_SetCustomBlendFunction() is called, so the performance impact is minimal, just as low as the other built-in blending modes
 	\see TLN_SetSpriteBlendMode()|TLN_SetLayerBlendMode()
 */
-TLNAPI void TLN_SetCustomBlendFunction (TLN_BlendFunction);
-
+TLNAPI void TLN_SetCustomBlendFunction (TLN_BlendFunction blend_function);
 /*!
 	\brief Sets logging level for current instance
 	\param log_level value to set, member of the TLN_LogLevel enumeration
@@ -651,8 +648,7 @@ TLNAPI void TLN_CloseResourcePack(void);
 /**@}*/
 
 /**
- * \defgroup errors
- * \brief Basic setup and management
+ * \defgroup errors Basic setup and management
 * @{ */
 
 /*!
@@ -677,8 +673,7 @@ TLNAPI const char *TLN_GetErrorString (TLN_Error error);
 /**@}*/
 
 /**
- * \defgroup windowing
- * \brief Built-in window and input management
+ * \defgroup windowing Built-in window and input management
 * @{ */
 
 /*!
@@ -763,7 +758,7 @@ TLNAPI bool TLN_IsWindowActive (void);
 
 	\see TLN_CreateWindow(), TLN_DefineInputKey(), TLN_DefineInputButton()
 */
-TLNAPI bool TLN_GetInput (TLN_Input id);
+TLNAPI bool TLN_GetInput (TLN_Input input);
 
 /*!
 	\brief Enables or disables input for specified player
@@ -837,13 +832,13 @@ TLNAPI void TLN_DisableCRTEffect (void);
 	\brief Registers a user-defined callback to capture internal SDL2 events
 	\param callback pointer to user funcion with signature void (SDL_Event*)
 */
-TLNAPI void TLN_SetSDLCallback(TLN_SDLCallback);
+TLNAPI void TLN_SetSDLCallback(TLN_SDLCallback callback);
 
 /*!
 	\brief Suspends execition for a fixed time
 	\param time Number of milliseconds to wait
 */
-TLNAPI void TLN_Delay (uint32_t msecs);
+TLNAPI void TLN_Delay (uint32_t time);
 
 /*!	\brief Returns the number of milliseconds since application start */
 TLNAPI uint32_t TLN_GetTicks (void);
@@ -869,8 +864,7 @@ TLNAPI void TLN_SetWindowScaleFactor(int);
 /**@}*/
 
 /**
- * \defgroup spriteset
- * \brief Spriteset resources management for sprites
+ * \defgroup spriteset Spriteset resources management for sprites
 * @{ */
 
 /*!
@@ -948,12 +942,11 @@ TLNAPI bool TLN_SetSpritesetData (TLN_Spriteset spriteset, int entry, TLN_Sprite
 	\remarks Don't delete a spriteset currently attached to a sprite!
 	\see TLN_LoadSpriteset(), TLN_CloneSpriteset()
 */
-TLNAPI bool TLN_DeleteSpriteset (TLN_Spriteset Spriteset);
+TLNAPI bool TLN_DeleteSpriteset (TLN_Spriteset spriteset);
 /**@}*/
 
 /**
- * \defgroup tileset
- * \brief Tileset resources management for background layers 
+ * \defgroup tileset Tileset resources management for background layers 
 * @{ */
 
 /*!
@@ -1076,8 +1069,7 @@ TLNAPI bool TLN_DeleteTileset (TLN_Tileset tileset);
 /**@}*/
 
 /**
- * \defgroup tilemap
- * \brief Tilemap resources management for background layers 
+ * \defgroup tilemap Tilemap resources management for background layers 
 * @{ */
 
 /*!
@@ -1214,8 +1206,7 @@ TLNAPI bool TLN_DeleteTilemap (TLN_Tilemap tilemap);
 /**@}*/
 
 /**
- * \defgroup palette
- * \brief Color palette resources management for sprites and background layers
+ * \defgroup palette Color palette resources management for sprites and background layers
 * @{ */
 
 /*!
@@ -1253,7 +1244,7 @@ TLNAPI TLN_Palette TLN_ClonePalette (TLN_Palette src);
 	\param g Green component of the color (0-255)
 	\param b Blue component of the color (0-255)
 */
-TLNAPI bool TLN_SetPaletteColor (TLN_Palette palette, int color, uint8_t r, uint8_t g, uint8_t b);
+TLNAPI bool TLN_SetPaletteColor (TLN_Palette palette, int index, uint8_t r, uint8_t g, uint8_t b);
 
 /*!
 	\brief Mixes two palettes to create a third one
@@ -1321,8 +1312,7 @@ TLNAPI bool TLN_DeletePalette (TLN_Palette palette);
 /**@}*/
 
 /**
- * \defgroup bitmap
- * \brief Bitmap management
+ * \defgroup bitmap Bitmap management
 * @{ */
 
 /*!
@@ -1410,8 +1400,7 @@ TLNAPI bool TLN_DeleteBitmap (TLN_Bitmap bitmap);
 /**@}*/
 
 /**
- * \defgroup objects
- * \brief ObjectList resources management
+ * \defgroup objects ObjectList resources management
  * @{ */
 
  /*!
@@ -1476,8 +1465,7 @@ TLNAPI bool TLN_DeleteObjectList(TLN_ObjectList list);
 /**@}*/
 
 /**
- * \defgroup layer
- * \brief Background layers management
+ * \defgroup layer Background layers management
 * @{ */
 
 /*!
@@ -1547,8 +1535,8 @@ TLNAPI bool TLN_SetLayerPosition (int nlayer, int hstart, int vstart);
 /*!
 	\brief Sets simple scaling
 	\param nlayer Layer index [0, num_layers - 1]
-	\param sx Horizontal scale factor
-	\param sy Vertical scale factor
+	\param xfactor Horizontal scale factor
+	\param yfactor Vertical scale factor
 
 	By default the scaling factor of a given layer is 1.0f, 1.0f, which means
 	no scaling. Use values below 1.0 to downscale (shrink) and above 1.0 to upscale (enlarge).
@@ -1829,8 +1817,7 @@ TLNAPI int TLN_GetLayerY(int nlayer);
 /**@}*/
 
 /**
- * \defgroup sprite
- * \brief Sprites management
+ * \defgroup sprite Sprites management
 * @{ */
 
 /*!
@@ -2031,7 +2018,7 @@ TLNAPI void TLN_SetSpritesMaskRegion(int top_line, int bottom_line);
 
 /*!
 	\brief Starts a sprite animation
-	\param nsprite If of the sprite to animate (0 <= id < num_sprites)
+	\param nsprite Id of the sprite to animate (0 <= id < num_sprites)
 	\param sequence	Reference of the sequence to assign
 	\param loop	amount of times to loop, 0=infinite
 	\see Animations
@@ -2043,7 +2030,7 @@ TLNAPI bool TLN_SetSpriteAnimation (int nsprite, TLN_Sequence sequence, int loop
 	\param index Id of the spriteto set (0 <= id < num_sprites)
 	\see Animations
 */
-TLNAPI bool TLN_DisableSpriteAnimation(int nsprite);
+TLNAPI bool TLN_DisableSpriteAnimation(int index);
 
 /*!
 	\brief Pauses animation for the given sprite
@@ -2081,15 +2068,14 @@ TLNAPI TLN_Palette TLN_GetSpritePalette (int nsprite);
 /**@}*/
 
 /**
- * \defgroup sequence
- * \brief Sequence resources management for layer, sprite and palette animations
+ * \defgroup sequence Sequence resources management for layer, sprite and palette animations
 * @{ */
 
 /*!
 	\brief Creates a new sequence for the animation engine
 	\param name String with an unique name to query later
 	\param target For tileset animations, the tile index to animate
-	\param count Number of frames
+	\param num_frames Number of frames
 	\param frames Array of TLN_Frame items with indexes and delays
 	\returns Reference to the new sequence or NULL if error
 	\remarks Use this function to create tileset or sprite animations
@@ -2100,7 +2086,7 @@ TLNAPI TLN_Sequence TLN_CreateSequence (const char* name, int target, int num_fr
 /*!
 	\brief Creates a color cycle sequence for palette animation
 	\param name String with an unique name to query later
-	\param count Number of color strips
+	\param num_strips Number of color strips
 	\param strips Array of color strips to assign
 	\returns Reference to the created cycle or NULL if error
 	\remarks Use this function to create advanced palette animation effects
@@ -2144,8 +2130,7 @@ TLNAPI bool TLN_DeleteSequence (TLN_Sequence sequence);
 /**@}*/
 
 /**
- * \defgroup sequencepack
- * \brief Sequence pack manager for grouping and finding sequences
+ * \defgroup sequencepack Sequence pack manager for grouping and finding sequences
 * @{ */
 
 /*!
@@ -2207,8 +2192,7 @@ TLNAPI bool TLN_DeleteSequencePack (TLN_SequencePack sp);
 /**@}*/
 
 /**
- * \defgroup animation
- * \brief Color cycle animation
+ * \defgroup animation Color cycle animation
 * @{ */
 
 /*!
@@ -2226,7 +2210,7 @@ TLNAPI bool TLN_SetPaletteAnimation (int index, TLN_Palette palette, TLN_Sequenc
 	\param palette Reference of the palette to assign
 	\remarks Use this function to change the palette assigned to a color cycle animation running. This is useful to combine color cycling and palette interpolation at the same time
 */
-TLNAPI bool TLN_SetPaletteAnimationSource (int index, TLN_Palette);
+TLNAPI bool TLN_SetPaletteAnimationSource (int index, TLN_Palette palette);
 
 /*!
 	\brief Checks the state of the animation for given sprite
@@ -2259,13 +2243,12 @@ TLNAPI bool TLN_DisablePaletteAnimation(int index);
 /**@}*/
 
 /**
- * \defgroup world
- * \brief World management
+ * \defgroup world World management
 * @{ */
 
 /*!
 	\brief Loads and assigns complete TMX file
-	\param filename TMX file to load
+	\param tmxfile Filename of TMX file to load
 	\param first_layer Starting layer number where place the loaded tmx
 */
 TLNAPI bool TLN_LoadWorld(const char* tmxfile, int first_layer);

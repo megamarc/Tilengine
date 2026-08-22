@@ -206,12 +206,12 @@ bool SetTilesetAnimation(TLN_Tileset tileset, int index, TLN_Sequence sequence)
 	return true;
 }
 
-bool TLN_SetSpriteAnimation (int nsprite, TLN_Sequence sequence, int loop)
+bool TLN_SetSpriteAnimation (int index, TLN_Sequence sequence, int loop)
 {
 	Sprite* sprite;
 	Animation* animation = NULL;
 	
-	if (nsprite >= engine->numsprites)
+	if (index >= engine->numsprites)
 	{
 		TLN_SetLastError (TLN_ERR_IDX_SPRITE);
 		return false;
@@ -221,10 +221,10 @@ bool TLN_SetSpriteAnimation (int nsprite, TLN_Sequence sequence, int loop)
 	if (!CheckBaseObject (sequence, OT_SEQUENCE))
 		return false;
 	
-	sprite = &engine->sprites[nsprite];
+	sprite = &engine->sprites[index];
 	animation = &sprite->animation;
 	SetAnimation (animation, sequence, TYPE_SPRITE);
-	animation->nsprite = nsprite;
+	animation->nsprite = index;
 	animation->loop = loop;
 
 	TLN_SetLastError (TLN_ERR_OK);

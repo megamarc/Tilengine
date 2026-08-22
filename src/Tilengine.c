@@ -413,13 +413,13 @@ int TLN_GetNumSprites (void)
 	return engine->numsprites;
 }
 
-void TLN_SetRasterCallback (void (*callback)(int))
+void TLN_SetRasterCallback (TLN_VideoCallback callback)
 {
 	TLN_SetLastError (TLN_ERR_OK);
 	engine->cb_raster = callback;
 }
 
-void TLN_SetFrameCallback (void (*callback)(int))
+void TLN_SetFrameCallback (TLN_VideoCallback callback)
 {
 	TLN_SetLastError (TLN_ERR_OK);
 	engine->cb_frame = callback;
@@ -498,7 +498,7 @@ TLN_Palette TLN_GetGlobalPalette(int index)
 	return engine->palettes[index];
 }
 
-void TLN_SetCustomBlendFunction (uint8_t (*blend_function)(uint8_t src, uint8_t dst))
+void TLN_SetCustomBlendFunction (TLN_BlendFunction blend_function)
 {
 	uint8_t* table = SelectBlendTable (BLEND_CUSTOM);
 	int a,b;

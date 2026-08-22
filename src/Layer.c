@@ -616,7 +616,7 @@ bool TLN_SetLayerTransform (int layer, float angle, float dx, float dy, float sx
 	return TLN_SetLayerAffineTransform (layer, &affine);
 }
 
-bool TLN_SetLayerScaling (int nlayer, float sx, float sy)
+bool TLN_SetLayerScaling (int nlayer, float xfactor, float yfactor)
 {
 	Layer *layer;
 	if (nlayer >= engine->numlayers)
@@ -626,9 +626,9 @@ bool TLN_SetLayerScaling (int nlayer, float sx, float sy)
 	}
 	
 	layer = &engine->layers[nlayer];
-	layer->xfactor = float2fix(sx);
-	layer->dx = float2fix((1.0f/sx));
-	layer->dy = float2fix((1.0f/sy));
+	layer->xfactor = float2fix(xfactor);
+	layer->dx = float2fix((1.0f / xfactor));
+	layer->dy = float2fix((1.0f / yfactor));
 	layer->mode = MODE_SCALING;
 	layer->draw = GetLayerDraw (layer);
 	SetBlitter (layer);
