@@ -1479,42 +1479,351 @@ TLNAPI bool TLN_DeleteObjectList(TLN_ObjectList list);
  * \defgroup layer
  * \brief Background layers management
 * @{ */
+
+/*!
+	\deprecated Use \ref TLN_SetLayerTilemap instead
+	\brief Configures a background layer with the specified tileset and tilemap
+	\param nlayer Layer index [0, num_layers - 1]
+	\param tileset Optional reference to the tileset to assign. If the tilemap has a reference to its own tileset, passing NULL will assign the default tileset.
+	\param tilemap Reference to the tilemap to assign
+	\remarks This function doesn't modify the current position nor the blend mode, but assigns the palette of the specified tileset
+	\see TLN_DisableLayer()
+*/
 TLNAPI bool TLN_SetLayer (int nlayer, TLN_Tileset tileset, TLN_Tilemap tilemap);
+
+/*!
+	\brief Configures a tiled background layer with the specified tilemap
+	\param nlayer Layer index [0, num_layers - 1]
+	\param tilemap Reference to the tilemap to assign
+	\returns true if success or false if error
+	\see TLN_LoadTilemap()
+*/
 TLNAPI bool TLN_SetLayerTilemap(int nlayer, TLN_Tilemap tilemap);
+
+/*!
+	\brief Configures a background layer with the specified full bitmap
+	\param nlayer Layer index [0, num_layers - 1]
+	\param bitmap Reference to the bitmap to assign
+	\remarks This function doesn't modify the current position nor the blend mode, but assigns the palette of the specified bitmap
+	\see TLN_LoadBitmap() TLN_DisableLayer()
+*/
 TLNAPI bool TLN_SetLayerBitmap(int nlayer, TLN_Bitmap bitmap);
+
+/*!
+	\brief Sets the color palette to the layer
+	\param nlayer Layer index [0, num_layers - 1]
+	\param palette Reference to the  palette to assign to the layer
+
+	Overrides the palette of the current tileset or bitmap
+
+	\remarks
+	Call this function inside a raster callback to change the palette in the middle
+	of the frame to get raster effect colors, like and "underwater" palette below the
+	water line in a partially submerged background, or a gradient palette in an area at
+	the top of the screen to simulate a "depth fog effect" in a pseudo 3d background
+*/
 TLNAPI bool TLN_SetLayerPalette (int nlayer, TLN_Palette palette);
+
+/*!
+	\brief Sets the position of the tileset that corresponds to the upper left corner
+	\param nlayer Layer index [0, num_layers - 1]
+	\param hstart Horizontal offset in the tileset on the left side
+	\param vstart Vertical offset in the tileset on the top side
+
+	The tileset usually spans an area much bigger than the viewport. Use this
+	function to move the viewport insde the tileset. Change this value progressively
+	for each frame to get a scrolling effect
+
+	\remarks
+	Call this function inside a raster callback to get a raster scrolling effect.
+	Use this to create horizontal strips of the same
+	layer that move at different speeds to simulate depth. The extreme case of this effect, where
+	the position is changed in each scanline, is called "line scroll" and was the technique used by
+	games such as Street Fighter II to simualte a pseudo 3d floor, or many racing games to simulate
+	a 3D road.
+*/
 TLNAPI bool TLN_SetLayerPosition (int nlayer, int hstart, int vstart);
+
+/*!
+	\brief Sets simple scaling
+	\param nlayer Layer index [0, num_layers - 1]
+	\param sx Horizontal scale factor
+	\param sy Vertical scale factor
+
+	By default the scaling factor of a given layer is 1.0f, 1.0f, which means
+	no scaling. Use values below 1.0 to downscale (shrink) and above 1.0 to upscale (enlarge).
+	Call TLN_ResetLayerMode() to disable scaling
+
+	\see TLN_ResetLayerMode()
+*/
 TLNAPI bool TLN_SetLayerScaling (int nlayer, float xfactor, float yfactor);
+
+/*!
+	\brief Sets affine transform matrix to enable rotating and scaling of this layer
+	\param nlayer Layer index [0, num_layers - 1]
+	\param affine Pointer to an TLN_Affine matrix, or NULL to disable it
+
+	Enable the transformation matrix to give the layer the capabilities of the famous
+	Super Nintendo / Famicom Mode 7. Beware that the rendering of a transformed layer
+	uses more CPU than a regular layer. Unlike the original Mode 7, that could only transform
+	the single layer available, Tilengine can transform all the layers at the same time. The only
+	limitation is the available CPU power.
+
+	\remarks
+	Call this function inside a raster callback to set the transformation matrix in the middle of
+	the frame. Setting it for each scanline is the trick used by many Super Nintendo games to fake
+	a 3D perspective projection.
+
+	\see TLN_SetLayerTransform()
+ */
 TLNAPI bool TLN_SetLayerAffineTransform (int nlayer, TLN_Affine *affine);
+
+/*!
+	\brief Sets affine transform matrix to enable rotating and scaling of this layer
+	\param layer Layer index [0, num_layers - 1]
+	\param angle Rotation angle in degrees
+	\param dx Horizontal displacement
+	\param dy Vertical displacement
+	\param sx Horizontal scaling
+	\param sy Vertical scaling
+	\remarks This function is a simple wrapper to TLN_SetLayerAffineTransform() without using the TLN_Affine struct
+	\see TLN_SetLayerAffineTransform()
+*/
 TLNAPI bool TLN_SetLayerTransform (int layer, float angle, float dx, float dy, float sx, float sy);
+
+/*!
+	\brief Sets the table for pixel mapping render mode
+	\param nlayer Layer index [0, num_layers - 1]
+	\param table User-provided array of hres*vres sized TLN_PixelMap items
+	\see TLN_SetLayerScaling(), TLN_SetLayerAffineTransform()
+*/
 TLNAPI bool TLN_SetLayerPixelMapping (int nlayer, TLN_PixelMap* table);
+
+/*!
+	\brief Sets the blending mode (transparency effect)
+	\param nlayer Layer index [0, num_layers - 1]
+	\param mode Member of the TLN_Blend enumeration
+	\param factor Deprecated as of 1.12, left for backwards compatibility but doesn't have effect.
+	\see Blending
+*/
 TLNAPI bool TLN_SetLayerBlendMode (int nlayer, TLN_Blend mode, uint8_t factor);
+
+/*!
+	\brief Enables column offset mode for this layer
+	\param nlayer Layer index [0, num_layers - 1]
+	\param offset Array of offsets to set. Set NULL to disable column offset mode
+
+	Column offset is a value that is added or substracted (depending on the
+	sign) to the vertical position for that layer (see TLN_SetLayerPosition) for
+	each column in the tilemap assigned to that layer.
+
+	\remarks
+	This feature is typically used to simulate vertical strips moving at different
+	speeds, or combined with a line scroll effect, to fake rotations where the angle
+	is small. The Sega Genesis games Puggsy and Chuck Rock II used this trick to simulate
+	partially rotating backgrounds
+*/
 TLNAPI bool TLN_SetLayerColumnOffset (int nlayer, int* offset);
+
+/*!
+	\deprecated Use \ref TLN_SetLayerWindow instead
+	\brief Enables clipping rectangle on selected layer
+	\param nlayer Layer index [0, num_layers - 1]
+	\param x1 left coordinate
+	\param y1 top coordinate
+	\param x2 right coordinate
+	\param y2 bottom coordinate
+*/
 TLNAPI bool TLN_SetLayerClip (int nlayer, int x1, int y1, int x2, int y2);
+
+/*!
+	\deprecated Use \ref TLN_DisableLayerWindow instead
+	\brief Disables clipping rectangle on selected layer
+	\param nlayer Layer index [0, num_layers - 1]
+*/
 TLNAPI bool TLN_DisableLayerClip (int nlayer);
+
+/*!
+	\brief Enables clipping window on selected layer
+	\param nlayer Layer index [0, num_layers - 1]
+	\param x1 left coordinate
+	\param y1 top coordinate
+	\param x2 right coordinate
+	\param y2 bottom coordinate
+	\param invert false=clip outer region, true=clip inner region
+	\see TLN_SetLayerWindowColor(), TLN_DisableLayerWindow()
+ */
 TLNAPI bool TLN_SetLayerWindow(int nlayer, int x1, int y1, int x2, int y2, bool invert);
+
+/*!
+	\brief Enables solid color processing on clipped region in window layer
+	\param nlayer Layer index [0, num_layers - 1]
+	\param r Red component (0-255)
+	\param g Green component (0-255)
+	\param b Blue component (0-255)
+	\param blend one of possible TLN_Blend modes
+	When color is enabled on window, the area outside the clipped region gets filled with this color.
+	If one of blending modes is selected, color math is performed with underlying layer
+	\see TLN_SetLayerWindow(), TLN_DisableLayerWindowColor()
+*/
 TLNAPI bool TLN_SetLayerWindowColor(int nlayer, uint8_t r, uint8_t g, uint8_t b, TLN_Blend blend);
+
+/*!
+	\brief Disables layer window clipping
+	\param nlayer Layer index [0, num_layers - 1]
+	\see TLN_SetLayerWindow()
+*/
 TLNAPI bool TLN_DisableLayerWindow(int nlayer);
+
+/*!
+	\brief Disables color processing for window on selected layer
+	\param nlayer Layer index [0, num_layers - 1]
+	\see TLN_SetLayerWindowColor()
+*/
 TLNAPI bool TLN_DisableLayerWindowColor(int nlayer);
+
+/*!
+	\brief Enables mosaic effect (pixelation) for selected layer
+	\param nlayer Layer index [0, num_layers - 1]
+	\param width horizontal pixel size
+	\param height vertical pixel size
+	\see TLN_DisableLayerMosaic()
+*/
 TLNAPI bool TLN_SetLayerMosaic (int nlayer, int width, int height);
+
+/*!
+	\brief Disables mosaic effect for selected layer
+	\param nlayer Layer index [0, num_layers - 1]
+	\see TLN_SetLayerMosaic()
+*/
 TLNAPI bool TLN_DisableLayerMosaic (int nlayer);
+
+/*!
+	\brief Disables scaling or affine transform for the layer
+	\param nlayer Layer index [0, num_layers - 1]
+	\see TLN_SetLayerScaling(), TLN_SetLayerAffineTransform()
+*/
 TLNAPI bool TLN_ResetLayerMode (int nlayer);
+
+/*!
+	\brief Configures a background layer with a object list and an image-based tileset
+	\param nlayer Layer index [0, num_layers - 1]
+	\param objects Reference to the TLN_ObjectList to attach
+	\param tileset optional reference to the image-based tileset object. If NULL, object list must have an attached tileset
+	\see TLN_LoadObjectList()
+*/
 TLNAPI bool TLN_SetLayerObjects(int nlayer, TLN_ObjectList objects, TLN_Tileset tileset);
+
+/*!
+	\brief Sets full layer priority, appearing in front of sprites
+	\param nlayer Layer index [0, num_layers - 1]
+	\param enable Enable (true) or dsiable (false) full priority
+*/
 TLNAPI bool TLN_SetLayerPriority(int nlayer, bool enable);
+
+/*! \deprecated removed, keep for ABI compatibility with old versions*/
 TLNAPI bool TLN_SetLayerParent(int nlayer, int parent);
+
+/*! \deprecated removed, keep for ABI compatibility with old versions*/
 TLNAPI bool TLN_DisableLayerParent(int nlayer);
+
+/*!
+	\brief Returns the layer width in pixels
+	\param nlayer Layer index [0, num_layers - 1]
+	\see TLN_SetLayer(), TLN_GetLayerHeight()
+*/
 TLNAPI bool TLN_DisableLayer (int nlayer);
+
+/*!
+	\brief Enables a layer previously disabled with \ref TLN_DisableLayer
+	\param nlayer Layer index [0, num_layers - 1]
+	\remarks The layer must have been previously configured. A layer without a prior configuration can't be enabled
+*/
 TLNAPI bool TLN_EnableLayer(int nlayer);
+
+/*!
+	\brief Returns the type of the layer
+	\param nlayer Layer index [0, num_layers - 1]
+	\returns \ref TLN_LayerType enumeration
+	\see TLN_SetLayerTilemap(), TLN_SetLayerObjects(), TLN_SetLayerBitmap()
+*/
 TLNAPI TLN_LayerType TLN_GetLayerType(int nlayer);
+
+/*!
+	\brief Returns the active palette of a layer if set with \ref TLN_SetLayerPalette(), or the palette of the first tileset, or palette of bitmap
+	\param nlayer Layer index [0, num_layers - 1]
+	\returns Reference of the palette assigned to the layer
+	\see TLN_SetLayerPalette()
+*/
 TLNAPI TLN_Palette TLN_GetLayerPalette (int nlayer);
+
+/*! \deprecated Returns the first tilesetof the attached layer's tilemap */
 TLNAPI TLN_Tileset TLN_GetLayerTileset(int nlayer);
+
+/*!
+	\brief Returns the active tilemap on a \ref LAYER_TILE layer type
+	\param nlayer Layer index [0, num_layers - 1]
+	\returns Reference to the active tilemap
+	\see TLN_SetLayerTilemap()
+*/
 TLNAPI TLN_Tilemap TLN_GetLayerTilemap(int nlayer);
+
+/*!
+	\brief Returns the active bitmap on a \ref LAYER_BITMAP layer type
+	\param nlayer Layer index [0, num_layers - 1]
+	\returns Reference to the active bitmap
+	\see TLN_SetLayerBitmap()
+*/
 TLNAPI TLN_Bitmap TLN_GetLayerBitmap(int nlayer);
+
+/*!
+	\brief Returns the active object list on a \ref LAYER_OBJECT layer type
+	\param nlayer Layer index [0, num_layers - 1]
+	\returns Reference to the active objects list
+	\see TLN_SetLayerObjects(), TLN_GetListObject()
+*/
 TLNAPI TLN_ObjectList TLN_GetLayerObjects(int nlayer);
+
+/*!
+	\brief Gets info about the tile located in tilemap space
+	\param nlayer Id of the layer to query [0, num_layers - 1]
+	\param x horizontal position
+	\param y vertical position
+	\param info	Pointer to an application-allocated TLN_TileInfo struct that will get the data
+	\returns true if success or false if error
+	\remarks Use this function to implement collision detection between sprites and the main background layer.
+	\see TLN_TileInfo
+*/
 TLNAPI bool TLN_GetLayerTile (int nlayer, int x, int y, TLN_TileInfo* info);
+
+/*!
+	\brief Returns the layer width in pixels
+	\param nlayer Layer index [0, num_layers - 1]
+	\see TLN_SetLayer(), TLN_GetLayerHeight()
+*/
 TLNAPI int TLN_GetLayerWidth (int nlayer);
+
+/*!
+	\brief Returns the layer height in pixels
+	\param nlayer Layer index [0, num_layers - 1]
+	\see TLN_SetLayer(), TLN_GetLayerWidth()
+*/
 TLNAPI int TLN_GetLayerHeight (int nlayer);
+
+/*
+	\brief returns layer's horizontal position
+	\param nlayer Layer index to query
+	\returns x position
+	\see TLN_SetLayerPosition()
+*/
 TLNAPI int TLN_GetLayerX(int nlayer);
+
+/*
+	\brief returns layer's vertical position
+	\param nlayer Layer index to query
+	\returns y position
+	\see TLN_SetLayerPosition()
+*/
 TLNAPI int TLN_GetLayerY(int nlayer);
 
 /**@}*/
@@ -1534,8 +1843,6 @@ TLNAPI bool TLN_SetSpritePalette (int nsprite, TLN_Palette palette);
 TLNAPI bool TLN_SetSpriteBlendMode (int nsprite, TLN_Blend mode, uint8_t factor);
 TLNAPI bool TLN_SetSpriteScaling (int nsprite, float sx, float sy);
 TLNAPI bool TLN_ResetSpriteScaling (int nsprite);
-//TLNAPI bool TLN_SetSpriteRotation (int nsprite, float angle);
-//TLNAPI bool TLN_ResetSpriteRotation (int nsprite);
 TLNAPI int  TLN_GetSpritePicture (int nsprite);
 TLNAPI int TLN_GetSpriteX(int nsprite);
 TLNAPI int TLN_GetSpriteY(int nsprite);
