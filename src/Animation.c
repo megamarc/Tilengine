@@ -107,16 +107,6 @@ void UpdateAnimation(Animation* animation, int time)
 	}
 }
 
-/**
- * \brief
- * Checks the state of the animation for given sprite
- * 
- * \param index
- * Id of the sprite to check (0 <= id < num_sprites)
- * 
- * \returns
- * true if animation is running, false if it's finished or inactive
- */
 bool TLN_GetAnimationState (int index)
 {
 	if (index >= engine->numsprites)
@@ -129,22 +119,6 @@ bool TLN_GetAnimationState (int index)
 	return engine->sprites[index].animation.enabled;
 }
 
-/*!
- * \brief
- * Starts a palette animation
- * 
- * \param index
- * Id of the animation to set (0 <= id < num_animations)
- * 
- * \param palette
- * Reference of the palette to be animated
- * 
- * \param sequence
- * Reference of the sequence to assign
- * 
- * \param blend
- * true for smooth frame interpolation, false for classic, discrete mode
- */
 bool TLN_SetPaletteAnimation (int index, TLN_Palette palette, TLN_Sequence sequence, bool blend)
 {
 	Animation* animation = NULL;
@@ -189,20 +163,6 @@ bool TLN_SetPaletteAnimation (int index, TLN_Palette palette, TLN_Sequence seque
 	return true;
 }
 
-/*!
- * \brief
- * Sets the source palette of a color cycle animation
- * 
- * \param index
- * Id of the animation to set (0 <= id < num_animations)
- * 
- * \param palette
- * Reference of the palette to assign
- * 
- * \remarks
- * Use this function to change the palette assigned to a color cycle animation running.
- * This is useful to combine color cycling and palette interpolation at the same time
- */
 bool TLN_SetPaletteAnimationSource (int index, TLN_Palette palette)
 {
 	Animation* animation = NULL;
@@ -287,23 +247,6 @@ bool TLN_SetSpriteAnimation (int nsprite, TLN_Sequence sequence, int loop)
 	return true;
 }
 
-/*!
- * \brief
- * Sets animation delay for single frame of given sprite animation
- *
- * \param index
- * Id of the sprite with animation (0 <= id < num_sprites)
- *
- * \param frame
- * Id of animation frame to change delay in (0 <= id < sequence->count)
- *
- * \param delay
- * New animation frame delay to set
- *
- * \see
- * Animations
- *
- */
 bool TLN_SetAnimationDelay(int index, int frame, int delay)
 {
 	Animation* animation;
@@ -330,13 +273,6 @@ bool TLN_SetAnimationDelay(int index, int frame, int delay)
 	return true;
 }
 
-/*!
- * \brief
- * Finds an available (unused) animation
- * 
- * \returns
- * Index of the first unused animation (starting from 0) or -1 if none found
- */
 int TLN_GetAvailableAnimation (void)
 {
 	int c;
@@ -350,16 +286,6 @@ int TLN_GetAvailableAnimation (void)
 	return -1;
 }
 
-/*!
- * \brief
- * Disables the color cycle animation so it stops playing
- * 
- * \param index
- * Id of the animation to set (0 <= id < num_animations)
- * 
- * \see
- * Animations
- */
 bool TLN_DisablePaletteAnimation (int index)
 {
 	Animation* animation;

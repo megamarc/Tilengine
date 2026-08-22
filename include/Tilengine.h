@@ -1560,11 +1560,62 @@ TLNAPI TLN_Palette TLN_GetSpritePalette (int nsprite);
  * \defgroup sequence
  * \brief Sequence resources management for layer, sprite and palette animations
 * @{ */
+
+/*!
+	\brief Creates a new sequence for the animation engine
+	\param name String with an unique name to query later
+	\param target For tileset animations, the tile index to animate
+	\param count Number of frames
+	\param frames Array of TLN_Frame items with indexes and delays
+	\returns Reference to the new sequence or NULL if error
+	\remarks Use this function to create tileset or sprite animations
+	\see TLN_SetTilemapAnimation(), TLN_SetSpriteAnimation()
+*/
 TLNAPI TLN_Sequence TLN_CreateSequence (const char* name, int target, int num_frames, TLN_SequenceFrame* frames);
+
+/*!
+	\brief Creates a color cycle sequence for palette animation
+	\param name String with an unique name to query later
+	\param count Number of color strips
+	\param strips Array of color strips to assign
+	\returns Reference to the created cycle or NULL if error
+	\remarks Use this function to create advanced palette animation effects
+	\see TLN_ColorStrip(), TLN_SetPaletteAnimation()
+*/
 TLNAPI TLN_Sequence TLN_CreateCycle (const char* name, int num_strips, TLN_ColorStrip* strips);
+
+/*!
+	\brief Creates a name based sprite sequence
+	\param name Optional name used to retrieve it when adding to a TLN_SequencePack, can be NULL
+	\param spriteset Reference to the spriteset with frames to animate
+	\param basename Base of the sprite name for the numbered sequence
+	\param delay Number of ticks to delay between frame
+	\return Reference to the created TLN_Sequence object or NULL if error
+	\remarks Trailing numbers in sprite names must start with 1 and be correlative (eg basename1... basename14)
+*/
 TLNAPI TLN_Sequence TLN_CreateSpriteSequence(const char* name, TLN_Spriteset spriteset, const char* basename, int delay);
+
+/*!
+	\brief Creates a duplicate of the specified sequence
+	\param src Sequence to clone
+	\returns A reference to the newly cloned sequence, or NULL if error
+	\see TLN_FindSequence()
+*/
 TLNAPI TLN_Sequence TLN_CloneSequence (TLN_Sequence src);
+
+/*!
+	\brief Returns runtime info about a given sequence
+	\param sequence Sequence to query
+	\param info	Pointer to a user-provided TLN_SequenceInfo structure to hold the returned data
+	\see TLN_FindSequence()
+*/
 TLNAPI bool TLN_GetSequenceInfo (TLN_Sequence sequence, TLN_SequenceInfo* info);
+
+/*!
+	\brief Deletes the sequence and frees resources
+	\param sequence	Reference to the sequence to be deleted
+	\remarks Don't delete an active sequence!
+ */
 TLNAPI bool TLN_DeleteSequence (TLN_Sequence sequence);
 /**@}*/
 
@@ -1572,12 +1623,62 @@ TLNAPI bool TLN_DeleteSequence (TLN_Sequence sequence);
  * \defgroup sequencepack
  * \brief Sequence pack manager for grouping and finding sequences
 * @{ */
+
+/*!
+	\brief Creates a new collection of sequences
+	\returns Reference to the created pack or NULL if error
+	\see TLN_AddSequenceToPack(), TLN_CreateSequence()
+*/
 TLNAPI TLN_SequencePack TLN_CreateSequencePack (void);
+
+/*!
+	\brief Loads a sqx file containing one or more sequences
+	\param filename SQX filename with the sequences to load
+	\returns Reference to the newly created TLN_SequencePack() or NULL if error
+	\remarks A SQX file can contain many sequences. This function loads all of them	inside a single TLN_SequencePack(). Individual sequences can be later queried with TLN_FindSequence()
+	\see TLN_FindSequence()
+*/
 TLNAPI TLN_SequencePack TLN_LoadSequencePack (const char* filename);
+
+/*!
+	\brief Returns the nth sequence inside a sequence pack
+	\param sp Reference to the sequence pack containing the sequence to find
+	\param index Sequence number to return [0, num_sequences - 1]
+	\see TLN_LoadSequencePack(), TLN_GetSequencePackCount()
+*/
 TLNAPI TLN_Sequence TLN_GetSequence (TLN_SequencePack sp, int index);
+
+/*!
+	\brief Finds a sequence inside a sequence pack
+	\param sp Reference to the sequence pack containing the sequence to find
+	\param name Name of the sequence to find
+	\returns Reference to the sequence with the specified name, or NULL if not found
+	\see TLN_LoadSequencePack()
+*/
 TLNAPI TLN_Sequence TLN_FindSequence (TLN_SequencePack sp, const char* name);
+
+/*!
+	\brief Returns the number of sequences inside a sequence pack
+	\param sp Reference to the sequence pack to query
+ */
 TLNAPI int TLN_GetSequencePackCount (TLN_SequencePack sp);
+
+/*!
+	\brief Adds a sequence to a sequence pack
+	\param sp Reference to the sequence pack
+	\param sequence	Reference to the sequence to attach
+	\remarks Write remarks for TLN_AddSequenceToPack here.
+	\see TLN_CreateSequencePack(), TLN_CreateSequence()
+*/
 TLNAPI bool TLN_AddSequenceToPack (TLN_SequencePack sp, TLN_Sequence sequence);
+
+/*!
+	\brief Deletes the specified sequence pack and frees memory
+	\param sp Reference to the sequence pack to delete
+	\remarks Don't delete a sequence pack that has sequences currently attached to animations!
+	\remarks The attached sequences are also deleted, so they haven't to be deleted externally.
+	\see TLN_LoadSequencePack()
+*/
 TLNAPI bool TLN_DeleteSequencePack (TLN_SequencePack sp);
 /**@}*/
 
@@ -1585,11 +1686,51 @@ TLNAPI bool TLN_DeleteSequencePack (TLN_SequencePack sp);
  * \defgroup animation
  * \brief Color cycle animation
 * @{ */
+
+/*!
+	\brief Starts a palette animation
+	\param index Id of the animation to set (0 <= id < num_animations)
+	\param palette Reference of the palette to be animated
+	\param sequence	Reference of the sequence to assign
+	\param blend true for smooth frame interpolation, false for classic, discrete mode
+*/
 TLNAPI bool TLN_SetPaletteAnimation (int index, TLN_Palette palette, TLN_Sequence sequence, bool blend);
+
+/*!
+	\brief Sets the source palette of a color cycle animation
+	\param index Id of the animation to set (0 <= id < num_animations)
+	\param palette Reference of the palette to assign
+	\remarks Use this function to change the palette assigned to a color cycle animation running. This is useful to combine color cycling and palette interpolation at the same time
+*/
 TLNAPI bool TLN_SetPaletteAnimationSource (int index, TLN_Palette);
+
+/*!
+	\brief Checks the state of the animation for given sprite
+	\param index Id of the sprite to check (0 <= id < num_sprites)
+	\returns true if animation is running, false if it's finished or inactive
+*/
 TLNAPI bool TLN_GetAnimationState (int index);
+
+/*!
+	\brief Sets animation delay for single frame of given sprite animation
+	\param index Id of the sprite with animation (0 <= id < num_sprites)
+	\param frame Id of animation frame to change delay in (0 <= id < sequence->count)
+	\param delay New animation frame delay to set
+	\see Animations
+*/
 TLNAPI bool TLN_SetAnimationDelay (int index, int frame, int delay);
+
+/*!
+	\brief Finds an available (unused) animation
+	\returns Index of the first unused animation (starting from 0) or -1 if none found
+*/
 TLNAPI int  TLN_GetAvailableAnimation (void);
+
+/*!
+	\brief Disables the color cycle animation so it stops playing
+	\param index Id of the animation to set (0 <= id < num_animations)
+	\see Animations
+*/
 TLNAPI bool TLN_DisablePaletteAnimation(int index);
 /**@}*/
 
@@ -1597,10 +1738,39 @@ TLNAPI bool TLN_DisablePaletteAnimation(int index);
  * \defgroup world
  * \brief World management
 * @{ */
+
+/*!
+	\brief Loads and assigns complete TMX file
+	\param filename TMX file to load
+	\param first_layer Starting layer number where place the loaded tmx
+*/
 TLNAPI bool TLN_LoadWorld(const char* tmxfile, int first_layer);
+
+/*!
+	\brief Sets global world position, moving all layers in sync according to their parallax factor
+	\param x horizontal position in world space
+	\param y vertical position in world space
+*/
 TLNAPI void TLN_SetWorldPosition(int x, int y);
+
+/*!
+	\brief Sets layer parallax factor to use in conjunction with \ref TLN_SetWorldPosition
+	\param nlayer Layer index [0, num_layers - 1]
+	\param x Horizontal parallax factor
+	\param y Vertical parallax factor
+*/
 TLNAPI bool TLN_SetLayerParallaxFactor(int nlayer, float x, float y);
+
+/*!
+	\brief Sets the sprite position in world space coordinates
+	\param nsprite Id of the sprite [0, num_sprites - 1]
+	\param x Horizontal world position of pivot (0 = left margin)
+	\param y Vertical world position of pivot (0 = top margin)
+	\sa TLN_SetSpritePivot
+*/
 TLNAPI bool TLN_SetSpriteWorldPosition(int nsprite, int x, int y);
+
+/*! \brief Releases world resources loaded with TLN_LoadWorld  */
 TLNAPI void TLN_ReleaseWorld(void);
 /**@}*/
 
