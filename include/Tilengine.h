@@ -975,20 +975,138 @@ TLNAPI bool TLN_DeleteTileset (TLN_Tileset tileset);
  * \defgroup tilemap
  * \brief Tilemap resources management for background layers 
 * @{ */
+
+/*!
+	\brief Creates a new tilemap
+	\param rows	Number of rows (vertical dimension)
+	\param cols	Number of cols (horizontal dimension)
+	\param tiles Array of tiles with data (see struct Tile)
+	\param bgcolor Background color value (RGB32 packed)
+	\param tileset Optional reference to associated tileset, can be NULL
+	\returns Reference to the created tilemap, or NULL if error
+	\remarks Make sure that the tiles[] array is has at least rows*cols items or application may crash
+	\see TLN_DeleteTilemap(), struct Tile
+*/
 TLNAPI TLN_Tilemap TLN_CreateTilemap (int rows, int cols, TLN_Tile tiles, uint32_t bgcolor, TLN_Tileset tileset);
+
+/*!
+	\brief Loads a tilemap layer from a Tiled .tmx file
+	\param filename	TMX file with the tilemap
+	\param layername Optional name of the layer inside the tmx file to load. NULL to load the first layer
+	\returns Reference to the newly loaded tilemap or NULL if error
+	\remarks
+	A tmx map file from Tiled can contain one or more layers, each with its own name. TLN_LoadTilemap()
+	doesn't load a full tmx file, only the specified layer. The associated *external* tileset (TSX file) is
+	also loaded and associated to the tilemap
+*/
 TLNAPI TLN_Tilemap TLN_LoadTilemap (const char* filename, const char* layername);
+
+/*!
+	\brief Creates a duplicate of the specified tilemap
+	\param src Reference to the tilemap to clone
+	\returns A reference to the newly cloned tilemap, or NULL if error
+	\see TLN_LoadTilemap()
+*/
 TLNAPI TLN_Tilemap TLN_CloneTilemap (TLN_Tilemap src);
+
+/*!
+	\brief Returns the number of vertical tiles in the tilemap
+	\param tilemap Reference of the tilemap to get info
+	\see TLN_GetTilemapCols()
+*/
 TLNAPI int TLN_GetTilemapRows (TLN_Tilemap tilemap);
+
+/*!
+	\brief Returns the number of horizontal tiles in the tilemap
+	\param tilemap Reference of the tilemap to get info
+	\see TLN_GetTilemapCols()
+*/
 TLNAPI int TLN_GetTilemapCols (TLN_Tilemap tilemap);
+
+/*!
+	\brief Sets default tileset to specified tilemap
+	\param tilemap Reference to the tilemap to modify
+	\param tileset Reference to the tileset being assigned
+	\see TLN_GetTilemapTileset()
+*/
 TLNAPI bool TLN_SetTilemapTileset(TLN_Tilemap tilemap, TLN_Tileset tileset);
+
+/*!
+	\brief Returns the optional associated tileset to the specified tilemap
+	\param tilemap Reference of the tilemap to get info
+	\see TLN_CreateTilemap(), TLN_LoadTilemap()
+*/
 TLNAPI TLN_Tileset TLN_GetTilemapTileset (TLN_Tilemap tilemap);
+
+/*!
+	\brief Sets default tileset to specified tilemap
+	\param tilemap Reference to the tilemap to modify
+	\param tileset Reference to the tileset being assigned
+	\param index Index of tileset to set (0 - 7)
+	\see TLN_GetTilemapTileset()
+*/
 TLNAPI bool TLN_SetTilemapTileset2(TLN_Tilemap tilemap, TLN_Tileset tileset, int index);
+
+/*!
+	\brief Returns the nth tileset associated tileset to the specified tilemap
+	\param tilemap Reference of the tilemap to get info
+	\param index Tileset index (0 - 7)
+	\see TLN_CreateTilemap(), TLN_LoadTilemap()
+*/
 TLNAPI TLN_Tileset TLN_GetTilemapTileset2(TLN_Tilemap tilemap, int index);
+
+/*!
+	\brief Gets data of a single tile inside a tilemap
+	\param tilemap Reference of the tilemap to get the tile
+	\param row Vertical location of the tile (0 <= row < rows)
+	\param col Horizontal location of the tile (0 <= col < cols)
+	\param tile	Reference to an application-allocated struct Tile that will get the data
+*/
 TLNAPI bool TLN_GetTilemapTile (TLN_Tilemap tilemap, int row, int col, TLN_Tile tile);
+
+/*!
+	\brief Sets a tile of a tilemap
+	\param tilemap Reference to the tilemap
+	\param row Row (vertical position) of the tile [0 - num_rows - 1]
+	\param col Column (horizontal position) of the tile [0 - num_cols - 1]
+	\param tile	Reference to the tile to set, or NULL to set an empty tile
+	\returns true (success) or false (error)
+*/
 TLNAPI bool TLN_SetTilemapTile (TLN_Tilemap tilemap, int row, int col, TLN_Tile tile);
+
+/*!
+	\brief Copies blocks of tiles between two tilemaps
+	\param src Reference to the source tilemap
+	\param srcrow Starting row (vertical position) inside the source tilemap
+	\param srccol Starting column (horizontal position) inside the source tilemap
+	\param rows	Number of rows to copy
+	\param cols	Number of columns to copy
+	\param dst Reference to the target tilemap
+	\param dstrow Starting row (vertical position) inside the target tilemap
+	\param dstcol Starting column (horizontal position) inside the target tilemap
+	\remarks Use this function to implement tile streaming
+*/
 TLNAPI bool TLN_CopyTiles (TLN_Tilemap src, int srcrow, int srccol, int rows, int cols, TLN_Tilemap dst, int dstrow, int dstcol);
+
+/*!
+	\brief Returns pointer to internal tilemap data data
+	\param tilemap Tilemap being queried
+	\param row Row index
+	\param col Column index
+	\returns pointer to corresponding TLN_Tile object or NULL if error
+	\remarks Having direct access to internal memory is convenient for performance reasons when lots of tiles
+	must be updated at runtime, but wrong manipulation can lead to memory corruption or crashes. Use with caution!
+*/
 TLNAPI TLN_Tile TLN_GetTilemapTiles(TLN_Tilemap tilemap, int row, int col);
+
+/*!
+	\brief Deletes the specified tilemap and frees memory
+	\param tilemap Reference to the tilemap to delete
+	\remarks Don't delete a tilemap currently attached to a layer!
+	\see TLN_LoadTilemap(), TLN_CloneTilemap()
+*/
 TLNAPI bool TLN_DeleteTilemap (TLN_Tilemap tilemap);
+
 /**@}*/
 
 /**
