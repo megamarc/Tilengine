@@ -1220,16 +1220,88 @@ TLNAPI bool TLN_DeletePalette (TLN_Palette palette);
  * \defgroup bitmap
  * \brief Bitmap management
 * @{ */
+
+/*!
+	\brief Creates a memory bitmap
+	\param width Width in pixels
+	\param height Height in pixels
+	\param bpp Bits per pixel
+	\returns Reference to the created bitmap, or NULL if error
+	\see TLN_SetBGBitmap()
+*/
 TLNAPI TLN_Bitmap TLN_CreateBitmap (int width, int height, int bpp);
+
+/*!
+	\brief Load image file (8-bit BMP or PNG)
+	\param filename File name with the image
+	\returns Handler to the loaded image or NULL if error
+	\see TLN_DeleteBitmap()
+*/
 TLNAPI TLN_Bitmap TLN_LoadBitmap (const char* filename);
+
+/*!
+	\brief Creates a copy of a bitmap
+	\param src Reference to the original bitmap
+	\returns Reference to the created bitmap, or NULL if error
+	\see TLN_SetBGBitmap()
+ */
 TLNAPI TLN_Bitmap TLN_CloneBitmap (TLN_Bitmap src);
+
+/*!
+	\brief Gets memory access for direct pixel manipulation
+	\param bitmap Reference to bitmap
+	\param x Starting x position [0, width - 1]
+	\param y Starting y position [0, height - 1]
+	\returns Pointer to pixel data starting at x,y
+	\remarks Care must be taken in manipulating memory directly as it can crash the application
+*/
 TLNAPI uint8_t* TLN_GetBitmapPtr (TLN_Bitmap bitmap, int x, int y);
+
+/*!
+	\brief Returns the width in pixels
+	\param bitmap Reference to the bitmap
+*/
 TLNAPI int TLN_GetBitmapWidth (TLN_Bitmap bitmap);
+
+/*!
+	\brief Returns the height in pixels
+	\param bitmap Reference to the bitmap
+*/
 TLNAPI int TLN_GetBitmapHeight (TLN_Bitmap bitmap);
+
+/*!
+	\brief Returns the number of bits per pixel
+	\param bitmap Reference to the bitmap
+*/
 TLNAPI int TLN_GetBitmapDepth (TLN_Bitmap bitmap);
+
+/*!
+	\brief Returns the number of bytes of each scanline (row) of the bitmap, also known as stride
+	\param bitmap Reference to the bitmap
+*/
 TLNAPI int TLN_GetBitmapPitch (TLN_Bitmap bitmap);
+
+/*!
+	\brief Gets the associated palete of a bitmap
+	\param bitmap Reference to bitmap
+	\returns Reference to the bitmap palette
+	\see TLN_SetBitmapPalette()
+*/
 TLNAPI TLN_Palette TLN_GetBitmapPalette (TLN_Bitmap bitmap);
+
+/*!
+	\brief Assigns a new palette to the bitmap
+	\param bitmap Reference to the bitmap
+	\param palette Reference to the palette to assign
+	\see TLN_GetBitmapPalette()
+*/
 TLNAPI bool TLN_SetBitmapPalette (TLN_Bitmap bitmap, TLN_Palette palette);
+
+/*!
+	\brief Deletes bitmap and frees resources
+	\param bitmap Reference to bitmap to delete
+	\see TLN_CreateBitmap89, TLN_CloneBitmap()
+*/
 TLNAPI bool TLN_DeleteBitmap (TLN_Bitmap bitmap);
 /**@}*/
 
