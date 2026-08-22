@@ -206,22 +206,6 @@ bool SetTilesetAnimation(TLN_Tileset tileset, int index, TLN_Sequence sequence)
 	return true;
 }
 
-/*!
- * \brief
- * Starts a sprite animation
- * 
- * \param nsprite
- * If of the sprite to animate (0 <= id < num_sprites)
- * 
- * \param sequence
- * Reference of the sequence to assign
- * 
- * \param loop
- * amount of times to loop, 0=infinite
- * 
- * \see
- * Animations
- */
 bool TLN_SetSpriteAnimation (int nsprite, TLN_Sequence sequence, int loop)
 {
 	Sprite* sprite;
@@ -343,12 +327,6 @@ bool TLN_ResumeTilesetAnimation(TLN_Tileset tileset, int index)
 	return enableTilesetAnimation(tileset, index, false);
 }
 
-/*!
- * \brief Pauses animation for the given sprite
- *
- * \param index Id of the sprite to pause animation (0 <= id < num_sprites)
- * \see Animations TLN_ResumeSpriteAnimation
- */
 bool TLN_PauseSpriteAnimation(int index)
 {
 	Sprite* sprite;
@@ -367,12 +345,6 @@ bool TLN_PauseSpriteAnimation(int index)
 	return true;
 }
 
-/*!
- * \brief Restores animation for the given sprite
- *
- * \param index Id of the sprite to resume animation (0 <= id < num_sprites)
- * \see Animations TLN_PauseSpriteAnimation
- */
 bool TLN_ResumeSpriteAnimation(int index)
 {
 	Sprite* sprite;
@@ -391,16 +363,6 @@ bool TLN_ResumeSpriteAnimation(int index)
 	return true;
 }
 
-/*!
- * \brief
- * Disables animation for the given sprite
- *
- * \param index
- * Id of the spriteto set (0 <= id < num_sprites)
- *
- * \see
- * Animations
- */
 bool TLN_DisableSpriteAnimation(int index)
 {
 	Sprite* sprite;
@@ -421,7 +383,6 @@ bool TLN_DisableSpriteAnimation(int index)
 	return true;
 }
 
-/* \deprecated */
 bool TLN_DisableAnimation(int index)
 {
 	return TLN_DisableSpriteAnimation(index);
