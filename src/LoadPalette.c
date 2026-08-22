@@ -27,23 +27,6 @@ struct
 }
 trailing;
 
-/*!
- * \brief
- * Loads a palette from a standard .act file
- * 
- * \param filename
- * ACT file containing the palette to load
- * 
- * \returns
- * A reference to the newly loaded palette, or NULL if error
- * 
- * \remarks
- * Palettes are also automatically created when loading tilesets and spritesets.
- * Use the functions TLN_GetTilesetPalette() and TLN_GetSpritesetPalette() to retrieve them.
- * 
- * \see
- * TLN_GetTilesetPalette(), TLN_GetSpritesetPalette()
- */
 TLN_Palette TLN_LoadPalette (const char* filename)
 {
 	FILE *pf;

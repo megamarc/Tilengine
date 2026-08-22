@@ -1019,7 +1019,7 @@ TLNAPI int TLN_GetTilemapRows (TLN_Tilemap tilemap);
 /*!
 	\brief Returns the number of horizontal tiles in the tilemap
 	\param tilemap Reference of the tilemap to get info
-	\see TLN_GetTilemapCols()
+	\see TLN_GetTilemapRows()
 */
 TLNAPI int TLN_GetTilemapCols (TLN_Tilemap tilemap);
 
@@ -1113,16 +1113,106 @@ TLNAPI bool TLN_DeleteTilemap (TLN_Tilemap tilemap);
  * \defgroup palette
  * \brief Color palette resources management for sprites and background layers
 * @{ */
+
+/*!
+	\brief Creates a new color table
+	\param entries Number of color entries (typically 256)
+	\returns Reference to the created palette or NULL if error
+*/
 TLNAPI TLN_Palette TLN_CreatePalette (int entries);
+
+/*!
+	\brief Loads a palette from a standard .act file
+	\param filename ACT file containing the palette to load
+	\returns A reference to the newly loaded palette, or NULL if error
+	\remarks
+	Palettes are also automatically created when loading tilesets and spritesets.
+	Use the functions TLN_GetTilesetPalette() and TLN_GetSpritesetPalette() to retrieve them.
+	
+	\see TLN_GetTilesetPalette(), TLN_GetSpritesetPalette()
+*/
 TLNAPI TLN_Palette TLN_LoadPalette (const char* filename);
+
+/*!
+	\brief Creates a duplicate of the specified palette
+	\param src Reference to the palette to clone
+	\returns A reference to the newly cloned palette, or NULL if error
+	\see TLN_CreatePalette()
+*/
 TLNAPI TLN_Palette TLN_ClonePalette (TLN_Palette src);
+
+/*!
+	\brief Sets the RGB color value of a palette entry
+	\param palette Reference to the palette to modify
+	\param index Index of the palette entry to modify (0-255)
+	\param r Red component of the color (0-255)
+	\param g Green component of the color (0-255)
+	\param b Blue component of the color (0-255)
+*/
 TLNAPI bool TLN_SetPaletteColor (TLN_Palette palette, int color, uint8_t r, uint8_t g, uint8_t b);
+
+/*!
+	\brief Mixes two palettes to create a third one
+	\param src1 Reference to the first source palette
+	\param src2	Reference to the second source palette
+	\param dst Reference to the target palette
+	\param factor Integer with mixing factor. 0=100% src1, 255=100% src2, 128=50%/50%
+*/
 TLNAPI bool TLN_MixPalettes (TLN_Palette src1, TLN_Palette src2, TLN_Palette dst, uint8_t factor);
+
+/*!
+	\brief Modifies a range of colors by adding the provided color value to the selected range. The result is always a brighter color.
+	\param palette Reference to the palette to modify
+	\param r Red component of the color (0-255)
+	\param g Green component of the color (0-255)
+	\param b Blue component of the color (0-255)
+	\param start index of the first color entry to modify
+	\param num number of colors from start to modify
+*/
 TLNAPI bool TLN_AddPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b, uint8_t start, uint8_t num);
+
+/*!
+	\brief Modifies a range of colors by subtracting the provided color value to the selected range. The result is always a darker color.
+	\param palette Reference to the palette to modify
+	\param r Red component of the color (0-255)
+	\param g Green component of the color (0-255)
+	\param b Blue component of the color (0-255)
+	\param start index of the first color entry to modify
+	\param num number of colors from start to modify
+*/
 TLNAPI bool TLN_SubPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b, uint8_t start, uint8_t num);
+
+/*!
+	\brief Modifies a range of colors by modulating (normalized product) the provided color value to the selected range. The result is always a darker color.
+	\param palette Reference to the palette to modify
+	\param r Red component of the color (0-255)
+	\param g Green component of the color (0-255)
+	\param b Blue component of the color (0-255)
+	\param start index of the first color entry to modify
+	\param num number of colors from start to modify
+*/
 TLNAPI bool TLN_ModPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b, uint8_t start, uint8_t num);
+
+/*!
+	\brief Returns the color value of a palette entry
+	\param palette Reference to the palette to get the color
+	\param index Index of the palette entry to obtain (0-255)
+	\returns 32-bit integer with the packed color in internal pixel format RGBA
+*/
 TLNAPI uint8_t* TLN_GetPaletteData (TLN_Palette palette, int index);
+
+/*!
+	\brief Returns the number of color entries in the given palette
+	\param palette Reference to the palette to query
+	\returns number of color entries
+*/
 TLNAPI int TLN_GetPaletteNumColors(TLN_Palette palette);
+
+/*!
+	\brief Deletes the specified palette and frees memory
+	\param palette Reference to the palette to delete
+	\remarks Don't delete a palette currently attached to a layer or sprite!
+*/
 TLNAPI bool TLN_DeletePalette (TLN_Palette palette);
 /**@}*/
 
