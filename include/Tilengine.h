@@ -412,44 +412,267 @@ extern "C"{
  * \defgroup setup
  * \brief Basic setup and management
  * @{ */
+
+ /*!
+	\brief Initializes the graphic engine
+	\param hres horizontal resolution in pixels
+	\param vres vertical resolution in pixels
+	\param numlayers number of layers
+	\param numsprites number of sprites
+	\param numanimations number of palette animation slots
+		
+	Performs initialisation of the main engine, creates the viewport with the specified dimensions
+	and allocates the number of layers, sprites and animation slots
+*/
 TLNAPI TLN_Engine TLN_Init (int hres, int vres, int numlayers, int numsprites, int numanimations);
+
+/*!	\brief Deinitialises current engine context and frees used resources */
 TLNAPI void TLN_Deinit (void);
+
+/*!
+	\brief Deletes explicit context
+	\param context context reference to delete
+ */
 TLNAPI bool TLN_DeleteContext (TLN_Engine context);
+
+/*!
+	\brief Sets current engine context
+	\param context TLN_Engine object to set as current context, returned by TLN_Init()
+	\returns true if success or false if wrong context is supplied
+*/
 TLNAPI bool TLN_SetContext(TLN_Engine context);
+
+/*! \brief Returns the current engine context */
 TLNAPI TLN_Engine TLN_GetContext(void);
+
+/*!
+	\brief Set Target fps (default 60)
+	\param fps Target fps
+	\remarks The engine internally runs at 60 fps. Use this function to keep constant animation pacing at other frequencies
+	\see TLN_GetTargetFps
+*/
 TLNAPI void TLN_SetTargetFps(int fps);
+
+/*!
+	\brief Returns target fps
+	\remarks By default the engine runs at 60 fps. This value is automatically changed to actual monitor Hz with TLN_CreateWindow, or manually with TLN_SetTargetFps
+	\see TLN_GetTargetFps, TLN_CreateWindow
+*/
 TLNAPI int TLN_GetTargetFps(void);
+
+/*!
+	\brief Returns the width in pixels of the framebuffer
+	\see TLN_Init(), TLN_GetHeight()
+*/
 TLNAPI int TLN_GetWidth (void);
+
+/*!
+	 \brief Returns the height in pixels of the framebuffer
+	 \see TLN_Init(), TLN_GetWidth()
+*/
 TLNAPI int TLN_GetHeight (void);
+
+/*!
+	\brief Returns the number of objets used by the engine so far
+	\remarks The objects is the total amount of tilesets, tilemaps, spritesets, palettes or sequences combined
+	\see TLN_GetUsedMemory()
+*/
 TLNAPI uint32_t TLN_GetNumObjects (void);
+
+/*!
+	\brief Returns the total amount of memory used by the objects
+	\see TLN_GetNumObjects()
+*/
 TLNAPI uint32_t TLN_GetUsedMemory (void);
+
+/*!
+	\brief Retrieves Tilengine dll version
+	\returns
+	Returns a 32-bit integer containing three packed numbers:
+	bits 23:16 -> major version
+	bits 15: 8 -> minor version
+	bits  7: 0 -> bugfix revision
+	\remarks Compare this number with the TILENGINE_HEADER_VERSION macro to check that both versions match!
+*/
 TLNAPI uint32_t TLN_GetVersion (void);
+
+/*!
+	\brief Returns the number of layers specified during initialisation
+	\see TLN_Init()
+*/
 TLNAPI int TLN_GetNumLayers (void);
+
+/*!
+	\brief Returns the number of sprites specified during initialisation
+	\see TLN_Init()
+*/
 TLNAPI int TLN_GetNumSprites (void);
+
+/*!
+	\brief Sets the background color
+	\param r red component (0-255)
+	\param g green component (0-255)
+	\param b blue component (0-255)
+
+	The background color is the color of the pixel when there isn't any layer or sprite at
+	that position.
+
+	\remarks This funcion can be called during a raster callback to create gradient backgrounds
+*/
 TLNAPI void TLN_SetBGColor (uint8_t r, uint8_t g, uint8_t b);
+
+/*!
+	\brief Sets the background color from a Tilemap defined color
+	\param tilemap Reference to the tilemap with the background color to set
+*/
 TLNAPI bool TLN_SetBGColorFromTilemap (TLN_Tilemap tilemap);
+
+/*!
+	\brief Disales background color rendering. If you know that the last background layer will always cover the entire screen, you can disable it to gain some performance
+	\see TLN_SetBGColor()
+*/
 TLNAPI void TLN_DisableBGColor (void);
+
+/*!
+	\brief Sets a static bitmap as background
+	\param bitmap Reference to bitmap for the background. Set NULL to disable
+
+	Sets an optional bitmap instead of a solid color where there is no layer or sprite.
+	Unlike tilemaps or sprites, this bitmap cannot be moved and has no transparency
+
+	\see TLN_SetBGPalette()
+*/
 TLNAPI bool TLN_SetBGBitmap (TLN_Bitmap bitmap);
+
+/*!
+	\brief Changes the palette for the background bitmap
+	\param palette Reference to palette
+	\see TLN_SetBGBitmap()
+*/
 TLNAPI bool TLN_SetBGPalette (TLN_Palette palette);
+
+/* \brief Sets one of the eight global palettes used by tiled layers
+	\param index Palette index [0 - 7]
+	\param palette Reference of palette to set, or NULL to disable it
+	\returns true if success, or false if error
+	\see TLN_GetGlobalPalette()
+*/
 TLNAPI bool TLN_SetGlobalPalette(int index, TLN_Palette palette);
-TLNAPI void TLN_SetRasterCallback (TLN_VideoCallback);
-TLNAPI void TLN_SetFrameCallback (TLN_VideoCallback);
-TLNAPI void TLN_SetRenderTarget (uint8_t* data, int pitch);
-TLNAPI void TLN_UpdateFrame (int frame);
-TLNAPI void TLN_SetLoadPath (const char* path);
-TLNAPI void TLN_SetCustomBlendFunction (TLN_BlendFunction);
-TLNAPI void TLN_SetLogLevel(TLN_LogLevel log_level);
-TLNAPI bool TLN_OpenResourcePack(const char* filename, const char* key);
-TLNAPI void TLN_CloseResourcePack(void);
+
+/*
+	\brief Returns one of the eight global palettes
+	\param index Index of global palette to query [0 - 7]
+	\returns TLN_Palette reference or NULL if not set
+	\see TLN_SetGlobalPalette
+*/
 TLNAPI TLN_Palette TLN_GetGlobalPalette(int index);
+
+/*!
+	\brief Specifies the address of the funcion to call for each drawn scanline
+	\param callback	Address of the function to call
+
+	Tilengine renders its output line by line, just as the 2D graphics chips did. The
+	raster callback is a way to simulate the "horizontal blanking interrupt" of those systems,
+	where many parameters of the rendering can be modified per line.
+
+	\remarks Setting a raster callback is optional, but much of the fun of using Tilengine comes from the use of raster effects
+*/
+TLNAPI void TLN_SetRasterCallback (TLN_VideoCallback);
+
+/*!
+	\brief Specifies the address of the funcion to call for each drawn frame
+	\param callback Address of the function to call
+*/
+TLNAPI void TLN_SetFrameCallback (TLN_VideoCallback);
+
+/*!
+	\brief Sets the output surface for rendering
+	\param data	Pointer to the start of the target framebuffer
+	\param pitch Number of bytes per each scanline of the framebuffer
+
+	Sets the output surface for rendering. Tilengine doesn't provide a windowing or hardware
+	video access. The application is responsible of allocating and maintaining the surface where
+	tilengine does the rendering. It can be a SDL surface, a locked DirectX surface, an OpenGL texture,
+	or whatever the application has access to.
+
+	\remarks The render target pixel format must be 32 bits RGBA
+	\see TLN_UpdateFrame()
+*/
+TLNAPI void TLN_SetRenderTarget (uint8_t* data, int pitch);
+
+/*!
+	\brief Draws the frame to the previously specified render target
+	\param frame Optional frame number. Set to 0 to autoincrement from previous value
+	\see TLN_SetRenderTarget()
+*/
+TLNAPI void TLN_UpdateFrame (int frame);
+
+/*!
+	\brief Sets base path for TLN_LoadXXX functions.	
+	\param path	Base path. Files will load at path/filename. Can be NULL
+*/
+TLNAPI void TLN_SetLoadPath (const char* path);
+
+/*!
+	\brief Sets custom blend function to use when BLEND_CUSTOM mode is selected
+	\param blend_function pointer to a user-provided function that takes two parameters: source component intensity, destination component intensity, and returns the desired intensity. This function is called for each RGB component when blending is enabled
+	\remarks This function is not called in realtime, but its result is precomputed into a look-up table when TLN_SetCustomBlendFunction() is called, so the performance impact is minimal, just as low as the other built-in blending modes
+	\see TLN_SetSpriteBlendMode()|TLN_SetLayerBlendMode()
+*/
+TLNAPI void TLN_SetCustomBlendFunction (TLN_BlendFunction);
+
+/*!
+	\brief Sets logging level for current instance
+	\param log_level value to set, member of the TLN_LogLevel enumeration
+*/
+TLNAPI void TLN_SetLogLevel(TLN_LogLevel log_level);
+
+/*!
+	\brief Open the resource package with optional aes-128 key and binds it
+	\param filename file with the resource package (.dat extension)
+	\param key optional null-terminated ASCII string with aes decryption key
+	\return true if package opened and made current, or false if error
+	\remarks
+	When the package is opened, it's globally bind to all TLN_LoadXXX functions.
+	The assets inside the package are indexed with their original path/file as when
+	they were plain files. As long as the structure used to build the package
+	matches the original structure of the assets, the TLN_SetLoadPath() and the TLN_LoadXXX
+	functions will work transparently, easing the migration with minimal changes.
+	\sa TLN_CloseResourcePack
+*/
+TLNAPI bool TLN_OpenResourcePack(const char* filename, const char* key);
+
+/*!
+	\brief Closes current resource package and unbinds it
+	\sa TLN_OpenResourcePack
+*/
+TLNAPI void TLN_CloseResourcePack(void);
+
 /**@}*/
 
 /**
  * \defgroup errors
  * \brief Basic setup and management
 * @{ */
+
+/*!
+	\brief Sets the global error code of tilengine. Useful for custom loaders that need to set the error state.
+	\param error Error code to set
+	\see TLN_GetLastError()
+*/
 TLNAPI void TLN_SetLastError (TLN_Error error);
+
+/*!
+	\brief Returns the last error after an invalid operation
+	\see TLN_Error
+*/
 TLNAPI TLN_Error TLN_GetLastError (void);
+
+/*!
+	\brief Returns the string description of the specified error code
+	\param error Error code to get description
+	\see TLN_GetLastError()
+*/
 TLNAPI const char *TLN_GetErrorString (TLN_Error error);
 /**@}*/
 
