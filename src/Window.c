@@ -61,10 +61,11 @@ static PlayerInput player_inputs[MAX_PLAYERS];
 struct
 {
 	CRTType type;
-	bool blur;
 	bool enable;
+	bool blur;
+	bool scanlines;
 }
-static crt_params = { CRT_APERTURE, false, true };
+static crt_params = { CRT_APERTURE, true, false, true };
 
 #define MAX_PATH	260
 
@@ -268,7 +269,7 @@ static bool create_window(void)
 
 	/* setup backbuffer & crt effect */
 	SetupBackBuffer();
-	crt = CRTCreate(renderer, backbuffer, crt_params.type, wnd_width, wnd_height, crt_params.blur);
+	crt = CRTCreate(renderer, backbuffer, crt_params.type, wnd_width, wnd_height, crt_params.blur, crt_params.scanlines);
 
 	if (wnd_params.flags & CWF_FULLSCREEN)
 		SDL_ShowCursor(SDL_DISABLE);
@@ -752,22 +753,25 @@ void TLN_EnableBlur(bool mode)
 
 /*!
   * \brief
- * Enables CRT simulation post-processing effect to give true retro appeareance
+ * Configures CRT simulation post-processing effect to give true retro appeareance
  *
  * \param type One possible value of \ref TLN_CRT enumeration
- * \param blur Optional RF (horizontal) blur, increases CPU usage
+ * \param blur simulate RF (horizontal) blur
+ * \param scanlines simulate horizontal scanlines
  */
 
-void TLN_ConfigCRTEffect(TLN_CRT type, bool blur)
+void TLN_ConfigCRTEffect(TLN_CRT type, bool blur, bool scanlines)
 {
 	if (crt != NULL)
 		CRTDelete(crt);
 
 	crt_params.type = (CRTType)type;
 	crt_params.blur = blur;
+	crt_params.scanlines = scanlines;
 	crt_params.enable = true;
+
 	SetupBackBuffer();
-	crt = CRTCreate(renderer, backbuffer, crt_params.type, wnd_width, wnd_height, crt_params.blur);
+	crt = CRTCreate(renderer, backbuffer, crt_params.type, wnd_width, wnd_height, crt_params.blur, crt_params.scanlines);
 }
 
 /*!
@@ -784,7 +788,7 @@ void TLN_EnableCRTEffect (int overlay, uint8_t overlay_factor, uint8_t threshold
 
 	crt_params.enable = true;
 	SetupBackBuffer();
-	crt = CRTCreate(renderer, backbuffer, crt_params.type, wnd_width, wnd_height, crt_params.blur);
+	crt = CRTCreate(renderer, backbuffer, crt_params.type, wnd_width, wnd_height, crt_params.blur, crt_params.scanlines);
 }
 
 /*!

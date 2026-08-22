@@ -5,11 +5,16 @@
 
 #define ZERO	0x00
 #define SCAN	0x40
-#define RED	0xFF,ZERO,ZERO,0xFF
+#define RED		0xFF,ZERO,ZERO,0xFF
 #define GREEN	ZERO,0xFF,ZERO,0xFF
 #define BLUE	ZERO,ZERO,0xFF,0xFF
 #define BLACK	0x00,0x00,0x00,0xFF
 #define WHITE	0xFF,0xFF,0xFF,0xFF
+
+static const uint8_t pattern_none[] =
+{
+	WHITE,
+};
 
 static const uint8_t pattern_slot[] =
 {
@@ -31,6 +36,16 @@ static const uint8_t pattern_shadow[] =
 	BLUE, RED, GREEN,
 };
 
+static const uint8_t pattern_lottes[] =
+{
+	RED,   RED,   RED,   BLACK,
+	GREEN, GREEN, GREEN, BLACK,
+	BLUE,  BLUE,  BLUE,  BLACK,
+	RED,   BLACK, RED,   RED,
+	GREEN, BLACK, GREEN, GREEN,
+	BLUE,  BLACK, BLUE,  BLUE,
+};
+
 static const uint8_t pattern_scanline[] =
 {
 	WHITE,
@@ -48,9 +63,11 @@ Pattern;
 
 static Pattern patterns[] = 
 {
+	{pattern_none, 1, 1, 160 },
 	{pattern_slot, 6, 4, 192},
 	{pattern_aperture, 3, 1, 204},
 	{pattern_shadow, 3, 3, 204},
+	{pattern_lottes, 4, 6, 192},
 };
 
 typedef struct
@@ -75,7 +92,7 @@ static void hblur(uint8_t* scan, int width, int height, int pitch);
 static SDL_Texture* create_tiled_texture(SDL_Renderer* renderer, int width, int height, int tile_width, int tile_height, const uint8_t* tile_data);
 
 /* create CRT effect */
-CRTHandler CRTCreate(SDL_Renderer* renderer, SDL_Texture* framebuffer, CRTType type, int wnd_width, int wnd_height, bool blur)
+CRTHandler CRTCreate(SDL_Renderer* renderer, SDL_Texture* framebuffer, CRTType type, int wnd_width, int wnd_height, bool blur, bool scanlines)
 {
 	CRTHandler crt = (CRTHandler)calloc(1, sizeof(struct _CRTHandler));
 	if (crt == NULL)
@@ -94,19 +111,21 @@ CRTHandler CRTCreate(SDL_Renderer* renderer, SDL_Texture* framebuffer, CRTType t
 	Pattern* pattern = &patterns[type];
 	crt->glow = pattern->glow;
 	SDL_Texture* tex_mask = create_tiled_texture(renderer, wnd_width, wnd_height, pattern->width, pattern->height, pattern->mask);
-	SDL_Texture* tex_scan = create_tiled_texture(renderer, crt->size_fb.width, crt->size_fb.height*2, 1, 2, pattern_scanline);
-	SDL_SetTextureBlendMode(tex_scan, SDL_BLENDMODE_MOD);
 
 	crt->overlay = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, wnd_width, wnd_height);
 	SDL_SetRenderTarget(renderer, crt->overlay);
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer, tex_mask, NULL, NULL);
-	if (type != CRT_SLOT)
+	if (scanlines)
+	{
+		SDL_Texture* tex_scan = create_tiled_texture(renderer, crt->size_fb.width, crt->size_fb.height * 2, 1, 2, pattern_scanline);
+		SDL_SetTextureBlendMode(tex_scan, SDL_BLENDMODE_MOD);
 		SDL_RenderCopy(renderer, tex_scan, NULL, NULL);
+		SDL_DestroyTexture(tex_scan);
+	}
 	SDL_SetRenderTarget(renderer, NULL);
 	SDL_SetTextureBlendMode(crt->overlay, SDL_BLENDMODE_MOD);
-	SDL_DestroyTexture(tex_scan);
 	SDL_DestroyTexture(tex_mask);
 
 	return crt;

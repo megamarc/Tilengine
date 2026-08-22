@@ -6,9 +6,11 @@
 
 typedef enum
 {
+	CRT_NONE,
 	CRT_SLOT,
 	CRT_APERTURE,
 	CRT_SHADOW,
+	CRT_LOTTES,
 }
 CRTType;
 
@@ -18,7 +20,7 @@ typedef struct _CRTHandler* CRTHandler;
 extern "C"{
 #endif
 
-	CRTHandler CRTCreate(SDL_Renderer* renderer, SDL_Texture* framebuffer, CRTType type, int wnd_width, int wnd_height, bool blur);
+	CRTHandler CRTCreate(SDL_Renderer* renderer, SDL_Texture* framebuffer, CRTType type, int wnd_width, int wnd_height, bool blur, bool scanlines);
 	void CRTDraw(CRTHandler crt, void* pixels, int pitch, SDL_Rect* dstrect);
 	void CRTSetRenderTarget(CRTHandler crt, SDL_Texture* framebuffer);
 	void CRTIncreaseGlow(CRTHandler crt);

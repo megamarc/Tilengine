@@ -244,9 +244,11 @@ TLN_TileAttributes;
 /*! types of built-in CRT effect for \ref TLN_ConfigCRTEffect */
 typedef enum
 {
-	TLN_CRT_SLOT,		/*!< slot mask without scanlines, similar to legacy effect */
-	TLN_CRT_APERTURE,	/*!< aperture grille with scanlines (matrix-like dot arrangement) */
-	TLN_CRT_SHADOW,		/*!< shadow mask with scanlines, diagonal subpixel arrangement */
+	TLN_CRT_NONE,		/*!< no overlay */
+	TLN_CRT_SLOT,		/*!< slot mask */
+	TLN_CRT_APERTURE,	/*!< aperture grille */
+	TLN_CRT_SHADOW,		/*!< shadow mask */
+	TLN_CRT_HORIZONTAL,	/*!< horizontal subpixels */
 }
 TLN_CRT;
 
@@ -469,7 +471,7 @@ TLNAPI void TLN_DrawFrame (int frame);
 TLNAPI void TLN_WaitRedraw (void);
 TLNAPI void TLN_DeleteWindow (void);
 TLNAPI void TLN_EnableBlur (bool mode);
-TLNAPI void TLN_ConfigCRTEffect(TLN_CRT type, bool blur);
+TLNAPI void TLN_ConfigCRTEffect(TLN_CRT type, bool blur, bool scanlines);
 TLNAPI void TLN_EnableCRTEffect (int overlay, uint8_t overlay_factor, uint8_t threshold, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, bool blur, uint8_t glow_factor);
 TLNAPI void TLN_DisableCRTEffect (void);
 TLNAPI void TLN_SetSDLCallback(TLN_SDLCallback);
