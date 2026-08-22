@@ -151,12 +151,6 @@ static bool intersetcs(rect_t* rect1, rect_t* rect2)
 	return !(rect1->x2 < rect2->x1 || rect1->x1 > rect2->x2 || rect1->y2 < rect2->y1 || rect1->y1 > rect2->y2);
 }
 
-/*!
- * \brief Creates a TLN_ObjectList
- * The list is created empty, it must be populated with TLN_AddSpriteToList()
- * and assigned to a layer with TLN_SetLayerObjects()
- * \return Reference to new object or NULL if error
- */
 TLN_ObjectList TLN_CreateObjectList(void)
 {
 	TLN_ObjectList list = NULL;
@@ -205,17 +199,7 @@ static bool CloneObjectToList(TLN_ObjectList list, TLN_Object* data)
 	add_to_list(list, object);
 	return true;
 }
-/*!
- * \brief Adds an image-based tileset item to given TLN_ObjectList
- * 
- * \param list Reference to TLN_ObjectList
- * \param id Unique ID of the tileset object
- * \param gid Graphic Id (tile index) of the tileset object
- * \param flags Combination of FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY
- * \param x Layer-space horizontal coordinate of the top-left corner
- * \param y Layer-space bertical coordinate of the top-left corner
- * \return true if success or false if error
- */
+
 bool TLN_AddTileObjectToList(TLN_ObjectList list, uint16_t id, uint16_t gid, uint16_t flags, int x, int y)
 {
 	struct _Object* object;
@@ -234,13 +218,6 @@ bool TLN_AddTileObjectToList(TLN_ObjectList list, uint16_t id, uint16_t gid, uin
 	return true;
 }
 
-/*!
- * \brief Loads an object list from a Tiled object layer
- * 
- * \param filename Name of the .tmx file containing the list
- * \param layername Name of the layer to load
- * \return Reference to the loaded object or NULL if error
- */
 TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername)
 {
 	SimpleXmlParser parser;
@@ -336,11 +313,6 @@ TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername)
 	return loader.objects;
 }
 
-/*!
- * \brief Creates a duplicate of a given TLN_ObjectList object
-  * \param src Reference to the source object to clone
- * \return A reference to the newly cloned object list, or NULL if error
- */
 TLN_ObjectList TLN_CloneObjectList(TLN_ObjectList src)
 {
 	TLN_ObjectList list;
@@ -360,11 +332,6 @@ TLN_ObjectList TLN_CloneObjectList(TLN_ObjectList src)
 	return list;
 }
 
-/*!
- * \brief Returns number of items in TLN_ObjectList
- * \param list Pointer to TLN_ObjectList to query
- * \return number of items 
- */
 int TLN_GetListNumObjects(TLN_ObjectList list)
 {
 	if (CheckBaseObject(list, OT_OBJECTLIST))
@@ -379,15 +346,6 @@ int TLN_GetListNumObjects(TLN_ObjectList list)
 	}
 }
 
-/*!
- * \brief Iterates over elements in a TLN_ObjectList
- * \param list Reference to TLN_ObjectList to get items
- * \param info Pointer to user-allocated TLN_ObjectInfo struct
- * \return true if item returned, false if no more items left
- * \remarks The info pointer acts as a switch to select first/next element:
- *	* If not NULL, starts the iterator and returns the first item
- *  * If NULL, return the next item
- */
 bool TLN_GetListObject(TLN_ObjectList list, TLN_ObjectInfo* info)
 {
 	struct _Object* item;
@@ -437,12 +395,6 @@ bool IsObjectInLine(struct _Object* object, int x1, int x2, int y)
 		return false;
 }
 
-/*!
- * \brief Deletes object list
- * 
- * \param list Reference to list to delete
-* \return true if success or false if error
- */
 bool TLN_DeleteObjectList(TLN_ObjectList list)
 {
 	struct _Object* object;

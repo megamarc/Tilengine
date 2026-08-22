@@ -1309,12 +1309,65 @@ TLNAPI bool TLN_DeleteBitmap (TLN_Bitmap bitmap);
  * \defgroup objects
  * \brief ObjectList resources management
  * @{ */
+
+ /*!
+	 \brief Creates a TLN_ObjectList
+	 The list is created empty, it must be populated with TLN_AddSpriteToList()
+	 and assigned to a layer with TLN_SetLayerObjects()
+	 \return Reference to new object or NULL if error
+ */
 TLNAPI TLN_ObjectList TLN_CreateObjectList(void);
+
+/*!
+	\brief Adds an image-based tileset item to given TLN_ObjectList
+	\param list Reference to TLN_ObjectList
+	\param id Unique ID of the tileset object
+	\param gid Graphic Id (tile index) of the tileset object
+	\param flags Combination of FLAG_FLIPX, FLAG_FLIPY, FLAG_PRIORITY
+	\param x Layer-space horizontal coordinate of the top-left corner
+	\param y Layer-space bertical coordinate of the top-left corner
+	\return true if success or false if error
+*/
 TLNAPI bool TLN_AddTileObjectToList(TLN_ObjectList list, uint16_t id, uint16_t gid, uint16_t flags, int x, int y);
+
+/*!
+	\brief Loads an object list from a Tiled object layer
+	\param filename Name of the .tmx file containing the list
+	\param layername Name of the layer to load
+	\return Reference to the loaded object or NULL if error
+*/
 TLNAPI TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername);
+
+/*!
+	\brief Creates a duplicate of a given TLN_ObjectList object
+	\param src Reference to the source object to clone
+	\return A reference to the newly cloned object list, or NULL if error
+*/
 TLNAPI TLN_ObjectList TLN_CloneObjectList(TLN_ObjectList src);
+
+/*!
+	\brief Returns number of items in TLN_ObjectList
+	\param list Pointer to TLN_ObjectList to query
+	\return number of items
+*/
 TLNAPI int TLN_GetListNumObjects(TLN_ObjectList list);
+
+/*!
+	\brief Iterates over elements in a TLN_ObjectList
+	\param list Reference to TLN_ObjectList to get items
+	\param info Pointer to user-allocated TLN_ObjectInfo struct
+	\return true if item returned, false if no more items left
+	\remarks The info pointer acts as a switch to select first/next element:
+	- If not NULL, starts the iterator and returns the first item
+	- If NULL, return the next item
+*/
 TLNAPI bool TLN_GetListObject(TLN_ObjectList list, TLN_ObjectInfo* info);
+
+/*!
+	\brief Deletes object list
+	\param list Reference to list to delete
+	\return true if success or false if error
+*/
 TLNAPI bool TLN_DeleteObjectList(TLN_ObjectList list);
 /**@}*/
 
