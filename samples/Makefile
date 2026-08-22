@@ -6,8 +6,8 @@ TARGETS  = barrel mode7 platformer racer scaling shadow shooter tutorial wobble 
 # Windows specific flags
 ifeq ($(OS),Windows_NT)
 	RM = del /Q *.exe
-	CFLAGS  = -m32 -msse2
-	LDFLAGS = ../lib/win32/Tilengine.lib -s
+	CFLAGS  = -msse2
+	LDFLAGS = ../lib/Win32/Tilengine.lib -s
 else
 	RM = rm
 	name := $(shell uname -s)
