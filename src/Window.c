@@ -307,14 +307,6 @@ static void delete_window (void)
 	}
 }
 
-/*!
- * \brief
- * Sets window title
- * 
- * \param title
- * Text with the title to set
- * 
- */
 void TLN_SetWindowTitle (const char* title)
 {
 	if (window != NULL)
@@ -353,33 +345,6 @@ static int WindowThread (void* data)
 	return 0;
 }
 
-/*!
- * \brief
- * Creates a window for rendering
- * 
- * \param overlay
- * Deprecated parameter in 2.10, kept for compatibility. Set to NULL
- * 
- * \param flags
- * Mask of the possible creation flags:
- * CWF_FULLSCREEN, CWF_VSYNC, CWF_S1 - CWF_S5 (scaling factor, none = auto max)
- * 
- * \returns
- * True if window was created or false if error
- * 
- * Creates a host window with basic user input for tilengine. If fullscreen, it uses the desktop
- * resolution and stretches the output resolution with aspect correction, letterboxing or pillarboxing
- * as needed. If windowed, it creates a centered window that is the maximum possible integer multiply of
- * the resolution configured at TLN_Init()
- * 
- * \remarks
- * Using this feature is optional, Tilengine is designed to output its rendering to a user-provided surface
- * so it can be used as a backend renderer of an already existing framework. But it is provided for convenience,
- * so it isn't needed to provide external components to run the examples or do engine tests.
- * 
- * \see
- * TLN_DeleteWindow(), TLN_ProcessWindow(), TLN_GetInput(), TLN_DrawFrame()
- */
 bool TLN_CreateWindow (const char* overlay, int flags)
 {
 	bool ok;
@@ -406,31 +371,6 @@ bool TLN_CreateWindow (const char* overlay, int flags)
 	return ok;
 }
 
-/*!
- * \brief
- * Creates a multithreaded window for rendering
- * 
- * \param overlay
- * Deprecated parameter in 2.10, kept for compatibility. Set to NULL
- * 
- * \param flags
- * Mask of the possible creation flags:
- * CWF_FULLSCREEN, CWF_VSYNC, CWF_S1 - CWF_S5 (scaling factor, none = auto max)
- * 
- * \returns
- * True if window was created or false if error
- * 
- * Creates a host window with basic user input for tilengine. If fullscreen, it uses the desktop
- * resolution and stretches the output resolution with aspect correction, letterboxing or pillarboxing
- * as needed. If windowed, it creates a centered window that is the maximum possible integer multiply of
- * the resolution configured at TLN_Init()
- * 
- * \remarks
- * Unlike TLN_CreateWindow, This window runs in its own thread
- * 
- * \see
- * TLN_DeleteWindow(), TLN_IsWindowActive(), TLN_GetInput(), TLN_UpdateFrame()
- */
 bool TLN_CreateWindowThread (const char* overlay, int flags)
 {
 	bool ok;
@@ -470,13 +410,6 @@ bool TLN_CreateWindowThread (const char* overlay, int flags)
 	return ok;
 }
 
-/*!
- * \brief
- * Deletes the window previoulsy created with TLN_CreateWindow() or TLN_CreateWindowThread()
- * 
- * \see
- * TLN_CreateWindow()
- */
 void TLN_DeleteWindow (void)
 {
 	/* single instance, delete when reach 0 */
@@ -575,20 +508,6 @@ static void ProcessJoyaxisInput (TLN_Player player, uint8_t axis, int value)
 	}
 }
 
-/*!
- * \brief
- * Does basic window housekeeping in signgle-threaded window
- * 
- * \returns
- * True if window is active or false if the user has requested to end the application (by pressing Esc key
- * or clicking the close button)
- * 
- * If a window has been created with TLN_CreateWindow, this function must be called periodically (call it inside
- * the main loop so it gets called regularly). If the window was created with TLN_CreateWindowThread, do not use it
- * 
- * \see
- * TLN_CreateWindow()
- */
 bool TLN_ProcessWindow (void)
 {
 	SDL_Event evt;
@@ -698,30 +617,11 @@ bool TLN_ProcessWindow (void)
 	return TLN_IsWindowActive ();
 }
 
-/*!
- * \brief
- * Checks window state
- * 
- * \returns
- * True if window is active or false if the user has requested to end the application (by pressing Esc key
- * or clicking the close button)
- * 
- * \see
- * TLN_CreateWindow(), TLN_CreateWindowThread()
- */
 bool TLN_IsWindowActive (void)
 {
 	return !done;
 }
 
-/*!
- * \brief
- * Thread synchronization for multithreaded window. Waits until the current
- * frame has ended rendering
- *
- * \see
- * TLN_CreateWindowThread()
- */
 void TLN_WaitRedraw (void)
 {
 	if (lock)
@@ -744,22 +644,6 @@ void TLN_EnableRFBlur (bool mode)
 	CRTSetBlur(crt, mode);
 }
 
-/*!
- * \deprecated Use TLN_ConfigCRTEffect()
- */
-void TLN_EnableBlur(bool mode)
-{
-}
-
-/*!
-  * \brief
- * Configures CRT simulation post-processing effect to give true retro appeareance
- *
- * \param type One possible value of \ref TLN_CRT enumeration
- * \param blur simulate RF (horizontal) blur
- * \param scanlines simulate horizontal scanlines
- */
-
 void TLN_ConfigCRTEffect(TLN_CRT type, bool blur, bool scanlines)
 {
 	if (crt != NULL)
@@ -774,62 +658,12 @@ void TLN_ConfigCRTEffect(TLN_CRT type, bool blur, bool scanlines)
 	crt = CRTCreate(renderer, backbuffer, crt_params.type, wnd_width, wnd_height, crt_params.blur, crt_params.scanlines);
 }
 
-/*!
- * \deprecated Use TLN_ConfigCRTEffect() instead
- * \brief
- * Enables CRT simulation post-processing effect to give true retro appeareance
- * 
- * \remarks Parameters have no effect, they're kept for backwards API/ABI compatibility. Original default values are always used.
- */ 
-void TLN_EnableCRTEffect (int overlay, uint8_t overlay_factor, uint8_t threshold, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, bool blur, uint8_t glow_factor)
-{
-	if (crt != NULL)
-		CRTDelete(crt);
-
-	crt_params.enable = true;
-	SetupBackBuffer();
-	crt = CRTCreate(renderer, backbuffer, crt_params.type, wnd_width, wnd_height, crt_params.blur, crt_params.scanlines);
-}
-
-/*!
- * \brief
- * Disables the CRT post-processing effect
- * 
- * \see
- * TLN_ConfigCRTEffect
- */ 
 void TLN_DisableCRTEffect (void)
 {
 	crt_params.enable = false;
 	SetupBackBuffer();
 }
 
-/*!
- * \brief
- * Returns the state of a given input
- * 
- * \param input
- * Input to check state. It can be one of the following values:
- *	 * INPUT_UP
- *	 * INPUT_DOWN
- *	 * INPUT_LEFT
- *	 * INPUT_RIGHT
- *	 * INPUT_BUTTON1 - INPUT_BUTTON6,
- *	 * INPUT_START
- *	 * Optionally combine with INPUT_P1 to INPUT_P4 to request input for specific player
- * 
- * \returns
- * True if that input is pressed or false if not
- * 
- * If a window has been created with TLN_CreateWindow, it provides basic user input.
- * It simulates a classic arcade setup, with 4 directional buttons (INPUT_UP to INPUT_RIGHT),
- * 6 action buttons (INPUT_BUTTON1 to INPUT_BUTTON6) and a start button (INPUT_START). 
- * By default directional buttons are mapped to keyboard cursors and joystick 1 D-PAD, 
- * and the first four action buttons are the keys Z,X,C,V and joystick buttons 1 to 4.
- * 
- * \see
- * TLN_CreateWindow(), TLN_DefineInputKey(), TLN_DefineInputButton()
- */
 bool TLN_GetInput (TLN_Input input)
 {
 	const TLN_Player player = (TLN_Player)(input >> 5);
@@ -839,31 +673,11 @@ bool TLN_GetInput (TLN_Input input)
 	return false;
 }
 
-/*!
- * \brief
- * Enables or disables input for specified player
- *
- * \param player
- * Player number to enable (PLAYER1 - PLAYER4)
- *
- * \param enable
- * Set true to enable, false to disable
- */
 void TLN_EnableInput (TLN_Player player, bool enable)
 {
 	player_inputs[player].enabled = enable;
 }
 
-/*!
- * \brief
- * Assigns a joystick index to the specified player
- *
- * \param player
- * Player number to configure (PLAYER1 - PLAYER4)
- *
- * \param index
- * Joystick index to assign, 0-based index. -1 = disable
- */
 void TLN_AssignInputJoystick (TLN_Player player, int index)
 {
 	PlayerInput* player_input = &player_inputs[player];
@@ -879,37 +693,11 @@ void TLN_AssignInputJoystick (TLN_Player player, int index)
 	}
 }
 
-/*!
- * \brief
- * Assigns a keyboard input to a player
- *
- * \param player
- * Player number to configure (PLAYER1 - PLAYER4)
- *
- * \param input
- * Input to associate to the given key
- *
- * \param keycode
- * ASCII key value or scancode as defined in SDL.h
- */
 void TLN_DefineInputKey (TLN_Player player, TLN_Input input, uint32_t keycode)
 {
 	player_inputs[player].keycodes[input & INPUT_MASK] = keycode;
 }
 
-/*!
- * \brief
- * Assigns a button joystick input to a player
- *
- * \param player
- * Player number to configure (PLAYER1 - PLAYER4)
- *
- * \param input
- * Input to associate to the given button
- *
- * \param joybutton
- * Button index
- */
 void TLN_DefineInputButton (TLN_Player player, TLN_Input input, uint8_t joybutton)
 {
 	player_inputs[player].joybuttons[input & INPUT_MASK] = joybutton;
@@ -993,22 +781,6 @@ static void EndWindowFrame(void)
 	}
 }
 
-/*!
- * \brief
- * Draws a frame to the window
- * 
- * \param frame Optional frame number. Set to 0 to autoincrement from previous value
- * 
- * Draws a frame to the window
- * 
- * \remarks
- * If a window has been created with TLN_CreateWindow(), it renders the frame to it. This function is a wrapper to
- * TLN_UpdateFrame which also automatically sets the render target for the window, so when calling this function it is
- * not needed to call TLN_UpdateFrame() too.
- * 
- * \see
- * TLN_CreateWindow(), TLN_UpdateFrame()
- */
 void TLN_DrawFrame (int frame)
 {
 	BeginWindowFrame ();
@@ -1016,66 +788,36 @@ void TLN_DrawFrame (int frame)
 	EndWindowFrame ();
 }
 
-/*!
- * \brief
- * Returns the number of milliseconds since application start
- */
 uint32_t TLN_GetTicks (void)
 {
 	return SDL_GetTicks ();
 }
 
-/*!
- * \brief
- * Suspends execition for a fixed time
- * \param time Number of milliseconds to wait
- */
 void TLN_Delay (uint32_t time)
 {
 	SDL_Delay (time);
 }
 
-/*!
- * \brief
- * Returns horizontal dimension of window after scaling
- */
 int TLN_GetWindowWidth(void)
 {
 	return wnd_width;
 }
 
-/*!
- * \brief
- * Returns vertical dimension of window after scaling
- */
 int TLN_GetWindowHeight(void)
 {
 	return wnd_height;
 }
 
-/*!
-* \brief
-* Registers a user-defined callback to capture internal SDL2 events
-* \param callback pointer to user funcion with signature void (SDL_Event*)
-*/
 void TLN_SetSDLCallback(TLN_SDLCallback callback)
 {
 	sdl_callback = callback;
 }
 
-/*!
-* \brief Returns averaged fps being rendered on the built-in window, updated each 500 ms
-*/
 uint32_t TLN_GetAverageFps(void)
 {
 	return wnd_params.fps_average;
 }
 
-/*!
-* \brief Returns current window scaling factor.
-* \remarks This value can be set during call to TLN_CreateWindow() (flags CWF_S1 to CWF_S5), 
-* calling TLN_SetWindowScaleFactor(), or pressing ALT-1 to ALT-5 at runtime
-*/
 int TLN_GetWindowScaleFactor(void)
 {
 	WindowFlags flags;
@@ -1083,9 +825,6 @@ int TLN_GetWindowScaleFactor(void)
 	return flags.factor;
 }
 
-/*!
-* \brief Sets current window scaling factor
-*/
 void TLN_SetWindowScaleFactor(int factor)
 {
 	WindowFlags flags;
