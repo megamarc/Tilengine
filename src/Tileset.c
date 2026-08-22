@@ -23,34 +23,6 @@
 
 static bool HasTransparentPixels (uint8_t* src, int width);
 
-/*!
- * \brief
- * Creates a tile-based tileset
- * 
- * \param numtiles
- * Number of tiles that the tileset will hold
- * 
- * \param width
- * Width of each tile (must be multiple of 8)
- * 
- * \param height
- * Height of each tile (must be multiple of 8)
- * 
- * \param palette
- * Reference to the palette to assign
- * 
- * \param sp
- * Optional reference to the optional sequence pack with associated tileset animations, can be NULL
- *
- * \param attributes
- * Optional array of attributes, one for each tile. Can be NULL
- *
- * \returns
- * Reference to the created tileset, or NULL if error
- * 
- * \see
- * TLN_SetTilesetPixels()
- */
 TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette palette, TLN_SequencePack sp, TLN_TileAttributes* attributes)
 {
 	TLN_Tileset tileset;
@@ -109,20 +81,6 @@ TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette 
 	return tileset;
 }
 
-/*!
- * \brief
- * Creates a multiple image-based tileset
- *
- * \param numtiles
- * Number of tiles that the tileset will hold
- *
- * \param images
- * Array of image structures, one for each tile. Can be NULL
- *
- * \returns
- * Reference to the created tileset, or NULL if error
-  */
-
 TLN_Tileset TLN_CreateImageTileset(int numtiles, TLN_TileImage* images)
 {
 	TLN_Tileset tileset;
@@ -143,31 +101,6 @@ TLN_Tileset TLN_CreateImageTileset(int numtiles, TLN_TileImage* images)
 	return tileset;
 }
 
-/*!
- * \brief
- * Sets pixel data for a tile in a tile-based tileset
- * 
- * \param tileset
- * Reference to the tileset
- * 
- * \param entry
- * Number of tile to set [0, num_tiles - 1]
- * 
- * \param srcdata
- * Pointer to pixel data to set
- * 
- * \param srcpitch
- * Bytes per line of source data
- * 
- * \returns
- * true if success, or false if error
- * 
- * \remarks
- * Care must be taken in providing pixel data and pitch as it can crash the aplication
- * 
- * \see
- * TLN_CreateTileset()
- */
 bool TLN_SetTilesetPixels (TLN_Tileset tileset, int entry, uint8_t* srcdata, int srcpitch)
 {
 	int c, line;
@@ -196,19 +129,6 @@ bool TLN_SetTilesetPixels (TLN_Tileset tileset, int entry, uint8_t* srcdata, int
 	return true;
 }
 
-/*!
- * \brief
- * Creates a duplicate of the specified tileset and its associated palette
- * 
- * \param src
- * Tileset to clone
- * 
- * \returns
- * A reference to the newly cloned tileset, or NULL if error
- *
- * \see
- * TLN_LoadTileset()
- */
 TLN_Tileset TLN_CloneTileset (TLN_Tileset src)
 {
 	TLN_Tileset tileset;
@@ -242,19 +162,6 @@ TLN_Tileset TLN_CloneTileset (TLN_Tileset src)
 	return tileset;
 }
 
-/*!
- * \brief
- * Deletes the specified tileset and frees memory
- * 
- * \param tileset
- * Tileset to delete
- * 
- * \remarks
- * Don't delete a tileset currently attached to a layer!
- * 
- * \see
- * TLN_LoadTileset(), TLN_CloneTileset()
- */
 bool TLN_DeleteTileset (TLN_Tileset tileset)
 {
 	// TODO: implement refcount on cached tilesets, avoid deleting a cached instance
@@ -281,16 +188,6 @@ bool TLN_DeleteTileset (TLN_Tileset tileset)
 		return false;
 }
 
-/*!
- * \brief
- * Returns the width in pixels of each individual tile in the tileset
- * 
- * \param tileset
- * Reference to the tileset to get info from
- * 
- * \see
- * TLN_GetTileHeight()
- */
 int TLN_GetTileWidth (TLN_Tileset tileset)
 {
 	if (CheckBaseObject (tileset, OT_TILESET))
@@ -302,16 +199,6 @@ int TLN_GetTileWidth (TLN_Tileset tileset)
 		return 0;
 }
 
-/*!
- * \brief
- * Returns the height in pixels of each individual tile in the tileset
- * 
- * \param tileset
- * Reference to the tileset to get info from
- * 
- * \see
- * TLN_GetTileWidth()
- */
 int TLN_GetTileHeight (TLN_Tileset tileset)
 {
 	if (CheckBaseObject (tileset, OT_TILESET))
@@ -323,13 +210,6 @@ int TLN_GetTileHeight (TLN_Tileset tileset)
 		return 0;
 }
 
-/*!
- * \brief
- * Returns the number of different tiles in tileset
- *
- * \param tileset
- * Reference to the tileset to get info from
- */
 int TLN_GetTilesetNumTiles(TLN_Tileset tileset)
 {
 	if (CheckBaseObject(tileset, OT_TILESET))
@@ -341,21 +221,6 @@ int TLN_GetTilesetNumTiles(TLN_Tileset tileset)
 		return 0;
 }
 
-/*!
- * \brief
- * Returns a reference to the palette associated to the specified tileset
- * 
- * \param tileset
- * Reference to the tileset to get the palette
- * 
- * \remarks
- * The palette of a tileset is created at load time and cannot be modified. When TLN_SetLayer
- * function is used to attach a tileset to a layer, the palette associated with the specified tileset is automatically
- * assigned to that layer, but it can be later replaced with TLN_SetLayerPalette
- * 
- * \see
- * TLN_LoadTileset(), TLN_SetLayerPalette()
- */
 TLN_Palette TLN_GetTilesetPalette (TLN_Tileset tileset)
 {
 	if (CheckBaseObject (tileset, OT_TILESET))
@@ -367,16 +232,6 @@ TLN_Palette TLN_GetTilesetPalette (TLN_Tileset tileset)
 		return NULL;
 }
 
-/*!
- * \brief
- * Returns a reference to the optional sequence pack associated to the specified tileset
- * 
- * \param tileset
- * Reference to the tileset to get the palette
- *
- * \see
- * TLN_LoadTileset(), TLN_CreateTileset()
- */
 TLN_SequencePack TLN_GetTilesetSequencePack (TLN_Tileset tileset)
 {
 	if (CheckBaseObject (tileset, OT_TILESET))
@@ -388,10 +243,6 @@ TLN_SequencePack TLN_GetTilesetSequencePack (TLN_Tileset tileset)
 		return NULL;
 }
 
-/*! \brief Returns number of animations in given tileset 
-*	\param tileset Reference to the tileset to get the number of animations
-*	\returns Number of animations in the tileset, or 0 if none
-*/
 TLNAPI int TLN_GetTilesetNumAnimations(TLN_Tileset tileset)
 {
 	return CheckBaseObject(tileset, OT_TILESET) && tileset->sp != NULL ? tileset->sp->num_sequences : 0;

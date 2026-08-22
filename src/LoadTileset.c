@@ -238,19 +238,6 @@ static void add_to_cache(const char* name, TLN_Tileset tileset)
 	}
 }
 
-/*!
- * \brief
- * Loads a tileset from a Tiled .tsx file
- * 
- * \param filename
- * TSX file to load
- * 
- * \returns
- * Reference to the newly loaded tileset or NULL if error
- *
- * \remarks
- * An associated palette is also created, it can be obtained calling TLN_GetTilesetPalette()
- */
 TLN_Tileset TLN_LoadTileset (const char* filename)
 {
 	SimpleXmlParser parser;

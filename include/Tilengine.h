@@ -955,19 +955,123 @@ TLNAPI bool TLN_DeleteSpriteset (TLN_Spriteset Spriteset);
  * \defgroup tileset
  * \brief Tileset resources management for background layers 
 * @{ */
+
+/*!
+	\brief Creates a tile-based tileset
+	\param numtiles	Number of tiles that the tileset will hold
+	\param width Width of each tile (must be multiple of 8)
+	\param height Height of each tile (must be multiple of 8)
+	\param palette Reference to the palette to assign
+	\param sp Optional reference to the optional sequence pack with associated tileset animations, can be NULL
+	\param attributes Optional array of attributes, one for each tile. Can be NULL
+	\returns Reference to the created tileset, or NULL if error
+	\see TLN_SetTilesetPixels()
+*/
 TLNAPI TLN_Tileset TLN_CreateTileset (int numtiles, int width, int height, TLN_Palette palette, TLN_SequencePack sp, TLN_TileAttributes* attributes);
+
+/*!
+	\brief Creates a multiple image-based tileset
+	\param numtiles	Number of tiles that the tileset will hold
+	\param images Array of image structures, one for each tile. Can be NULL
+	\returns Reference to the created tileset, or NULL if error
+*/
 TLNAPI TLN_Tileset TLN_CreateImageTileset(int numtiles, TLN_TileImage* images);
+
+/*!
+	\brief Loads a tileset from a Tiled .tsx file
+	\param filename TSX file to load
+	\returns Reference to the newly loaded tileset or NULL if error
+	\remarks An associated palette is also created, it can be obtained calling TLN_GetTilesetPalette()
+*/
 TLNAPI TLN_Tileset TLN_LoadTileset (const char* filename);
+
+/*!
+	\brief Creates a duplicate of the specified tileset and its associated palette
+	\param src Tileset to clone
+	\returns A reference to the newly cloned tileset, or NULL if error
+	\see TLN_LoadTileset()
+ */
 TLNAPI TLN_Tileset TLN_CloneTileset (TLN_Tileset src);
+
+/*!
+	\brief Sets pixel data for a tile in a tile-based tileset
+	\param tileset Reference to the tileset
+	\param entry Number of tile to set [0, num_tiles - 1]
+	\param srcdata Pointer to pixel data to set
+	\param srcpitch Bytes per line of source data
+	\returns true if success, or false if error
+	\remarks Care must be taken in providing pixel data and pitch as it can crash the aplication
+	\see TLN_CreateTileset()
+*/
 TLNAPI bool TLN_SetTilesetPixels (TLN_Tileset tileset, int entry, uint8_t* srcdata, int srcpitch);
+
+/*!
+	\brief Returns the width in pixels of each individual tile in the tileset
+	\param tileset Reference to the tileset to get info from
+	\see TLN_GetTileHeight()
+*/
 TLNAPI int TLN_GetTileWidth (TLN_Tileset tileset);
+
+/*!
+	\brief Returns the height in pixels of each individual tile in the tileset
+	\param tileset Reference to the tileset to get info from
+	\see TLN_GetTileWidth()
+*/
 TLNAPI int TLN_GetTileHeight (TLN_Tileset tileset);
+
+/*!
+	\brief Returns the number of different tiles in tileset
+	\param tileset Reference to the tileset to get info from
+*/
 TLNAPI int TLN_GetTilesetNumTiles(TLN_Tileset tileset);
+
+/*!
+	\brief Returns a reference to the palette associated to the specified tileset
+	\param tileset Reference to the tileset to get the palette
+	\remarks The palette of a tileset is created at load time and cannot be modified. When TLN_SetLayer
+	function is used to attach a tileset to a layer, the palette associated with the specified tileset is automatically
+	assigned to that layer, but it can be later replaced with TLN_SetLayerPalette
+
+	\see TLN_LoadTileset(), TLN_SetLayerPalette()
+ */
 TLNAPI TLN_Palette TLN_GetTilesetPalette (TLN_Tileset tileset);
+
+/*!
+	\brief Returns a reference to the optional sequence pack associated to the specified tileset
+	\param tileset Reference to the tileset to get the palette
+	\see TLN_LoadTileset(), TLN_CreateTileset()
+*/
 TLNAPI TLN_SequencePack TLN_GetTilesetSequencePack (TLN_Tileset tileset);
+
+/*!
+	\brief Returns number of animations in given tileset
+	\param tileset Reference to the tileset to get the number of animations
+	\returns Number of animations in the tileset, or 0 if none
+*/
 TLNAPI int TLN_GetTilesetNumAnimations(TLN_Tileset tileset);
+
+/*!
+	\brief Pauses animation for the given tileset
+	\param tileset Reference of the tileset to pause animation
+	\param index Id of the animation to pause (0 <= id < num_animations)
+	\see Animations TLN_ResumeTilesetAnimation, TLN_GetTilesetNumAnimations
+*/
 TLNAPI bool TLN_PauseTilesetAnimation(TLN_Tileset tileset, int index);
+
+/*!
+	\brief Restores animation for the given tileset
+	\param tileset Reference of the tileset to resume animation
+	\param index Id of the animation to resume (0 <= id < num_animations)
+	\see Animations TLN_PauseTilesetAnimation, TLN_GetTilesetNumAnimations
+*/
 TLNAPI bool TLN_ResumeTilesetAnimation(TLN_Tileset tileset, int index);
+
+/*!
+	\brief Deletes the specified tileset and frees memory
+	\param tileset Tileset to delete
+	\remarks Don't delete a tileset currently attached to a layer!
+	\see TLN_LoadTileset(), TLN_CloneTileset()
+*/
 TLNAPI bool TLN_DeleteTileset (TLN_Tileset tileset);
 /**@}*/
 
