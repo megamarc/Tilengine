@@ -300,6 +300,7 @@ typedef union SDL_Event SDL_Event;
 typedef void(*TLN_VideoCallback)(int scanline);
 typedef uint8_t(*TLN_BlendFunction)(uint8_t src, uint8_t dst);
 typedef void(*TLN_SDLCallback)(SDL_Event*);
+typedef void(*TLN_TaskCallback)(uint32_t frame);
 
 /*! Player index for input assignment functions */
 typedef enum
@@ -362,7 +363,7 @@ enum
 	CWF_S4			= (4 << 2),	/*!< create a window 4x the size the framebuffer */
 	CWF_S5			= (5 << 2),	/*!< create a window 5x the size the framebuffer */
 	CWF_NEAREST		= (1 << 6),	/*<! unfiltered upscaling */
-	CWF_NOVSYNC		= (1 << 7)  /*<! disable default vsync */
+	CWF_NOVSYNC		= (1 << 7), /*<! disable default vsync */
 };
 
 /*! Error codes */
@@ -860,6 +861,13 @@ TLNAPI int TLN_GetWindowScaleFactor(void);
 
 /*! \brief Sets current window scaling factor */
 TLNAPI void TLN_SetWindowScaleFactor(int);
+
+/*!
+	\brief Set task to execute for each frame. Required when targeting HTML5
+	\param pointer to user-provided function to execute on each frame
+	This function blocks until window is closed
+*/
+TLNAPI void TLN_SetMainTask(TLN_TaskCallback);
 
 /**@}*/
 

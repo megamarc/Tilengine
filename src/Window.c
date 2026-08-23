@@ -22,6 +22,10 @@
 #include "crt.h"
 #include "Engine.h"
 
+#if defined __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
+
 static SDL_Window*   window;
 static SDL_Renderer* renderer;
 static SDL_Texture*	 backbuffer;
@@ -40,9 +44,11 @@ static int			 instances = 0;
 static uint8_t*		 rt_pixels;
 static int			 rt_pitch;
 static char*		 window_title;
+static uint32_t		 frame;			/* current frame number */
 
 static int			last_key;
 static TLN_SDLCallback sdl_callback = NULL;
+static TLN_TaskCallback frametask = NULL;
 
 /* player input */
 typedef struct
@@ -130,24 +136,25 @@ static bool create_window(void)
 
 	/*  gets desktop size and maximum window size */
 	SDL_GetDesktopDisplayMode(0, &mode);
-	if (!flags.fullscreen)
+	if (!(wnd_params.flags & CWF_FULLSCREEN))
 	{
 		rflags = 0;
-		if (flags.factor == 0)
+		int factor = (wnd_params.flags >> 2) & 0x07;
+		if (factor == 0)
 		{
-			flags.factor = 1;
-			while (wnd_params.width*(flags.factor + 1) < mode.w && wnd_params.height*(flags.factor + 1) < mode.h && flags.factor < 3)
-				flags.factor += 1;
+			factor = 1;
+			while (wnd_params.width * (factor + 1) < mode.w && wnd_params.height * (factor + 1) < mode.h && factor < 3)
+				factor += 1;
 		}
 
-		wnd_width = wnd_params.width * flags.factor;
-		wnd_height = wnd_params.height * flags.factor;
+		wnd_width = wnd_params.width * factor;
+		wnd_height = wnd_params.height * factor;
 
 		dstrect.x = 0;
 		dstrect.y = 0;
 		dstrect.w = wnd_width;
 		dstrect.h = wnd_height;
-		wnd_params.flags = flags.value;
+		flags.factor = factor;
 	}
 	else
 	{
@@ -274,7 +281,7 @@ static bool create_window(void)
 	if (wnd_params.flags & CWF_FULLSCREEN)
 		SDL_ShowCursor(SDL_DISABLE);
 
-
+	wnd_params.flags = flags.value;
 	done = false;
 	return true;
 }
@@ -362,9 +369,11 @@ bool TLN_CreateWindow (const char* overlay, int flags)
 	/* fill parameters for window creation */
 	wnd_params.width = TLN_GetWidth ();
 	wnd_params.height = TLN_GetHeight ();
-	wnd_params.flags = flags;
+	wnd_params.flags = flags|CWF_VSYNC;
 
+#if !defined __EMSCRIPTEN__
 	crt_params.enable = (wnd_params.flags & CWF_NEAREST) == 0;
+#endif
 	ok = create_window ();
 	if (ok)
 		instances++;
@@ -543,6 +552,7 @@ bool TLN_ProcessWindow (void)
 				SetupBackBuffer();
 				CRTSetRenderTarget(crt, backbuffer);
 			}
+#if !defined __EMSCRIPTEN__
 			else if (keybevt->keysym.sym == SDLK_RETURN && keybevt->keysym.mod & KMOD_ALT)
 			{
 				delete_window();
@@ -567,6 +577,7 @@ bool TLN_ProcessWindow (void)
 					}
 				}
 			}
+#endif
 
 			/* regular user input */
 			for (c = PLAYER1; c < MAX_PLAYERS; c++)
@@ -831,6 +842,28 @@ void TLN_SetWindowScaleFactor(int factor)
 	flags.value = wnd_params.flags;
 	flags.factor = factor;
 	wnd_params.flags = flags.value;
+}
+
+/* main function delegate for emscripten */
+static void emscripten_main_loop(void)
+{
+	if (frametask != NULL)
+		frametask(frame);
+	TLN_DrawFrame(frame);
+	TLN_ProcessWindow();
+	frame += 1;
+}
+
+void TLN_SetMainTask(TLN_TaskCallback task)
+{
+	frametask = task;
+
+#if defined __EMSCRIPTEN__
+	emscripten_set_main_loop(emscripten_main_loop, 0, 1);
+#else
+	while (!done)
+		emscripten_main_loop();
+#endif
 }
 
 #endif
