@@ -38,11 +38,11 @@ CFLAGS += -I"../include" -std=c99 -O2
 
 all: $(TARGETS)
 
-barrel: Barrel.o Simon.o
-	$(CC) Barrel.o Simon.o -o barrel $(LDFLAGS)
+barrel: Barrel.o
+	$(CC) Barrel.o -o barrel $(LDFLAGS)
 	
-mode7: Mode7.o Sin.o
-	$(CC) Mode7.o Sin.o -o mode7 $(LDFLAGS)
+mode7: Mode7.o
+	$(CC) Mode7.o -o mode7 $(LDFLAGS)
 	
 platformer: Platformer.o
 	$(CC) Platformer.o -o platformer $(LDFLAGS)
@@ -56,14 +56,14 @@ scaling: Scaling.o
 shadow: Shadow.o
 	$(CC) Shadow.o -o shadow $(LDFLAGS)
 
-shooter: Shooter.o Actor.o Boss.o Enemy.o Explosion.o Ship.o Sin.o
-	$(CC) Shooter.o Actor.o Boss.o Enemy.o Explosion.o Ship.o Sin.o -o shooter $(LDFLAGS)
+shooter: Shooter.o Actor.o Boss.o Enemy.o Explosion.o Ship.o
+	$(CC) Shooter.o Actor.o Boss.o Enemy.o Explosion.o Ship.o -o shooter $(LDFLAGS)
 	
 tutorial: Tutorial.o
 	$(CC) Tutorial.o -o tutorial $(LDFLAGS)
 
-wobble: Wobble.o Sin.o
-	$(CC) Wobble.o Sin.o -o wobble $(LDFLAGS)
+wobble: Wobble.o
+	$(CC) Wobble.o -o wobble $(LDFLAGS)
 	
 colorcycle: ColorCycle.o
 	$(CC) ColorCycle.o -o colorcycle $(LDFLAGS)

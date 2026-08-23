@@ -2,38 +2,29 @@
 
 #define WIDTH	400
 #define HEIGHT	240
+#define FOREGROUND	0
 
 /* entry point */
 int main (int argc, char* argv[])
 {
-	TLN_Tilemap tilemap;
-	int frame = 0;
-
 	/* setup engine */
 	TLN_Init (WIDTH, HEIGHT, 1,0,0);
-
-	/* load layer */
-	tilemap = TLN_LoadTilemap ("assets/sonic/Sonic_md_fg1.tmx", NULL);
-	
-	/* setup the layer */
-	TLN_SetLayer (0, NULL, tilemap);
 	TLN_SetBGColor (32,32,128);
 
-	/* main loop */
+	/* load resources */
+	TLN_Tilemap tilemap = TLN_LoadTilemap ("assets/sonic/Sonic_md_fg1.tmx", NULL);
+	
+	/* setup the layer */
+	TLN_SetLayerTilemap (FOREGROUND, tilemap);
+	TLN_SetLayerPosition (FOREGROUND, 32, 0);	/* 32 pixels to the right */
+
+	/* window main loop */
 	TLN_CreateWindow (NULL, CWF_FULLSCREEN);
-	while (TLN_ProcessWindow ())
-	{
-		/* scroll the layer, one pixel per frame */
-		TLN_SetLayerPosition (0, frame, 0);
-		
-		/* render to the window */
-		TLN_DrawFrame (0);
-		frame++;
-	}
+	TLN_SetMainTask(NULL);
 
 	/* release resources */
+	TLN_DeleteWindow();
 	TLN_DeleteTilemap (tilemap);
 	TLN_Deinit ();
-
 	return 0;
 }

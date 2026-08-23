@@ -15,29 +15,14 @@
 #include <string.h>
 #include <math.h>
 #include "Tilengine.h"
-#include "Simon.h"
 
-#define WIDTH	400
-#define HEIGHT	240
+#define WIDTH		400
+#define HEIGHT		240
 #define MAX_PALETTE 8
-
-#ifndef M_PI
-#define M_PI 3.14159265f
-#endif
-
-#define DEG2RAD(n) ((n)*M_PI/180)
 
 /* linear interploation */
 #define lerp(x, x0,x1, fx0,fx1) \
 	(fx0) + ((fx1) - (fx0))*((x) - (x0))/((x1) - (x0))
-
-/* layers */
-enum
-{
-	LAYER_FOREGROUND,
-	LAYER_BACKGROUND,
-	MAX_LAYER
-};
 
 TLN_Palette palette;
 TLN_Palette palettes[MAX_PALETTE];
@@ -45,30 +30,29 @@ TLN_Affine transform;
 int xpos, ypos;
 
 static void raster_callback (int line);
+static void main_loop(uint32_t frame);
 
 /* entry point */
 int main (int argc, char *argv[])
 {
 	int c;
-	TLN_Tilemap tilemaps[MAX_LAYER];
+	TLN_Tilemap tilemap;
 
 	/* setup engine */
-	TLN_Init (WIDTH,HEIGHT, MAX_LAYER, 1, 1);
+	TLN_Init (WIDTH,HEIGHT, 1, 0, 0);
 	TLN_SetRasterCallback (raster_callback);
 	TLN_SetBGColor (115,48,57);
 
 	/* load resources*/
 	TLN_SetLoadPath ("assets/sc4");
-	tilemaps[LAYER_FOREGROUND] = TLN_LoadTilemap ("castle_fg.tmx", NULL);
-	tilemaps[LAYER_BACKGROUND] = TLN_LoadTilemap ("castle_bg.tmx", NULL);
-	TLN_SetLayerTilemap (LAYER_FOREGROUND, tilemaps[LAYER_FOREGROUND]);
-	TLN_SetLayerTilemap (LAYER_BACKGROUND, tilemaps[LAYER_BACKGROUND]);
+	tilemap = TLN_LoadTilemap ("castle_bg.tmx", NULL);
+	TLN_SetLayerTilemap (0, tilemap);
 
 	/* tweak palettes */
-	palette = TLN_GetLayerPalette (LAYER_BACKGROUND);
-	for (c=0; c<MAX_PALETTE; c++)
+	palette = TLN_GetLayerPalette (0);
+	for (c = 0; c < MAX_PALETTE; c += 1)
 	{
-		int inc = c*7;
+		int inc = (7 - c) * 8;
 		palettes[c] = TLN_ClonePalette (palette);
 		TLN_SubPaletteColor (palettes[c], inc,inc,inc, 1, 255);
 	}
@@ -77,32 +61,33 @@ int main (int argc, char *argv[])
 	transform.dy = 1;
 	transform.sy = 1;
 
-	SimonInit ();
-	
-	/* main loop */
+	/* create window & main loop, block until window closes */
 	TLN_CreateWindow (NULL, CWF_FULLSCREEN);
-	while (TLN_ProcessWindow ())
-	{
-		ypos++;
-		SimonTasks ();
-
-		/* input */
-		xpos = SimonGetPosition ();
-
-		/* scroll */
-		TLN_SetLayerPosition (LAYER_BACKGROUND, xpos/2, -(ypos>>1));
-		TLN_SetLayerPosition (LAYER_FOREGROUND, xpos, 0);
-
-		/* render to window */
-		TLN_DrawFrame (0);
-	}
+	TLN_SetMainTask(main_loop);
 
 	/* deinit */
-	SimonDeinit ();
-	TLN_DeleteTilemap (tilemaps[LAYER_FOREGROUND]);
-	TLN_DeleteTilemap (tilemaps[LAYER_BACKGROUND]);
+	TLN_DeleteTilemap(tilemap);
 	TLN_Deinit ();
 	return 0;
+}
+
+/* main loop delegate, called every frame */
+static void main_loop(uint32_t frame)
+{
+	/* rotate barrel up/down */
+	if (TLN_GetInput(INPUT_UP))
+		ypos -= 1;
+	else if (TLN_GetInput(INPUT_DOWN))
+		ypos += 1;
+	
+	/* move left/right */
+	if (TLN_GetInput(INPUT_LEFT))
+		xpos -= 1;
+	else if (TLN_GetInput(INPUT_RIGHT))
+		xpos += 1;
+	
+	/* update view */
+	TLN_SetLayerPosition(0, xpos, ypos);
 }
 
 /* raster callback (virtual HBLANK) */
@@ -114,24 +99,25 @@ static void raster_callback (int line)
 	int index;
 	int dx;
 
-	angle = lerp ((float)line, 0,HEIGHT-1, 0,M_PI);
-	factor = (1-sin(angle))*0.4 + 1;
+	/* barrel distortion */
+	angle = lerp ((float)line, 0,HEIGHT - 1, 0, M_PI);
+	factor = (1 - sin(angle)) * 0.4 + 1;
 	size = WIDTH * factor;
 	dx = ((size - WIDTH) / 2) / factor;
 	transform.sx = factor;
+	TLN_SetLayerAffineTransform (0, &transform);
 
-	TLN_SetLayerAffineTransform (LAYER_BACKGROUND, &transform);
-
+	/* use secondary palettes near edges to enhance 3D effect */
 	if (line < 70)
 	{
 		index = lerp (line, 0,70, 0,7);
-		TLN_SetLayerPalette (LAYER_BACKGROUND, palettes[index]);
+		TLN_SetLayerPalette (0, palettes[index]);
 	}
-	else if (line > 170)
+	else if (line > HEIGHT - 70)
 	{
-		index = lerp (line, 170,HEIGHT, 7,0);
-		TLN_SetLayerPalette (LAYER_BACKGROUND, palettes[index]);
+		index = lerp (line, HEIGHT - 70, HEIGHT, 7,0);
+		TLN_SetLayerPalette (0, palettes[index]);
 	}
 	else
-		TLN_SetLayerPalette (LAYER_BACKGROUND, palettes[7]);
+		TLN_SetLayerPalette (0, palettes[7]);
 }

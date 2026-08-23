@@ -9,15 +9,17 @@
 * change vertical position.
 *
 ******************************************************************************/
+
+#define _USE_MATH_DEFINES
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "Tilengine.h"
-#include "Sin.h"
 
 #define WIDTH	320
 #define HEIGHT	192
-#define COLUMNS	WIDTH/8 + 2
+#define NUM_COLUMNS	WIDTH/8 + 2
 
 /* linear interploation */
 #define lerp(x, x0,x1, fx0,fx1) \
@@ -31,16 +33,16 @@ enum
 	MAX_LAYER
 };
 
-static unsigned int frame;
-int column[COLUMNS];
+static uint32_t _frame;
+int column[NUM_COLUMNS];
 
 static void raster_callback (int line);
+static void main_loop(uint32_t frame);
 
 /* entry point */
 int main (int argc, char *argv[])
 {
 	TLN_Tilemap foreground, background;
-	int c;
 
 	/* setup engine */
 	TLN_Init (WIDTH,HEIGHT, MAX_LAYER, 0, 5);
@@ -54,25 +56,12 @@ int main (int argc, char *argv[])
 	TLN_SetLayerTilemap (LAYER_FOREGROUND, foreground);
 	TLN_SetLayerTilemap (LAYER_BACKGROUND, background);
 
-	BuildSinTable ();
+	/* setup column offset array for vertical tile displacement */
 	TLN_SetLayerColumnOffset (LAYER_BACKGROUND, column);
 
-	/* main loop */
-	TLN_CreateWindow (NULL, CWF_FULLSCREEN);
-	while (TLN_ProcessWindow ())
-	{
-		/* scroll */
-		TLN_SetLayerPosition (LAYER_FOREGROUND, frame*3, 0);
-		TLN_SetLayerPosition (LAYER_BACKGROUND, frame, 0);
-
-		/* update column offset table */
-		for (c=0; c<COLUMNS; c++)
-			column[c] = CalcSin (frame*5 + c*20, 3);		
-
-		/* render to window */
-		TLN_DrawFrame (frame);
-		frame++;
-	}
+	/* create window & main loop, block until window closes */
+	TLN_CreateWindow(NULL, CWF_FULLSCREEN);
+	TLN_SetMainTask(main_loop);
 
 	/* deinit */
 	TLN_DeleteTilemap (foreground);
@@ -85,6 +74,27 @@ int main (int argc, char *argv[])
 /* raster callback (virtual HBLANK) */
 static void raster_callback (int line)
 {
-	TLN_SetLayerPosition (LAYER_FOREGROUND, frame*2, CalcSin((frame+line)<<1, 8) + 8);
-	TLN_SetLayerPosition (LAYER_BACKGROUND, frame + CalcSin((frame + line)<<1, 10), 0);
+	int value = (_frame + line) << 1;
+	float angle = (value * M_PI) / 180.0f;
+	TLN_SetLayerPosition (LAYER_FOREGROUND, _frame * 2, (sin(angle) * 8) + 8);
+	TLN_SetLayerPosition (LAYER_BACKGROUND, _frame + sin(angle) * 10, 0);
+}
+
+/* main loop delegate, called every frame */
+static void main_loop(uint32_t frame)
+{
+	int c;
+	
+	/* scroll */
+	TLN_SetLayerPosition (LAYER_FOREGROUND, frame*3, 0);
+	TLN_SetLayerPosition (LAYER_BACKGROUND, frame, 0);
+
+	/* update column offset table */
+	for (c = 0; c < NUM_COLUMNS; c += 1)
+	{
+		int value = frame*5 + c*20;
+		float angle = (value * M_PI) / 180.0f;
+		column[c] = (int)(sin(angle) * 3);
+	}
+	_frame = frame;
 }

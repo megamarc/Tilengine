@@ -1,10 +1,12 @@
+#define _USE_MATH_DEFINES
 #include <stdlib.h>
+#include <math.h>
 #include "Shooter.h"
 #include "Ship.h"
 #include "Enemy.h"
 #include "Explosion.h"
 
-/* datos extra ship */
+/* ship data */
 typedef struct
 {
 	int lives;
@@ -14,7 +16,7 @@ typedef struct
 }
 Ship;
 
-/* datos extra claw */
+/* rotating orb data */
 typedef struct
 {
 	int radius;
@@ -53,6 +55,7 @@ void ShipTasks (Actor* actor)
 {
 	Ship* ship = (Ship*)actor->usrdata;
 
+	/* horizontal motion */
 	if (TLN_GetInput(INPUT_LEFT) && actor->x > 0)
 		actor->vx = -2;
 	else if (TLN_GetInput(INPUT_RIGHT) && actor->x < 390)
@@ -60,6 +63,7 @@ void ShipTasks (Actor* actor)
 	else
 		actor->vx = 0;
 
+	/* vertical motion */
 	if (TLN_GetInput(INPUT_UP) && actor->y > 0)
 		actor->vy = -2;
 	else if (TLN_GetInput(INPUT_DOWN) && actor->y < 224)
@@ -67,27 +71,27 @@ void ShipTasks (Actor* actor)
 	else
 		actor->vy = 0;
 
-	/* movimiento */
+	/* movement */
 	if (GetActorTimeout (actor, 0))
 	{
 		int index = TLN_GetSpritePicture (actor->index);
 		SetActorTimeout (actor, 0, 6);
 
-		/* hacia arriba */
+		/* spin upward animation */
 		if (actor->vy < 0)
 		{
 			if (index > 0)
 				TLN_SetSpritePicture (actor->index, index - 1);
 		}
 		
-		/* hacia abajo */
+		/*spin downward animation */
 		else if (actor->vy > 0)
 		{
 			if (index < 6)
 				TLN_SetSpritePicture (actor->index, index + 1);
 		}
 
-		/* centrado */
+		/* center animation */
 		else
 		{
 			if (index > 3)
@@ -96,14 +100,14 @@ void ShipTasks (Actor* actor)
 				TLN_SetSpritePicture (actor->index, index + 1);
 		}
 
-		/* izquierda */
+		/* move left */
 		if (actor->vx < 0)
 		{
 			if (actor->x < 0)
 				actor->x = 0;
 		}
 
-		/* derecha */
+		/* move right */
 		if (actor->vx > 0)
 		{
 			if (actor->x > 396)
@@ -111,11 +115,11 @@ void ShipTasks (Actor* actor)
 		}
 	}
 
-	/* disparo */
+	/* shoot */
 	if (GetActorTimeout (actor, 1) && TLN_GetInput(INPUT_A))
 	{
 		SetActorTimeout (actor, 1, 10);
-		CreateShot (TYPE_BLADEB, actor->x+32, actor->y + rand()%10 - 5);
+		CreateShot (TYPE_BLADEB, actor->x + 32, actor->y + rand()%10 - 5);
 		if (ship->claw)
 		{
 			CreateShot (TYPE_BLADES, ship->claws[0]->x + 16, ship->claws[0]->y);
@@ -138,7 +142,7 @@ Actor* CreateClaw (int id)
 	TLN_ConfigSprite (actor->index, spritesets[SPRITESET_MAIN], 0);
 	TLN_SetSpriteAnimation (actor->index, sequences[SEQ_CLAW], 0);
 
-	claw->angle = id==ACTOR_CLAW1? 360:180;
+	claw->angle = id == ACTOR_CLAW1? 360 : 180;
 	claw->radius = 0;
 
 	return actor;
@@ -148,12 +152,13 @@ void ClawTasks (Actor* actor)
 {
 	Claw* claw = (Claw*)actor->usrdata;
 	Actor* parent = GetActor (ACTOR_SHIP);
+	float radians;
 
-	/* extensión */
+	/* extending from center */
 	if (claw->radius < 32)
-		claw->radius++;
+		claw->radius += 1;
 
-	/* giro */
+	/* rotating */
 	else
 	{
 		claw->angle -= 3;
@@ -161,9 +166,10 @@ void ClawTasks (Actor* actor)
 			claw->angle = 360;
 	}
 
-	/* posicion */
-	actor->x = parent->x + CalcSin(claw->angle, claw->radius) + 8;
-	actor->y = parent->y + CalcCos(claw->angle, claw->radius);
+	/* position */
+	radians = (claw->angle * M_PI) / 180.0f;
+	actor->x = parent->x + (int)(sin(radians) * claw->radius) + 8;
+	actor->y = parent->y + (int)(cos(radians) * claw->radius);
 }
 
 /*
@@ -207,14 +213,14 @@ void ShotTasks (Actor* actor)
 	int c,last;
 	int power;
 
-	/* escape de pantalla */
+	/* kill when exitting screen */
 	if (actor->x > 430)
 	{
 		ReleaseActor (actor);
 		return;
 	}
 
-	/* colisiones */
+	/* collisions */
 	if (actor->type == TYPE_BLADEB)
 		power = 2;
 	else
@@ -223,7 +229,7 @@ void ShotTasks (Actor* actor)
 	for (c=ACTOR_ENEMY1; c<last; c++)
 	{
 		Actor* target = GetActor (c);
-		if (target->state!=0 && target->type==TYPE_ENEMY && CheckActorCollision (actor, target))
+		if (target->state != 0 && target->type == TYPE_ENEMY && CheckActorCollision (actor, target))
 		{
 			HitEnemy (target, power);
 			{
@@ -235,7 +241,7 @@ void ShotTasks (Actor* actor)
 		}
 	}
 
-	/* colisiones jefe */
+	/* collisions with boss */
 	last = ACTOR_BOSS + 8;
 	for (c=ACTOR_BOSS; c<last; c++)
 	{

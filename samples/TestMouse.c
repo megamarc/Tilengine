@@ -33,6 +33,7 @@ typedef struct Entity
 }
 Entity;
 
+/* module local vars */
 static Entity entities[MAX_ENTITIES];	/* entities list */
 static Entity* selected_entity;			/* pointer to currently selected entity (if any) */
 static TLN_Palette palette_select;		/* color palette for selected entity */
@@ -90,12 +91,12 @@ static void sdl_callback(SDL_Event* evt)
 	}
 }
 
+/* entry point */
 int main(int argc, char* argv[])
 {
 	TLN_Spriteset spriteset;
 	TLN_SpriteInfo sprite_info;
 	int c;
-	int frame = 0;
 
 	TLN_Init(WIDTH, HEIGHT, 0, MAX_ENTITIES, 0);
 	spriteset = TLN_LoadSpriteset("assets/smw/smw_sprite.png");
@@ -122,11 +123,10 @@ int main(int argc, char* argv[])
 		TLN_SetSpritePicture(entity->sprite_index, 0);
 	}
 
-	/* windows and main loop */
+	/* create window & main loop, block until window closes */
 	TLN_CreateWindow(NULL, 0);
 	TLN_SetSDLCallback(sdl_callback);
-	while (TLN_ProcessWindow())
-		TLN_DrawFrame(frame++);
+	TLN_SetMainTask(NULL);	
 
 	TLN_Deinit();
 	return 0;

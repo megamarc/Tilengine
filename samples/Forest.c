@@ -22,14 +22,20 @@ enum
 	NUM_LAYERS
 };
 
+/* local module vars */
+static int xworld = 0;
+static int width, height;
+static int oldx = -1;
+
+static void main_loop(uint32_t frame);
+
+/* entry point */
 int main(int argc, char* argv[])
 {
 	TLN_Spriteset atlas;
 	TLN_Sequence idle, skip;
-	int xworld = 0;
+	
 	int xplayer, yplayer;
-	int oldx = -1;
-	int width, height;
 	char* respack = NULL;
 	char* passkey = NULL;
 	
@@ -74,29 +80,30 @@ int main(int argc, char* argv[])
 	TLN_SetSpriteAnimation(0, idle, 0);
 	TLN_SetSpriteWorldPosition(0, xplayer, yplayer);
 
-	/* create window & main loop */
+	/* create window & main loop, block until window closes */
 	TLN_CreateWindow(NULL, CWF_FULLSCREEN);
-	while (TLN_ProcessWindow())
-	{
-		TLN_DrawFrame(0);
-
-		/* move 3 pixels right/left main layer */
-		if (TLN_GetInput(INPUT_LEFT) && xworld > 0)
-			xworld -= 3;
-		else if (TLN_GetInput(INPUT_RIGHT) && xworld < width - HRES)
-			xworld += 3;
-
-		/* update on change */
-		if (xworld != oldx)
-		{
-			TLN_SetWorldPosition(xworld, 0);
-			oldx = xworld;
-		}
-	}
-
+	TLN_SetMainTask(main_loop);
+	
 	/* release resources */
 	TLN_ReleaseWorld();
 	TLN_DeleteWindow();
 	TLN_Deinit();
 	return 0;
+}
+
+/* main loop delegate, called every frame */
+static void main_loop(uint32_t frame)
+{
+	/* move 3 pixels right/left main layer */
+	if (TLN_GetInput(INPUT_LEFT) && xworld > 0)
+		xworld -= 3;
+	else if (TLN_GetInput(INPUT_RIGHT) && xworld < width - HRES)
+		xworld += 3;
+
+	/* update on change */
+	if (xworld != oldx)
+	{
+		TLN_SetWorldPosition(xworld, 0);
+		oldx = xworld;
+	}	
 }

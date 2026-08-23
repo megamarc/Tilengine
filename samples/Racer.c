@@ -34,8 +34,6 @@ RGB sky[] =
 	{0xCC, 0xCC, 0xEE}
 };
 
-static void InterpolateColor (int v, int v1, int v2, RGB* color1, RGB* color2, RGB* result);
-
 /* layers */
 enum
 {
@@ -49,11 +47,11 @@ TLN_Palette palettes[2];
 int pos;
 int speed;
 int last_tree;
-unsigned int frame;
-unsigned int time;
 int pan = 0;
 
 static void raster_callback (int line);
+static void main_loop(uint32_t frame);
+static void InterpolateColor (int v, int v1, int v2, RGB* color1, RGB* color2, RGB* result);
 
 /* entry point */
 int main (int argc, char* argv[])
@@ -72,48 +70,11 @@ int main (int argc, char* argv[])
 	palettes[1] = TLN_LoadPalette ("racer.act");
 	spritesets[SPRITESET_TREES] = TLN_LoadSpriteset ("trees");
 		
-	/* startup display */
-	TLN_CreateWindow (NULL, CWF_FULLSCREEN);
-
 	CreateActors (MAX_ACTOR);
-
-	/* main loop */
-	while (TLN_ProcessWindow ())
-	{
-		/* timekeeper */
-		time = frame;
-
-		TLN_SetLayerPosition (LAYER_PLAYFIELD, 56,72);
-		if (pos - last_tree >= 100)
-		{
-			CreateTree (240,184,0);
-			CreateTree (240,184,1);
-			last_tree = pos;
-		}
-
-		/* input */
-		if ((time & 0x07) == 0)
-		{
-			if (TLN_GetInput (INPUT_UP) && speed < MAX_SPEED)
-				speed++;
-		}
-		else if (!TLN_GetInput (INPUT_UP) && speed > 0)
-			speed--;
-
-		if (TLN_GetInput (INPUT_LEFT) && pan > -MAX_STEER)
-			pan-=2;
-		else if (TLN_GetInput (INPUT_RIGHT) && pan < MAX_STEER)
-			pan+=2;
-		
-		/* actores */
-		pos += speed;
-		TasksActors (time);
-
-		/* render to window */
-		TLN_DrawFrame (time);
-
-		frame++;
-	}
+	
+	/* create window & main loop, block until window closes */
+	TLN_CreateWindow(NULL, CWF_FULLSCREEN);
+	TLN_SetMainTask(main_loop);	
 
 	/* deinit */
 	TLN_DeleteTilemap (tilemap);
@@ -145,6 +106,36 @@ static void raster_callback (int line)
 		TLN_SetLayerPalette (LAYER_PLAYFIELD, palettes[phase]);
 		TLN_SetLayerPosition (LAYER_PLAYFIELD, 56 + dx /*+ s*/, 72);
 	}
+}
+
+/* main loop delegate, called every frame */
+static void main_loop(uint32_t frame)
+{
+	TLN_SetLayerPosition (LAYER_PLAYFIELD, 56,72);
+	if (pos - last_tree >= 100)
+	{
+		CreateTree (240,184,0);
+		CreateTree (240,184,1);
+		last_tree = pos;
+	}
+
+	/* input */
+	if ((frame & 0x07) == 0)
+	{
+		if (TLN_GetInput (INPUT_UP) && speed < MAX_SPEED)
+			speed++;
+	}
+	else if (!TLN_GetInput (INPUT_UP) && speed > 0)
+		speed--;
+
+	if (TLN_GetInput (INPUT_LEFT) && pan > -MAX_STEER)
+		pan -= 2;
+	else if (TLN_GetInput (INPUT_RIGHT) && pan < MAX_STEER)
+		pan += 2;
+	
+	/* actors */
+	pos += speed;
+	TasksActors (frame);
 }
 
 static void InterpolateColor (int v, int v1, int v2, RGB* color1, RGB* color2, RGB* result)

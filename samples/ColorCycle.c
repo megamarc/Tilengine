@@ -23,10 +23,9 @@ int main (int argc, char* argv[])
 	TLN_SetBGBitmap (background);
 	TLN_SetPaletteAnimation (0, palette, sequence, true);
 
-	/* main loop */
+	/* create window & main loop, block until window closes */
 	TLN_CreateWindow (NULL, CWF_FULLSCREEN);
-	while (TLN_ProcessWindow ())
-		TLN_DrawFrame (0);
+	TLN_SetMainTask(NULL);
 
 	TLN_DeleteBitmap (background);
 	TLN_DeleteSequencePack (sp);

@@ -20,19 +20,11 @@
 #include "Enemy.h"
 #include "Ship.h"
 
-/* fixed point helper */
-typedef int fix_t;
-#define FIXED_BITS	16
-#define float2fix(f)	(fix_t)(f*(1 << FIXED_BITS))
-#define int2fix(i)		((int)(i) << FIXED_BITS)
-#define fix2int(f)		((int)(f) >> FIXED_BITS)
-#define fix2float(f)	(float)(f)/(1 << FIXED_BITS)
-
 #define PAL_T0	120
 #define PAL_T1	1000
 
 /* linear interploation */
-static int lerp (int x, int x0, int x1, int fx0, int fx1)
+static float lerp (int x, int x0, int x1, float fx0, float fx1)
 {
 	return (fx0) + ((fx1) - (fx0))*((x) - (x0))/((x1) - (x0));
 }
@@ -56,11 +48,10 @@ TLN_Sequence sequences[MAX_SEQ];
 TLN_Spriteset spritesets[MAX_SPRITESET];
 TLN_Palette palettes[MAX_LAYER];
 layer_t layers[MAX_LAYER];
-int pos_foreground[3] = {0};
-int pos_background[3] = {0};
-int inc_background[3] = {0};
-unsigned int frame;
-unsigned int time;
+float pos_foreground[3] = {0};
+float pos_background[3] = {0};
+float inc_background[3] = {0};
+uint32_t _frame;
 
 uint8_t sky1[3] = {107,205,255};
 uint8_t sky2[3] = {255,242,167};
@@ -70,6 +61,7 @@ int sky_hi[3];
 int sky_lo[3];
 
 static void raster_callback (int line);
+static void main_loop(uint32_t frame);
 
 /* helper for loading a related tileset + tilemap and configure the appropiate layer */
 static void LoadLayer (int index, char* name)
@@ -124,77 +116,24 @@ int main (int argc, char *argv[])
 	/* create actors */
 	CreateActors (MAX_ACTOR);
 	CreateShip ();
-	BuildSinTable ();
 
 	/* compute increments for background scroll*/
-	inc_background[0] = float2fix(1.0f);	/* 1.0 pixels/frame */
-	inc_background[1] = float2fix(1.2f);	/* 1.2 pixels/frame*/
-	inc_background[2] = float2fix(8.0f);	/* 8.0 pixels/frame*/
+	inc_background[0] = 1.0f;	/* 1.0 pixels/frame */
+	inc_background[1] = 1.2f;	/* 1.2 pixels/frame*/
+	inc_background[2] = 8.0f;	/* 8.0 pixels/frame*/
 
 	/* initial colors */
-	for (c=0; c<3; c++)
+	for (c = 0; c < 3; c += 1)
 	{
 		sky_hi[c] = sky1[c];
 		sky_lo[c] = sky2[c];
 	}
-	for (c=0; c<MAX_LAYER; c++)
+	for (c = 0; c < MAX_LAYER; c += 1)
 		palettes[c] = TLN_ClonePalette (TLN_GetTilesetPalette (layers[c].tileset));
 
-	/* startup display */
-	TLN_CreateWindow (NULL, CWF_FULLSCREEN);
-
-	/* main loop */
-	while (TLN_ProcessWindow ())
-	{
-		/* timekeeper */
-		time = frame;
-
-		/* bg color (sky) */
-		if (time>=PAL_T0 && time<=PAL_T1 && (time&0x07)==0)
-		{
-			/* sky color */
-			for (c=0; c<3; c++)
-			{
-				sky_hi[c] = lerp(time, PAL_T0,PAL_T1, sky1[c], sky3[c]);
-				sky_lo[c] = lerp(time, PAL_T0,PAL_T1, sky2[c], sky4[c]);
-			}
-
-			for (c=0; c<MAX_LAYER; c++)
-			{
-				if (palettes[c])
-					TLN_DeletePalette (palettes[c]);
-				palettes[c] = TLN_ClonePalette (TLN_GetTilesetPalette (layers[c].tileset));
-			}
-		}
-
-		/* scroll */
-		for (c=0; c<3; c++)
-			pos_background[c] += inc_background[c];
-
-		/* layers */
-		TLN_SetLayer (LAYER_BACKGROUND, layers[LAYER_FOREGROUND].tileset, layers[LAYER_FOREGROUND].tilemap);
-		TLN_SetLayer (LAYER_FOREGROUND, layers[LAYER_BACKGROUND].tileset, layers[LAYER_BACKGROUND].tilemap);
-		TLN_SetLayerPosition (LAYER_BACKGROUND, time/3, 160);
-		TLN_SetLayerPosition (LAYER_FOREGROUND, fix2int (pos_background[0]), 64);
-		TLN_SetLayerPalette (LAYER_FOREGROUND, palettes[LAYER_BACKGROUND]);
-		TLN_SetLayerPalette (LAYER_BACKGROUND, palettes[LAYER_FOREGROUND]);
-		
-		if (time < 500)
-		{
-			if (rand()%30 == 1)
-				CreateEnemy ();
-		}
-		else if (time==600)
-			CreateBoss ();
-
-		/* actors */
-		TasksActors (time);
-
-		/* render to window */
-		TLN_DrawFrame (time);
-
-		frame++;
-	}
+	/* create window & main loop, block until window closes */
+	TLN_CreateWindow(NULL, CWF_FULLSCREEN);
+	TLN_SetMainTask(main_loop);	
 
 	/* deinit */
 	FreeLayer (LAYER_FOREGROUND);
@@ -217,41 +156,89 @@ static void raster_callback (int line)
 	}
 
 	/* foreground */
-	if (line==32)
-		TLN_SetLayerPosition (LAYER_BACKGROUND, time/4, 160);
+	if (line == 32)
+		TLN_SetLayerPosition (LAYER_BACKGROUND, _frame/4, 160);
 
-	if (line==64)
+	if (line == 64)
 	{
 		/* swap fore/background layers */
 		TLN_SetLayer (LAYER_BACKGROUND, layers[LAYER_BACKGROUND].tileset, layers[LAYER_BACKGROUND].tilemap);
 		TLN_SetLayer (LAYER_FOREGROUND, layers[LAYER_FOREGROUND].tileset, layers[LAYER_FOREGROUND].tilemap);
-		TLN_SetLayerPosition (LAYER_BACKGROUND, fix2int (pos_background[0]), 64);
+		TLN_SetLayerPosition (LAYER_BACKGROUND, (int)pos_background[0], 64);
 		TLN_SetLayerPalette (LAYER_FOREGROUND, palettes[LAYER_FOREGROUND]);
 		TLN_SetLayerPalette (LAYER_BACKGROUND, palettes[LAYER_BACKGROUND]);
 
 		/* foreground: cloud layer */
-		TLN_SetLayerPosition (LAYER_FOREGROUND, (frame<<2)/3, 192 - line);
+		TLN_SetLayerPosition (LAYER_FOREGROUND, (_frame << 2) / 3, 192 - line);
 	}
 
 	if (line == 64)
 		TLN_SetLayerBlendMode (LAYER_FOREGROUND, BLEND_MIX50, 0);
 
-	if (line==112)
+	if (line == 112)
 		TLN_DisableLayer (LAYER_FOREGROUND);
 
-	if (line==192)
+	if (line == 192)
 	{
 		TLN_SetLayerBlendMode (LAYER_FOREGROUND, BLEND_NONE, 0);
-		TLN_SetLayerPosition (LAYER_FOREGROUND, frame*10, 448 - line);
+		TLN_SetLayerPosition (LAYER_FOREGROUND, _frame*10, 448 - line);
 	}
 
-	/* background */
+	/* sea linescroll */
 	if (line >= 112)
 	{
-		int pos = lerp (line, 112,240, pos_background[1], pos_background[2]);
-		int y = (224 - 112);
-		if (line >= 120 && line <= 230)
-			y += CalcSin(line*5+frame, 5);
-		TLN_SetLayerPosition (LAYER_BACKGROUND, fix2int(pos) + CalcSin(line*5+frame, 5), y);
+		int pos = (int)lerp (line, 112,240, pos_background[1], pos_background[2]);
+		TLN_SetLayerPosition (LAYER_BACKGROUND, pos, 224 - 112);
 	}
+}
+
+/* main loop delegate, called every frame */
+static void main_loop(uint32_t frame)
+{
+	int c;
+	
+	/* bg color (sky) */
+	if (frame >= PAL_T0 && frame <= PAL_T1 && (frame & 0x07) == 0)
+	{
+		/* sky color */
+		for (c = 0; c < 3; c += 1)
+		{
+			sky_hi[c] = lerp(frame, PAL_T0,PAL_T1, sky1[c], sky3[c]);
+			sky_lo[c] = lerp(frame, PAL_T0,PAL_T1, sky2[c], sky4[c]);
+		}
+
+		for (c = 0; c < MAX_LAYER; c += 1)
+		{
+			if (palettes[c])
+				TLN_DeletePalette (palettes[c]);
+			palettes[c] = TLN_ClonePalette (TLN_GetTilesetPalette (layers[c].tileset));
+		}
+	}
+
+	/* scroll */
+	for (c = 0; c < 3; c += 1)
+		pos_background[c] += inc_background[c];
+
+	/* layers */
+	TLN_SetLayer (LAYER_BACKGROUND, layers[LAYER_FOREGROUND].tileset, layers[LAYER_FOREGROUND].tilemap);
+	TLN_SetLayer (LAYER_FOREGROUND, layers[LAYER_BACKGROUND].tileset, layers[LAYER_BACKGROUND].tilemap);
+	TLN_SetLayerPosition (LAYER_BACKGROUND, frame/3, 160);
+	TLN_SetLayerPosition (LAYER_FOREGROUND, (int)pos_background[0], 64);
+	TLN_SetLayerPalette (LAYER_FOREGROUND, palettes[LAYER_BACKGROUND]);
+	TLN_SetLayerPalette (LAYER_BACKGROUND, palettes[LAYER_FOREGROUND]);
+	
+	/* during first 500 frames, spawn new enemy every 30 frames */
+	if (frame < 500)
+	{
+		if (rand() % 30 == 1)
+			CreateEnemy ();
+	}
+	
+	/* create boss at frame 600 */
+	else if (frame == 600)
+		CreateBoss ();
+
+	/* process actors */
+	TasksActors (frame);
+	_frame = frame;
 }

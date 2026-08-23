@@ -24,12 +24,10 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-result -Wno-format-truncation")
 file(COPY assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(barrel 
-     Barrel.c
-     Simon.c)
+     Barrel.c)
 
 add_executable(mode7
-     Mode7.c
-     Sin.c)
+     Mode7.c)
 
 add_executable(platformer
      Platformer.c)
@@ -51,15 +49,13 @@ add_executable(shooter
      Boss.c
      Enemy.c
      Explosion.c
-     Ship.c
-     Sin.c)
+     Ship.c)
 
 add_executable(tutorial
      Tutorial.c)
 
 add_executable(wobble
-     Wobble.c
-     Sin.c)
+     Wobble.c)
 
 add_executable(colorcycle
      ColorCycle.c)
@@ -78,6 +74,3 @@ add_executable(forest
 
 add_executable(querylayer
      QueryLayer.c)
-
-
-

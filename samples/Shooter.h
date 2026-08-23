@@ -2,7 +2,6 @@
 #define _SHOOTER_H
 
 #include "Tilengine.h"
-#include "Sin.h"
 #include "Actor.h"
 
 #define WIDTH	400

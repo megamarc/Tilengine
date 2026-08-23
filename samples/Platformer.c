@@ -36,8 +36,6 @@ RGB sky[] =
 	{0x1F, 0x7F, 0xBE},
 };
 
-static void InterpolateColor (int v, int v1, int v2, RGB* color1, RGB* color2, RGB* result);
-
 /* layers */
 enum
 {
@@ -46,18 +44,20 @@ enum
 	MAX_LAYER
 };
 
-float pos_foreground = {0};
-float pos_background[6] = {0};
-float inc_background[6] = {0};
-float speed;
-int ypos;
+/* module local vars */
+static float pos_foreground = {0};
+static float pos_background[6] = {0};
+static float inc_background[6] = {0};
+static float speed;
+static int ypos;
 
 static void raster_callback (int line);
+static void main_loop(uint32_t frame);
+static void InterpolateColor (int v, int v1, int v2, RGB* color1, RGB* color2, RGB* result);
 
 /* entry point */
 int main (int argc, char *argv[])
 {
-	int c;
 	TLN_Tilemap foreground;
 	TLN_Tilemap background;
 	TLN_SequencePack sp;
@@ -90,47 +90,9 @@ int main (int argc, char *argv[])
 	inc_background[4] = 1.0f;
 	inc_background[5] = 2.0f;
 
-	/* startup display */
+	/* create window & main loop, block until window closes */
 	TLN_CreateWindow (NULL, CWF_FULLSCREEN);
-
-	/* main loop */
-	while (TLN_ProcessWindow ())
-	{
-		if (TLN_GetInput (INPUT_RIGHT))
-		{
-			speed += 0.02f;
-			if (speed > 1.0f)
-				speed = 1.0f;
-		}
-		else if (speed > 0.0f)
-		{
-			speed -= 0.02f;
-			if (speed < 0.0f)
-				speed = 0.0f;
-		}
-			 
-		if (TLN_GetInput (INPUT_LEFT))
-		{
-			speed -= 0.02f;
-			if (speed < -1.0f)
-				speed = -1.0f;
-		}
-		else if (speed < 0.0f)
-		{
-			speed += 0.02f;
-			if (speed > 0.0f)
-				speed = 0.0f;
-		}
-
-		/* scroll */
-		pos_foreground += 3.0f*speed;
-		TLN_SetLayerPosition (LAYER_FOREGROUND, (int)pos_foreground, ypos);
-		for (c=0; c<6; c++)
-			pos_background[c] += (inc_background[c] * speed);
-
-		/* render to window */
-		TLN_DrawFrame (0);
-	}
+	TLN_SetMainTask(main_loop);
 
 	/* deinit */
 	TLN_DeleteTilemap (foreground);
@@ -139,6 +101,44 @@ int main (int argc, char *argv[])
 	TLN_Deinit ();
 
 	return 0;
+}
+
+/* main loop delegate, called every frame */
+static void main_loop(uint32_t frame)
+{
+	int c;
+	
+	if (TLN_GetInput (INPUT_RIGHT))
+	{
+		speed += 0.02f;
+		if (speed > 1.0f)
+			speed = 1.0f;
+	}
+	else if (speed > 0.0f)
+	{
+		speed -= 0.02f;
+		if (speed < 0.0f)
+			speed = 0.0f;
+	}
+		 
+	if (TLN_GetInput (INPUT_LEFT))
+	{
+		speed -= 0.02f;
+		if (speed < -1.0f)
+			speed = -1.0f;
+	}
+	else if (speed < 0.0f)
+	{
+		speed += 0.02f;
+		if (speed > 0.0f)
+			speed = 0.0f;
+	}
+
+	/* scroll */
+	pos_foreground += 3.0f * speed;
+	TLN_SetLayerPosition (LAYER_FOREGROUND, (int)pos_foreground, ypos);
+	for (c = 0; c < 6; c += 1)
+		pos_background[c] += (inc_background[c] * speed);
 }
 
 /* raster callback (virtual HBLANK) */

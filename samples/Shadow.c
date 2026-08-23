@@ -5,30 +5,24 @@
 #define HEIGHT	240
 
 /* linear interploation */
-#define lerp(x, x0,x1, fx0,fx1) \
-	(fx0 + (fx1-fx0)*(x-x0)/(x1-x0))
+static int lerp (int x, int x0, int x1, int fx0, int fx1)
+{
+	return (fx0) + ((fx1) - (fx0))*((x) - (x0))/((x1) - (x0));
+}
 
+/* RGB color descriptor */
 typedef struct
 {
 	int r,g,b;
 }
 RGB;
 
-const RGB sky[4] = 
-{
-	{0x1D, 0x44, 0x7B},
-	{0x7F, 0xA4, 0xD9},
-	{0x0B, 0x00, 0x4E},
-	{0xEB, 0x99, 0x9D},
-};
+/* sky gradient colors */
+static const RGB sky_top = {0x1b, 0x42, 0x7d};
+static const RGB sky_bottom = {0xb4, 0x95, 0xaf};
 
-RGB sky_hi;
-RGB sky_lo;
-
-static int frame;
 static int xpos;
 static const int speed = 2;
-static const int max_xpos = 4720;
 
 /* layers */
 enum
@@ -39,6 +33,7 @@ enum
 };
 
 static void raster_callback (int line);
+static void main_loop(uint32_t frame);
 
 /* entry point */
 int main (int argc, char* argv[])
@@ -49,66 +44,27 @@ int main (int argc, char* argv[])
 
 	/* setup engine */
 	TLN_Init (WIDTH, HEIGHT, 2,1,0);
-	TLN_SetBGColor (0,128,238);
 	TLN_SetRasterCallback (raster_callback);
 
 	/* load resources */
 	TLN_SetLoadPath ("assets/sotb");
 	foreground = TLN_LoadTilemap ("SOTB_fg.tmx", NULL);
 	background = TLN_LoadTilemap ("SOTB_bg.tmx", NULL);
+	spriteset = TLN_LoadSpriteset ("SOTB");	
+	
+	/* setup background layers */
 	TLN_SetLayerTilemap (LAYER_FOREGROUND, foreground);
 	TLN_SetLayerTilemap (LAYER_BACKGROUND, background);
-
-	spriteset = TLN_LoadSpriteset ("SOTB");
+	
+	/* setup main sprite & animation sequence */
 	walk = TLN_CreateSpriteSequence (NULL, spriteset, "walk", 6);
-
 	TLN_SetSpriteSet (0, spriteset);
 	TLN_SetSpritePosition (0, 200,160);
 	TLN_SetSpriteAnimation (0, walk, 0);
 	
-	xpos = 2000;
-
-	sky_hi.r = sky[0].r;
-	sky_hi.g = sky[0].g;
-	sky_hi.b = sky[0].b;
-	sky_lo.r = sky[1].r;
-	sky_lo.g = sky[1].g;
-	sky_lo.b = sky[1].b;
-
-	/* main loop */
-	TLN_CreateWindow (NULL, CWF_FULLSCREEN);
-	while (TLN_ProcessWindow ())
-	{
-		if (xpos < max_xpos)
-		{
-			xpos += speed;
-			if (xpos >= max_xpos)
-			{
-				TLN_DisableSpriteAnimation (0);
-				TLN_SetSpritePicture (0, 0);
-			}
-		}
-			
-		/* sky gradient */
-		if (frame>=300 && frame<=900)
-		{
-			/* interpolate upper color */
-			sky_hi.r = lerp (frame, 300,900, sky[0].r, sky[2].r);
-			sky_hi.g = lerp (frame, 300,900, sky[0].g, sky[2].g);
-			sky_hi.b = lerp (frame, 300,900, sky[0].b, sky[2].b);
-
-			/* interpolate lower color */
-			sky_lo.r = lerp (frame, 300,900, sky[1].r, sky[3].r);
-			sky_lo.g = lerp (frame, 300,900, sky[1].g, sky[3].g);
-			sky_lo.b = lerp (frame, 300,900, sky[1].b, sky[3].b);
-		}
-
-		TLN_SetLayerPosition (LAYER_FOREGROUND, xpos, 0);
-
-		/* render to the window */
-		TLN_DrawFrame (frame);
-		frame++;
-	}
+	/* create window & main loop, block until window closes */
+	TLN_CreateWindow(NULL, CWF_FULLSCREEN);
+	TLN_SetMainTask(main_loop);	
 
 	/* release resources */
 	TLN_DeleteSequence(walk);
@@ -119,40 +75,52 @@ int main (int argc, char* argv[])
 	return 0;
 }
 
+/* called on each scanline being rendered */
 static void raster_callback (int line)
 {
 	int pos;
 
-	/* sky color */
-	if (line < 192)
+	/* sky color: interpolate for smooth gradient */
+	if (line == 0)
+		TLN_SetBGColor (sky_top.r, sky_top.g, sky_top.b);
+	else if (line >= 96 && line < 192)
 	{
 		RGB color;
 
-		/* interpolate between upper and lower color */
-		color.r = lerp (line, 0,191, sky_hi.r, sky_lo.r);
-		color.g = lerp (line, 0,191, sky_hi.g, sky_lo.g);
-		color.b = lerp (line, 0,191, sky_hi.b, sky_lo.b);
+		/* interpolate between upper and lower gradient color */
+		color.r = lerp (line, 96,191, sky_top.r, sky_bottom.r);
+		color.g = lerp (line, 96,191, sky_top.g, sky_bottom.g);
+		color.b = lerp (line, 96,191, sky_top.b, sky_bottom.b);
 		TLN_SetBGColor (color.r, color.g ,color.b);
 	}
 
-	/* background layer */
+	/* horizontal strips in background layer */
 	pos = -1;
-	if (line==0 || line==24 || line==64 || line==88 || line==96)
+	if (line == 0 || line == 24 || line == 64 || line == 88 || line == 96)
 		pos = (int)lerp (line, 0,96, xpos*0.7f, xpos*0.2f);
-	else if (line==120)
+	else if (line == 120)
 		pos = xpos/2;
-	else if (line==208 || line==216 || line==224 || line==232)
+	else if (line == 208 || line == 216 || line == 224 || line == 232)
 		pos = (int)lerp (line, 208,232, xpos*1.0f, xpos*2.0f);
 
 	if (pos != -1)
 		TLN_SetLayerPosition (LAYER_BACKGROUND, pos, 0);
 
-	/* foreground layer */
+	/* horizontal strips in background layer */
 	pos = -1;
-	if (line==0)
+	if (line == 0)
 		pos = xpos;
-	else if (line==216)
+	else if (line == 216)
 		pos = xpos*3;
+	
 	if (pos != -1)
 		TLN_SetLayerPosition (LAYER_FOREGROUND, pos, 0);
+}
+
+/* main loop delegate, called every frame */
+static void main_loop(uint32_t frame)
+{
+	/* update foreground layer position */
+	xpos += speed;
+	TLN_SetLayerPosition (LAYER_FOREGROUND, xpos, 0);
 }

@@ -40,8 +40,9 @@ Edge;
 Edge edges[RADIUS*2];
 
 /* forward declarations */
-void raster_callback(int line);
-void setup_circle(Edge* edges, int r);
+static void main_loop(uint32_t frame);
+static void raster_callback(int line);
+static void setup_circle(Edge* edges, int r);
 
 /* entry point */
 int main(int arg, char* argv[])
@@ -58,26 +59,7 @@ int main(int arg, char* argv[])
 
 	/* create window & main loop */
 	TLN_CreateWindow(NULL, CWF_FULLSCREEN);
-	while (TLN_ProcessWindow())
-	{
-		/* change radius */
-		if (TLN_GetInput(INPUT_BUTTON1) && radius > 2)
-			radius -= 2;
-		else if (TLN_GetInput(INPUT_BUTTON2))
-			radius += 2;
-
-		/* slide */
-		if (TLN_GetInput(INPUT_LEFT))
-			x_center -= 2;
-		else if (TLN_GetInput(INPUT_RIGHT))
-			x_center += 2;
-		if (TLN_GetInput(INPUT_UP))
-			y_center -= 2;
-		else if (TLN_GetInput(INPUT_DOWN))
-			y_center += 2;
-
-		TLN_DrawFrame(0);
-	}
+	TLN_SetMainTask(main_loop);
 
 	/* release resources */
 	TLN_ReleaseWorld();
@@ -86,8 +68,28 @@ int main(int arg, char* argv[])
 	return 0;
 }
 
+/* main loop delegate, called every frame */
+static void main_loop(uint32_t frame)
+{
+	/* change radius */
+	if (TLN_GetInput(INPUT_BUTTON1) && radius > 2)
+		radius -= 2;
+	else if (TLN_GetInput(INPUT_BUTTON2))
+		radius += 2;
+
+	/* slide */
+	if (TLN_GetInput(INPUT_LEFT))
+		x_center -= 2;
+	else if (TLN_GetInput(INPUT_RIGHT))
+		x_center += 2;
+	if (TLN_GetInput(INPUT_UP))
+		y_center -= 2;
+	else if (TLN_GetInput(INPUT_DOWN))
+		y_center += 2;
+}
+
 /* auxiliar for Bresenham's setup_circle() */
-void setup_edge(Edge* edges, int xc, int yc, int x, int y)
+static void setup_edge(Edge* edges, int xc, int yc, int x, int y)
 {
 	edges[yc+y].x1 = edges[yc-y].x1 = xc - x;
 	edges[yc+y].x2 = edges[yc-y].x2 = xc + x;
@@ -98,7 +100,7 @@ void setup_edge(Edge* edges, int xc, int yc, int x, int y)
 /* Bresenham circle: 
 	https://www.geeksforgeeks.org/bresenhams-circle-drawing-algorithm/ 
 */
-void setup_circle(Edge* edges, int r)
+static void setup_circle(Edge* edges, int r)
 {
 	int x = 0, y = r;
 	int d = 3 - 2 * r;
@@ -118,13 +120,13 @@ void setup_circle(Edge* edges, int r)
 }
 
 /* linear scaling */
-int scale(int x, int fx0, int fx1)
+static int scale(int x, int fx0, int fx1)
 {
 	return (x * fx1) / fx0;
 }
 
 /* called for every scanline. Updates layer window with scaled circle edges */
-void raster_callback(int line)
+static void raster_callback(int line)
 {
 	const int y1 = y_center - radius;
 	const int y2 = y_center + radius;

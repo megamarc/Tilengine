@@ -12,13 +12,16 @@ enum
 	MAX_LAYER
 };
 
+int player_x = -16;
+int player_y = 160;
+
+static void main_loop(uint32_t frame);
+
 int main (int argc, char* argv[])
 {
 	TLN_Sequence seq_walking;
 	TLN_Spriteset spriteset;
 	TLN_Tilemap foreground, background;
-	int player_x = -16;
-	int player_y = 160;
 
 	/* basic setup */
 	TLN_Init (WIDTH, HEIGHT, MAX_LAYER,1,0);
@@ -43,16 +46,9 @@ int main (int argc, char* argv[])
 	seq_walking = TLN_CreateSpriteSequence (NULL, spriteset, "walking", 6);
 	TLN_SetSpriteAnimation (0, seq_walking, 0);
 
-	/* main loop */
-	TLN_CreateWindow (NULL, CWF_FULLSCREEN);
-	while (TLN_ProcessWindow())
-	{
-		player_x += 1;
-		if (player_x >= WIDTH)
-			player_x = -16;
-		TLN_SetSpritePosition (0, player_x, player_y);
-		TLN_DrawFrame (0);
-	}
+	/* create window & main loop, block until window closes */
+	TLN_CreateWindow(NULL, CWF_FULLSCREEN);
+	TLN_SetMainTask(main_loop);
 
 	/* deinit */
 	TLN_DeleteTilemap (foreground);
@@ -60,4 +56,13 @@ int main (int argc, char* argv[])
 	TLN_Deinit ();
 
 	return 0;
+}
+
+/* main loop delegate, called every frame */
+static void main_loop(uint32_t frame)
+{
+	player_x += 1;
+	if (player_x >= WIDTH)
+		player_x = -16;
+	TLN_SetSpritePosition (0, player_x, player_y);
 }

@@ -41,44 +41,23 @@ int window_width = HRES - 128;
 int window_height = VRES - 96;
 
 /* forward declarations */
-TLN_Input get_press(void);
-void update_window(void);
+static TLN_Input get_press(void);
+static void main_loop(uint32_t frame);
+static void update_window(void);
 
 /* entry point */
 int main(int arg, char* argv[])
 {
 	/* init & load assets */ 
-	TLN_Init(HRES, VRES, NUM_LAYERS, 0, CWF_FULLSCREEN);
+	TLN_Init(HRES, VRES, NUM_LAYERS, 0, 0);
 	TLN_SetLoadPath("assets/shots");
 	TLN_SetLayerBitmap(LAYER_FOREGROUND, TLN_LoadBitmap("zss1.png"));
 	TLN_SetLayerBitmap(LAYER_BACKGROUND, TLN_LoadBitmap("zss2.png"));
 	update_window();
 
 	/* create window & main loop */
-	TLN_CreateWindow(NULL, 0);
-	while (TLN_ProcessWindow())
-	{
-		TLN_Input input = get_press();
-		if (input == INPUT_BUTTON1)
-			state.invert ^= 1;
-		else if (input == INPUT_BUTTON2)
-			state.color ^= 1;
-		else if (input == INPUT_BUTTON3)
-			state.blend ^= 1;
-
-		/* move window with d-pad */
-		if (TLN_GetInput(INPUT_LEFT))
-			window_x -= 2;
-		else if (TLN_GetInput(INPUT_RIGHT))
-			window_x += 2;
-		if (TLN_GetInput(INPUT_UP))
-			window_y -= 2;
-		else if (TLN_GetInput(INPUT_DOWN))
-			window_y += 2;
-		update_window();
-
-		TLN_DrawFrame(0);
-	}
+	TLN_CreateWindow(NULL, CWF_FULLSCREEN);
+	TLN_SetMainTask(main_loop);
 
 	/* release resources */
 	TLN_ReleaseWorld();
@@ -87,8 +66,31 @@ int main(int arg, char* argv[])
 	return 0;
 }
 
+/* main loop delegate, called every frame */
+static void main_loop(uint32_t frame)
+{
+	TLN_Input input = get_press();
+	if (input == INPUT_BUTTON1)
+		state.invert ^= 1;
+	else if (input == INPUT_BUTTON2)
+		state.color ^= 1;
+	else if (input == INPUT_BUTTON3)
+		state.blend ^= 1;
+
+	/* move window with d-pad */
+	if (TLN_GetInput(INPUT_LEFT))
+		window_x -= 2;
+	else if (TLN_GetInput(INPUT_RIGHT))
+		window_x += 2;
+	if (TLN_GetInput(INPUT_UP))
+		window_y -= 2;
+	else if (TLN_GetInput(INPUT_DOWN))
+		window_y += 2;
+	update_window();
+}
+
 /* returns button press event */
-TLN_Input get_press(void)
+static TLN_Input get_press(void)
 {
 	static TLN_Input last = INPUT_NONE;
 	TLN_Input input = INPUT_NONE;
@@ -109,7 +111,7 @@ TLN_Input get_press(void)
 }
 
 /* updates layer window properties */
-void update_window(void)
+static void update_window(void)
 {
 	TLN_SetLayerWindow(LAYER_FOREGROUND, window_x, window_y, window_x + window_width, window_y + window_height, state.invert);
 	if (state.color)

@@ -36,6 +36,7 @@ static int xpos, ypos;
 static int scale;
 
 static void raster_callback (int line);
+static void main_loop(uint32_t frame);
 
 /* entry point */
 int main (int argc, char* argv[])
@@ -59,48 +60,9 @@ int main (int argc, char* argv[])
 	ypos = 192;
 	scale = 100;
 	
-	/* main loop */
-	TLN_CreateWindow (NULL, CWF_FULLSCREEN);
-	while (TLN_ProcessWindow ())
-	{
-		float fgscale;
-		float bgscale;
-		int bgypos;
-		int maxy;
-
-		/* user input */
-		if (TLN_GetInput (INPUT_LEFT))
-			xpos--;
-		if (TLN_GetInput (INPUT_RIGHT))
-			xpos++;
-		if (TLN_GetInput (INPUT_UP) && ypos > 0)
-			ypos--;
-		if (TLN_GetInput (INPUT_DOWN))
-			ypos++;
-		if (TLN_GetInput (INPUT_A) && scale < MAX_SCALE)
-			scale += 1;
-		if (TLN_GetInput (INPUT_B) && scale > MIN_SCALE)
-			scale -= 1;
-
-		/* calculate scale factor from fixed point base */
-		fgscale = (float)scale/100.0f;
-		bgscale = lerp((float)scale, MIN_SCALE,MAX_SCALE, 0.75f,1.5f);
-
-		/* scale dependant lower clipping */
-		maxy = 640 - (240*100/scale);
-		if (ypos > maxy)
-			ypos = maxy;
-		
-		/* update position */
-		bgypos = lerp(scale,MIN_SCALE,MAX_SCALE, 0,80);
-		TLN_SetLayerPosition (LAYER_FOREGROUND, xpos*2, ypos);
-		TLN_SetLayerPosition (LAYER_BACKGROUND, xpos, bgypos);
-		TLN_SetLayerScaling (LAYER_FOREGROUND, fgscale, fgscale);
-		TLN_SetLayerScaling (LAYER_BACKGROUND, bgscale, bgscale);
-
-		/* render to the window */
-		TLN_DrawFrame (0);
-	}
+	/* create window & main loop, block until window closes */
+	TLN_CreateWindow(NULL, CWF_FULLSCREEN);
+	TLN_SetMainTask(main_loop);	
 
 	/* release resources */
 	TLN_DeleteTilemap (foreground);
@@ -121,4 +83,43 @@ static void raster_callback (int line)
 		color.b = lerp (line, 0,152, sky[0].b, sky[1].b);
 		TLN_SetBGColor (color.r, color.g, color.b);
 	}
+}
+
+/* main loop delegate, called every frame */
+static void main_loop(uint32_t frame)
+{
+	float fgscale;
+	float bgscale;
+	int bgypos;
+	int maxy;
+
+	/* user input */
+	if (TLN_GetInput (INPUT_LEFT))
+		xpos -= 1;
+	if (TLN_GetInput (INPUT_RIGHT))
+		xpos += 1;
+	if (TLN_GetInput (INPUT_UP) && ypos > 0)
+		ypos -= 1;
+	if (TLN_GetInput (INPUT_DOWN))
+		ypos += 1;
+	if (TLN_GetInput (INPUT_A) && scale < MAX_SCALE)
+		scale += 1;
+	if (TLN_GetInput (INPUT_B) && scale > MIN_SCALE)
+		scale -= 1;
+
+	/* calculate scale factor from fixed point base */
+	fgscale = (float)scale/100.0f;
+	bgscale = lerp((float)scale, MIN_SCALE,MAX_SCALE, 0.75f,1.5f);
+
+	/* scale dependant lower clipping */
+	maxy = 640 - (240*100/scale);
+	if (ypos > maxy)
+		ypos = maxy;
+	
+	/* update position */
+	bgypos = lerp(scale,MIN_SCALE,MAX_SCALE, 0,80);
+	TLN_SetLayerPosition (LAYER_FOREGROUND, xpos*2, ypos);
+	TLN_SetLayerPosition (LAYER_BACKGROUND, xpos, bgypos);
+	TLN_SetLayerScaling (LAYER_FOREGROUND, fgscale, fgscale);
+	TLN_SetLayerScaling (LAYER_BACKGROUND, bgscale, bgscale);	
 }
