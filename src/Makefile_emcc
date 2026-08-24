@@ -1,0 +1,29 @@
+CC       = emcc
+RM		 = del /Q
+SOURCES  = $(filter-out Test.c,$(wildcard *.c))
+OBJECTS  = $(SOURCES:.c=.o)
+INCPATH  = ../include
+BIN  = libTilengine.a
+LIBPATH = ..\lib\emcc
+LIBS = -lz -lpng -lTilengine
+	
+# common flags
+CFLAGS += -I$(INCPATH) -O1 -s USE_LIBPNG=1 -s USE_SDL=2
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(BIN) all-after
+
+clean: clean-custom
+	${RM} $(OBJECTS) $(BIN) $(LIBPATH)\$(BIN) Test.*
+
+$(BIN): $(OBJECTS)
+	emar r $(BIN) $(OBJECTS)
+	copy $(BIN) $(LIBPATH)
+
+Test: Test.c
+	$(RM) Test.o Test
+	$(CC) Test.c -o Test.html -I$(INCPATH) -L$(LIBPATH) -L$(LIBS)
+
+%.o: %.c
+	$(CC) -c $(CFLAGS) $<
