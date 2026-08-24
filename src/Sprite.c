@@ -25,25 +25,6 @@
 
 static void SelectSpriteBlitter (Sprite* sprite);
 
-/*!
- * \deprecated use \ref TLN_SetSpriteSet and \ref TLN_EnableSpriteFlag
- * \brief
- * Configures a sprite, setting spriteset and flags at once
- * 
- * \param nsprite
- * Id of the sprite [0, num_sprites - 1]
- * 
- * \param spriteset
- * Reference of the spriteset containing the graphics to set
- * 
- * \param flags
- * Can be 0 or a combination of FLAG_FLIPX and FLAG_FLIPY
- *
- * \remarks
- * This function also assigns the palette of the spriteset
- * \see
- * TLN_SetSpritePicture()
- */
 bool TLN_ConfigSprite (int nsprite, TLN_Spriteset spriteset, uint32_t flags)
 {
 	return 
@@ -51,22 +32,6 @@ bool TLN_ConfigSprite (int nsprite, TLN_Spriteset spriteset, uint32_t flags)
 		TLN_SetSpriteFlags (nsprite, flags);
 }
 
-/*!
- * \brief
- * Assigns the spriteset and its palette to a given sprite
- * 
- * \param nsprite
- * Id of the sprite [0, num_sprites - 1]
- * 
- * \param spriteset
- * Reference of the spriteset containing the graphics to set
- * 
- * \remarks
- * This function also assigns the palette of the spriteset and resets pivot to top left corner (default)
- * 
- * \see
- * TLN_SetSpritePicture()
- */
 bool TLN_SetSpriteSet (int nsprite, TLN_Spriteset spriteset)
 {
 	Sprite *sprite;
@@ -100,17 +65,6 @@ bool TLN_SetSpriteSet (int nsprite, TLN_Spriteset spriteset)
 	return sprite->ok;
 }
 
-/*!
- * \deprecated Use \ref TLN_EnableSpriteFlag to enable or disable individual flags
- * \brief
- * Sets flags for a given sprite
- * 
- * \param nsprite
- * Id of the sprite [0, num_sprites - 1]
- * 
- * \param flags
- * Can be 0 or a combination of TLN_TileFlags
- */
 bool TLN_SetSpriteFlags (int nsprite, uint32_t flags)
 {
 	if (nsprite >= engine->numsprites)
@@ -124,12 +78,6 @@ bool TLN_SetSpriteFlags (int nsprite, uint32_t flags)
 	return true;
 }
 
-/*!
- * \brief Enables or disables specified flag for a sprite
- * \param nsprite of the sprite [0, num_sprites - 1]
- * \param flag flag (or combination of flags) to modfy
- * \param enable true for enable, false for disable
-*/
 bool TLN_EnableSpriteFlag(int nsprite, uint32_t flag, bool enable)
 {
 	if (nsprite >= engine->numsprites)
@@ -147,27 +95,6 @@ bool TLN_EnableSpriteFlag(int nsprite, uint32_t flag, bool enable)
 	return true;
 }
 
-/*!
- * \brief
- * Sets the sprite position in screen space
- * 
- * \param nsprite
- * Id of the sprite [0, num_sprites - 1]
- * 
- * \param x
- * Horizontal position of pivot (0 = left margin)
- * 
- * \param y
- * Vertical position of pivot (0 = top margin)
- *
- * \remarks
- * Call this function inside a raster callback to so some vertical distortion effects
- * (fake scaling) or sprite multiplexing (reusing a single sprite at different screen heights).
- * This technique was used by some 8 bit games, with very few hardware sprites, to draw much more
- * sprites in the screen, as long as they don't overlap vertically
- * 
- * \sa TLN_SetSpritePivot
- */
 bool TLN_SetSpritePosition (int nsprite, int x, int y)
 {
 	Sprite *sprite;
@@ -186,19 +113,6 @@ bool TLN_SetSpritePosition (int nsprite, int x, int y)
 	return true;
 }
 
-/*!
- * \brief
- * Sets the actual graphic to the sprite
- * 
- * \param nsprite
- * Id of the sprite [0, num_sprites - 1]
- * 
- * \param entry
- * Index of the actual picture inside the srpteset to assign (0 <= entry < num_spriteset_graphics)
- * 
- * \see
- * TLN_SetSpriteSet()
- */
 bool TLN_SetSpritePicture (int nsprite, int entry)
 {
 	Sprite *sprite;
@@ -222,16 +136,6 @@ bool TLN_SetSpritePicture (int nsprite, int entry)
 	return true;
 }
 
-/*!
- * \brief
- * Assigns a palette to a sprite
- * 
- * \param nsprite
- * Id of the sprite [0, num_sprites - 1]
- * 
- * \param palette
- * Reference of the palete to assign
- */
 bool TLN_SetSpritePalette (int nsprite, TLN_Palette palette)
 {
 	Sprite *sprite;
@@ -251,19 +155,6 @@ bool TLN_SetSpritePalette (int nsprite, TLN_Palette palette)
 	return true;
 }
 
-/*!
- * \brief
- * Gets the palette assigned to a given sprite
- * 
- * \param nsprite
- * Id of the sprite to query (0 <= id < max_sprites)
- * 
- * \returns
- * Reference to the sprite palette
- * 
- * \see
- * TLN_SetSpritePalette(), TLN_SetSpriteSet()
- */
 TLN_Palette TLN_GetSpritePalette (int nsprite)
 {
 	if (nsprite >= engine->numsprites)
@@ -276,12 +167,6 @@ TLN_Palette TLN_GetSpritePalette (int nsprite)
 	return engine->sprites[nsprite].palette;
 }
 
-/* 
-* \brief returns sprite's horizontal position 
-* \param nsprite Sprite index to query
-* \returns x position
-* \see TLN_SetSpritePosition()
-*/
 int TLN_GetSpriteX(int nsprite)
 {
 	if (nsprite >= engine->numsprites)
@@ -294,12 +179,6 @@ int TLN_GetSpriteX(int nsprite)
 	return engine->sprites[nsprite].x;
 }
 
-/*
-* \brief returns sprite's vertical position
-* \param nsprite Sprite index to query
-* \returns y position
-* \see TLN_SetSpritePosition()
-*/
 int TLN_GetSpriteY(int nsprite)
 {
 	if (nsprite >= engine->numsprites)
@@ -312,22 +191,6 @@ int TLN_GetSpriteY(int nsprite)
 	return engine->sprites[nsprite].y;
 }
 
-/*!
- * \brief
- * Sets the blending mode (transparency effect)
- * 
- * \param nsprite
- * Id of the sprite [0, num_sprites - 1]
- * 
- * \param mode
- * Member of the TLN_Blend enumeration
- * 
- * \param factor
- * Deprecated as of 1.12, left for backwards compatibility but doesn't have effect.
- * 
- * \see
- * Blending
- */
 bool TLN_SetSpriteBlendMode (int nsprite, TLN_Blend mode, uint8_t factor)
 {
 	Sprite *sprite;
@@ -345,29 +208,6 @@ bool TLN_SetSpriteBlendMode (int nsprite, TLN_Blend mode, uint8_t factor)
 	return true;
 }
 
-/*!
- * \brief
- * Sets the scaling factor of the sprite
- * 
- * \param nsprite
- * Id of the sprite [0, num_sprites - 1]
- * 
- * \param sx
- * Horizontal scale factor
- * 
- * \param sy
- * Vertical scale factor
- * 
- * By default the scaling factor of a given sprite is 1.0f, 1.0f, which means
- * no scaling. Use values below 1.0 to downscale (shrink) and above 1.0 to upscale (enlarge).
- * Call TLN_ResetScaling() to disable scaling
- * 
- * \remarks
- * The rendering of a sprite with scaling enabled requires somewhat more CPU power than a regular sprite.
- * 
- * \see
- * TLN_ResetSpriteScaling()
- */
 bool TLN_SetSpriteScaling (int nsprite, float sx, float sy)
 {
 	Sprite *sprite;
@@ -387,16 +227,6 @@ bool TLN_SetSpriteScaling (int nsprite, float sx, float sy)
 	return true;
 }
 
-/*!
- * \brief
- * Disables scaling for a given sprite
- * 
- * \param nsprite
- * Id of the sprite [0, num_sprites - 1]
- * 
- * \see
- * TLN_SetSpriteScaling()
- */
 bool TLN_ResetSpriteScaling (int nsprite)
 {
 	Sprite *sprite;
@@ -575,16 +405,6 @@ bool TLN_ResetSpriteRotation(int nsprite)
 
 #endif
 
-/*!
- * \brief
- * Returns the index of the assigned picture from the spriteset
- * 
- * \param nsprite
- * Id of the sprite [0, num_sprites - 1]
- * 
- * \see
- * TLN_SetSpritePicture()
- */
 int TLN_GetSpritePicture (int nsprite)
 {
 	if (nsprite >= engine->numsprites)
@@ -597,13 +417,6 @@ int TLN_GetSpritePicture (int nsprite)
 	return engine->sprites[nsprite].index;
 }
 
-/*!
- * \brief
- * Finds an available (unused) sprite
- * 
- * \returns
- * Index of the first unused sprite (starting from 0) or -1 if none found
- */
 int TLN_GetAvailableSprite(void)
 {
 	int c;
@@ -617,26 +430,6 @@ int TLN_GetAvailableSprite(void)
 	return -1;
 }
 
-/*!
- * \brief
- * Enable sprite collision checking at pixel level
- *
- * \param nsprite
- * Id of the sprite [0, num_sprites - 1]
- *
- * \param enable
- * Set true to enable o false to disable (default value)
- *
- * \remarks
- * Only sprites that have collision enabled are checked between them,
- * so to detect a collision between two sprites, both of them must
- * have collision detection enabled. Processing collision detection
- * sprites take more a bit more CPU time compared to non-colliding sprites, so
- * by default it is disabled on all sprites.
- *
- * \see
- * TLN_GetSpriteCollision()
- */
 bool TLN_EnableSpriteCollision(int nsprite, bool enable)
 {
 	if (nsprite >= engine->numsprites)
@@ -649,22 +442,6 @@ bool TLN_EnableSpriteCollision(int nsprite, bool enable)
 	return true;
 }
 
-/*!
- * \brief
- * Gets the collision status of a given sprite
- *
- * \param nsprite
- * Id of the sprite [0, num_sprites - 1]
- *
- * \returns
- * Tue if this sprite is involved in a collision with another sprite
- *
- * \remarks
- * Collision detection must be enabled for the sprite to get checked
- *
- * \see
- * TLN_EnableSpriteCollision()
- */
 bool TLN_GetSpriteCollision(int nsprite)
 {
 	if (nsprite >= engine->numsprites)
@@ -676,17 +453,6 @@ bool TLN_GetSpriteCollision(int nsprite)
 	return engine->sprites[nsprite].collision;
 }
 
-/*!
- * \brief
- * Disables the sprite so it is not drawn
- *
- * \param nsprite
- * Id of the sprite [0, num_sprites - 1]
- *
- * \remarks
- * A sprite is also automatically disabled when assigned with an invalid spriteste or palette. Disabled
- * sprites are returned by the function TLN_GetAvailableSprite as available
- */
 bool TLN_DisableSprite(int nsprite)
 {
 	Sprite* sprite;
@@ -714,16 +480,6 @@ bool TLN_DisableSprite(int nsprite)
 	return true;
 }
 
-/*!
- * \brief
- * Returns runtime info about a given sprite
- * 
- * \param nsprite
- * Id of the sprite [0, num_sprites - 1]
- * 
- * \param state
- * Pointer to a user-allocated TLN_SpriteState structure to fill with requested data
- */
 TLNAPI bool TLN_GetSpriteState(int nsprite, TLN_SpriteState* state)
 {
 	Sprite* sprite;
@@ -763,10 +519,6 @@ TLNAPI bool TLN_GetSpriteState(int nsprite, TLN_SpriteState* state)
 	return true;
 }
 
-/*!
- * \brief Sets the first sprite drawn (beginning of list)
- * \param nsprite Id of the sprite [0, num_sprites - 1]. Must be enabled (visible)
- */
 bool TLN_SetFirstSprite(int nsprite)
 {
 	Sprite* sprite;
@@ -799,11 +551,6 @@ bool TLN_SetFirstSprite(int nsprite)
 	return true;
 }
 
-/*!
- * \brief Sets the next sprite to draw after a given sprite, builds list
- * \param nsprite Id of the sprite [0, num_sprites - 1]. Must be enabled (visible)
- * \param next Id of the sprite to draw after Id [0, num_sprites - 1]. Must be enabled (visible)
- */
 bool TLN_SetNextSprite(int nsprite, int next)
 {
 	List* list;
@@ -841,12 +588,6 @@ bool TLN_SetNextSprite(int nsprite, int next)
 	return true;
 }
 
-/*!
- * \deprecated, use \ref TLN_EnableSpriteFlag (nsprite, FLAG_MASKED, enable)
- * \brief Enables or disables masking for this sprite, if enabled it won't be drawn inside the region set up with TLN_SetSpritesMaskRegion()
- * \param nsprite Id of the sprite to mask [0, num_sprites - 1].
- * \param enable Enables (true) or disables (false) masking
- */
 bool TLN_EnableSpriteMasking(int nsprite, bool enable)
 {
 	return TLN_EnableSpriteFlag(nsprite, FLAG_MASKED, enable);
@@ -861,13 +602,6 @@ static void nclamp(float* v)
 		*v = 1.0f;
 }
 
-/*!
- * \brief Sets sprite pivot point. By default is at (0,0) = top left corner
- * \param nsprite Id of the sprite [0, num_sprites - 1]
- * \param px horizontal normalized value (0.0 = full left, 1.0 = full right)
- * \param py vertical normalized value (0.0 = full top, 1.0 = full bottom)
- * \remarks Sprite pivot is reset automatically to default position after changing the spriteset
-*/
 bool TLN_SetSpritePivot(int nsprite, float px, float py)
 {
 	Sprite* sprite;
@@ -886,11 +620,6 @@ bool TLN_SetSpritePivot(int nsprite, float px, float py)
 	return true;
 }
 
-/*!
- * \brief Defines a sprite masking region between the two scanlines. Sprites masked with TLN_EnableSpriteMasking() won't be drawn inside this region.
- * \param top_line Top scaline where masking starts
- * \param bottom_line Bottom scaline where masking ends
- */
 void TLN_SetSpritesMaskRegion(int top_line, int bottom_line)
 {
 	engine->sprite_mask_top = top_line;

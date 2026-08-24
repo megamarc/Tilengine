@@ -109,15 +109,6 @@ static TLN_SpriteData* load_json(const char* filename, int* num_entries)
 	return data;
 }
 
-/*!
- * \brief Loads a spriteset from an image png and its associated atlas descriptor
- * \param name Base name of the files containing the spriteset, with or without .png extension
- * \returns Reference to the newly loaded spriteset or NULL if error
- * 
- * \remarks
- * The spriteset comes in a pair of files: an image file (bmp or png) and a standarized atlas descriptor (json, csv or txt)
- * The supported json format is the array.
- */
 TLN_Spriteset TLN_LoadSpriteset (const char* name)
 {
 	FileInfo fileinfo = { 0 };

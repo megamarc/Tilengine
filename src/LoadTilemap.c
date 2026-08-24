@@ -150,24 +150,6 @@ static TLN_Tileset load_tileset(TMXInfo* info, const char* filename, int index)
 	return TLN_LoadTileset(tsxpath);
 }
 
-/*!
- * \brief
- * Loads a tilemap layer from a Tiled .tmx file
- * 
- * \param filename
- * TMX file with the tilemap
- *
- * \param layername
- * Optional name of the layer inside the tmx file to load. NULL to load the first layer
- * 
- * \returns
- * Reference to the newly loaded tilemap or NULL if error
- *
- * \remarks
- * A tmx map file from Tiled can contain one or more layers, each with its own name. TLN_LoadTilemap()
- * doesn't load a full tmx file, only the specified layer. The associated *external* tileset (TSX file) is
- * also loaded and associated to the tilemap
- */
 TLN_Tilemap TLN_LoadTilemap (const char *filename, const char *layername)
 {
 	SimpleXmlParser parser;

@@ -28,13 +28,6 @@ struct
 }
 static assets[MAX_ASSETS] = { 0 };
 
-/*!
- * \brief
- * Sets base path for TLN_LoadXXX functions.
- * 
- * \param path
- * Base path. Files will load at path/filename. Can be NULL
- */
 void TLN_SetLoadPath (const char* path)
 {
 	size_t trailing;
@@ -52,29 +45,12 @@ void TLN_SetLoadPath (const char* path)
 		localpath[trailing] = 0;
 }
 
-/*!
- * \brief Open the resource package with optional aes-128 key and binds it
- * \param filename file with the resource package (.dat extension)
- * \param key optional null-terminated ASCII string with aes decryption key
- * \return true if package opened and made current, or false if error
- * \remarks
- * When the package is opened, it's globally bind to all TLN_LoadXXX functions. 
- * The assets inside the package are indexed with their original path/file as when 
- * they were plain files. As long as the structure used to build the package
- * matches the original structure of the assets, the TLN_SetLoadPath() and the TLN_LoadXXX
- * functions will work transparently, easing the migration with minimal changes.
- * \sa TLN_CloseResourcePack
- */
 bool TLN_OpenResourcePack(const char* filename, const char* key)
 {
 	respack = ResPack_Open(filename, key);
 	return respack != NULL;
 }
 
-/*!
- * \brief Closes current resource package and unbinds it 
- * \sa TLN_OpenResourcePack
- */
 void TLN_CloseResourcePack(void)
 {
 	if (respack != NULL)

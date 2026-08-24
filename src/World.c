@@ -11,11 +11,6 @@
 static TMXInfo tmxinfo;
 static int first;
 
-/*!
- * \brief Loads and assigns complete TMX file
- * \param filename TMX file to load
- * \param first_layer Starting layer number where place the loaded tmx
- */
 bool TLN_LoadWorld(const char* filename, int first_layer)
 {
 	int c;
@@ -95,9 +90,6 @@ bool TLN_LoadWorld(const char* filename, int first_layer)
 	return true;
 }
 
-/*! 
- * \brief Releases world resources loaded with TLN_LoadWorld 
- */
 void TLN_ReleaseWorld(void)
 {
 	int c;
@@ -129,12 +121,6 @@ void TLN_ReleaseWorld(void)
 	}
 }
 
-/*!
- * \brief Sets layer parallax factor to use in conjunction with \ref TLN_SetWorldPosition
- * \param nlayer Layer index [0, num_layers - 1]
- * \param x Horizontal parallax factor
- * \param y Vertical parallax factor
- */
 bool TLN_SetLayerParallaxFactor(int nlayer, float x, float y)
 {
 	Layer *layer;
@@ -152,11 +138,6 @@ bool TLN_SetLayerParallaxFactor(int nlayer, float x, float y)
 	return true;
 }
 
-/*!
- * \brief Sets global world position, moving all layers in sync according to their parallax factor
- * \param x horizontal position in world space
- * \param y vertical position in world space
- */
 void TLN_SetWorldPosition(int x, int y)
 {
 	engine->xworld = x;
@@ -164,13 +145,6 @@ void TLN_SetWorldPosition(int x, int y)
 	engine->dirty = true;
 }
 
-/*!
- * \brief Sets the sprite position in world space coordinates
- * \param nsprite Id of the sprite [0, num_sprites - 1]
- * \param x Horizontal world position of pivot (0 = left margin)
- * \param y Vertical world position of pivot (0 = top margin)
- * \sa TLN_SetSpritePivot
- */
 bool TLN_SetSpriteWorldPosition(int nsprite, int x, int y)
 {
 	Sprite *sprite;

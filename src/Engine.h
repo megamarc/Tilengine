@@ -45,8 +45,8 @@ typedef struct Engine
 	TLN_Palette palettes[NUM_PALETTES];	/* optional global palettes */
 	ScanBlitPtr	blit_fast;		/* blitter for background bitmap */
 	uint8_t*	blend_table;	/* current blending table */
-	void		(*cb_raster)(int);	/* raster callback */
-	void		(*cb_frame)(int);	/* frame callback */
+	TLN_VideoCallback cb_raster;/* raster callback */
+	TLN_VideoCallback cb_frame;	/* frame callback */
 	int			frame;			/* current frame number */
 	int			line;			/* current scanline */
 	int			target_fps;

@@ -188,19 +188,6 @@ static TLN_Bitmap Convert32ToIndexed(TLN_Bitmap source)
 	return bitmap;
 }
 
-/*!
- * \brief
- * Load image file (8-bit BMP or PNG)
- * 
- * \param filename
- * File name with the image
- * 
- * \returns
- * Handler to the loaded image or NULL if error
- * 
- * \see
- * TLN_DeleteBitmap()
- */
 TLN_Bitmap TLN_LoadBitmap (const char* filename)
 {
 	TLN_Bitmap bitmap;

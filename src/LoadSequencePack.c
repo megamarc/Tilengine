@@ -135,24 +135,6 @@ static void* handler (SimpleXmlParser parser, SimpleXmlEvent evt,
 	return handler;
 }
 
-/*!
- * \brief
- * Loads a sqx file containing one or more sequences
- * 
- * \param filename
- * SQX filename with the sequences to load
- * 
- * \returns
- * Reference to the newly created TLN_SequencePack() or NULL if error
- *
- * \remarks
- * A SQX file can contain many sequences. This function loads all of them
- * inside a single TLN_SequencePack(). Individual sequences can be later
- * queried with TLN_FindSequence() 
- *
- * \see
- * TLN_FindSequence()
- */
 TLN_SequencePack TLN_LoadSequencePack (const char* filename)
 {
 	SimpleXmlParser parser;

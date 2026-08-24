@@ -107,16 +107,6 @@ void UpdateAnimation(Animation* animation, int time)
 	}
 }
 
-/**
- * \brief
- * Checks the state of the animation for given sprite
- * 
- * \param index
- * Id of the sprite to check (0 <= id < num_sprites)
- * 
- * \returns
- * true if animation is running, false if it's finished or inactive
- */
 bool TLN_GetAnimationState (int index)
 {
 	if (index >= engine->numsprites)
@@ -129,22 +119,6 @@ bool TLN_GetAnimationState (int index)
 	return engine->sprites[index].animation.enabled;
 }
 
-/*!
- * \brief
- * Starts a palette animation
- * 
- * \param index
- * Id of the animation to set (0 <= id < num_animations)
- * 
- * \param palette
- * Reference of the palette to be animated
- * 
- * \param sequence
- * Reference of the sequence to assign
- * 
- * \param blend
- * true for smooth frame interpolation, false for classic, discrete mode
- */
 bool TLN_SetPaletteAnimation (int index, TLN_Palette palette, TLN_Sequence sequence, bool blend)
 {
 	Animation* animation = NULL;
@@ -189,20 +163,6 @@ bool TLN_SetPaletteAnimation (int index, TLN_Palette palette, TLN_Sequence seque
 	return true;
 }
 
-/*!
- * \brief
- * Sets the source palette of a color cycle animation
- * 
- * \param index
- * Id of the animation to set (0 <= id < num_animations)
- * 
- * \param palette
- * Reference of the palette to assign
- * 
- * \remarks
- * Use this function to change the palette assigned to a color cycle animation running.
- * This is useful to combine color cycling and palette interpolation at the same time
- */
 bool TLN_SetPaletteAnimationSource (int index, TLN_Palette palette)
 {
 	Animation* animation = NULL;
@@ -246,28 +206,12 @@ bool SetTilesetAnimation(TLN_Tileset tileset, int index, TLN_Sequence sequence)
 	return true;
 }
 
-/*!
- * \brief
- * Starts a sprite animation
- * 
- * \param nsprite
- * If of the sprite to animate (0 <= id < num_sprites)
- * 
- * \param sequence
- * Reference of the sequence to assign
- * 
- * \param loop
- * amount of times to loop, 0=infinite
- * 
- * \see
- * Animations
- */
-bool TLN_SetSpriteAnimation (int nsprite, TLN_Sequence sequence, int loop)
+bool TLN_SetSpriteAnimation (int index, TLN_Sequence sequence, int loop)
 {
 	Sprite* sprite;
 	Animation* animation = NULL;
 	
-	if (nsprite >= engine->numsprites)
+	if (index >= engine->numsprites)
 	{
 		TLN_SetLastError (TLN_ERR_IDX_SPRITE);
 		return false;
@@ -277,33 +221,16 @@ bool TLN_SetSpriteAnimation (int nsprite, TLN_Sequence sequence, int loop)
 	if (!CheckBaseObject (sequence, OT_SEQUENCE))
 		return false;
 	
-	sprite = &engine->sprites[nsprite];
+	sprite = &engine->sprites[index];
 	animation = &sprite->animation;
 	SetAnimation (animation, sequence, TYPE_SPRITE);
-	animation->nsprite = nsprite;
+	animation->nsprite = index;
 	animation->loop = loop;
 
 	TLN_SetLastError (TLN_ERR_OK);
 	return true;
 }
 
-/*!
- * \brief
- * Sets animation delay for single frame of given sprite animation
- *
- * \param index
- * Id of the sprite with animation (0 <= id < num_sprites)
- *
- * \param frame
- * Id of animation frame to change delay in (0 <= id < sequence->count)
- *
- * \param delay
- * New animation frame delay to set
- *
- * \see
- * Animations
- *
- */
 bool TLN_SetAnimationDelay(int index, int frame, int delay)
 {
 	Animation* animation;
@@ -330,13 +257,6 @@ bool TLN_SetAnimationDelay(int index, int frame, int delay)
 	return true;
 }
 
-/*!
- * \brief
- * Finds an available (unused) animation
- * 
- * \returns
- * Index of the first unused animation (starting from 0) or -1 if none found
- */
 int TLN_GetAvailableAnimation (void)
 {
 	int c;
@@ -350,16 +270,6 @@ int TLN_GetAvailableAnimation (void)
 	return -1;
 }
 
-/*!
- * \brief
- * Disables the color cycle animation so it stops playing
- * 
- * \param index
- * Id of the animation to set (0 <= id < num_animations)
- * 
- * \see
- * Animations
- */
 bool TLN_DisablePaletteAnimation (int index)
 {
 	Animation* animation;
@@ -407,32 +317,16 @@ static bool enableTilesetAnimation(TLN_Tileset tileset, int index, bool enable)
 	return true;
 }
 
-/*! \brief Pauses animation for the given tileset
- * \param tileset Reference of the tileset to pause animation
- * \param index Id of the animation to pause (0 <= id < num_animations)
- * \see Animations TLN_ResumeTilesetAnimation, TLN_GetTilesetNumAnimations
- */
 bool TLN_PauseTilesetAnimation(TLN_Tileset tileset, int index)
 {
 	return enableTilesetAnimation(tileset, index, true);
 }
 
-/*! \brief Restores animation for the given tileset
- * \param tileset Reference of the tileset to resume animation
- * \param index Id of the animation to resume (0 <= id < num_animations)
- * \see Animations TLN_PauseTilesetAnimation, TLN_GetTilesetNumAnimations
- */
 bool TLN_ResumeTilesetAnimation(TLN_Tileset tileset, int index)
 {
 	return enableTilesetAnimation(tileset, index, false);
 }
 
-/*!
- * \brief Pauses animation for the given sprite
- *
- * \param index Id of the sprite to pause animation (0 <= id < num_sprites)
- * \see Animations TLN_ResumeSpriteAnimation
- */
 bool TLN_PauseSpriteAnimation(int index)
 {
 	Sprite* sprite;
@@ -451,12 +345,6 @@ bool TLN_PauseSpriteAnimation(int index)
 	return true;
 }
 
-/*!
- * \brief Restores animation for the given sprite
- *
- * \param index Id of the sprite to resume animation (0 <= id < num_sprites)
- * \see Animations TLN_PauseSpriteAnimation
- */
 bool TLN_ResumeSpriteAnimation(int index)
 {
 	Sprite* sprite;
@@ -475,16 +363,6 @@ bool TLN_ResumeSpriteAnimation(int index)
 	return true;
 }
 
-/*!
- * \brief
- * Disables animation for the given sprite
- *
- * \param index
- * Id of the spriteto set (0 <= id < num_sprites)
- *
- * \see
- * Animations
- */
 bool TLN_DisableSpriteAnimation(int index)
 {
 	Sprite* sprite;
@@ -505,7 +383,6 @@ bool TLN_DisableSpriteAnimation(int index)
 	return true;
 }
 
-/* \deprecated */
 bool TLN_DisableAnimation(int index)
 {
 	return TLN_DisableSpriteAnimation(index);

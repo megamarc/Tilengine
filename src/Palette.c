@@ -15,16 +15,6 @@
 #include "Palette.h"
 #include "Tables.h"
 
-/*!
- * \brief
- * Creates a new color table
- * 
- * \param entries
- * Number of color entries (typically 256)
- * 
- * \returns
- * Reference to the created palette or NULL if error
- */
 TLN_Palette TLN_CreatePalette (int entries)
 {
 	TLN_Palette palette;
@@ -41,19 +31,6 @@ TLN_Palette TLN_CreatePalette (int entries)
 		return NULL;
 }
 
-/*!
- * \brief
- * Creates a duplicate of the specified palette
- * 
- * \param src
- * Reference to the palette to clone
- * 
- * \returns
- * A reference to the newly cloned palette, or NULL if error
- *
- * \see
- * TLN_CreatePalette()
- */
 TLN_Palette TLN_ClonePalette (TLN_Palette src)
 {
 	TLN_Palette palette;
@@ -71,16 +48,6 @@ TLN_Palette TLN_ClonePalette (TLN_Palette src)
 		return NULL;
 }
 
-/*!
- * \brief
- * Deletes the specified palette and frees memory
- * 
- * \param palette
- * Reference to the palette to delete
- * 
- * \remarks
- * Don't delete a palette currently attached to a layer or sprite!
- */
 bool TLN_DeletePalette (TLN_Palette palette)
 {
 	if (CheckBaseObject (palette, OT_PALETTE))
@@ -93,25 +60,6 @@ bool TLN_DeletePalette (TLN_Palette palette)
 		return false;
 }
 
-/*!
- * \brief
- * Sets the RGB color value of a palette entry
- * 
- * \param palette
- * Reference to the palette to modify
- * 
- * \param index
- * Index of the palette entry to modify (0-255)
- * 
- * \param r
- * Red component of the color (0-255)
- * 
- * \param g
- * Green component of the color (0-255)
- * 
- * \param b
- * Blue component of the color (0-255)
- */
 bool TLN_SetPaletteColor (TLN_Palette palette, int index, uint8_t r, uint8_t g, uint8_t b)
 {
 	if (CheckBaseObject (palette, OT_PALETTE) && index < palette->entries)
@@ -133,19 +81,6 @@ bool TLN_SetPaletteColor (TLN_Palette palette, int index, uint8_t r, uint8_t g, 
 		return false;
 }
 
-/*!
- * \brief
- * Returns the color value of a palette entry
- * 
- * \param palette
- * Reference to the palette to get the color
- * 
- * \param index
- * Index of the palette entry to obtain (0-255)
- * 
- * \returns
- * 32-bit integer with the packed color in internal pixel format RGBA
- */
 uint8_t* TLN_GetPaletteData (TLN_Palette palette, int index)
 {
 	if (!CheckBaseObject (palette, OT_PALETTE))
@@ -162,22 +97,6 @@ uint8_t* TLN_GetPaletteData (TLN_Palette palette, int index)
 	}
 }
 
-/*!
- * \brief
- * Mixes two palettes to create a third one
- * 
- * \param src1
- * Reference to the first source palette
- * 
- * \param src2
- * Reference to the second source palette
- * 
- * \param dst
- * Reference to the target palette
- * 
- * \param factor
- * Integer with mixing factor. 0=100% src1, 255=100% src2, 128=50%/50%
- */
 bool TLN_MixPalettes (TLN_Palette src1, TLN_Palette src2, TLN_Palette dst, uint8_t factor)
 {
 	int c;
@@ -248,92 +167,21 @@ static bool EditPaletteColor (TLN_Palette palette, uint8_t* blend_table, uint8_t
 	return true;
 }
 
-/*!
- * \brief
- * Modifies a range of colors by adding the provided color value to the selected range. The result is always a brighter color.
- * 
- * \param palette
- * Reference to the palette to modify
- * 
- * \param r
- * Red component of the color (0-255)
- * 
- * \param g
- * Green component of the color (0-255)
- * 
- * \param b
- * Blue component of the color (0-255)
- *
- * \param start
- * index of the first color entry to modify
- * 
- * \param num
- * number of colors from start to modify
- */
 bool TLN_AddPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b, uint8_t start, uint8_t num)
 {
 	return EditPaletteColor (palette, SelectBlendTable(BLEND_ADD), r,g,b, start,num);
 }
 
-/*!
- * \brief
- * Modifies a range of colors by subtracting the provided color value to the selected range. The result is always a darker color.
- * 
- * \param palette
- * Reference to the palette to modify
- * 
- * \param r
- * Red component of the color (0-255)
- * 
- * \param g
- * Green component of the color (0-255)
- * 
- * \param b
- * Blue component of the color (0-255)
- *
- * \param start
- * index of the first color entry to modify
- * 
- * \param num
- * number of colors from start to modify
- */
 bool TLN_SubPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b, uint8_t start, uint8_t num)
 {
 	return EditPaletteColor (palette, SelectBlendTable(BLEND_SUB), r,g,b, start,num);
 }
 
-/*!
- * \brief
- * Modifies a range of colors by modulating (normalized product) the provided color value to the selected range. The result is always a darker color.
- * 
- * \param palette
- * Reference to the palette to modify
- * 
- * \param r
- * Red component of the color (0-255)
- * 
- * \param g
- * Green component of the color (0-255)
- * 
- * \param b
- * Blue component of the color (0-255)
- *
- * \param start
- * index of the first color entry to modify
- * 
- * \param num
- * number of colors from start to modify
- */
 bool TLN_ModPaletteColor (TLN_Palette palette, uint8_t r, uint8_t g, uint8_t b, uint8_t start, uint8_t num)
 {
 	return EditPaletteColor (palette, SelectBlendTable(BLEND_MOD), r,g,b, start,num);
 }
 
-/*!
- * \brief Returns the number of color entries in the given palette
- * \param palette Reference to the palette to query
- * \returns number of color entries 
-*/
 int TLN_GetPaletteNumColors(TLN_Palette palette)
 {
 	if (!CheckBaseObject(palette, OT_PALETTE))
