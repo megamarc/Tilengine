@@ -366,14 +366,18 @@ bool TLN_CreateWindow (const char* overlay, int flags)
 	if (SDL_Init (SDL_INIT_VIDEO|SDL_INIT_JOYSTICK) != 0)
 		return false;
 
+#if defined __EMSCRIPTEN__
+	flags |= CWF_NEAREST;
+	flags &= ~CWF_FULLSCREEN;
+#endif
+
+	crt_params.enable = (flags & CWF_NEAREST) == 0;
+
 	/* fill parameters for window creation */
 	wnd_params.width = TLN_GetWidth ();
 	wnd_params.height = TLN_GetHeight ();
 	wnd_params.flags = flags|CWF_VSYNC;
 
-#if !defined __EMSCRIPTEN__
-	crt_params.enable = (wnd_params.flags & CWF_NEAREST) == 0;
-#endif
 	ok = create_window ();
 	if (ok)
 		instances++;
@@ -544,15 +548,15 @@ bool TLN_ProcessWindow (void)
 				break;
 
 			/* special inputs */
-			if (keybevt->keysym.sym == player_inputs[PLAYER1].keycodes[INPUT_QUIT])
-				done = true;
-			else if (keybevt->keysym.sym == player_inputs[PLAYER1].keycodes[INPUT_CRT])
+			if (keybevt->keysym.sym == player_inputs[PLAYER1].keycodes[INPUT_CRT])
 			{
 				crt_params.enable = !crt_params.enable;
 				SetupBackBuffer();
 				CRTSetRenderTarget(crt, backbuffer);
 			}
 #if !defined __EMSCRIPTEN__
+			if (keybevt->keysym.sym == player_inputs[PLAYER1].keycodes[INPUT_QUIT])
+				done = true;
 			else if (keybevt->keysym.sym == SDLK_RETURN && keybevt->keysym.mod & KMOD_ALT)
 			{
 				delete_window();
