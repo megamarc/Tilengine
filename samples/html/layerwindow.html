@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en-us">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tilengine layer windowing and clipping</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" href="assets/prism.css" />
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+
+<body>
+  <div style="background-color: #E0E0E0; padding: 8px;">
+    <center><img src="assets/logo.png" /></center>
+  </div>
+  <div class="container">
+    <h1>Tilengine layer windowing and clipping</h1>
+    <p>This example demonstrates the windowing feature introduced in release 2.14</p>
+<h2>Controls</h2>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Button X / <kbd>Z</kbd></td>
+<td>toggles window inversion</td>
+</tr>
+<tr>
+<td>Button A / <kbd>X</kbd></td>
+<td>toggles color processing</td>
+</tr>
+<tr>
+<td>Button Y / <kbd>C</kbd></td>
+<td>toggles color blending</td>
+</tr>
+<tr>
+<td>D-Pad / <kbd>cursors</kbd></td>
+<td>move window</td>
+</tr>
+</tbody>
+</table>
+
+    <p></p>
+    <figure style="overflow:visible;" id="spinner">
+      <div class="spinner"></div>
+    </figure>
+    <div class="emscripten" id="status">Downloading...</div>
+    <div class="emscripten">
+      <progress value="0" max="100" id="progress" hidden=1></progress>
+    </div>
+    <div>
+      <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+    </div>
+
+    <script type="text/javascript" src="assets/index.js"></script>
+    {{{ SCRIPT }}}
+
+    <p></p>
+    <h2>Source code</h2>
+    <pre
+      class="line-numbers"><code id="source-code" class="language-c" data-src="https://raw.githubusercontent.com/megamarc/Tilengine/refs/heads/master/samples/LayerWindow.c"></code></pre>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
+  <script src="assets/prism.js"></script>
+  <script src="assets/code-viewer.js"></script>
+</body>
+
+</html>
