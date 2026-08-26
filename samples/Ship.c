@@ -1,10 +1,13 @@
-#define _USE_MATH_DEFINES
 #include <stdlib.h>
 #include <math.h>
 #include "Shooter.h"
 #include "Ship.h"
 #include "Enemy.h"
 #include "Explosion.h"
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 /* ship data */
 typedef struct

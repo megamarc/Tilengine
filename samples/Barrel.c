@@ -9,12 +9,15 @@
 *
 ******************************************************************************/
 
-#define _USE_MATH_DEFINES
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include "Tilengine.h"
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 #define WIDTH		400
 #define HEIGHT		240
