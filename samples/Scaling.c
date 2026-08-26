@@ -102,9 +102,9 @@ static void main_loop(uint32_t frame)
 		ypos -= 1;
 	if (TLN_GetInput (INPUT_DOWN))
 		ypos += 1;
-	if (TLN_GetInput (INPUT_A) && scale < MAX_SCALE)
+	if (TLN_GetInput (INPUT_X) && scale < MAX_SCALE)
 		scale += 1;
-	if (TLN_GetInput (INPUT_B) && scale > MIN_SCALE)
+	if (TLN_GetInput (INPUT_A) && scale > MIN_SCALE)
 		scale -= 1;
 
 	/* calculate scale factor from fixed point base */

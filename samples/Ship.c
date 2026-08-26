@@ -116,7 +116,7 @@ void ShipTasks (Actor* actor)
 	}
 
 	/* shoot */
-	if (GetActorTimeout (actor, 1) && TLN_GetInput(INPUT_A))
+	if (GetActorTimeout (actor, 1) && TLN_GetInput(INPUT_X))
 	{
 		SetActorTimeout (actor, 1, 10);
 		CreateShot (TYPE_BLADEB, actor->x + 32, actor->y + rand()%10 - 5);

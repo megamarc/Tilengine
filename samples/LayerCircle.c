@@ -72,9 +72,9 @@ int main(int arg, char* argv[])
 static void main_loop(uint32_t frame)
 {
 	/* change radius */
-	if (TLN_GetInput(INPUT_BUTTON1) && radius > 2)
+	if (TLN_GetInput(INPUT_X) && radius > 2)
 		radius -= 2;
-	else if (TLN_GetInput(INPUT_BUTTON2))
+	else if (TLN_GetInput(INPUT_A))
 		radius += 2;
 
 	/* slide */

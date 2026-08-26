@@ -34,7 +34,7 @@ enum
 };
 
 static uint32_t _frame;
-int column[NUM_COLUMNS];
+static int column[NUM_COLUMNS];	/* offset for each column of tiles */
 
 static void raster_callback (int line);
 static void main_loop(uint32_t frame);
@@ -49,7 +49,7 @@ int main (int argc, char *argv[])
 	TLN_SetRasterCallback (raster_callback);
 	TLN_SetBGColor (0,0,0);
 
-	/* load resources*/
+	/* load resources & setup layers */
 	TLN_SetLoadPath ("assets/tf3");
 	foreground = TLN_LoadTilemap ("tf3_bg2.tmx", NULL);
 	background = TLN_LoadTilemap ("tf3_bg3.tmx", NULL);
@@ -83,14 +83,12 @@ static void raster_callback (int line)
 /* main loop delegate, called every frame */
 static void main_loop(uint32_t frame)
 {
-	int c;
-	
 	/* scroll */
 	TLN_SetLayerPosition (LAYER_FOREGROUND, frame*3, 0);
 	TLN_SetLayerPosition (LAYER_BACKGROUND, frame, 0);
 
 	/* update column offset table */
-	for (c = 0; c < NUM_COLUMNS; c += 1)
+	for (int c = 0; c < NUM_COLUMNS; c += 1)
 	{
 		int value = frame*5 + c*20;
 		float angle = (value * M_PI) / 180.0f;

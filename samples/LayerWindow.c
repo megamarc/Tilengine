@@ -70,11 +70,11 @@ int main(int arg, char* argv[])
 static void main_loop(uint32_t frame)
 {
 	TLN_Input input = get_press();
-	if (input == INPUT_BUTTON1)
+	if (input == INPUT_X)
 		state.invert ^= 1;
-	else if (input == INPUT_BUTTON2)
+	else if (input == INPUT_A)
 		state.color ^= 1;
-	else if (input == INPUT_BUTTON3)
+	else if (input == INPUT_Y)
 		state.blend ^= 1;
 
 	/* move window with d-pad */
