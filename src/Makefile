@@ -1,4 +1,4 @@
-CC       = gcc
+CC       ?= gcc
 SOURCES  = $(filter-out Test.c,$(wildcard *.c))
 OBJECTS  = $(SOURCES:.c=.o)
 INCPATH  = ../include
@@ -9,7 +9,8 @@ $(error This Makefile is not intended for Windows! Please use Visual Studio inst
 else
 	RM = rm -f
 	name := $(shell uname -s)
-	arch := $(shell uname -m)
+	
+	arch ?= $(shell uname -m)
 	
 	# Linux specific flags (i686, x64 and arm)
 	ifeq ($(name),Linux)
@@ -17,11 +18,15 @@ else
 		BIN  = libTilengine.so
 		LDFLAGS = -shared -s
 		LIBPATH = ../lib/linux_$(arch)
+		
 		ifeq ($(arch),i686)
 			CFLAGS = -m32 -msse2
 		endif
 		ifeq ($(arch),x86_64)
 			CFLAGS = -m64 -msse2
+		endif
+		ifeq ($(arch),armhf)
+			CFLAGS = -mfloat-abi=hard
 		endif
 	endif
 	
@@ -46,7 +51,7 @@ clean: clean-custom
 	${RM} $(OBJECTS) $(BIN) Test
 
 $(BIN): $(OBJECTS)
-	$(CC) -shared $(OBJECTS) -o $(BIN) $(LIBS) -fvisibility=hidden
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $(BIN) $(LIBS) -fvisibility=hidden
 	mkdir -p $(LIBPATH)
 	cp $(BIN) $(LIBPATH)
 

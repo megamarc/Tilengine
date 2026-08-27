@@ -1,0 +1,58 @@
+name: Unix cross-platform
+
+on:
+  push:
+    branches: [ "main", "master", "actions" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+    unix-builds:
+    name: Build Unix (${{ matrix.os }} - ${{ matrix.arch }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x86_64
+            make_env: ''
+            artifact: linux-x86_64
+
+          - os: ubuntu-latest
+            arch: i686
+            make_env: 'CC="gcc -m32"'
+            setup_cmd: 'sudo apt-get update && sudo apt-get install -y gcc-multilib libsdl2-dev:i386'
+            artifact: linux-i686
+
+          - os: ubuntu-latest
+            arch: armhf
+            make_env: 'CC=arm-linux-gnueabihf-gcc'
+            setup_cmd: 'sudo apt-get update && sudo apt-get install -y gcc-arm-linux-gnueabihf'
+            artifact: linux-armhf
+
+          - os: macos-latest
+            arch: x86_64-darwin
+            make_env: 'CC=clang'
+            artifact: macos-universal
+
+    steps:
+    - name: Download code
+      uses: actions/checkout@v4
+
+    - name: Setup dependencies
+      if: matrix.setup_cmd != ''
+      run: ${{ matrix.setup_cmd }}
+
+    - name: Build with make
+      run: make arch=${{ matrix.arch }} ${{ matrix.make_env }}
+      working-directory: src
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact }}
+        path: |
+          **/*.so
+          **/*.dylib
+        if-no-files-found: error
