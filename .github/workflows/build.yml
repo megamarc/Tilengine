@@ -10,55 +10,76 @@ jobs:
   unix-builds:
     name: Build Unix (${{ matrix.os }} - ${{ matrix.arch }})
     runs-on: ${{ matrix.os }}
-    container: ${{ matrix.container }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
             arch: x86_64
-            make_env: ''
+            is_docker: false
             setup_cmd: 'sudo apt-get update && sudo apt-get install -y libsdl2-dev libpng-dev'
+            build_cmd: 'make arch=x86_64'
             artifact: linux-x86_64
 
           - os: ubuntu-latest
             arch: i686
-            container: 
-              image: i386/debian:bookworm
-            make_env: 'CC=gcc'
+            is_docker: true
+            image: i386/debian:bookworm
+            # En entorno nativo de 32 bits no hace falta CC especial
             setup_cmd: 'apt-get update && apt-get install -y build-essential libsdl2-dev libpng-dev'
+            build_cmd: 'make arch=i686'
             artifact: linux-i686
 
           - os: ubuntu-latest
             arch: armhf
-            container: 
-              image: ubuntu:noble
-            make_env: 'CC=arm-linux-gnueabihf-gcc'
-            setup_cmd: |
-              dpkg --add-architecture armhf
-              sed -i 's/^deb /deb [arch=amd64,i386] /g' /etc/apt/sources.list.d/ubuntu.sources 2>/dev/null || sed -i 's/^deb /deb [arch=amd64,i386] /g' /etc/apt/sources.list
-              echo "deb [arch=armhf] http://ubuntu.com noble main universe" | tee /etc/apt/sources.list.d/armhf.list
-              apt-get update && apt-get install -y build-essential gcc-arm-linux-gnueabihf libsdl2-dev:armhf libpng-dev:armhf
+            is_docker: true
+            image: arm32v7/debian:bookworm
+            # En entorno nativo de ARM 32 bits (emulado vía QEMU) no hace falta CC cruzado
+            setup_cmd: 'apt-get update && apt-get install -y build-essential libsdl2-dev libpng-dev'
+            build_cmd: 'make arch=armhf'
             artifact: linux-armhf
 
           - os: macos-latest
             arch: x86_64-darwin
-            make_env: 'CC=clang'
+            is_docker: false
             setup_cmd: 'brew install sdl2 libpng'
+            build_cmd: 'make arch=x86_64-darwin CC=clang'
             artifact: macos-universal
 
     steps:
     - name: Download code
       uses: actions/checkout@v4
 
-    - name: Setup dependencies
-      if: matrix.setup_cmd != ''
+    # Paso requerido para que la máquina x86_64 pueda ejecutar el contenedor nativo de ARMv7
+    - name: Set up QEMU (Para soporte ARM nativo)
+      if: matrix.arch == 'armhf'
+      uses: docker/setup-qemu-action@v3
+
+    # --- COMPILACIÓN PARA ENTORNOS QUE CORREN EN EL HOST (x86_64 y macOS) ---
+    - name: Setup dependencies (Host)
+      if: matrix.is_docker == false
       run: ${{ matrix.setup_cmd }}
 
-    - name: Build with make
-      run: make arch=${{ matrix.arch }} ${{ matrix.make_env }}
+    - name: Build with make (Host)
+      if: matrix.is_docker == false
+      run: ${{ matrix.build_cmd }}
       working-directory: src
 
+    # --- COMPILACIÓN PARA ENTORNOS NATIVOS AISLADOS (i686 y armhf) ---
+    - name: Setup and Build (Docker Nativo)
+      if: matrix.is_docker == true
+      uses: docker://docker # Usamos una acción genérica que nos permite levantar la imagen de la matriz
+      with:
+        # Ejecutamos todo de corrido en su entorno aislado sin dependencias cruzadas de red de paquetes ni Node
+        entrypoint: docker
+        args: >-
+          run --rm
+          -v ${{ github.workspace }}:/workspace
+          -w /workspace/src
+          ${{ matrix.image }}
+          sh -c "${{ matrix.setup_cmd }} && ${{ matrix.build_cmd }}"
+
+    # --- SUBIDA DE ARTEFACTOS ---
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
