@@ -45,7 +45,12 @@ jobs:
       run: ${{ matrix.setup_cmd }}
 
     - name: Build with make
-      run: make arch=${{ matrix.arch }} ${{ matrix.make_env }}
+      run: |
+        echo "=== Directorio actual y contenido ==="
+        pwd
+        ls -R
+        echo "=== Ejecutando compilación ==="
+        make arch=${{ matrix.arch }} ${{ matrix.make_env }}      
       working-directory: src
 
     - name: Upload artifact
