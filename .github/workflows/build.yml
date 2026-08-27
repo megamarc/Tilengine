@@ -7,7 +7,7 @@ on:
     branches: [ "main", "master" ]
 
 jobs:
-    unix-builds:
+  unix-builds:
     name: Build Unix (${{ matrix.os }} - ${{ matrix.arch }})
     runs-on: ${{ matrix.os }}
     strategy:
