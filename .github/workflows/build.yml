@@ -17,23 +17,25 @@ jobs:
           - os: ubuntu-latest
             arch: x86_64
             make_env: ''
+            setup_cmd: 'sudo apt-get update && sudo apt-get install -y libsdl2-dev libpng-dev'
             artifact: linux-x86_64
 
           - os: ubuntu-latest
             arch: i686
             make_env: 'CC="gcc -m32"'
-            setup_cmd: 'sudo apt-get update && sudo apt-get install -y gcc-multilib libsdl2-dev:i386'
+            setup_cmd: 'sudo dpkg --add-architecture i386 && sudo apt-get update && sudo apt-get install -y gcc-multilib libsdl2-dev:i386 libpng-dev:i386'
             artifact: linux-i686
 
           - os: ubuntu-latest
             arch: armhf
             make_env: 'CC=arm-linux-gnueabihf-gcc'
-            setup_cmd: 'sudo apt-get update && sudo apt-get install -y gcc-arm-linux-gnueabihf'
+            setup_cmd: 'sudo apt-get update && sudo apt-get install -y gcc-arm-linux-gnueabihf libsdl2-dev:armhf libpng-dev:armhf'
             artifact: linux-armhf
 
           - os: macos-latest
             arch: x86_64-darwin
             make_env: 'CC=clang'
+            setup_cmd: 'brew install sdl2 libpng'
             artifact: macos-universal
 
     steps:
@@ -45,12 +47,7 @@ jobs:
       run: ${{ matrix.setup_cmd }}
 
     - name: Build with make
-      run: |
-        echo "=== Directorio actual y contenido ==="
-        pwd
-        ls -R
-        echo "=== Ejecutando compilación ==="
-        make arch=${{ matrix.arch }} ${{ matrix.make_env }}      
+      run: make arch=${{ matrix.arch }} ${{ matrix.make_env }}
       working-directory: src
 
     - name: Upload artifact
