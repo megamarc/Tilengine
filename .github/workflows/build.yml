@@ -10,6 +10,7 @@ jobs:
   unix-builds:
     name: Build Unix (${{ matrix.os }} - ${{ matrix.arch }})
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
     strategy:
       fail-fast: false
       matrix:
@@ -22,23 +23,22 @@ jobs:
 
           - os: ubuntu-latest
             arch: i686
-            make_env: 'CC="gcc -m32"'
-            setup_cmd: |
-              sudo dpkg --add-architecture i386
-              sudo apt-get update
-              sudo apt-get install -y gcc-multilib libsdl2-dev:i386 libpng-dev:i386
+            container: 
+              image: i386/debian:bookworm
+            make_env: 'CC=gcc'
+            setup_cmd: 'apt-get update && apt-get install -y build-essential libsdl2-dev libpng-dev'
             artifact: linux-i686
 
           - os: ubuntu-latest
             arch: armhf
+            container: 
+              image: ubuntu:noble
             make_env: 'CC=arm-linux-gnueabihf-gcc'
             setup_cmd: |
-              sudo dpkg --add-architecture armhf
-              sudo sed -i 's/^deb /deb [arch=amd64,i386] /g' /etc/apt/sources.list
-              echo "deb [arch=armhf] http://ports.ubuntu.com/ubuntu-ports $(lsb_release -cs) main universe" | sudo tee /etc/apt/sources.list.d/armhf.list
-              echo "deb [arch=armhf] http://ports.ubuntu.com/ubuntu-ports $(lsb_release -cs)-updates main universe" | sudo tee -a /etc/apt/sources.list.d/armhf.list
-              sudo apt-get update
-              sudo apt-get install -y gcc-arm-linux-gnueabihf libsdl2-dev:armhf libpng-dev:armhf
+              dpkg --add-architecture armhf
+              sed -i 's/^deb /deb [arch=amd64,i386] /g' /etc/apt/sources.list.d/ubuntu.sources 2>/dev/null || sed -i 's/^deb /deb [arch=amd64,i386] /g' /etc/apt/sources.list
+              echo "deb [arch=armhf] http://ubuntu.com noble main universe" | tee /etc/apt/sources.list.d/armhf.list
+              apt-get update && apt-get install -y build-essential gcc-arm-linux-gnueabihf libsdl2-dev:armhf libpng-dev:armhf
             artifact: linux-armhf
 
           - os: macos-latest
