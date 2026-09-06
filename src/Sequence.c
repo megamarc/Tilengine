@@ -18,33 +18,8 @@
 #include "Sequence.h"
 #include "Tilengine.h"
 #include "Object.h"
-#include "Hash.h"
+#include "crc32.h"
 
-/*!
- * \brief
- * Creates a new sequence for the animation engine
- * 
- * \param name
- * String with an unique name to query later
- * 
- * \param target
- * For tileset animations, the tile index to animate
- * 
- * \param count
- * Number of frames
- * 
- * \param frames
- * Array of TLN_Frame items with indexes and delays
- * 
- * \returns
- * Reference to the new sequence or NULL if error
- * 
- * \remarks
- * Use this function to create tileset or sprite animations
- * 
- * \see
- * TLN_SetTilemapAnimation(), TLN_SetSpriteAnimation()
- */
 TLN_Sequence TLN_CreateSequence (const char* name, int target, int count, TLN_SequenceFrame* frames)
 {
 	int size;
@@ -58,7 +33,7 @@ TLN_Sequence TLN_CreateSequence (const char* name, int target, int count, TLN_Se
 
 	if (name)
 	{
-		sequence->hash = hash(0, name, strlen(name));
+		sequence->hash = _crc32(0, name, strlen(name));
 		strncpy (sequence->name, name, sizeof(sequence->name));
 		sequence->name[sizeof(sequence->name) - 1] = '\0';
 	}
@@ -72,28 +47,6 @@ TLN_Sequence TLN_CreateSequence (const char* name, int target, int count, TLN_Se
 	return sequence;
 }
 
-/*!
- * \brief
- * Creates a color cycle sequence for palette animation
- * 
- * \param name
- * String with an unique name to query later
- * 
- * \param count
- * Number of color strips
- * 
- * \param strips
- * Array of color strips to assign
- * 
- * \returns
- * Reference to the created cycle or NULL if error
- * 
- * \remarks
- * Use this function to create advanced palette animation effects
- * 
- * \see
- * TLN_ColorStrip(), TLN_SetPaletteAnimation()
- */
 TLN_Sequence TLN_CreateCycle (const char* name, int count, TLN_ColorStrip* strips)
 {
 	int size, c;
@@ -108,7 +61,7 @@ TLN_Sequence TLN_CreateCycle (const char* name, int count, TLN_ColorStrip* strip
 
 	if (name)
 	{
-		sequence->hash = hash(0, name, strlen(name));
+		sequence->hash = _crc32(0, name, strlen(name));
 		strncpy (sequence->name, name, sizeof(sequence->name));
 		sequence->name[sizeof(sequence->name) - 1] = '\0';
 	}
@@ -130,24 +83,33 @@ TLN_Sequence TLN_CreateCycle (const char* name, int count, TLN_ColorStrip* strip
 	return sequence;
 }
 
-/*!
- * \see Creates a name based sprite sequence
- * 
- * \param name Optional name used to retrieve it when adding to a TLN_SequencePack, can be NULL
- * \param spriteset Reference to the spriteset with frames to animate
- * \param basename Base of the sprite name for the numbered sequence
- * \param count Number of frames in the animation
- * \param delay Number of ticks to delay between frame
- * \return Reference to the created TLN_Sequence object or NULL if error
-  */
-TLN_Sequence TLN_CreateSpriteSequence(const char* name, TLN_Spriteset spriteset, char* basename, int count, int delay)
+TLN_Sequence TLN_CreateSpriteSequence(const char* name, TLN_Spriteset spriteset, const char* basename, int delay)
 {
 	int size;
 	TLN_Sequence sequence;
 	TLN_SequenceFrame* frame;
-	int c, old;
+	int c;
+	int count = 0;
+	int index;
+	char framename[64];
 
 	if (!CheckBaseObject(spriteset, OT_SPRITESET))
+	{
+		TLN_SetLastError(TLN_ERR_REF_SPRITESET);
+		return NULL;
+	}
+
+	/* find number of frames */
+	do
+	{
+		snprintf(framename, sizeof(framename), "%s%d", basename, count + 1);
+		index = TLN_FindSpritesetSprite(spriteset, framename);
+		if (index != -1)
+			count += 1;
+	} while (index != -1);
+
+	/* noi matching frames found: exit */
+	if (count == 0)
 	{
 		TLN_SetLastError(TLN_ERR_REF_SPRITESET);
 		return NULL;
@@ -160,7 +122,7 @@ TLN_Sequence TLN_CreateSpriteSequence(const char* name, TLN_Spriteset spriteset,
 
 	if (name)
 	{
-		sequence->hash = hash(0, name, strlen(name));
+		sequence->hash = _crc32(0, name, strlen(name));
 		strncpy(sequence->name, name, sizeof(sequence->name));
 		sequence->name[sizeof(sequence->name) - 1] = '\0';
 	}
@@ -168,21 +130,10 @@ TLN_Sequence TLN_CreateSpriteSequence(const char* name, TLN_Spriteset spriteset,
 
 	/* build frames from sprite name */
 	frame = (TLN_SequenceFrame*)&sequence->data;
-	old = 0;
 	for (c = 0; c < count; c++)
 	{
-		int index;
-		char num[5];
-		char framename[64];
-
-		snprintf(num, sizeof(num), "%d", c + 1);
-		snprintf(framename, sizeof(framename), "%s%s", basename, num);
-		index = TLN_FindSpritesetSprite(spriteset, framename);
-		if (index != -1)
-			frame->index = index;
-		else
-			frame->index = old;
-		old = frame->index;
+		snprintf(framename, sizeof(framename), "%s%d", basename, c + 1);
+		frame->index = TLN_FindSpritesetSprite(spriteset, framename);
 		frame->delay = delay;
 		frame += 1;
 	}
@@ -191,19 +142,6 @@ TLN_Sequence TLN_CreateSpriteSequence(const char* name, TLN_Spriteset spriteset,
 	return sequence;
 }
 
-/*!
- * \brief
- * Creates a duplicate of the specified sequence
- * 
- * \param src
- * Sequence to clone
- * 
- * \returns
- * A reference to the newly cloned sequence, or NULL if error
- *
- * \see
- * TLN_FindSequence()
- */
 TLN_Sequence TLN_CloneSequence (TLN_Sequence src)
 {
 	TLN_Sequence sequence;
@@ -221,19 +159,6 @@ TLN_Sequence TLN_CloneSequence (TLN_Sequence src)
 		return NULL;
 }
 
-/*!
- * \brief
- * Returns runtime info about a given sequence
- * 
- * \param sequence
- * Sequence to query
- * 
- * \param info
- * Pointer to a user-provided TLN_SequenceInfo structure to hold the returned data
- *
- * \see
- * TLN_FindSequence()
- */
 bool TLN_GetSequenceInfo (TLN_Sequence sequence, TLN_SequenceInfo* info)
 {
 	if (CheckBaseObject (sequence, OT_SEQUENCE) && info != NULL)
@@ -247,16 +172,6 @@ bool TLN_GetSequenceInfo (TLN_Sequence sequence, TLN_SequenceInfo* info)
 		return false;
 }
 
-/*!
- * \brief
- * Deletes the sequence and frees resources
- * 
- * \param sequence
- * Reference to the sequence to be deleted
- * 
- * \remarks
- * Don't delete an active sequence!
- */
 bool TLN_DeleteSequence (TLN_Sequence sequence)
 {
 	if (CheckBaseObject (sequence, OT_SEQUENCE))

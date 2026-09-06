@@ -26,6 +26,7 @@ static const char* object_types[] =
 	"bitmap",
 	"sequence",
 	"sequence pack"
+	"object list",
 };
 
 static const TLN_Error object_errors[] =
@@ -38,6 +39,7 @@ static const TLN_Error object_errors[] =
 	TLN_ERR_REF_BITMAP,
 	TLN_ERR_REF_SEQUENCE,
 	TLN_ERR_REF_SEQPACK,
+	TLN_ERR_REF_LIST,
 };
 
 /* crea objecto */

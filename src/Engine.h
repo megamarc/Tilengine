@@ -11,38 +11,52 @@
 #ifndef _ENGINE_H
 #define _ENGINE_H
 
+#define NUM_PALETTES	8
+#define INTERNAL_FPS	60
+
 #include "Tilengine.h"
 #include "Sprite.h"
 #include "Layer.h"
 #include "Animation.h"
 #include "Bitmap.h"
 #include "Blitters.h"
+#include "List.h"
 
 /* motor */
 typedef struct Engine
 {
-	uint32_t	header;		/* object signature to identify as engine context */
-	uint8_t*	priority;	/* scanline que recibe los tiles con prioridad */
-	uint16_t*	collision;	/* scanline con IDs de colision de sprites */
-	uint8_t*	tmpindex;	/* indices temporales para capas transformadas con transparencia */
-	int			numsprites;	/* nº de sprites */
-	Sprite*		sprites;	/* puntero a los sprites */
-	int			numlayers;	/* nº de capas */
-	Layer*		layers;		/* puntero a las capas */
-	int			numanimations;
-	Animation*	animations;
-	bool		dopriority;
-	TLN_Error	error;		/* ultimo error */
-	TLN_LogLevel log_level;	/* logging level */
+	uint32_t	header;			/* object signature to identify as engine context */
+	uint32_t*	priority;		/* buffer receiving tiles with priority */
+	uint16_t*	collision;		/* buffer with sprite coverage IDs for per-pixel collision */
+	uint32_t*	linebuffer;		/* buffer for intermediate scanline output  */
+	int			numsprites;		/* number of sprites */
+	Sprite*		sprites;		/* pointer to sprite buffer */
+	int			numlayers;		/* number of layers */
+	Layer*		layers;			/* pointer to layer buffer */
+	int			numanimations;	/* number of animations */
+	Animation*	animations;		/* pointer to animation buffer */
+	bool		dopriority;		/* there is some data in "priority" buffer that need blitting */
+	TLN_Error	error;			/* last error code */
+	TLN_LogLevel log_level;		/* logging level */
 
-	uint32_t	bgcolor;	/* color de fondo */
-	TLN_Bitmap	bgbitmap;	/* bitmap de fondo */
-	TLN_Palette	bgpalette;	/* paleta de fondo */
-	ScanBlitPtr	blit_fast;	/* blitter para bitmap de fondo */
-	uint8_t*	mod_table;	/* tabla de modulacion */
-	void		(*raster)(int);
-	void		(*frame)(int);
-	int line;				/* línea actual */
+	uint32_t	bgcolor;		/* background color */
+	TLN_Bitmap	bgbitmap;		/* background bitmap */
+	TLN_Palette	bgpalette;		/* background bitmap palette */
+	TLN_Palette palettes[NUM_PALETTES];	/* optional global palettes */
+	ScanBlitPtr	blit_fast;		/* blitter for background bitmap */
+	uint8_t*	blend_table;	/* current blending table */
+	TLN_VideoCallback cb_raster;/* raster callback */
+	TLN_VideoCallback cb_frame;	/* frame callback */
+	int			frame;			/* current frame number */
+	int			line;			/* current scanline */
+	int			target_fps;
+
+	List list_sprites;			/* linked list active of sprites */
+	List list_animations;		/* linked list active of animations */
+	int sprite_mask_top;		/* top scanline for sprite masking */
+	int sprite_mask_bottom;		/* bottom scanline for sprite masking */
+	int xworld, yworld;			/* world coordinates with TLN_SetWorldPosition() */
+	bool dirty;					/* world position updated since last draw */
 
 	struct
 	{
@@ -60,6 +74,6 @@ extern Engine* engine;
 extern void tln_trace(TLN_LogLevel log_level, const char* format, ...);
 
 #define GetFramebufferLine(line) \
-	(engine->framebuffer.data + (line*engine->framebuffer.pitch))
+	(uint32_t*)(engine->framebuffer.data + (line*engine->framebuffer.pitch))
 
 #endif

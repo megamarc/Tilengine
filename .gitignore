@@ -20,19 +20,34 @@ Win32_Debug/
 Win32_Release/
 x64_Debug/
 x64_Release/
+build/
 *.pyc
 *.exe
+*.dll
+*.htm
+*.so
+*.dylib
+*.a
+upload.sh
 
+docs/
+lib/
+web/
 docs/screens/
 samples/assets/mslug/
 samples/assets/sunny_land/
 samples/c/*.dll
 samples/csharp/*.dll
+samples/SDL2
+samples/wasm
+src/sdl
+src/libpng/
 
 # deploy packages
 *.zip
 *.gz
 *.bz2
+.luajit-src/
 
 # Visual Studio specific
 Debug/

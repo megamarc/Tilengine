@@ -15,29 +15,29 @@
 #include "Sprite.h"
 #include "simplexml.h"
 #include "LoadFile.h"
+#include "LoadTMX.h"
 
+/* properties */
 typedef enum
 {
-	LS_IDLE,	/* waiting for start */
-	LS_ACTIVE,	/* loading underway */
-	LS_DONE,	/* loading done, ignore everything */
+	PROPERTY_NONE,
+	PROPERTY_TYPE,
+	PROPERTY_PRIORITY,
 }
-LoadState;
+Property;
 
 /* load manager */
 struct
 {
-	char layer_name[64];		/* name of layer to load */
-	LoadState state;
-	int firstgid;
-	int width;
-	int height;
-	int tilewidth;
-	int tileheight;
+	TMXLayer* layer;
+	bool state;
 	TLN_ObjectList objects;
 	TLN_Object object;
+	Property property;			/* current property */
 }
 static loader;
+
+static bool CloneObjectToList(TLN_ObjectList list, TLN_Object* data);
 
 /* XML parser callback */
 static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
@@ -47,46 +47,36 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 	switch (evt)
 	{
 	case ADD_SUBTAG:
-		if (!strcasecmp(szName, "map"))
-			return handler;
-
-		else if (loader.state == LS_IDLE && !strcasecmp(szName, "objectgroup"))
-			return handler;
-		
-		/* create new object and add to list */
-		else if (loader.state == LS_ACTIVE && !strcasecmp(szName, "object"))
+		if (!strcasecmp(szName, "object"))
 		{
-			return handler;
+			memset(&loader.object, 0, sizeof(struct _Object));
+			loader.object.visible = true;
 		}
-		return NULL;
+		break;
 
 	case ADD_ATTRIBUTE:
 
 		intvalue = atoi(szValue);
-		if (!strcasecmp(szName, "map"))
+		if (!strcasecmp(szName, "objectgroup") && (!strcasecmp(szAttribute, "name")))
 		{
-			if (!strcasecmp(szAttribute, "width"))
-				loader.width = intvalue;
-			else if (!strcasecmp(szAttribute, "height"))
-				loader.height = intvalue;
-			else if (!strcasecmp(szAttribute, "tilewidth"))
-				loader.tilewidth = intvalue;
-			else if (!strcasecmp(szAttribute, "tileheight"))
-				loader.tileheight = intvalue;
-		}
-
-		else if (!strcasecmp(szName, "objectgroup") && !strcasecmp(szAttribute, "name"))
-		{
-			if (loader.layer_name[0] == 0 || !strcasecmp(szValue, loader.layer_name))
-				loader.state = LS_ACTIVE;
+			if (!strcasecmp(szValue, loader.layer->name))
+				loader.state = true;
+			else
+				loader.state = false;
 		}
 
 		else if (!strcasecmp(szName, "object"))
 		{
 			if (!strcasecmp(szAttribute, "id"))
-				loader.object.gid = intvalue;
+				loader.object.id = intvalue;
 			else if (!strcasecmp(szAttribute, "gid"))
-				loader.object.gid = intvalue - loader.firstgid;
+			{
+				Tile tile;
+				tile.value = strtoul(szValue, NULL, 0);
+				loader.object.has_gid = true;
+				loader.object.flags = tile.flags;
+				loader.object.gid = tile.index;
+			}
 			else if (!strcasecmp(szAttribute, "x"))
 				loader.object.x = intvalue;
 			else if (!strcasecmp(szAttribute, "y"))
@@ -95,27 +85,62 @@ static void* handler(SimpleXmlParser parser, SimpleXmlEvent evt,
 				loader.object.width = intvalue;
 			else if (!strcasecmp(szAttribute, "height"))
 				loader.object.height = intvalue;
+			else if (!strcasecmp(szAttribute, "type"))
+				loader.object.type = intvalue;
+			else if (!strcasecmp(szAttribute, "visible"))
+				loader.object.visible = (bool)intvalue;
+			else if (!strcasecmp(szAttribute, "name"))
+				strncpy(loader.object.name, szValue, sizeof(loader.object.name));
+		}
+
+		/* <property name="type" type="int" value="12"/> */
+		else if (!strcasecmp(szName, "property"))
+		{
+			if (!strcasecmp(szAttribute, "name"))
+			{
+				if (!strcasecmp(szValue, "priority"))
+					loader.property = PROPERTY_PRIORITY;
+				else
+					loader.property = PROPERTY_NONE;
+			}
+			else if (!strcasecmp(szAttribute, "value"))
+			{
+				if (loader.property == PROPERTY_PRIORITY)
+				{
+					if (!strcasecmp(szValue, "true"))
+						loader.object.flags += FLAG_PRIORITY;
+				}
+			}
 		}
 		break;
 
 	case FINISH_ATTRIBUTES:
-		if (!strcasecmp(szName, "objectgroup"))
+		if (loader.state == true)
 		{
-			/* create */
-			loader.width *= loader.tilewidth;
-			loader.height *= loader.tileheight;
-			loader.objects = TLN_CreateObjectList();
+			if (!strcasecmp(szName, "objectgroup"))
+			{
+				loader.objects = TLN_CreateObjectList();
+				loader.objects->id = loader.layer->id;
+				loader.objects->visible = loader.layer->visible;
+			}
 		}
-		else if (!strcasecmp(szName, "object"))
-			TLN_AddObjectToList(loader.objects, &loader.object);
 		break;
 
 	case ADD_CONTENT:
 		break;
 
 	case FINISH_TAG:
-		if (!strcasecmp(szName, "objectgroup"))
-			loader.state = LS_DONE;
+		if (loader.state == true)
+		{
+			if (!strcasecmp(szName, "objectgroup"))
+				loader.state = false;
+			else if (!strcasecmp(szName, "object"))
+			{
+				if (loader.object.has_gid)
+					loader.object.y -= loader.object.height;
+				CloneObjectToList(loader.objects, &loader.object);
+			}
+		}
 		break;
 	}
 	return handler;
@@ -126,12 +151,6 @@ static bool intersetcs(rect_t* rect1, rect_t* rect2)
 	return !(rect1->x2 < rect2->x1 || rect1->x1 > rect2->x2 || rect1->y2 < rect2->y1 || rect1->y1 > rect2->y2);
 }
 
-/*!
- * \brief Creates a TLN_ObjectList
- * The list is created empty, it must be populated with TLN_AddSpriteToList()
- * and assigned to a layer with TLN_SetLayerObjects()
- * \return Reference to new object or NULL if error
- */
 TLN_ObjectList TLN_CreateObjectList(void)
 {
 	TLN_ObjectList list = NULL;
@@ -142,6 +161,7 @@ TLN_ObjectList TLN_CreateObjectList(void)
 	if (!list)
 		return NULL;
 
+	list->visible = true;
 	TLN_SetLastError(TLN_ERR_OK);
 	return list;
 }
@@ -155,6 +175,7 @@ static void add_to_list(TLN_ObjectList list, struct _Object* object)
 		list->last->next = object;
 	list->last = object;
 	list->num_items += 1;
+	object->next = NULL;
 }
 
 /*!
@@ -163,7 +184,7 @@ static void add_to_list(TLN_ObjectList list, struct _Object* object)
  * \param data Pointer to a user-provided TLN_Object. This object is internally copied to the list, so it's safe to discard the user-provided one after addition.
  * \return true if success or false if error
  */
-bool TLN_AddObjectToList(TLN_ObjectList list, TLN_Object* data)
+static bool CloneObjectToList(TLN_ObjectList list, TLN_Object* data)
 {
 	struct _Object* object;
 
@@ -171,79 +192,60 @@ bool TLN_AddObjectToList(TLN_ObjectList list, TLN_Object* data)
 		return false;
 
 	object = (struct _Object*)calloc(1, sizeof(struct _Object));
-	memcpy(&object->data, data, sizeof(TLN_Object));
+	if (object == NULL)
+		return false;
+
+	memcpy(object, data, sizeof(struct _Object));
 	add_to_list(list, object);
 	return true;
 }
 
-/*!
- * \brief Adds a named sprite from a TLN_Spriteset object to a given TLN_ObjectList
- * 
- * \param list Reference to TLN_ObjectList
- * \param spriteset Reference to the TLN_Spriteset that contains the sprite to add
- * \param name Name of the sprite inside the spriteset to add to the list
- * \param id User-provided unique identifier to identify the object later when querying the list
- * \param x Layer-space horizontal coordinate of the top-left corner
- * \param y Layer-space bertical coordinate of the top-left corner
- * \return true if success or false if error
- */
-bool TLN_AddSpriteToList(TLN_ObjectList list, TLN_Spriteset spriteset, const char* name, int id, int x, int y)
+bool TLN_AddTileObjectToList(TLN_ObjectList list, uint16_t id, uint16_t gid, uint16_t flags, int x, int y)
 {
 	struct _Object* object;
-	int index;
 
-	if (!CheckBaseObject(list, OT_OBJECTLIST) || !CheckBaseObject(spriteset, OT_SPRITESET))
-		return false;
-
-	index = TLN_FindSpritesetSprite(spriteset, name);
-	if (index == -1)
+	if (!CheckBaseObject(list, OT_OBJECTLIST))
 		return false;
 
 	object = (struct _Object*)calloc(1, sizeof(struct _Object));
-	object->sprite = &spriteset->data[index];
-	object->data.x = x;
-	object->data.y = y;
-	object->data.width = object->sprite->w;
-	object->data.height = object->sprite->h;
-	object->data.gid = index;
-	object->data.id = id;
+	if (object == NULL)
+		return false;
+
+	object->gid = gid;
+	object->x = x;
+	object->y = y;
 	add_to_list(list, object);
 	return true;
 }
 
-/*!
- * \brief Loads an object list from a Tiled object layer
- * 
- * \param filename Name of the .tmx file containing the list
- * \param layername Name of the layer to load
- * \param firstgid First graphic id (gid) of the tileset used by layer, must match Tiled value!
- * \return Reference to the loaded object or NULL if error
- */
-TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername, int firstgid)
+TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername)
 {
 	SimpleXmlParser parser;
 	ssize_t size;
 	uint8_t *data;
+	TMXInfo tmxinfo = { 0 };
 
-	/* load file */
-	data = (uint8_t*)LoadFile(filename, &size);
-	if (!data)
+	/* load map info */
+	if (!TMXLoad(filename, &tmxinfo))
 	{
-		if (size == 0)
-			TLN_SetLastError(TLN_ERR_FILE_NOT_FOUND);
-		else if (size == -1)
-			TLN_SetLastError(TLN_ERR_OUT_OF_MEMORY);
+		TLN_SetLastError(TLN_ERR_FILE_NOT_FOUND);
+		return NULL;
+	}
+		
+	/* get target layer */
+	memset(&loader, 0, sizeof(loader));
+	if (layername)
+		loader.layer = TMXGetLayer(&tmxinfo, layername);
+	else
+		loader.layer = TMXGetFirstLayer(&tmxinfo, LAYER_OBJECT);
+	if (loader.layer == NULL)
+	{
+		TLN_SetLastError(TLN_ERR_FILE_NOT_FOUND);
 		return NULL;
 	}
 
 	/* parse */
-	memset(&loader, 0, sizeof(loader));
-	loader.firstgid = firstgid;
-	if (layername)
-	{
-		strncpy(loader.layer_name, layername, sizeof(loader.layer_name));
-		loader.layer_name[sizeof(loader.layer_name) - 1] = '\0';
-	}
+	data = (uint8_t*)LoadFile(filename, &size);
 	parser = simpleXmlCreateParser((char*)data, (long)size);
 	if (parser != NULL)
 	{
@@ -261,15 +263,56 @@ TLN_ObjectList TLN_LoadObjectList(const char* filename, const char* layername, i
 
 	simpleXmlDestroyParser(parser);
 	free(data);
+
+	if (loader.objects != NULL)
+	{
+		TMXTileset* tmxtileset;
+		struct _Object* item;
+		int gid = 0;
+		int c;
+
+		/* find suitable tileset */
+		item = loader.objects->list;
+		while (item != NULL && gid == 0)
+		{
+			if (item->gid > 0)
+				gid = item->gid;
+			item = item->next;
+		}
+
+		/* load referenced tilesets */
+		TLN_Tileset tilesets[TMX_MAX_TILESET] = { 0 };
+		for (c = 0; c < tmxinfo.num_tilesets; c += 1)
+			tilesets[c] = TLN_LoadTileset(tmxinfo.tilesets[c].source);
+
+		int suitable = TMXGetSuitableTileset(&tmxinfo, gid, tilesets);
+		tmxtileset = &tmxinfo.tilesets[suitable];
+
+		/* correct with firstgid */
+		item = loader.objects->list;
+		while (item != NULL)
+		{
+			if (item->gid > 0)
+				item->gid = item->gid - tmxtileset->firstgid;
+			item = item->next;
+		}
+
+		/* delete unused tilesets */
+		for (c = 0; c < tmxinfo.num_tilesets; c += 1)
+		{
+			if (c != suitable)
+				TLN_DeleteTileset(tilesets[c]);
+		}
+
+		TLN_Tileset tileset = tilesets[suitable];
+		loader.objects->tileset = tileset;
+		loader.objects->width = tmxinfo.width*tmxinfo.tilewidth;
+		loader.objects->height = tmxinfo.height*tmxinfo.tileheight;
+	}
 	
 	return loader.objects;
 }
 
-/*!
- * \brief Creates a duplicate of a given TLN_ObjectList object
-  * \param src Reference to the source object to clone
- * \return A reference to the newly cloned object list, or NULL if error
- */
 TLN_ObjectList TLN_CloneObjectList(TLN_ObjectList src)
 {
 	TLN_ObjectList list;
@@ -282,67 +325,76 @@ TLN_ObjectList TLN_CloneObjectList(TLN_ObjectList src)
 	object = src->list;
 	while (object != NULL)
 	{
-		TLN_AddObjectToList(list, &object->data);
+		CloneObjectToList(list, object);
 		object = object->next;
 	}
+	list->iterator = NULL;
 	return list;
 }
 
-/*!
- * \brief Returns a list of the objects contained inside the given rectangle
- * 
- * \param list Reference to the TLN_ObjectList to query
- * \param x Horizontal position of top-left corner
- * \param y Vertical position of top-left corner
- * \param width Rectangle width
- * \param height Rectangle
- * \param array_size Size of user-provided pointer array to receive objects
- * \param objects User-provided array of TLN_Object pointers
- * \return Number of objects found. It can be greater of array_size
- */
-int TLN_GetObjectsInReigion(TLN_ObjectList list, int x, int y, int width, int height, int array_size, TLN_Object* objects[])
+int TLN_GetListNumObjects(TLN_ObjectList list)
 {
-	struct _Object* object;
-	int current = 0;
-	rect_t rect1;
+	if (CheckBaseObject(list, OT_OBJECTLIST))
+	{
+		TLN_SetLastError(TLN_ERR_OK);
+		return list->num_items;
+	}
+	else
+	{
+		TLN_SetLastError(TLN_ERR_REF_LIST);
+		return 0;
+	}
+}
+
+bool TLN_GetListObject(TLN_ObjectList list, TLN_ObjectInfo* info)
+{
+	struct _Object* item;
 	if (!CheckBaseObject(list, OT_OBJECTLIST))
+	{
+		TLN_SetLastError(TLN_ERR_REF_LIST);
+		return false;
+	}
+
+	/* start iterator */
+	if (info != NULL)
+	{
+		list->iterator = list->list;
+		list->info = info;
+	}
+
+	if (list->iterator == NULL)
 		return false;
 
-	MakeRect(&rect1, x, y, width, height);
-	object = list->list;
-	while (object != NULL)
-	{
-		rect_t rect2;
-		TLN_Object* data = &object->data;
-		MakeRect(&rect2, data->x, data->y, data->width, data->height);
-		if (intersetcs(&rect1, &rect2))
-		{
-			if (current < array_size)
-				objects[current] = data;
-			current += 1;
-		}
-		object = object->next;
-	}
-	return current;
+	/* copy info */
+	item = list->iterator;
+	info = list->info;
+	info->id = item->id;
+	info->gid = item->gid;
+	info->flags = item->flags;
+	info->x = item->x;
+	info->y = item->y;
+	info->width = item->width;
+	info->height = item->height;
+	info->type = item->type;
+	info->visible = item->visible;
+	if (item->name[0])
+		strncpy(info->name, item->name, sizeof(info->name));
+
+	/* advance */
+	list->iterator = item->next;
+	return true;
 }
 
 bool IsObjectInLine(struct _Object* object, int x1, int x2, int y)
 {
 	rect_t rect;
-	TLN_Object* data = &object->data;
-	MakeRect(&rect, data->x, data->y, data->width, data->height);
+	MakeRect(&rect, object->x, object->y, object->width, object->height);
 	if (y >= rect.y1 && y < rect.y2 && !(x1 > rect.x2 || x2 < rect.x1))
 		return true;
 	else
 		return false;
 }
 
-/*!
- * \brief Deletes object list
- * 
- * \param list Reference to list to delete
-* \return true if success or false if error
- */
 bool TLN_DeleteObjectList(TLN_ObjectList list)
 {
 	struct _Object* object;

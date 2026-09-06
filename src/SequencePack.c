@@ -12,18 +12,8 @@
 #include <stdlib.h>
 #include "SequencePack.h"
 #include "Object.h"
-#include "Hash.h"
+#include "crc32.h"
 
-/*!
- * \brief
- * Creates a new collection of sequences
- * 
- * \returns
- * Reference to the created pack or NULL if error
- * 
- * \see
- * TLN_AddSequenceToPack(), TLN_CreateSequence()
- */
 TLN_SequencePack TLN_CreateSequencePack (void)
 {
 	TLN_SequencePack sp;
@@ -35,22 +25,6 @@ TLN_SequencePack TLN_CreateSequencePack (void)
 	return sp;
 }
 
-/*!
- * \brief
- * Adds a sequence to a sequence pack
- * 
- * \param sp
- * Reference to the sequence pack
- * 
- * \param sequence
- * Reference to the sequence to attach
- * 
- * \remarks
- * Write remarks for TLN_AddSequenceToPack here.
- * 
- * \see
- * TLN_CreateSequencePack(), TLN_CreateSequence()
- */
 bool TLN_AddSequenceToPack (TLN_SequencePack sp, TLN_Sequence sequence)
 {
 	if (!CheckBaseObject (sp, OT_SEQPACK) || !CheckBaseObject (sequence, OT_SEQUENCE))
@@ -69,13 +43,6 @@ bool TLN_AddSequenceToPack (TLN_SequencePack sp, TLN_Sequence sequence)
 	return true;
 }
 
-/*!
- * \brief
- * Returns the number of sequences inside a sequence pack
- * 
- * \param sp
- * Reference to the sequence pack to query
- */
 int TLN_GetSequencePackCount (TLN_SequencePack sp)
 {
 	if (!CheckBaseObject (sp, OT_SEQPACK))
@@ -85,19 +52,6 @@ int TLN_GetSequencePackCount (TLN_SequencePack sp)
 	return sp->num_sequences;
 }
 
-/*!
- * \brief
- * Returns the nth sequence inside a sequence pack
- * 
- * \param sp
- * Reference to the sequence pack containing the sequence to find
- * 
- * \param index
- * Sequence number to return [0, num_sequences - 1]
- * 
- * \see
- * TLN_LoadSequencePack(), TLN_GetSequencePackCount()
- */
 TLN_Sequence TLN_GetSequence (TLN_SequencePack sp, int index)
 {
 	TLN_Sequence sequence;
@@ -120,26 +74,10 @@ TLN_Sequence TLN_GetSequence (TLN_SequencePack sp, int index)
 	return sequence;
 }
 
-/*!
- * \brief
- * Finds a sequence inside a sequence pack
- * 
- * \param sp
- * Reference to the sequence pack containing the sequence to find
- * 
- * \param name
- * Name of the sequence to find
- * 
- * \returns
- * Reference to the sequence with the specified name, or NULL if not found
- * 
- * \see
- * TLN_LoadSequencePack()
- */
 TLN_Sequence TLN_FindSequence (TLN_SequencePack sp, const char* name)
 {
 	TLN_Sequence sequence;
-	hash_t find;
+	uint32_t find;
 
 	if (!CheckBaseObject (sp, OT_SEQPACK))
 		return NULL;
@@ -151,7 +89,7 @@ TLN_Sequence TLN_FindSequence (TLN_SequencePack sp, const char* name)
 	}
 
 	/* recorre lista */
-	find = hash(0, name, strlen(name));
+	find = _crc32(0, name, strlen(name));
 	sequence = sp->sequences;
 	while (sequence != NULL)
 	{
@@ -168,20 +106,6 @@ TLN_Sequence TLN_FindSequence (TLN_SequencePack sp, const char* name)
 	return NULL;
 }
 
-/*!
- * \brief
- * Deletes the specified sequence pack and frees memory
- * 
- * \param sp
- * Reference to the sequence pack to delete
- * 
- * \remarks
- * Don't delete a sequence pack that has sequences currently attached to animations!
- * The attached sequences are also deleted, so they haven't to be deleted externally.
- *
- * \see
- * TLN_LoadSequencePack()
- */
 bool TLN_DeleteSequencePack (TLN_SequencePack sp)
 {
 	if (!CheckBaseObject (sp, OT_SEQPACK))
