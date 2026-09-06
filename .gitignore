@@ -33,12 +33,15 @@ upload.sh
 docs/
 lib/
 web/
-libpng/
 docs/screens/
 samples/assets/mslug/
 samples/assets/sunny_land/
 samples/c/*.dll
 samples/csharp/*.dll
+samples/SDL2
+samples/wasm
+src/sdl
+src/libpng/
 
 # deploy packages
 *.zip

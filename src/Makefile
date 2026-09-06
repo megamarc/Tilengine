@@ -1,5 +1,5 @@
 CC       = gcc
-SOURCES  = $(filter-out Test.c,$(wildcard *.c)) libretro/libretro.c
+SOURCES  = $(filter-out Test.c Window.c,$(wildcard *.c)) libretro/libretro.c
 OBJECTS  = $(SOURCES:.c=.o)
 INCPATH  = ../include
 TARGET   = tilengine_libretro
